@@ -209,5 +209,26 @@ The chatbot must not invent or confirm information about:
 - Guarantees
 - Any policy not explicitly verified by the WeMentors team
 
+### What subjects are offered?
+
+Academic subjects and programs include:
+
+- Mathematics
+- Science
+- English
+- Environmental Studies
+- All core subjects
+- Board preparation
+- Doubt-solving sessions
+- Practical learning activities
+
+### What is the Confident Speaker program?
+
+The Spoken English program includes:
+
+- Spoken English
+- Public Speaking
+- Interview Skills
+
 If information is uncertain, the chatbot should direct the visitor
 to the WeMentors team.
