@@ -339,17 +339,49 @@
 </style>
 
 <style id="chatbot-styles">
-#chatbotToggle{position:fixed;right:24px;bottom:24px;z-index:1000;border:0;border-radius:999px;padding:14px 18px;background:#111827;color:#fff;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.18)}
-#chatbotPanel{position:fixed;right:24px;bottom:82px;width:min(360px,calc(100vw - 32px));height:460px;z-index:1000;background:#fff;border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 12px 36px rgba(0,0,0,.2);display:none;flex-direction:column;overflow:hidden}
-#chatbotHeader{padding:12px 16px;background:#111827;color:#fff;font-weight:700;display:flex;align-items:center;justify-content:space-between;gap:10px}
-#chatbotClear{padding:6px 10px;border:1px solid rgba(255,255,255,.45);border-radius:6px;background:transparent;color:#fff;font-size:12px;cursor:pointer}
-#chatbotMessages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
-.chatbot-message{max-width:85%;padding:10px 12px;border-radius:12px;line-height:1.4;font-size:14px;white-space:pre-wrap}
-.chatbot-user{align-self:flex-end;background:#e5e7eb;color:#111827}
-.chatbot-assistant{align-self:flex-start;background:#f3f4f6;color:#111827}
-#chatbotForm{display:flex;gap:8px;padding:12px;border-top:1px solid #e5e7eb}
-#chatbotInput{min-width:0;flex:1;padding:10px;border:1px solid #d1d5db;border-radius:8px}
-#chatbotForm button{padding:10px 14px;border:0;border-radius:8px;background:#111827;color:#fff;cursor:pointer}
+#chatbotToggle{position:fixed;right:24px;bottom:88px;z-index:1000;display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;padding:13px 18px;background:var(--ink-800);color:#fff;cursor:pointer;box-shadow:var(--shadow-card);font-family:var(--font-body);font-size:.9rem;font-weight:600;transition:transform .2s ease, background .2s ease, box-shadow .2s ease}
+#chatbotToggle:hover{transform:scale(1.03);background:var(--ink-900)}
+#chatbotToggle:active{transform:scale(.98)}
+#chatbotToggle[aria-expanded="true"]{background:var(--ink-900)}
+#chatbotPanel{position:fixed;right:24px;bottom:148px;width:min(380px,calc(100vw - 24px));height:min(540px,calc(100vh - 180px));z-index:1000;background:#fff;border:1px solid var(--ink-100);border-radius:var(--radius);box-shadow:var(--shadow-card);display:flex;flex-direction:column;overflow:hidden;opacity:0;transform:translateY(12px) scale(.98);pointer-events:none;visibility:hidden;transform-origin:bottom right;transition:opacity .22s ease, transform .22s ease, visibility .22s ease}
+#chatbotPanel.open{opacity:1;transform:translateY(0) scale(1);pointer-events:auto;visibility:visible}
+#chatbotPanel[hidden]{display:none !important}
+#chatbotPanel.open{display:flex !important}
+#chatbotHeader{padding:14px 16px;background:var(--ink-900);color:#fff;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.chatbot-header-copy{display:flex;flex-direction:column;gap:2px;min-width:0}
+.chatbot-header-title{font-family:var(--font-display);font-size:1.05rem;font-weight:500}
+.chatbot-header-status{font-family:var(--font-body);font-size:.72rem;color:var(--gold-300);font-weight:500}
+.chatbot-header-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+#chatbotClear,#chatbotClose{padding:6px 10px;border:1px solid rgba(255,255,255,.35);border-radius:999px;background:transparent;color:#fff;font-size:12px;cursor:pointer;transition:background .15s ease, border-color .15s ease}
+#chatbotClear:hover,#chatbotClose:hover{background:rgba(255,255,255,.08);border-color:var(--gold-400)}
+#chatbotMessages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:var(--mist)}
+.chatbot-message{max-width:86%;padding:10px 13px;border-radius:16px;line-height:1.45;font-size:.88rem;white-space:pre-wrap;animation:chatIn .22s ease}
+.chatbot-user{align-self:flex-end;background:var(--ink-800);color:#fff;border-bottom-right-radius:6px}
+.chatbot-assistant{align-self:flex-start;background:#fff;color:var(--ink-800);border:1px solid var(--ink-100);border-bottom-left-radius:6px;box-shadow:var(--shadow-soft)}
+.chatbot-message.error{border-color:#f1c4c4;background:#fef2f2;color:#9b1c1c}
+.chatbot-suggestions{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.chatbot-chip{border:1px solid var(--ink-200);background:#fff;color:var(--ink-700);border-radius:999px;padding:7px 12px;font-size:.75rem;font-weight:600;cursor:pointer;transition:border-color .15s ease, background .15s ease}
+.chatbot-chip:hover{border-color:var(--gold-400);background:var(--gold-100);color:var(--ink-900)}
+#chatbotForm{display:flex;gap:8px;padding:12px;border-top:1px solid var(--ink-100);background:#fff}
+#chatbotInput{min-width:0;flex:1;padding:11px 14px;border:1px solid var(--ink-200);border-radius:12px;font-family:inherit;font-size:.88rem;color:var(--ink-900)}
+#chatbotInput:focus{outline:none;border-color:var(--gold-400);box-shadow:0 0 0 3px var(--gold-100)}
+#chatbotForm button[type="submit"]{padding:11px 16px;border:0;border-radius:12px;background:var(--ink-800);color:#fff;cursor:pointer;font-weight:600;transition:transform .15s ease, background .15s ease}
+#chatbotForm button[type="submit"]:hover{background:var(--ink-900)}
+#chatbotForm button[type="submit"]:active{transform:scale(.97)}
+#chatbotForm button[type="submit"]:disabled{opacity:.65;cursor:not-allowed}
+.chatbot-typing{display:inline-flex;gap:5px;align-items:center;padding:4px 2px}
+.chatbot-typing span{height:7px;width:7px;border-radius:999px;background:var(--ink-400);animation:chatDots 1s ease-in-out infinite}
+.chatbot-typing span:nth-child(2){animation-delay:.15s}
+.chatbot-typing span:nth-child(3){animation-delay:.3s}
+@keyframes chatIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes chatDots{0%,80%,100%{opacity:.3;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+@media (max-width:640px){
+  #chatbotToggle{right:16px;bottom:88px}
+  #chatbotPanel{right:8px;left:8px;bottom:8px;width:auto;height:min(72vh,560px);border-radius:20px}
+}
+@media (prefers-reduced-motion: reduce){
+  #chatbotToggle,#chatbotPanel,.chatbot-message,.chatbot-typing span,#chatbotForm button{animation:none !important;transition:none !important}
+}
 </style>
 </head>
 <body>
@@ -805,14 +837,25 @@
 
 
 <!-- WeMentors chatbot: added without changing existing site sections -->
-<button id="chatbotToggle" type="button" aria-expanded="false" aria-controls="chatbotPanel">Chat</button>
-<div id="chatbotPanel" role="dialog" aria-label="WeMentors Assistant">
-  <div id="chatbotHeader"><span>WeMentors Assistant</span><button id="chatbotClear" type="button">Clear chat</button></div>
-  <div id="chatbotMessages" aria-live="polite">
-    <div class="chatbot-message chatbot-assistant">Hi! How can I help you with WeMentors?</div>
+<button id="chatbotToggle" type="button" aria-expanded="false" aria-controls="chatbotPanel" aria-label="Open WeMentors assistant">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>
+  Chat
+</button>
+<div id="chatbotPanel" role="dialog" aria-label="WeMentors Assistant" aria-modal="false" hidden>
+  <div id="chatbotHeader">
+    <div class="chatbot-header-copy">
+      <span class="chatbot-header-title">WeMentors Assistant</span>
+      <span class="chatbot-header-status" id="chatbotStatus">Academic guidance helper</span>
+    </div>
+    <div class="chatbot-header-actions">
+      <button id="chatbotClear" type="button">Clear chat</button>
+      <button id="chatbotClose" type="button" aria-label="Close chat">Close</button>
+    </div>
   </div>
+  <div id="chatbotMessages" aria-live="polite"></div>
   <form id="chatbotForm">
-    <input id="chatbotInput" type="text" placeholder="Ask a question..." autocomplete="off" required>
+    <label class="hidden" for="chatbotInput">Message the WeMentors assistant</label>
+    <input id="chatbotInput" type="text" placeholder="Ask about programs, grades, or a demo..." autocomplete="off" maxlength="2000" required>
     <button type="submit">Send</button>
   </form>
 </div>
@@ -1075,53 +1118,166 @@ document.getElementById('contactFormMount').innerHTML = buildFormHTML('contact')
 wireForm('contact');
 
 /* ---------------- Modal open/close ---------------- */
-function openModal(){ document.getElementById('modalOverlay').classList.add('open'); document.body.style.overflow='hidden'; }
-function closeModal(){ document.getElementById('modalOverlay').classList.remove('open'); document.body.style.overflow=''; }
-document.getElementById('navBookBtn').addEventListener('click', openModal);
-document.getElementById('mobileBookBtn').addEventListener('click', openModal);
-document.getElementById('modalOverlay').addEventListener('click', e=>{ if(e.target.id==='modalOverlay') closeModal(); });
-document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closeModal(); } });
+function openModal(){ document.getElementById('modalOverlay').classList.add('/* ---------------- WeMentors chatbot ---------------- */
+const CHAT_API = window.WEMENTORS_CHAT_API || 'http://127.0.0.1:8000';
+const chatbotToggle = document.getElementById('chatbotToggle');
+const chatbotPanel = document.getElementById('chatbotPanel');
+const chatbotForm = document.getElementById('chatbotForm');
+const chatbotInput = document.getElementById('chatbotInput');
+const chatbotMessages = document.getElementById('chatbotMessages');
+const chatbotClear = document.getElementById('chatbotClear');
+const chatbotClose = document.getElementById('chatbotClose');
+const chatbotStatus = document.getElementById('chatbotStatus');
+const WELCOME_TEXT = 'Hi! I can help with WeMentors programs, grades, subjects, demo classes, and contact details. What would you like to know?';
+const SUGGESTIONS = ['Which grades do you support?', 'What programs do you offer?', 'How do I book a demo?'];
 
-/* ---------------- Navigation (single-page view switch) ---------------- */
-function navigateTo(view, filterTarget){
-  document.querySelectorAll('[data-view]').forEach(el=>el.classList.remove('active'));
-  document.querySelector(`[data-view="${view}"]`).classList.add('active');
-  document.querySelectorAll('.nav-links a, .mobile-menu a').forEach(a=>{
-    a.classList.toggle('active', a.dataset.nav===view);
-  });
-  setMenu(false);
-  window.scrollTo({top:0, behavior:'instant' in document.documentElement.style ? 'instant' : 'auto'});
-  if(view==='courses' && filterTarget){
-    const btn = document.querySelector(`#courseFilters [data-filter="${filterTarget}"]`);
-    if(btn) btn.click();
+function getSessionId() {
+  const key = 'wementorsChatSession';
+  let id = sessionStorage.getItem(key);
+  if (!id) {
+    id = (crypto.randomUUID && crypto.randomUUID()) || String(Date.now());
+    sessionStorage.setItem(key, id);
   }
-  refreshReveal();
+  return id;
 }
-document.querySelectorAll('[data-nav]').forEach(link=>{
-  link.addEventListener('click', e=>{
-    e.preventDefault();
-    navigateTo(link.dataset.nav, link.dataset.filterTarget);
+
+function loadHistory() {
+  try {
+    return JSON.parse(sessionStorage.getItem('wementorsChatHistory') || '[]');
+  } catch (error) {
+    return [];
+  }
+}
+
+function saveHistory(history) {
+  sessionStorage.setItem('wementorsChatHistory', JSON.stringify(history.slice(-16)));
+}
+
+let chatbotHistory = loadHistory();
+
+function setChatOpen(open) {
+  chatbotPanel.classList.toggle('open', open);
+  chatbotPanel.hidden = !open;
+  chatbotToggle.setAttribute('aria-expanded', String(open));
+  chatbotToggle.setAttribute('aria-label', open ? 'Close WeMentors assistant' : 'Open WeMentors assistant');
+  if (open) chatbotInput.focus();
+}
+
+function addChatbotMessage(message, sender, extraClass) {
+  const element = document.createElement('div');
+  element.className = `chatbot-message chatbot-${sender}${extraClass ? ' ' + extraClass : ''}`;
+  element.textContent = message;
+  chatbotMessages.appendChild(element);
+  chatbotMessages.scrollTo({ top: chatbotMessages.scrollHeight, behavior: 'smooth' });
+  return element;
+}
+
+function addSuggestions() {
+  const wrap = document.createElement('div');
+  wrap.className = 'chatbot-suggestions';
+  SUGGESTIONS.forEach((label) => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'chatbot-chip';
+    chip.textContent = label;
+    chip.addEventListener('click', () => {
+      chatbotInput.value = label;
+      chatbotForm.requestSubmit();
+    });
+    wrap.appendChild(chip);
   });
+  chatbotMessages.appendChild(wrap);
+}
+
+function renderWelcome() {
+  chatbotMessages.innerHTML = '';
+  addChatbotMessage(WELCOME_TEXT, 'assistant');
+  addSuggestions();
+}
+
+function restoreMessages() {
+  chatbotMessages.innerHTML = '';
+  if (!chatbotHistory.length) {
+    renderWelcome();
+    return;
+  }
+  chatbotHistory.forEach((item) => addChatbotMessage(item.content, item.role === 'user' ? 'user' : 'assistant'));
+}
+
+chatbotClear.addEventListener('click', async () => {
+  chatbotHistory = [];
+  saveHistory(chatbotHistory);
+  renderWelcome();
+  chatbotInput.focus();
+  try {
+    await fetch(`${CHAT_API}/chat/clear`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({session_id: getSessionId()})
+    });
+  } catch (error) {
+    /* Local reset still succeeded. */
+  }
 });
 
-/* ---------------- Sticky header shadow ---------------- */
-const header = document.getElementById('siteHeader');
-function onScroll(){
-  header.classList.toggle('scrolled', window.scrollY > 12);
-  document.getElementById('topBtn').classList.toggle('show', window.scrollY > 500);
-}
-window.addEventListener('scroll', onScroll);
-onScroll();
-document.getElementById('topBtn').addEventListener('click', ()=>window.scrollTo({top:0, behavior:'smooth'}));
+chatbotToggle.addEventListener('click', () => {
+  setChatOpen(!chatbotPanel.classList.contains('open'));
+});
+chatbotClose.addEventListener('click', () => setChatOpen(false));
 
-/* ---------------- Mobile menu ---------------- */
-const menuToggle = document.getElementById('menuToggle');
-const menuToggleIcon = document.getElementById('menuToggleIcon');
-const mobileMenu = document.getElementById('mobileMenu');
-let menuOpen = false;
-function setMenu(open){
-  menuOpen = open;
-  menuToggle.setAttribute('aria-expanded', open);
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && chatbotPanel.classList.contains('open')) {
+    setChatOpen(false);
+    chatbotToggle.focus();
+  }
+});
+
+chatbotForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const message = chatbotInput.value.trim();
+  if (!message) return;
+  const chips = chatbotMessages.querySelector('.chatbot-suggestions');
+  if (chips) chips.remove();
+  addChatbotMessage(message, 'user');
+  chatbotInput.value = '';
+  chatbotStatus.textContent = 'Thinking…';
+  const thinking = addChatbotMessage('', 'assistant');
+  thinking.innerHTML = '<span class="chatbot-typing" aria-label="Assistant is typing"><span></span><span></span><span></span></span>';
+  const submitBtn = chatbotForm.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+  chatbotInput.disabled = true;
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 20000);
+    const response = await fetch(`${CHAT_API}/chat`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({message, history: chatbotHistory, session_id: getSessionId()}),
+      signal: controller.signal
+    });
+    clearTimeout(timer);
+    if (!response.ok) throw new Error('Request failed');
+    const data = await response.json();
+    const reply = data.reply || 'I could not find an answer.';
+    thinking.textContent = reply;
+    chatbotHistory.push({role: 'user', content: message});
+    chatbotHistory.push({role: 'assistant', content: reply});
+    saveHistory(chatbotHistory);
+    chatbotStatus.textContent = 'Academic guidance helper';
+  } catch (error) {
+    thinking.textContent = 'I could not connect to the assistant. Please make sure the backend is running, or contact WeMentors on WhatsApp.';
+    thinking.classList.add('error');
+    chatbotStatus.textContent = 'Offline — try again shortly';
+  } finally {
+    submitBtn.disabled = false;
+    chatbotInput.disabled = false;
+    chatbotInput.focus();
+    chatbotMessages.scrollTo({ top: chatbotMessages.scrollHeight, behavior: 'smooth' });
+  }
+});
+
+restoreMessages();
+tribute('aria-expanded', open);
   menuToggleIcon.classList.toggle('open', open);
   if(open){
     mobileMenu.style.top = header.offsetHeight + 'px';

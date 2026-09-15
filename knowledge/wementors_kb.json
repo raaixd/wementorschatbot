@@ -1,0 +1,381 @@
+{
+  "version": "2.0",
+  "organization": "WeMentors Academy",
+  "source_note": "Facts below come from the existing WeMentors website and original knowledge base. Do not invent additional official details.",
+  "programs_order": ["foundation", "middle", "senior", "confident_speaker"],
+  "restrictions": [
+    "Do not invent or confirm fees, discounts, exact class schedules, availability, admission policies, teacher availability, refunds, or guarantees.",
+    "If information is missing or marked needs_confirmation, direct the visitor to the WeMentors team.",
+    "Never claim that a demo booking is completed unless a real booking or enquiry submission succeeds."
+  ],
+  "entries": [
+    {
+      "id": "what-is-wementors",
+      "category": "general",
+      "question": "What is WeMentors?",
+      "answer": "WeMentors Academy provides personalized mentoring designed around each learner’s needs, pace, strengths, and learning gaps. Mentors focus on understanding concepts rather than memorizing answers, and lessons are connected to practical applications.",
+      "aliases": [
+        "who are you",
+        "tell me about wementors",
+        "what does wementors do",
+        "about wementors",
+        "who is wementors"
+      ],
+      "keywords": ["wementors", "academy", "mentoring", "personalized", "about", "overview"],
+      "follow_ups": ["Which grades do you support?", "What programs do you offer?"],
+      "confidence": "verified",
+      "source": "WeMentors website knowledge base"
+    },
+    {
+      "id": "who-can-use",
+      "category": "general",
+      "question": "Who can use WeMentors?",
+      "answer": "WeMentors supports students in Grades 3–10. The Confident Speaker program is also open to students, professionals, and homemakers interested in Spoken English and Public Speaking.",
+      "aliases": ["who is it for", "who can join", "is it only for school students"],
+      "keywords": ["who", "students", "professionals", "homemakers", "eligibility"],
+      "follow_ups": ["What is the Confident Speaker program?", "Which grades are supported?"],
+      "confidence": "verified",
+      "source": "WeMentors website knowledge base"
+    },
+    {
+      "id": "grades",
+      "category": "grades",
+      "question": "Which grades are supported?",
+      "answer": "WeMentors offers academic programs for Grades 3–10:\n\n- Grades 3–5: Foundation Years\n- Grades 6–8: Middle School\n- Grades 9–10: Senior School Focus\n\nSpoken English and public speaking support is also available through the Confident Speaker program.",
+      "aliases": [
+        "which classes do you teach",
+        "what grades do you support",
+        "what classes are available",
+        "classes supported",
+        "grade 3",
+        "grade 10"
+      ],
+      "keywords": ["grades", "classes", "3", "4", "5", "6", "7", "8", "9", "10", "supported"],
+      "follow_ups": ["Tell me about the Foundation Years program.", "What subjects are offered?"],
+      "confidence": "verified",
+      "source": "WeMentors website knowledge base"
+    },
+    {
+      "id": "curricula",
+      "category": "grades",
+      "question": "Which curricula are supported?",
+      "answer": "WeMentors supports CBSE, ICSE, IGCSE, and IB.",
+      "aliases": ["cbse", "icse", "igcse", "ib", "boards", "which board"],
+      "keywords": ["curriculum", "curricula", "cbse", "icse", "igcse", "ib", "board"],
+      "follow_ups": ["What subjects are offered?", "How can I book a demo class?"],
+      "confidence": "verified",
+      "source": "WeMentors website knowledge base"
+    },
+    {
+      "id": "subjects",
+      "category": "subjects",
+      "question": "What subjects are offered?",
+      "answer": "Academic subjects and support include Mathematics, Science, English, Environmental Studies, all core subjects, board preparation, doubt-solving sessions, and practical learning activities.\n\nThe Confident Speaker program includes Spoken English, Public Speaking, and Interview Skills.",
+      "aliases": [
+        "which subjects",
+        "what do you teach",
+        "subjects available",
+        "do you teach maths",
+        "do you teach science"
+      ],
+      "keywords": ["subjects", "maths", "mathematics", "science", "english", "evs", "core"],
+      "follow_ups": ["Are classes one-on-one?", "What programs do you offer?"],
+      "confidence": "verified",
+      "source": "WeMentors website knowledge base"
+    },
+    {
+      "id": "online-classes",
+      "category": "scheduling",
+      "question": "Are classes online or offline?",
+      "answer": "Classes are conducted live and online through video calls with digital whiteboard support. Mentors can teach and solve problems with students in real time.",
+      "aliases": ["online classes", "live classes", "virtual classes", "offline", "in person"],
+      "keywords": ["online", "offline", "live", "virtual", "video", "whiteboard"],
+      "follow_ups": ["Are one-on-one classes available?", "How can I book a demo?"],
+      "confidence": "verified",
+      "source": "WeMentors website knowledge base"
+    },
+    {
+      "id": "one-on-one",
+      "category": "teaching",
+      "question": "Are one-on-one classes available?",
+      "answer": "Yes. WeMentors offers one-on-one mentoring as well as small batches.",
+      "aliases": ["one on one", "private class", "individual class", "personal mentor"],
+      "keywords": ["one-on-one", "individual", "private", "batch"],
+      "follow_ups": ["What is the batch size?", "How do I book a demo?"],
+      "confidence": "verified",
+      "source": "WeMentors website knowledge base"
+    },
+    {
+      "id": "batch-size",
+      "category": "teaching",
+      "question": "What is the batch size?",
+      "answer": "Batches are typically one-on-one or capped at up to eight students, so learners can receive individual attention.",
+      "aliases": ["how many students", "class size", "group size"],
+      "keywords": ["batch", "size", "eight", "students", "small"],
+      "follow_ups": ["Are classes online?", "What is the teaching approach?"],
+      "confidence": "verified",
+      "source": "WeMentors website knowledge base"
+    },
+    {
+      "id": "mentoring-process",
+      "category": "mentorship",
+      "question": "How does the mentoring process work?",
+      "answer": "The mentoring process has four stages:\n\n1. Diagnose: a short assessment identifies the student’s strengths and learning gaps.\n2. Chart the path: mentors create a learning plan based on the student’s board, pace, and goals.\n3. Guide, live: students attend interactive live sessions using digital whiteboard tools.\n4. Review and adjust: progress is reviewed with parents weekly, and the plan is adjusted when needed.",
+      "aliases": ["how does mentoring work", "what is the process", "how do you start"],
+      "keywords": ["mentoring", "process", "diagnose", "plan", "review", "assessment"],
+      "follow_ups": ["Are progress updates provided?", "Is a demo class available?"],
+      "confidence": "verified",
+      "source": "WeMentors website knowledge base"
+    },
+    {
+      "id": "progress-updates",
+      "category": "mentorship",
+      "question": "Are progress updates provided?",
+      "answer": "Yes. Progress is tracked and shared with parents every week.",
+      "aliases": ["do parents get updates", "weekly report", "progress tracked"],
+      "keywords": ["progress", "updates", "parents", "weekly", "tracked"],
+      "follow_ups": ["How does the mentoring process work?", "What teaching approach do you use?"],
+      "confidence": "verified",
+      "source": "WeMentors website knowledge base"
+    },
+    {
+      "id": "doubt-solving",
+      "category": "teaching",
+      "question": "Are doubt-solving sessions available?",
+      "answer": "Yes. WeMentors provides dedicated doubt-solving sessions. Some programs also include fortnightly doubt clinics or priority doubt-clearing access.",
+      "aliases": ["doubts", "doubt clinic", "extra help", "questions after class"],
+      "keywords": ["doubt", "solving", "clinic", "priority"],
+      "follow_ups": ["Tell me about the Middle School program.", "How can I book a demo?"],
+      "confidence": "verified",
+      "source": "WeMentors website knowledge base"
+    },
+    {
+      "id": "teaching-approach",
+      "category": "teaching",
+      "question": "What teaching approach does WeMentors use?",
+      "answer": "WeMentors focuses on understanding concepts rather than memorizing answers. Lessons are connected to practical applications, and mentors adapt their pace and explanation style to each learner.",
+      "aliases": ["how do you teach", "teaching style", "methodology", "learning approach"],
+      "keywords": ["teaching", "approach", "concepts", "practical", "pace"],
+      "follow_ups": ["How does the mentoring process work?", "What programs do you offer?"],
+      "confidence": "verified",
+      "source": "WeMentors website knowledge base"
+    },
+    {
+      "id": "programs-overview",
+      "category": "programs",
+      "question": "What programs do you offer?",
+      "answer": "WeMentors currently lists four programs, in this order:\n\n1. Foundation Years (Grades 3–5)\n2. Middle School (Grades 6–8)\n3. Senior School Focus (Grades 9–10)\n4. Confident Speaker (Spoken English, Public Speaking, and Interview Skills)\n\nI can share details about any of these.",
+      "aliases": [
+        "what courses do you offer",
+        "list your programs",
+        "what do you offer",
+        "tell me about your programs"
+      ],
+      "keywords": ["programs", "courses", "offer", "options", "list"],
+      "follow_ups": ["Tell me more about the first one.", "What is the Confident Speaker program?"],
+      "confidence": "verified",
+      "source": "WeMentors website knowledge base",
+      "related_program_ids": ["foundation", "middle", "senior", "confident_speaker"]
+    },
+    {
+      "id": "foundation",
+      "category": "programs",
+      "question": "What is the Foundation Years program?",
+      "answer": "The Foundation Years program supports Grades 3–5 and includes Mathematics, Science, English, Environmental Studies, and all core subjects. It focuses on strong fundamentals, curiosity-first teaching, concept games, visual learning, and weekly progress notes for parents.",
+      "aliases": [
+        "first program",
+        "foundation years",
+        "grades 3 to 5",
+        "grade 3",
+        "grade 4",
+        "grade 5"
+      ],
+      "keywords": ["foundation", "fundamentals", "curiosity", "visual", "grades 3-5"],
+      "follow_ups": ["How can I book a demo for Foundation Years?", "What subjects are included?"],
+      "confidence": "verified",
+      "source": "WeMentors website knowledge base",
+      "program_index": 1
+    },
+    {
+      "id": "middle",
+      "category": "programs",
+      "question": "What is the Middle School program?",
+      "answer": "The Middle School program supports Grades 6–8 and includes all subjects, doubt solving, and practical labs. It focuses on concept-based learning, practical problem sets, fortnightly doubt clinics, and progress dashboard access.",
+      "aliases": [
+        "second program",
+        "middle school",
+        "grades 6 to 8",
+        "grade 6",
+        "grade 7",
+        "grade 8"
+      ],
+      "keywords": ["middle", "labs", "doubt clinics", "grades 6-8"],
+      "follow_ups": ["Are doubt-solving sessions available?", "How do I enroll?"],
+      "confidence": "verified",
+      "source": "WeMentors website knowledge base",
+      "program_index": 2
+    },
+    {
+      "id": "senior",
+      "category": "programs",
+      "question": "What is the Senior School Focus program?",
+      "answer": "The Senior School Focus program supports Grades 9–10 and includes Mathematics, Science, and board preparation. It focuses on concept clarity, board-exam preparation, weekly mock tests with review, and priority doubt-clearing access.",
+      "aliases": [
+        "third program",
+        "senior school",
+        "board preparation",
+        "grades 9 to 10",
+        "grade 9",
+        "grade 10"
+      ],
+      "keywords": ["senior", "board", "mock tests", "grades 9-10"],
+      "follow_ups": ["Which curricula are supported?", "How can I book a demo?"],
+      "confidence": "verified",
+      "source": "WeMentors website knowledge base",
+      "program_index": 3
+    },
+    {
+      "id": "confident_speaker",
+      "category": "programs",
+      "question": "What is the Confident Speaker program?",
+      "answer": "The Confident Speaker program is designed for students, professionals, and homemakers. It includes Spoken English, Public Speaking, and Interview Skills. It uses a conversation-first approach and emphasizes practical communication rather than rote grammar drills. Small batches are used so learners get more speaking time.",
+      "aliases": [
+        "fourth program",
+        "spoken english",
+        "public speaking",
+        "interview skills",
+        "english speaking"
+      ],
+      "keywords": ["confident", "speaker", "spoken", "english", "interview", "communication"],
+      "follow_ups": ["Who can join Confident Speaker?", "How can I book a demo?"],
+      "confidence": "verified",
+      "source": "WeMentors website knowledge base",
+      "program_index": 4
+    },
+    {
+      "id": "demo-available",
+      "category": "admissions",
+      "question": "Is a demo class available?",
+      "answer": "Yes. WeMentors advertises a free 30-minute demo class with no obligation to continue. During the demo, visitors can meet a mentor, complete a short diagnostic in the relevant subject, and receive a personalized learning-plan recommendation.",
+      "aliases": ["trial class", "free demo", "trial session", "can I try a class"],
+      "keywords": ["demo", "trial", "free", "30-minute"],
+      "follow_ups": ["How can I book a demo class?", "What happens during the demo?"],
+      "confidence": "verified",
+      "source": "WeMentors website knowledge base"
+    },
+    {
+      "id": "demo-length",
+      "category": "admissions",
+      "question": "How long is the demo class?",
+      "answer": "The website advertises a free 30-minute demo class.",
+      "aliases": ["demo duration", "how long is the trial"],
+      "keywords": ["demo", "30", "minutes", "length", "duration"],
+      "follow_ups": ["How can I book a demo class?"],
+      "confidence": "verified",
+      "source": "WeMentors website knowledge base"
+    },
+    {
+      "id": "demo-what-happens",
+      "category": "admissions",
+      "question": "What happens during the demo class?",
+      "answer": "Visitors can meet a mentor, complete a short diagnostic related to the relevant subject, and receive a personalized learning-plan recommendation.",
+      "aliases": ["what is in the demo", "demo class details"],
+      "keywords": ["demo", "diagnostic", "mentor", "learning plan"],
+      "follow_ups": ["How can I book a demo class?"],
+      "confidence": "verified",
+      "source": "WeMentors website knowledge base"
+    },
+    {
+      "id": "book-demo",
+      "category": "admissions",
+      "question": "How can I book a demo class?",
+      "answer": "Use the “Book Free Demo” option on the WeMentors website, or contact the team by phone/WhatsApp at +91 76111 92227 or email admin@wementors.co. The team states they will reach out within 24 hours to schedule a demo class.\n\nI can explain what to include in an enquiry, but I cannot complete a booking myself.",
+      "aliases": [
+        "how do I enroll",
+        "how do I apply",
+        "how do I join",
+        "admission",
+        "enrol",
+        "sign up"
+      ],
+      "keywords": ["book", "demo", "enroll", "apply", "join", "admission"],
+      "follow_ups": ["What contact details should I use?", "What grades do you support?"],
+      "confidence": "verified",
+      "source": "WeMentors website knowledge base"
+    },
+    {
+      "id": "contact",
+      "category": "contact",
+      "question": "How can I contact WeMentors?",
+      "answer": "Phone / WhatsApp: +91 76111 92227\n\nAlternate numbers:\n+91 90398 03526\n+91 88719 34995\n\nEmail: admin@wementors.co\n\nWorking hours: Monday to Saturday, 9:00 AM to 8:00 PM IST.",
+      "aliases": ["phone number", "whatsapp", "email address", "contact details"],
+      "keywords": ["contact", "phone", "whatsapp", "email", "admin"],
+      "follow_ups": ["What are the working hours?", "How can I book a demo?"],
+      "confidence": "verified",
+      "source": "WeMentors website knowledge base"
+    },
+    {
+      "id": "working-hours",
+      "category": "contact",
+      "question": "What are the working hours?",
+      "answer": "Monday to Saturday, 9:00 AM to 8:00 PM IST.",
+      "aliases": ["office hours", "when are you available", "timings"],
+      "keywords": ["hours", "monday", "saturday", "9:00", "8:00", "ist"],
+      "follow_ups": ["How can I contact WeMentors?"],
+      "confidence": "verified",
+      "source": "WeMentors website knowledge base"
+    },
+    {
+      "id": "response-time",
+      "category": "contact",
+      "question": "What is the expected response time for demo enquiries?",
+      "answer": "The website states that the team will reach out within 24 hours to schedule a demo class.",
+      "aliases": ["how soon will you reply", "response time"],
+      "keywords": ["response", "24 hours", "reach out", "enquiry"],
+      "follow_ups": ["How can I book a demo class?"],
+      "confidence": "verified",
+      "source": "WeMentors website knowledge base"
+    },
+    {
+      "id": "fees-unavailable",
+      "category": "fees",
+      "question": "How much does it cost?",
+      "answer": "Verified fee amounts, discounts, and payment plans are not published in the current WeMentors knowledge base. Please contact the WeMentors team for current fees so I do not guess a price.",
+      "aliases": [
+        "fees",
+        "fee structure",
+        "price",
+        "pricing",
+        "how much do you charge",
+        "tuition",
+        "cost"
+      ],
+      "keywords": ["fees", "cost", "price", "charge", "tuition", "discount"],
+      "follow_ups": ["How can I contact WeMentors?", "Is a demo class free?"],
+      "confidence": "missing",
+      "source": "Placeholder — requires WeMentors confirmation"
+    },
+    {
+      "id": "schedules-unavailable",
+      "category": "scheduling",
+      "question": "What are the class timings?",
+      "answer": "Exact class schedules, batch timings, and seat availability are not listed in the verified knowledge base. The team can confirm current timings when you enquire or book a demo.",
+      "aliases": ["class schedule", "batch timing", "when are classes", "availability"],
+      "keywords": ["schedule", "timings", "availability", "calendar"],
+      "follow_ups": ["Are classes online?", "How can I book a demo?"],
+      "confidence": "missing",
+      "source": "Placeholder — requires WeMentors confirmation"
+    },
+    {
+      "id": "policies-unavailable",
+      "category": "policies",
+      "question": "What is the admission or refund policy?",
+      "answer": "Detailed admission, cancellation, and refund policies are not included in the verified knowledge base. Please contact WeMentors directly for those policy details.",
+      "aliases": ["refund", "cancellation", "guarantee", "admission policy"],
+      "keywords": ["policy", "refund", "cancellation", "guarantee", "admission"],
+      "follow_ups": ["How can I contact WeMentors?", "How do I book a demo?"],
+      "confidence": "missing",
+      "source": "Placeholder — requires WeMentors confirmation"
+    }
+  ]
+}

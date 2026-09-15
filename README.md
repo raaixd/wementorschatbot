@@ -1,244 +1,210 @@
 # WeMentors Chatbot
 
-An FAQ-powered chatbot for the WeMentors website. The project combines a lightweight website chat interface with a FastAPI backend that retrieves relevant answers from a structured WeMentors knowledge base.
+A website assistant for WeMentors Academy. Visitors ask questions in a floating chat on the existing site. A FastAPI backend retrieves only the most relevant knowledge-base entries and writes a concise, grounded reply.
+
+The chatbot is designed to sound like a friendly academic guidance assistant. It answers from verified WeMentors information and does not invent fees, schedules, or policies.
 
 ## Features
 
-- Floating chatbot interface embedded into the website
-- FAQ-based responses using the WeMentors knowledge base
-- Follow-up questions using recent conversation history
-- Clear Chat functionality
-- FastAPI backend with `/health` and `/chat` endpoints
-- Input validation for chat messages and conversation history
-- Friendly fallback responses when a relevant answer cannot be found
-- Simple local development setup with separate frontend and backend servers
+- Hybrid FAQ retrieval (keywords, aliases, categories, and BM25-style scoring)
+- Intent detection and follow-up handling (“the first program”, “its fees”, “explain that simply”)
+- Session memory in the browser plus SQLite on the backend
+- Optional OpenAI phrasing layer; local answers still work without an API key
+- Rate limiting, input validation, prompt-injection filtering, and health checks
+- Chat UI matched to the WeMentors purple/gold visual identity
 
-## Project Structure
+## Project structure
 
 ```text
 wementorschatbotdev/
-├── index.html
+├── index.html                 # Existing WeMentors website + chatbot widget
 ├── knowledge/
-│   └── wementors_faq.md
+│   ├── wementors_kb.json      # Structured knowledge base (source of truth)
+│   └── wementors_faq.md       # Human-readable copy of the same facts
 ├── chatbot-backend/
-│   └── app/
-│       └── main.py
+│   ├── app/
+│   │   ├── main.py            # FastAPI routes and security middleware
+│   │   ├── pipeline.py        # RAG orchestration
+│   │   ├── retrieve.py        # Ranking / top-k retrieval
+│   │   ├── intent.py          # Intent + reference resolution
+│   │   ├── generate.py        # Answer composition
+│   │   ├── knowledge.py       # Knowledge-base loader
+│   │   ├── memory.py          # Conversation state
+│   │   ├── db.py              # SQLite persistence
+│   │   ├── safety.py          # Sanitization and injection checks
+│   │   └── personality.py     # Tone and behaviour rules
+│   ├── tests/
+│   ├── data/                  # Local SQLite file (not committed)
+│   ├── requirements.txt
+│   └── .env.example
+├── .env.example
 └── README.md
 ```
 
-## How It Works
+## Architecture
 
-1. A visitor opens the WeMentors website and uses the floating chatbot.
-2. The frontend sends the user's message and recent conversation history to the FastAPI backend.
-3. The backend searches the structured FAQ knowledge base for the most relevant section.
-4. A response is returned to the frontend and displayed in the chat window.
-5. The frontend stores recent messages locally in the current chat session so follow-up questions can be answered with context.
-6. The Clear Chat button removes the current conversation history and resets the chat interface.
-
-## Technologies Used
-
-- **HTML, CSS, and JavaScript** — chatbot interface and frontend behavior
-- **Python** — backend logic
-- **FastAPI** — API framework
-- **Uvicorn** — local ASGI server
-- **Pydantic** — request validation
-- **Markdown** — knowledge-base format
-- **python-dotenv** — environment configuration support
-
-## Requirements
-
-- Python 3.10 or newer
-- Git
-- A modern web browser
-
-## Local Setup
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/raaixd/wementorschatbot.git
-cd wementorschatbot
+```text
+User message
+  → sanitize / injection check
+  → session memory (history + last program/topic)
+  → intent detection and follow-up rewrite
+  → retrieve top-k knowledge entries
+  → relevance filter
+  → compose answer from retrieved facts only
+  → optional LLM polish (if OPENAI_API_KEY is set)
+  → validate (no invented prices)
+  → JSON response + SQLite log
 ```
 
-### 2. Create a virtual environment
+The full knowledge base is never sent as context. Only the highest-scoring entries are used.
 
-From the project root:
+## Local setup
+
+### Requirements
+
+- Python 3.10 or newer
+- A modern browser
+
+### 1. Create a virtual environment
 
 ```bash
 python -m venv chatbot-backend/.venv
 ```
 
-Activate it on Windows Command Prompt:
-
-```cmd
-chatbot-backend\.venv\Scripts\activate
-```
-
-Activate it on Windows PowerShell:
+Windows PowerShell:
 
 ```powershell
 .\chatbot-backend\.venv\Scripts\Activate.ps1
 ```
 
-### 3. Install backend dependencies
+### 2. Install dependencies
 
 ```bash
-pip install fastapi uvicorn python-dotenv
+pip install -r chatbot-backend/requirements.txt
 ```
+
+### 3. Environment variables
+
+Copy `chatbot-backend/.env.example` to `chatbot-backend/.env` if you need local overrides.
+
+The chatbot runs without any paid API. To optionally polish answers with OpenAI:
+
+```text
+OPENAI_API_KEY=sk-...
+OPENAI_MODEL=gpt-4o-mini
+```
+
+Never put API keys in `index.html`.
 
 ### 4. Start the backend
 
-Open a terminal in the project root and run:
+From `chatbot-backend`:
 
 ```bash
-cd chatbot-backend
-python -m uvicorn app.main:app --reload
+python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-The backend will be available at:
+Health check: http://127.0.0.1:8000/health
 
-```text
-http://127.0.0.1:8000
-```
+### 5. Start the website
 
-Health-check endpoint:
-
-```text
-http://127.0.0.1:8000/health
-```
-
-### 5. Start the frontend
-
-Open a second terminal in the project root:
+From the project root:
 
 ```bash
 python -m http.server 5500
 ```
 
-Open the website at:
+Open http://127.0.0.1:5500
 
-```text
-http://127.0.0.1:5500
+Keep both processes running while you test the chat widget.
+
+To point the widget at another API URL, set this before the chatbot script (or in the browser console):
+
+```javascript
+window.WEMENTORS_CHAT_API = "http://127.0.0.1:8000";
 ```
 
-Keep both terminals running while testing the chatbot.
-
-## API Endpoints
+## API
 
 ### `GET /health`
 
-Checks whether the backend is running.
-
-Example response:
-
 ```json
 {
-  "status": "ok"
+  "status": "healthy",
+  "service": "wementors-chatbot",
+  "knowledge_entries": 27,
+  "database": "ok"
 }
 ```
 
 ### `POST /chat`
 
-Accepts a user message and optional recent conversation history.
-
-Example request:
-
 ```json
 {
-  "message": "Which grades are supported?",
-  "history": []
+  "message": "What programs do you offer?",
+  "history": [],
+  "session_id": "optional-browser-session-id"
 }
 ```
 
-Example response:
+Response:
 
 ```json
 {
-  "reply": "..."
+  "reply": "...",
+  "session_id": "...",
+  "intent": "programs",
+  "sources": ["programs-overview"]
 }
 ```
 
-## Updating the Knowledge Base
+### `POST /chat/clear`
 
-Edit:
-
-```text
-knowledge/wementors_faq.md
+```json
+{ "session_id": "optional-browser-session-id" }
 ```
 
-Use the following structure:
+## Knowledge base
 
-```markdown
-## Category Name
+Edit `knowledge/wementors_kb.json`. Each entry should include:
 
-### Question
+- `id`, `category`, `question`, `answer`
+- `aliases`, `keywords`, `follow_ups`
+- `confidence` (`verified` or `missing`)
+- `source`
 
-Answer to the question.
+Then update `knowledge/wementors_faq.md` so the readable copy stays aligned. Restart the backend after JSON changes (or rely on `--reload`).
 
-### Another Question
+Do not add unverified fees, discounts, schedules, or policies. Use `confidence: "missing"` and a confirmation placeholder instead.
 
-Answer to the second question.
-```
+## Database
 
-Each `###` heading represents a separate FAQ entry. After editing the knowledge base, restart the backend if necessary and test the updated questions through the chatbot.
+SQLite is used locally for:
 
-## Testing Checklist
+- Session IDs and compact conversation state
+- Recent messages (follow-ups after refresh/restart)
+- Lightweight event logs (intent + truncated question text)
 
-Test the chatbot with:
+It is not a user-account system. Avoid putting extra personal data into the chat if you do not need it stored. The database file lives at `chatbot-backend/data/chatbot.db` and is gitignored.
 
-- Greetings
-- Questions about supported grades
-- Questions about available subjects
-- Questions about programs
-- Questions about fees and admissions
-- Questions about contact information
-- Follow-up questions such as “Tell me more about that”
-- Unrelated questions
-- Empty or excessively long messages
-- Clear Chat functionality
-- Backend unavailable or disconnected scenarios
+## Tests
 
-## Current Limitations
-
-- Retrieval is based on FAQ parsing and keyword matching rather than a full semantic-search system.
-- The current conversation history is maintained in the browser session.
-- Authentication and user accounts are not included.
-- No persistent conversation database is included.
-- Production deployment, monitoring, rate limiting, and multi-user isolation still need to be configured before public release.
-- The backend currently runs locally and requires a separate deployment for production use.
-
-## Future Improvements
-
-- Add semantic retrieval using embeddings and a vector database
-- Add an LLM response layer for more natural answers
-- Add source references for answers
-- Improve intent detection and irrelevant-question handling
-- Add automated backend tests
-- Add rate limiting and request logging
-- Add environment-based configuration
-- Deploy the frontend and backend
-- Add analytics for common visitor questions
-- Add administrator tools for updating the knowledge base
-
-## Git Workflow
-
-The repository uses a development branch for chatbot changes.
+From the project root, with the virtual environment active:
 
 ```bash
-git checkout chatbot-development
-git add .
-git commit -m "Describe your changes"
-git push origin chatbot-development
+python -m pytest chatbot-backend/tests/test_chat.py -q
 ```
 
-After testing, merge the development branch into `main` through GitHub or Git:
+## Deployment notes
 
-```bash
-git checkout main
-git merge chatbot-development
-git push origin main
-```
+1. Host `index.html` (and assets) on your web server or static host.
+2. Host the FastAPI app behind HTTPS (for example Uvicorn + Nginx, or a PaaS).
+3. Set `ENVIRONMENT=production`.
+4. Set `ALLOWED_ORIGINS` to the real website origin(s). Development currently also allows `*` so local file/live-server testing works.
+5. Set `WEMENTORS_CHAT_API` in the frontend to the public API URL.
+6. Keep `.env` and SQLite off public repositories.
+7. Confirm WeMentors fee/policy facts before publishing those answers.
 
 ## License
 
-This project is intended for the WeMentors website. Add an appropriate license here if the project will be distributed publicly.
+This project is intended for the WeMentors website.
