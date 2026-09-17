@@ -13,6 +13,7 @@ from __future__ import annotations
 import json
 import logging
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import List, Optional
 
 from . import config
@@ -54,10 +55,24 @@ class KnowledgeBaseError(RuntimeError):
 
 
 def load_entries() -> List[KBEntry]:
-    try:
-        raw = config.KNOWLEDGE_FILE.read_text(encoding="utf-8-sig")
-    except (FileNotFoundError, OSError) as exc:
-        raise KnowledgeBaseError(f"Could not read knowledge base file: {exc}") from exc
+    candidates = [
+        config.KNOWLEDGE_FILE,
+        Path(__file__).resolve().parent / "wementors_kb.json",
+        Path(__file__).resolve().parents[2] / "knowledge" / "wementors_kb.json",
+        Path("api/wementors_kb.json"),
+        Path("knowledge/wementors_kb.json"),
+    ]
+    raw = None
+    last_exc = None
+    for cand in candidates:
+        if cand and cand.exists():
+            try:
+                raw = cand.read_text(encoding="utf-8-sig")
+                break
+            except Exception as e:
+                last_exc = e
+    if raw is None:
+        raise KnowledgeBaseError(f"Could not read knowledge base file from any candidate path: {last_exc}")
 
     try:
         data = json.loads(raw)

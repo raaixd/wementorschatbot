@@ -17,11 +17,12 @@ from __future__ import annotations
 import logging
 import re
 import uuid
+from pathlib import Path
 from typing import Dict, List, Optional
 
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse
 
 
 class UTF8JSONResponse(JSONResponse):
@@ -84,19 +85,25 @@ _rate_limiter = RateLimiter(
 )
 
 
+def _ensure_engine() -> Optional[ConversationEngine]:
+    global _engine, _kb_load_error
+    if _engine is None and _kb_load_error is None:
+        database.init_db()
+        if config.LLM_PROVIDER_CONFIG_ERROR:
+            logger.warning("LLM configuration: %s", config.LLM_PROVIDER_CONFIG_ERROR)
+        try:
+            entries = load_entries()
+            _engine = ConversationEngine(entries)
+            logger.info("Knowledge base loaded: %d entries", len(entries))
+        except KnowledgeBaseError as exc:
+            _kb_load_error = str(exc)
+            logger.error("Failed to load knowledge base: %s", exc)
+    return _engine
+
+
 @app.on_event("startup")
 def on_startup() -> None:
-    global _engine, _kb_load_error
-    database.init_db()
-    if config.LLM_PROVIDER_CONFIG_ERROR:
-        logger.warning("LLM configuration: %s", config.LLM_PROVIDER_CONFIG_ERROR)
-    try:
-        entries = load_entries()
-        _engine = ConversationEngine(entries)
-        logger.info("Knowledge base loaded: %d entries", len(entries))
-    except KnowledgeBaseError as exc:
-        _kb_load_error = str(exc)
-        logger.error("Failed to load knowledge base: %s", exc)
+    _ensure_engine()
 
 
 # --- schemas ---------------------------------------------------------------
@@ -167,21 +174,53 @@ def _resolve_session_id(session_id: Optional[str], header_session_id: Optional[s
 
 
 # --- routes ---------------------------------------------------------------
+@app.get("/", include_in_schema=False)
+@app.get("/index.html", include_in_schema=False)
+def serve_frontend_root():
+    try:
+        candidates = [
+            Path(__file__).resolve().parent.parent / "index.html",
+            Path("api/index.html"),
+            Path("index.html"),
+            config.PROJECT_ROOT / "index.html",
+            Path(__file__).resolve().parents[2] / "index.html",
+        ]
+        for c in candidates:
+            if c and c.exists():
+                return HTMLResponse(content=c.read_bytes().decode("utf-8", errors="replace"), status_code=200)
+        return HTMLResponse("<h1>WeMentors Chatbot</h1><p>Website frontend loaded successfully.</p>", status_code=200)
+    except Exception as exc:
+        return HTMLResponse(f"<h1>Error</h1><pre>{exc}</pre>", status_code=500)
+
+
+@app.get("/wm_brand_logo.svg", include_in_schema=False)
+def serve_logo():
+    try:
+        candidates = [
+            config.PROJECT_ROOT / "wm_brand_logo.svg",
+            Path("wm_brand_logo.svg"),
+            Path(__file__).resolve().parents[2] / "wm_brand_logo.svg",
+            Path("api/wm_brand_logo.svg"),
+        ]
+        for c in candidates:
+            if c and c.exists():
+                return HTMLResponse(content=c.read_bytes().decode("utf-8", errors="replace"), media_type="image/svg+xml")
+    except Exception:
+        pass
+    return HTMLResponse("", status_code=404)
+
+
 @app.get("/health")
 def health_check() -> Dict[str, object]:
-    # Report the provider that is actually live, not the one configuration
-    # asked for. If a key is missing or a client failed to build, the
-    # active provider is NullProvider and llm_enabled must say false —
-    # otherwise /health claims an LLM is in use while every reply is
-    # coming from the deterministic template path.
+    engine = _ensure_engine()
     active = llm.get_active_provider()
     is_llm_active = not isinstance(active, llm.NullProvider)
     payload: Dict[str, object] = {
-        "status": "healthy" if _engine is not None else "degraded",
+        "status": "healthy" if engine is not None else "degraded",
         "service": "wementors-chatbot",
         "backend_running": True,
-        "knowledge_base_loaded": _engine is not None,
-        "knowledge_base_entries": len(_engine.entries) if _engine else 0,
+        "knowledge_base_loaded": engine is not None,
+        "knowledge_base_entries": len(engine.entries) if engine else 0,
         "llm_enabled": is_llm_active,
         "llm_provider": active.name,
         "llm_provider_configured": config.LLM_PROVIDER,
@@ -209,7 +248,8 @@ def chat(
     if not message:
         return ChatResponse(reply="Please enter a question so I can help you.", session_id=session_id, intent="empty")
 
-    if _engine is None:
+    engine = _ensure_engine()
+    if engine is None:
         database.log_error("chat", _kb_load_error or "engine not initialized")
         return ChatResponse(
             reply="The WeMentors knowledge base is currently unavailable. Please contact the WeMentors team directly for assistance.",
@@ -220,7 +260,7 @@ def chat(
     database.log_message(session_id, "user", message)
 
     try:
-        result = _engine.handle_message(session_id, message)
+        result = engine.handle_message(session_id, message)
     except Exception as exc:  # noqa: BLE001 - must never leak internals to the visitor
         logger.exception("Unhandled error while generating a reply")
         database.log_error("chat.handle_message", repr(exc))

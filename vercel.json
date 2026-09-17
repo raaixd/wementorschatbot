@@ -2,24 +2,8 @@
   "version": 2,
   "rewrites": [
     {
-      "source": "/chat",
-      "destination": "/api/index.py"
-    },
-    {
-      "source": "/chat/(.*)",
-      "destination": "/api/index.py"
-    },
-    {
-      "source": "/health",
-      "destination": "/api/index.py"
-    },
-    {
-      "source": "/feedback",
-      "destination": "/api/index.py"
-    },
-    {
-      "source": "/admin/(.*)",
-      "destination": "/api/index.py"
+      "source": "/(.*)",
+      "destination": "/api/index.py?__path=/$1"
     }
   ]
 }
