@@ -261,13 +261,7 @@ class ConversationEngine:
             text = self._format_entry_text(entry)
             if text and text not in parts:
                 parts.append(text)
-        text = "\n\n".join(parts)
-
-        top_entry = scored[0].entry
-        if top_entry.follow_ups:
-            suggestion = top_entry.follow_ups[0]
-            text = f"{text}\n\nWould you like to know: \"{suggestion}\""
-        return text
+        return "\n\n".join(parts)
 
     def _recent_turns(self, session_id: str) -> List[dict]:
         """Recent turns as {role, content}, oldest first, for the model to
@@ -310,7 +304,7 @@ class ConversationEngine:
         text_out = (
             f"{a.question.replace('What is the ', '').rstrip('?')}:\n{a.answer}\n\n"
             f"{b.question.replace('What is the ', '').rstrip('?')}:\n{b.answer}\n\n"
-            "Would you like help deciding which fits better, or details on booking a demo for either?"
+            "Let me know if you would like help deciding which fits better for the student."
         )
         return ReplyResult(text_out, "comparison", [a.id, b.id], None)
 
