@@ -1,0 +1,33 @@
+# Secrets - never commit
+.env
+.env.*
+!.env.example
+
+# Generated data
+data/
+chatbot-backend/data/
+chatbot-backendexperiment/data/
+*.db
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+chatbot-backend/.venv/
+chatbot-backendexperiment/.venv/
+**/.venv/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+.vercel

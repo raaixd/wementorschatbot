@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="200" height="200">
+  <defs>
+    <!-- Purple Gradient -->
+    <linearGradient id="wmPurple" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4A1E85" />
+      <stop offset="50%" stop-color="#6F35B5" />
+      <stop offset="100%" stop-color="#9152E5" />
+    </linearGradient>
+    
+    <!-- Gold Gradient -->
+    <linearGradient id="wmGold" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#D99318" />
+      <stop offset="50%" stop-color="#F5B92B" />
+      <stop offset="100%" stop-color="#FFD666" />
+    </linearGradient>
+
+    <!-- Glass Glow / Shimmer -->
+    <radialGradient id="wmGlassShine" cx="30%" cy="25%" r="70%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.35" />
+      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0.08" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+    </radialGradient>
+
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#582C83" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <!-- Background Glass Disk -->
+  <circle cx="50" cy="50" r="48" fill="#120F24" stroke="rgba(255,255,255,0.18)" stroke-width="1.5" />
+  <circle cx="50" cy="50" r="48" fill="url(#wmGlassShine)" />
+
+  <!-- Logo Group -->
+  <g filter="url(#softGlow)">
+    <!-- LEFT FIGURE (Student) -->
+    <!-- Head -->
+    <circle cx="31" cy="48" r="7.5" fill="url(#wmPurple)" />
+    <!-- Reaching Body / Arms -->
+    <path d="M 21 44 C 23 58 31 72 45 78 C 39 67 36 57 39 44 C 34 50 27 50 21 44 Z" fill="url(#wmPurple)" />
+
+    <!-- CENTER / TALL FIGURE (Mentor) -->
+    <!-- Head -->
+    <circle cx="50.5" cy="35" r="7.8" fill="url(#wmGold)" />
+    <!-- Reaching Body / Arms -->
+    <path d="M 45 22 C 43 45 42 66 45 80 C 50 66 57 56 65 42 C 58 48 50 48 45 22 Z" fill="url(#wmGold)" />
+
+    <!-- OPEN BOOK (Right Wings & Pages) -->
+    <!-- Main Book Wing (Purple) -->
+    <path d="M 46 80 C 58 77 75 66 85 27 C 72 35 56 46 47 67 Z" fill="url(#wmPurple)" />
+    <path d="M 46 80 C 60 78 72 70 82 46 C 73 60 59 69 46 75 Z" fill="url(#wmPurple)" />
+    
+    <!-- Gold Page Trim -->
+    <path d="M 47 75 C 60 73 71 67 80 52 L 83 55 C 72 72 58 79 46 82 Z" fill="url(#wmGold)" />
+    <!-- Bottom purple accent -->
+    <path d="M 46 82 C 58 81 72 75 84 57 L 85 61 C 73 79 58 85 46 84 Z" fill="url(#wmPurple)" />
+  </g>
+</svg>
