@@ -126,6 +126,7 @@ class ChatResponse(BaseModel):
     reply: str
     session_id: str
     intent: str
+    suggestions: Optional[List[str]] = None
 
 
 class ClearChatRequest(BaseModel):
@@ -311,7 +312,12 @@ def chat(
         confidence=result.confidence,
     )
 
-    return ChatResponse(reply=result.reply, session_id=session_id, intent=result.intent)
+    return ChatResponse(
+        reply=result.reply,
+        session_id=session_id,
+        intent=result.intent,
+        suggestions=result.suggestions,
+    )
 
 
 @app.post("/chat/clear")

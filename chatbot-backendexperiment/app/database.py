@@ -22,8 +22,9 @@ from __future__ import annotations
 import re
 import sqlite3
 from contextlib import contextmanager
+from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
-from typing import Iterator, Optional
+from typing import Iterator, Optional, Union
 
 from . import config
 
@@ -81,6 +82,14 @@ CREATE TABLE IF NOT EXISTS demo_leads (
     FOREIGN KEY (session_id) REFERENCES sessions (id)
 );
 CREATE INDEX IF NOT EXISTS idx_demo_leads_session ON demo_leads (session_id);
+
+CREATE TABLE IF NOT EXISTS conversation_memory (
+    session_id TEXT PRIMARY KEY,
+    state_json TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    FOREIGN KEY (session_id) REFERENCES sessions (id)
+);
+CREATE INDEX IF NOT EXISTS idx_conversation_memory_session ON conversation_memory (session_id);
 """
 
 _EMAIL_REDACT_RE = re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b")
@@ -173,10 +182,81 @@ def get_recent_messages(session_id: str, limit: int) -> list[sqlite3.Row]:
 
 
 def clear_session(session_id: str) -> None:
-    """Remove stored messages and demo state for a session (used by Clear Chat)."""
+    """Remove stored messages, demo state, and memory for a session (used by Clear Chat)."""
     with get_connection() as conn:
         conn.execute("DELETE FROM messages WHERE session_id = ?", (session_id,))
         conn.execute("DELETE FROM demo_leads WHERE session_id = ?", (session_id,))
+        conn.execute("DELETE FROM conversation_memory WHERE session_id = ?", (session_id,))
+        conn.commit()
+
+
+@dataclass
+class ConversationMemory:
+    session_id: str
+    active_program: Optional[str] = None
+    ordered_programs: list[str] = field(default_factory=list)
+    last_expanded_index: Optional[int] = None
+    last_intents: list[str] = field(default_factory=list)
+    last_assistant_summary: Optional[str] = None
+    pending_clarification: Optional[str] = None
+    previously_shown_suggestions: list[str] = field(default_factory=list)
+    learner_type_or_grade: Optional[str] = None
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: dict, session_id: str = "") -> "ConversationMemory":
+        if not isinstance(data, dict):
+            return cls(session_id=session_id)
+        return cls(
+            session_id=data.get("session_id", session_id),
+            active_program=data.get("active_program"),
+            ordered_programs=data.get("ordered_programs") or [],
+            last_expanded_index=data.get("last_expanded_index"),
+            last_intents=data.get("last_intents") or [],
+            last_assistant_summary=data.get("last_assistant_summary"),
+            pending_clarification=data.get("pending_clarification"),
+            previously_shown_suggestions=data.get("previously_shown_suggestions") or [],
+            learner_type_or_grade=data.get("learner_type_or_grade"),
+        )
+
+
+def get_conversation_memory(session_id: str) -> ConversationMemory:
+    """Retrieve structured conversational memory for a session."""
+    import json
+    with get_connection() as conn:
+        row = conn.execute(
+            "SELECT state_json FROM conversation_memory WHERE session_id = ?",
+            (session_id,),
+        ).fetchone()
+        if row and row["state_json"]:
+            try:
+                return ConversationMemory.from_dict(json.loads(row["state_json"]), session_id)
+            except Exception:
+                pass
+        return ConversationMemory(session_id=session_id)
+
+
+def save_conversation_memory(session_id: str, memory: Union[ConversationMemory, dict]) -> None:
+    """Persist structured conversational memory for a session."""
+    import json
+    now = _now()
+    if hasattr(memory, "to_dict"):
+        state_json = json.dumps(memory.to_dict())
+    else:
+        state_json = json.dumps(memory)
+    with get_connection() as conn:
+        conn.execute(
+            """
+            INSERT INTO conversation_memory (session_id, state_json, updated_at)
+            VALUES (?, ?, ?)
+            ON CONFLICT (session_id) DO UPDATE SET
+                state_json = excluded.state_json,
+                updated_at = excluded.updated_at
+            """,
+            (session_id, state_json, now),
+        )
         conn.commit()
 
 

@@ -414,7 +414,15 @@
       "category": "programs",
       "question": "What is the Middle School program?",
       "phrasings": [
+        "tell me about middle school",
+        "what is the middle school program",
         "middle school program",
+        "middle school",
+        "middle",
+        "do you teach grades 6-8",
+        "grades 6-8",
+        "grades 6 to 8",
+        "what do you offer for grade 7",
         "grade 6 program",
         "grade 7 program",
         "grade 8 program",
@@ -431,13 +439,113 @@
       "keywords": [
         "class",
         "middle school",
-        "standard"
+        "standard",
+        "doubt clinics",
+        "practical labs"
       ],
-      "answer": "The Middle School program supports Grades 6-8 and includes all subjects, doubt-solving, and practical labs. It focuses on concept-based learning, practical problem sets, fortnightly doubt clinics, and progress dashboard access.",
+      "answer": "The Middle School program supports Grades 6–8 and includes all subjects, doubt-solving, and practical labs. It focuses on concept-based learning, practical problem sets, fortnightly doubt clinics, and progress dashboard access.\n\nYou can click **Book Free Demo** at the top-right of the website to experience a trial session.",
       "follow_ups": [
-        "What is the Senior School Focus program?",
-        "Is a demo class available?"
+        "What are doubt clinics?",
+        "Do students get practical labs?"
       ],
+      "confidence": "verified"
+    },
+    {
+      "id": "middle-school-doubt-clinics",
+      "category": "programs",
+      "question": "What are doubt clinics in the Middle School program?",
+      "phrasings": [
+        "what are doubt clinics",
+        "doubt clinics",
+        "tell me about doubt clinics",
+        "are there doubt-solving sessions",
+        "how do doubt clinics work",
+        "doubt solving sessions in middle school"
+      ],
+      "keywords": [
+        "doubt clinics",
+        "doubt solving",
+        "fortnightly"
+      ],
+      "answer": "In the Middle School program, students attend fortnightly doubt clinics dedicated to resolving questions, reinforcing difficult concepts, and ensuring no learning gaps remain.",
+      "confidence": "verified"
+    },
+    {
+      "id": "middle-school-practical-labs",
+      "category": "programs",
+      "question": "Do students get practical labs in Middle School?",
+      "phrasings": [
+        "do students get practical labs",
+        "practical labs",
+        "practical problem sets",
+        "tell me about practical labs",
+        "are there practical labs"
+      ],
+      "keywords": [
+        "practical labs",
+        "problem sets",
+        "hands-on"
+      ],
+      "answer": "Yes. The Middle School program includes practical labs and practical problem sets to help learners apply theoretical concepts through hands-on learning.",
+      "confidence": "verified"
+    },
+    {
+      "id": "middle-school-progress-dashboard",
+      "category": "programs",
+      "question": "Can parents track progress in the Middle School program?",
+      "phrasings": [
+        "can parents track progress",
+        "do parents get progress access",
+        "progress dashboard",
+        "how do parents track progress in middle school",
+        "access to progress dashboard"
+      ],
+      "keywords": [
+        "dashboard",
+        "progress dashboard",
+        "track progress",
+        "parents"
+      ],
+      "answer": "Yes. Parents and learners have access to a progress dashboard to track academic development, concept mastery, and regular learning milestones.",
+      "confidence": "verified"
+    },
+    {
+      "id": "middle-school-subjects",
+      "category": "programs",
+      "question": "Does Middle School include all subjects?",
+      "phrasings": [
+        "does middle school include all subjects",
+        "what subjects are covered in middle school",
+        "middle school subjects",
+        "what subjects in middle school",
+        "what does middle school cover"
+      ],
+      "keywords": [
+        "all subjects",
+        "subjects",
+        "middle school subjects"
+      ],
+      "answer": "The Middle School program covers all core subjects, along with doubt-solving and practical labs designed for Grades 6–8.",
+      "confidence": "verified"
+    },
+    {
+      "id": "personalized-mentoring-concept",
+      "category": "mentorship",
+      "question": "What is personalized mentoring?",
+      "phrasings": [
+        "what is personalized mentoring",
+        "personalized mentoring",
+        "tell me about personalized mentoring",
+        "how does personalized mentoring work",
+        "meaning of personalized mentoring"
+      ],
+      "keywords": [
+        "personalized mentoring",
+        "personal mentor",
+        "individual attention",
+        "guidance"
+      ],
+      "answer": "Personalized mentoring means each learner receives individual attention and guidance from a personal mentor. The mentor supports the learner according to their needs through practical guidance and regular feedback.",
       "confidence": "verified"
     },
     {
@@ -529,7 +637,12 @@
         "tell me about your speaking confidence program",
         "do you have something for public speaking confidence",
         "speaking confidence",
-        "public speaking confidence"
+        "public speaking confidence",
+        "i want to learn to speak confidently",
+        "learn to speak confidently",
+        "speak confidently",
+        "how to speak confidently",
+        "speak with confidence"
       ],
       "keywords": [
         "communication",
@@ -542,11 +655,140 @@
         "practice",
         "feedback"
       ],
-      "answer": "The Confident Speaker program is designed for students, professionals, and homemakers, and is supported through personalized mentoring:\n\n- **Program Scope**: Covers Spoken English, Public Speaking, and Interview Skills.\n- **Personalized Mentoring**: Every learner receives individual attention from a personal mentor rather than rote grammar drills.\n- **Skill Development**: The mentor works individually with the learner to develop confidence in speaking through guided practice, practical conversation, and regular feedback.\n\nYou can ask about the program format or click **Book Free Demo** at the top-right of the website to experience a trial session.",
+      "answer": "The Confident Speaker program is designed for students, professionals, and homemakers, and is supported through personalized mentoring:\n\n- **Program Scope**: Covers Spoken English, Public Speaking, and Interview Skills.\n- **Personalized Mentoring**: Every learner receives individual attention from a personal mentor rather than rote grammar drills.\n- **Skill Development**: The mentor works individually with the learner to develop confidence in speaking through guided practice, practical conversation, and regular feedback.\n\nYou can click **Book Free Demo** at the top-right of the website to experience a trial session.",
       "follow_ups": [
         "Is a demo class available?",
         "How can I contact WeMentors?"
       ],
+      "confidence": "verified"
+    },
+    {
+      "id": "confident-speaker-format",
+      "category": "programs",
+      "question": "What is the format for Confident Speaker?",
+      "phrasings": [
+        "what is the format for confident speaker",
+        "what's the format for confident speaker",
+        "whats the format for confident speaker",
+        "format for confident speaker",
+        "confident speaker format",
+        "program format",
+        "what is the format",
+        "what's the format",
+        "whats the format",
+        "how does confident speaker work",
+        "how does the program work",
+        "what is the structure of the program",
+        "what happens in the program",
+        "can you explain the program format",
+        "how are the sessions conducted"
+      ],
+      "keywords": [
+        "format",
+        "structure",
+        "sessions",
+        "conducted",
+        "one-to-one",
+        "how it works"
+      ],
+      "answer": "The Confident Speaker program uses personalized one-to-one mentoring. Each learner works individually with a personal mentor through guided speaking practice, practical conversation, and regular feedback. The program covers Spoken English, Public Speaking, and Interview Skills, with the goal of building confidence in speaking.\n\nYou can click **Book Free Demo** at the top-right of the website to experience a trial session.",
+      "follow_ups": [
+        "Who is the program for?",
+        "Is a demo class available?"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "id": "confident-speaker-audience",
+      "category": "programs",
+      "question": "Who is the Confident Speaker program for?",
+      "phrasings": [
+        "who is confident speaker for",
+        "who is the confident speaker program for",
+        "who can join confident speaker",
+        "is confident speaker for adults",
+        "is confident speaker for professionals",
+        "is confident speaker for homemakers",
+        "target audience for confident speaker",
+        "who is it for"
+      ],
+      "keywords": [
+        "who",
+        "audience",
+        "students",
+        "professionals",
+        "homemakers",
+        "adults"
+      ],
+      "answer": "The Confident Speaker program is designed for students, professionals, and homemakers. Each learner receives individual attention from a personal mentor tailored to their background and speaking goals.\n\nYou can click **Book Free Demo** at the top-right of the website to get started.",
+      "confidence": "verified"
+    },
+    {
+      "id": "confident-speaker-scope",
+      "category": "programs",
+      "question": "What does the Confident Speaker program cover?",
+      "phrasings": [
+        "what does confident speaker cover",
+        "what does the confident speaker program cover",
+        "what is covered in confident speaker",
+        "scope of confident speaker",
+        "what will my child learn in confident speaker",
+        "what do we learn in confident speaker",
+        "what does it cover"
+      ],
+      "keywords": [
+        "scope",
+        "cover",
+        "spoken english",
+        "public speaking",
+        "interview skills"
+      ],
+      "answer": "The Confident Speaker program covers Spoken English, Public Speaking, and Interview Skills. The program focuses on practical development rather than rote grammar drills.\n\nYou can click **Book Free Demo** at the top-right of the website to experience a trial session.",
+      "confidence": "verified"
+    },
+    {
+      "id": "confident-speaker-mentoring",
+      "category": "programs",
+      "question": "Is Confident Speaker one-on-one?",
+      "phrasings": [
+        "is confident speaker one-on-one",
+        "is confident speaker 1 on 1",
+        "does confident speaker have a personal mentor",
+        "is it one-on-one",
+        "is it 1 on 1",
+        "does every student get a personal mentor"
+      ],
+      "keywords": [
+        "one-on-one",
+        "1:1",
+        "personal mentor",
+        "individual attention"
+      ],
+      "answer": "Yes. Every learner receives individual attention from a personal mentor rather than being passed between a rotating group of mentors or taught in large batches.\n\nYou can click **Book Free Demo** at the top-right of the website to experience a trial session.",
+      "confidence": "verified"
+    },
+    {
+      "id": "confident-speaker-activities",
+      "category": "programs",
+      "question": "What happens during Confident Speaker sessions?",
+      "phrasings": [
+        "what happens during sessions",
+        "what happens during the sessions",
+        "what happens in a session",
+        "what happens during confident speaker sessions",
+        "what will my child do in the program",
+        "what do we do during sessions",
+        "what do students do during sessions",
+        "session activities"
+      ],
+      "keywords": [
+        "activities",
+        "sessions",
+        "guided speaking practice",
+        "practical conversation",
+        "feedback"
+      ],
+      "answer": "During sessions, the mentor works individually with the learner through guided speaking practice, practical conversation, regular feedback, and confidence-building activities. The focus is on practical development rather than memorization.\n\nYou can click **Book Free Demo** at the top-right of the website to experience a trial session.",
       "confidence": "verified"
     },
     {

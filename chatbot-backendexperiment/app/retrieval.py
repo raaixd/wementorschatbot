@@ -175,6 +175,12 @@ class Retriever:
             overlap_bonus = overlap * 0.08
             score = cosine + overlap_bonus
 
+            # Phrasing / question match bonus: if query directly matches
+            # an intended phrasing or question, grant a decisive boost.
+            norm_q = lowered_query.strip("? .!").strip()
+            if any(norm_q == p.lower().strip("? .!").strip() for p in [entry.question, *entry.phrasings]):
+                score += 0.5
+
             # Coverage gate: a single rare shared word (high IDF weight)
             # can otherwise make an unrelated multi-word query look like a
             # confident match (e.g. "financial aid" sharing only "offer"

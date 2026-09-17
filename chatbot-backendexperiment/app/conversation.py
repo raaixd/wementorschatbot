@@ -79,12 +79,87 @@ _DEMO_OFFER_AFFIRM_RE = re.compile(
 )
 _OUT_OF_SCOPE_RE = re.compile(
     r"\b(football|cricket|sports|weather|temperature|poem|poetry|song|lyrics|recipe|cook|pizza|burger|"
-    r"movie|cinema|actor|president|prime minister|politics|election|joke)\b",
+    r"movie|cinema|actor|president|prime minister|politics|election|joke|medical\s+advice|medicine|doctor|"
+    r"write\s+(?:my\s+)?(?:assignment|essay|homework|code|paper)|do\s+my\s+homework)\b",
     re.IGNORECASE,
 )
 
 _HELP_RE = re.compile(
     r"^\s*(help|help me|can you help( me)?|i need help|please help|support|assist(ance)?)\s*[?!.]*\s*$",
+    re.IGNORECASE,
+)
+
+_FORMAT_RE = re.compile(
+    r"\b(what(?:'?s|\s+is)\s+(?:the\s+)?format|"
+    r"program\s+format|"
+    r"session\s+format|"
+    r"how\s+does\s+(?:it|the\s+program|confident\s+speaker)\s+work|"
+    r"how\s+are\s+(?:the\s+)?sessions\s+conducted|"
+    r"what\s+happens\s+in\s+the\s+program|"
+    r"what\s+is\s+the\s+structure(?:\s+of\s+the\s+program)?|"
+    r"can\s+you\s+explain\s+the\s+program\s+format|"
+    r"explain\s+the\s+program\s+format)\b"
+    r"|^\s*format\s*[?!.]*$",
+    re.IGNORECASE,
+)
+
+_AUDIENCE_RE = re.compile(
+    r"\b(who\s+is\s+(?:it|this|the\s+program|confident\s+speaker)\s+for|"
+    r"who\s+can\s+join|"
+    r"is\s+(?:it|the\s+program|confident\s+speaker)\s+for\s+(?:adults|professionals|homemakers|students|kids|children)|"
+    r"target\s+audience)\b",
+    re.IGNORECASE,
+)
+
+_SCOPE_RE = re.compile(
+    r"\b(what\s+does\s+(?:it|the\s+program|confident\s+speaker)\s+cover|"
+    r"what\s+do\s+(?:we|students|learners)\s+learn|"
+    r"what\s+is\s+covered(?:\s+in\s+the\s+program)?|"
+    r"what\s+will\s+(?:my\s+child|i)\s+learn|"
+    r"scope\s+of\s+(?:the\s+program|confident\s+speaker))\b",
+    re.IGNORECASE,
+)
+
+_MENTORING_RE = re.compile(
+    r"\b(is\s+(?:it|the\s+teaching|the\s+class|the\s+program)\s+(?:one[- ]on[- ]one|1[- ]on[- ]1|1:1)|"
+    r"does\s+every\s+student\s+get\s+a\s+personal\s+mentor|"
+    r"do\s+(?:you|they)\s+have\s+personal\s+mentors?|"
+    r"how\s+does\s+(?:personalized\s+)?mentoring\s+work|"
+    r"individual\s+attention|"
+    r"personalized\s+mentoring|"
+    r"personal\s+mentoring|"
+    r"personal\s+mentors?|"
+    r"mentoring)\b",
+    re.IGNORECASE,
+)
+
+_ACTIVITIES_RE = re.compile(
+    r"\b(what\s+happens\s+during\s+(?:the\s+)?sessions|"
+    r"what\s+happens\s+in\s+a\s+session|"
+    r"what\s+do\s+(?:we|students|learners)\s+do\s+during\s+(?:the\s+)?sessions|"
+    r"what\s+will\s+my\s+child\s+do\s+in\s+the\s+program|"
+    r"session\s+activities|"
+    r"what\s+activities\s+happen)\b",
+    re.IGNORECASE,
+)
+
+_PARENT_UPDATES_RE = re.compile(
+    r"\b(do\s+parents\s+(?:receive|get)\s+(?:progress\s+)?updates|"
+    r"how\s+do\s+parents\s+track\s+progress|"
+    r"progress\s+updates\s+for\s+parents|"
+    r"parent\s+updates)\b",
+    re.IGNORECASE,
+)
+
+_MARKS_GUARANTEE_RE = re.compile(
+    r"\b(can\s+you\s+guarantee\s+(?:marks|grades|ranks|scores|results)|"
+    r"do\s+you\s+guarantee\s+(?:marks|grades|ranks|scores|results)|"
+    r"guarantee\s+(?:marks|ranks|results|scores))\b",
+    re.IGNORECASE,
+)
+
+_CONFIRMATION_RE = re.compile(
+    r"^\s*(okay|ok|sure|yes|yeah|yup|got it|understood|alright|all right)\s*[!.]*\s*$",
     re.IGNORECASE,
 )
 
@@ -109,6 +184,12 @@ def normalize_query(text: str) -> str:
     cleaned = re.sub(r"\bprepping\b", "preparing", cleaned)
     cleaned = re.sub(r"\bboards\b", "board", cleaned)
     cleaned = re.sub(r"\bexams\b", "exam", cleaned)
+    cleaned = re.sub(r"\b(foundating|doundation|foudation|foundaton)\b", "foundation", cleaned)
+    cleaned = re.sub(r"\b(middel|midle|mddle)\b", "middle", cleaned)
+    cleaned = re.sub(r"\bgrades?\s*(\d+)\s*[-–to]\s*(\d+)\b", r"grades \1-\2", cleaned)
+    cleaned = re.sub(r"\bclasses?\s*(\d+)\s*[-–to]\s*(\d+)\b", r"grades \1-\2", cleaned)
+    cleaned = re.sub(r"\bstandard\s*(\d+)\b", r"grade \1", cleaned)
+    cleaned = re.sub(r"\bclass\s*(\d+)\b", r"grade \1", cleaned)
     return cleaned
 
 
@@ -139,6 +220,8 @@ _GENERAL_INFO_RE = re.compile(
     r"tell\s+me\s+what\s+you\s+do|"
     r"can\s+you\s+explain\s+wementors|"
     r"explain\s+wementors|"
+    r"can\s+you\s+explain\s+(?:your\s+)?platform|"
+    r"what\s+is\s+this\s+website\s+about|"
     r"give\s+me\s+(?:some\s+)?information\s+about\s+wementors|"
     r"give\s+me\s+(?:some\s+)?information\s+about\s+(?:your\s+)?(?:academy|organization|organisation)|"
     r"i\s+(?:want|wanna)\s+to\s+know\s+more\s+about\s+wementors|"
@@ -178,6 +261,8 @@ _BOARD_EXAM_RE = re.compile(
     r"preparation\s+for\s+board(?:\s+exam)?s?|"
     r"board\s+preparation\s+course|"
     r"what\s+about\s+board\s+exams?|"
+    r"do\s+you\s+offer\s+board\s+exam\s+support|"
+    r"do\s+you\s+have\s+board\s+exam\s+classes|"
     r"support\s+for\s+(?:class|grade)\s+(?:9|10))\b",
     re.IGNORECASE,
 )
@@ -195,7 +280,10 @@ _CONFIDENT_SPEAKER_RE = re.compile(
     r"do\s+you\s+have\s+something\s+for\s+public\s+speaking\s+confidence|"
     r"confident\s+speaker|"
     r"speaking\s+confidence|"
-    r"public\s+speaking\s+confidence)\b",
+    r"public\s+speaking\s+confidence|"
+    r"speak\s+confidently|"
+    r"learn\s+to\s+speak\s+confidently|"
+    r"speak\s+with\s+confidence)\b",
     re.IGNORECASE,
 )
 
@@ -230,8 +318,8 @@ _DEMO_BOOKING_RE = re.compile(
     r"|\b(demo|trial)\s+class\s+booking\b|\bbook( a)? (demo|trial)\b"
     r"|\bhow (can|do) i (book|get|attend|schedule) a (demo|trial)\b"
     r"|\b(can|could) i (get|have|book|attend) a (free\s+)?(demo|trial)\b"
-    r"|\b(how to join|how do i join|want to join|enquire about joining|interested in joining)\b"
-    r"|\b(how do i enroll|how to enroll|admissions? process|admission enquiry|enquire about classes)\b",
+    r"|\b(how to join|how do i join|want to join|i want to join|i wanna join|enquire about joining|interested in joining)\b"
+    r"|\b(how do i enroll|how to enroll|admissions? process|admission enquiry|enquire about classes|what'?s the process|how can my child attend|can you book it for me)\b",
     re.IGNORECASE,
 )
 _WHERE_DETAILS_RE = re.compile(
@@ -264,11 +352,110 @@ _RELATIVE_REF_RE = re.compile(r"\b(next|following|after that|previous|prior|one 
 
 _COMPARISON_RE = re.compile(r"\b(compare|comparison|difference between|vs\.?|versus)\b", re.IGNORECASE)
 
+_FOUNDATION_TYPO_EXACT_RE = re.compile(
+    r"^\s*(foundation|found|foundating|doundation|foudation|foundaton)\s*[?!.]*$",
+    re.IGNORECASE,
+)
+_FOUNDATION_QUERY_RE = re.compile(
+    r"\b(tell\s+me\s+about\s+foundation(?:\s+years?)?|"
+    r"what\s+is\s+foundation(?:\s+years?)?|"
+    r"foundation\s+years?|"
+    r"foundation\s+program|"
+    r"grades?\s+3\s*[-–to]\s*5|"
+    r"class\s+[345]|"
+    r"primary\s+school\s+child|"
+    r"for\s+my\s+primary\s+school)\b",
+    re.IGNORECASE,
+)
+
+_MIDDLE_SCHOOL_EXACT_RE = re.compile(
+    r"^\s*(middle\s+school|middle|middel|midle)\s*[?!.]*$",
+    re.IGNORECASE,
+)
+_MIDDLE_SCHOOL_OVERVIEW_RE = re.compile(
+    r"\b(tell\s+me\s+about\s+middle(?:\s+school)?|"
+    r"what\s+is\s+(?:the\s+)?middle\s+school(?:\s+program)?|"
+    r"what\s+is\s+middle(?:\s+school)?|"
+    r"middle\s+school\s+program|"
+    r"explain\s+middle\s+school)\b",
+    re.IGNORECASE,
+)
+_MIDDLE_SCHOOL_GRADES_RE = re.compile(
+    r"\b(do\s+you\s+teach\s+grades?\s+6\s*[-–to]\s*8|"
+    r"what\s+do\s+you\s+offer\s+for\s+(?:grades?|class)\s+[678]|"
+    r"grades?\s+6\s*[-–to]\s*8(?:\s+support|\s+program)?|"
+    r"class\s+[678](?:\s+support|\s+program)?|"
+    r"what\s+about\s+grades?\s+6\s*[-–to]\s*8)\b",
+    re.IGNORECASE,
+)
+_MIDDLE_SCHOOL_SUBJECTS_RE = re.compile(
+    r"\b(does\s+middle\s+school\s+include\s+all\s+subjects|"
+    r"what\s+does\s+middle\s+school\s+cover|"
+    r"what\s+subjects\s+are\s+in\s+middle\s+school|"
+    r"middle\s+school\s+subjects)\b",
+    re.IGNORECASE,
+)
+_DOUBT_CLINICS_RE = re.compile(
+    r"\b(what\s+are\s+doubt\s+clinics|"
+    r"doubt\s+clinics?|"
+    r"are\s+there\s+doubt[- ]solving\s+sessions|"
+    r"doubt[- ]solving\s+sessions?)\b",
+    re.IGNORECASE,
+)
+_PRACTICAL_LABS_RE = re.compile(
+    r"\b(do\s+students\s+get\s+practical\s+labs|"
+    r"practical\s+labs?|"
+    r"practical\s+problem\s+sets?)\b",
+    re.IGNORECASE,
+)
+_PROGRESS_DASHBOARD_RE = re.compile(
+    r"\b(can\s+parents\s+track\s+progress|"
+    r"do\s+parents\s+get\s+progress\s+access|"
+    r"progress\s+dashboard(?:\s+access)?|"
+    r"how\s+do\s+parents\s+track\s+progress\s+in\s+middle\s+school)\b",
+    re.IGNORECASE,
+)
+
+_PERSONALIZED_MENTORING_CONCEPT_RE = re.compile(
+    r"^\s*(what\s+is\s+personalized\s+mentoring|"
+    r"personalized\s+mentoring|"
+    r"personal\s+mentoring\s+concept|"
+    r"what\s+does\s+personalized\s+mentoring\s+mean|"
+    r"explain\s+personalized\s+mentoring)\s*[?!.]*$",
+    re.IGNORECASE,
+)
+
+_CORRECTION_BEFORE_RE = re.compile(
+    r"\b(?:no[,.]?\s*)?(?:the\s+one\s+)?before\s+([a-z0-9\s–-]+)\b",
+    re.IGNORECASE,
+)
+_CORRECTION_AFTER_RE = re.compile(
+    r"\b(?:no[,.]?\s*)?(?:the\s+one\s+)?after\s+([a-z0-9\s–-]+)\b",
+    re.IGNORECASE,
+)
+_CORRECTION_NOT_THAT_RE = re.compile(
+    r"^\s*(?:no[,.]?\s*)?(?:not\s+that(?:\s+one)?|go\s+back|the\s+previous\s+course|no,?\s*i\s+meant\b)\s*[?!.]*",
+    re.IGNORECASE,
+)
+_WHAT_ABOUT_OTHER_ONE_RE = re.compile(
+    r"\b(?:what\s+about\s+)?(?:the\s+other\s+one|what\s+about\s+the\s+other)\b",
+    re.IGNORECASE,
+)
+
 _PROGRAM_NAME_HINTS = {
-    "program-foundation-years": ["foundation"],
-    "program-middle-school": ["middle"],
-    "program-senior-school": ["senior", "board"],
-    "program-confident-speaker": ["confident", "speaker", "spoken", "speaking", "interview"],
+    "program-foundation-years": [
+        "foundation", "found", "foundating", "doundation",
+        "grades 3-5", "grades 3 to 5", "class 3", "class 4", "class 5", "primary school",
+    ],
+    "program-middle-school": [
+        "middle", "middel", "midle",
+        "grades 6-8", "grades 6 to 8", "class 6", "class 7", "class 8", "grade 6", "grade 7", "grade 8",
+    ],
+    "program-senior-school": [
+        "senior", "board",
+        "grades 9-10", "grades 9 to 10", "class 9", "class 10", "grade 9", "grade 10", "10th", "9th",
+    ],
+    "program-confident-speaker": ["confident", "speaker", "spoken", "speaking", "interview", "public speaking"],
 }
 
 _PLAYFUL_RE = re.compile(
@@ -283,6 +470,7 @@ class ReplyResult:
     intent: str
     matched_entry_ids: List[str]
     confidence: Optional[float]
+    suggestions: Optional[List[str]] = None
 
 
 class ConversationEngine:
@@ -291,11 +479,217 @@ class ConversationEngine:
         self.entries_by_id = {e.id: e for e in entries}
         self.retriever = Retriever(entries)
 
+    def _get_current_subject(self, session_id: Optional[str]) -> Optional[str]:
+        """Infer the subject of the ongoing conversation from database memory and recent turns."""
+        if not session_id:
+            return None
+        try:
+            mem = database.get_conversation_memory(session_id)
+            if mem.active_program:
+                return mem.active_program
+            rows = database.get_recent_messages(session_id, limit=8)
+            for row in reversed(rows):
+                intent = row["intent"] or ""
+                content = (row["content"] or "").lower()
+                if "foundation" in intent or "foundation" in content:
+                    return "foundation"
+                if "middle" in intent or "middle" in content:
+                    return "middle"
+                if "confident_speaker" in intent or "confident speaker" in content or "speaking confidence" in content or "public speaking" in content or "spoken english" in content:
+                    return "confident_speaker"
+                if "board_exam" in intent or "board" in content or "class 10" in content or "class 9" in content or "grade 10" in content or "grade 9" in content or "senior school" in content:
+                    return "board_exam"
+                if intent in ("general_info", "capability"):
+                    return "general"
+        except Exception:
+            pass
+        return None
+
+    def _program_name_to_id(self, name: str) -> Optional[str]:
+        n = name.strip().lower()
+        if any(w in n for w in ["foundation", "found", "3-5", "grades 3", "primary"]):
+            return "program-foundation-years"
+        if any(w in n for w in ["middle", "6-8", "grades 6", "class 7", "grade 7"]):
+            return "program-middle-school"
+        if any(w in n for w in ["senior", "board", "9-10", "grades 9", "class 10", "grade 10", "10th", "9th"]):
+            return "program-senior-school"
+        if any(w in n for w in ["speaker", "confident", "spoken", "speaking"]):
+            return "program-confident-speaker"
+        return None
+
+    def _program_id_to_key(self, prog_id: str) -> str:
+        if "foundation" in prog_id:
+            return "foundation"
+        if "middle" in prog_id:
+            return "middle"
+        if "senior" in prog_id:
+            return "senior"
+        if "confident" in prog_id:
+            return "confident_speaker"
+        return "general"
+
+    def _reply_for_program_id(self, prog_id: str, session_id: str) -> ReplyResult:
+        if prog_id == "program-foundation-years":
+            return ReplyResult(
+                personality.FOUNDATION_YEARS_DIRECT_RESPONSE,
+                "foundation_years_overview",
+                ["program-foundation-years"],
+                1.0,
+            )
+        if prog_id == "program-middle-school":
+            return ReplyResult(
+                personality.MIDDLE_SCHOOL_OVERVIEW_RESPONSE,
+                "middle_school_overview",
+                ["program-middle-school"],
+                1.0,
+            )
+        if prog_id == "program-senior-school":
+            entry = self.entries_by_id.get("program-senior-school")
+            scored = [ScoredEntry(entry=entry, score=1.0)] if entry else []
+            answer = self._generate_answer("Grades 9-10 program", scored, session_id)
+            answer = self._run_response_quality_checks("Grades 9-10 program", answer, "board_exam", [entry] if entry else [])
+            return ReplyResult(answer, "board_exam", ["program-senior-school"], 1.0)
+        if prog_id == "program-confident-speaker":
+            entry = self.entries_by_id.get("program-confident-speaker")
+            scored = [ScoredEntry(entry=entry, score=1.0)] if entry else []
+            answer = self._generate_answer("Confident Speaker program", scored, session_id)
+            answer = self._run_response_quality_checks("Confident Speaker program", answer, "confident_speaker", [entry] if entry else [])
+            return ReplyResult(answer, "confident_speaker", ["program-confident-speaker"], 1.0)
+        return ReplyResult(personality.pick(personality.GREETINGS), "general", [], None)
+
+    def _resolve_relative_or_correction(
+        self, text: str, memory: database.ConversationMemory, session_id: str
+    ) -> Optional[ReplyResult]:
+        standard_sequence = [
+            "program-foundation-years",
+            "program-middle-school",
+            "program-senior-school",
+            "program-confident-speaker",
+        ]
+        last_list_ids, _ = self._get_last_turn_context(session_id)
+        programs_order = memory.ordered_programs or last_list_ids
+
+        m_before = _CORRECTION_BEFORE_RE.search(text)
+        if m_before:
+            target_name = m_before.group(1).strip().lower()
+            target_id = self._program_name_to_id(target_name)
+            order_to_use = programs_order if (programs_order and target_id in programs_order) else standard_sequence
+            if target_id and target_id in order_to_use:
+                idx = order_to_use.index(target_id)
+                if idx > 0:
+                    prev_id = order_to_use[idx - 1]
+                    memory.last_expanded_index = idx - 1
+                    memory.active_program = self._program_id_to_key(prev_id)
+                    return self._reply_for_program_id(prev_id, session_id)
+                else:
+                    reply = (
+                        "Foundation Years (Grades 3–5) is the earliest academic program we offer at WeMentors, "
+                        "followed by Middle School (Grades 6–8) and Senior School (Grades 9–10). "
+                        "Did you mean one of those, or our Confident Speaker program?"
+                    )
+                    return ReplyResult(
+                        reply,
+                        "correction_clarification",
+                        ["program-foundation-years", "programs-overview"],
+                        1.0,
+                    )
+
+        m_after = _CORRECTION_AFTER_RE.search(text)
+        if m_after:
+            target_name = m_after.group(1).strip().lower()
+            target_id = self._program_name_to_id(target_name)
+            order_to_use = programs_order if (programs_order and target_id in programs_order) else standard_sequence
+            if target_id and target_id in order_to_use:
+                idx = order_to_use.index(target_id)
+                if idx < len(order_to_use) - 1:
+                    next_id = order_to_use[idx + 1]
+                    memory.last_expanded_index = idx + 1
+                    memory.active_program = self._program_id_to_key(next_id)
+                    return self._reply_for_program_id(next_id, session_id)
+
+        # For bare ordinals and relative references, a list must have been established in this session!
+        if not programs_order:
+            return None
+
+        if _WHAT_ABOUT_OTHER_ONE_RE.search(text):
+            last_idx = memory.last_expanded_index if memory.last_expanded_index is not None else 0
+            next_idx = (last_idx + 1) % len(programs_order)
+            prog_id = programs_order[next_idx]
+            memory.last_expanded_index = next_idx
+            memory.active_program = self._program_id_to_key(prog_id)
+            return self._reply_for_program_id(prog_id, session_id)
+
+        ordinal_idx = self._extract_ordinal_index(text)
+        if ordinal_idx is not None:
+            idx = ordinal_idx if ordinal_idx >= 0 else len(programs_order) - 1
+            if 0 <= idx < len(programs_order):
+                prog_id = programs_order[idx]
+                memory.last_expanded_index = idx
+                memory.active_program = self._program_id_to_key(prog_id)
+                return self._reply_for_program_id(prog_id, session_id)
+
+        if re.search(r"\b(one\s+before\s+that|the\s+previous\s+one|the\s+previous\s+course)\b", text, re.I):
+            if memory.last_expanded_index is not None and memory.last_expanded_index > 0:
+                idx = memory.last_expanded_index - 1
+                prog_id = programs_order[idx]
+                memory.last_expanded_index = idx
+                memory.active_program = self._program_id_to_key(prog_id)
+                return self._reply_for_program_id(prog_id, session_id)
+
+        return None
+
+    def _finalize_result(
+        self, session_id: Optional[str], result: ReplyResult, memory: database.ConversationMemory
+    ) -> ReplyResult:
+        prog_id = next((m for m in result.matched_entry_ids if m in _PROGRAM_NAME_HINTS), None)
+        if prog_id:
+            memory.active_program = self._program_id_to_key(prog_id)
+        elif "middle" in result.intent:
+            memory.active_program = "middle"
+        elif "foundation" in result.intent:
+            memory.active_program = "foundation"
+        elif "board" in result.intent or "senior" in result.intent:
+            memory.active_program = "senior"
+        elif "confident_speaker" in result.intent:
+            memory.active_program = "confident_speaker"
+        elif result.intent in ("programs_overview", "comparison") or "programs-overview" in result.matched_entry_ids:
+            memory.ordered_programs = [
+                "program-foundation-years",
+                "program-middle-school",
+                "program-senior-school",
+                "program-confident-speaker",
+            ]
+            memory.last_expanded_index = None
+
+        suggestions = personality.get_varied_follow_up_suggestions(
+            memory.active_program,
+            result.intent,
+            memory.previously_shown_suggestions,
+            count=2,
+        )
+        result.suggestions = suggestions
+        memory.previously_shown_suggestions.extend(suggestions)
+        if len(memory.previously_shown_suggestions) > 12:
+            memory.previously_shown_suggestions = memory.previously_shown_suggestions[-12:]
+
+        memory.last_intents.append(result.intent)
+        if len(memory.last_intents) > 6:
+            memory.last_intents = memory.last_intents[-6:]
+
+        if session_id:
+            try:
+                database.save_conversation_memory(session_id, memory)
+            except Exception:
+                pass
+
+        return result
+
     # ---- intent detection -------------------------------------------------
-    def detect_intent(self, text: str) -> str:
+    def detect_intent(self, text: str, session_id: Optional[str] = None) -> str:
         stripped = text.strip()
         normalized = normalize_query(stripped)
         word_count = len(stripped.split())
+
         if _SHORT_CONFUSION_RE.match(stripped):
             return "confused"
         if _BOOK_ENROLL_RE.match(stripped):
@@ -304,10 +698,92 @@ class ConversationEngine:
             return "capability"
         if _GENERAL_INFO_RE.match(stripped) or _GENERAL_INFO_RE.match(normalized):
             return "general_info"
-        if _CONFIDENT_SPEAKER_RE.search(stripped) or _CONFIDENT_SPEAKER_RE.search(normalized):
-            return "confident_speaker"
-        if _BOARD_EXAM_RE.search(stripped) or _BOARD_EXAM_RE.search(normalized):
-            return "board_exam"
+
+        # PRIORITY 1: Personalized mentoring general concept check
+        if _PERSONALIZED_MENTORING_CONCEPT_RE.search(stripped) or _PERSONALIZED_MENTORING_CONCEPT_RE.search(normalized):
+            if not re.search(r"\b(confident|speaker|spoken)\b", stripped, re.I):
+                return "personalized_mentoring_general"
+
+        # PRIORITY 2: Relative references and corrections
+        if (
+            _CORRECTION_BEFORE_RE.search(stripped)
+            or _CORRECTION_AFTER_RE.search(stripped)
+            or _CORRECTION_NOT_THAT_RE.match(stripped)
+            or _WHAT_ABOUT_OTHER_ONE_RE.search(stripped)
+        ):
+            return "reference_resolution"
+
+        if _COMPARISON_RE.search(stripped) or _COMPARISON_RE.search(normalized):
+            return "comparison"
+
+        # PRIORITY 3: Explicit Program Mentions (Strongest evidence in current message)
+        # Foundation Years typos or standalone
+        if _FOUNDATION_TYPO_EXACT_RE.match(stripped):
+            return "foundation_years_clarification"
+        if _FOUNDATION_QUERY_RE.search(stripped) or _FOUNDATION_QUERY_RE.search(normalized):
+            return "foundation_years_overview"
+
+        # Middle School explicit mentions
+        if _MIDDLE_SCHOOL_EXACT_RE.match(stripped):
+            return "middle_school_overview"
+        if _MIDDLE_SCHOOL_OVERVIEW_RE.search(stripped) or _MIDDLE_SCHOOL_OVERVIEW_RE.search(normalized):
+            return "middle_school_overview"
+        if _MIDDLE_SCHOOL_GRADES_RE.search(stripped) or _MIDDLE_SCHOOL_GRADES_RE.search(normalized):
+            return "middle_school_grades"
+        if _MIDDLE_SCHOOL_SUBJECTS_RE.search(stripped) or _MIDDLE_SCHOOL_SUBJECTS_RE.search(normalized):
+            return "middle_school_subjects"
+        if _DOUBT_CLINICS_RE.search(stripped) or _DOUBT_CLINICS_RE.search(normalized):
+            return "middle_school_doubt_clinics"
+        if _PRACTICAL_LABS_RE.search(stripped) or _PRACTICAL_LABS_RE.search(normalized):
+            return "middle_school_practical_labs"
+        if _PROGRESS_DASHBOARD_RE.search(stripped) or _PROGRESS_DASHBOARD_RE.search(normalized):
+            return "middle_school_progress_dashboard"
+
+        # Check for field-level requests on Confident Speaker
+        has_cs_mention = bool(_CONFIDENT_SPEAKER_RE.search(stripped) or _CONFIDENT_SPEAKER_RE.search(normalized))
+        current_subject = self._get_current_subject(session_id)
+        is_cs_context = has_cs_mention or (current_subject == "confident_speaker")
+
+        if is_cs_context:
+            if _FORMAT_RE.search(stripped) or _FORMAT_RE.search(normalized):
+                return "confident_speaker_format"
+            if _AUDIENCE_RE.search(stripped) or _AUDIENCE_RE.search(normalized):
+                return "confident_speaker_audience"
+            if _SCOPE_RE.search(stripped) or _SCOPE_RE.search(normalized):
+                return "confident_speaker_scope"
+            if _MENTORING_RE.search(stripped) or _MENTORING_RE.search(normalized):
+                return "confident_speaker_mentoring"
+            if _ACTIVITIES_RE.search(stripped) or _ACTIVITIES_RE.search(normalized):
+                return "confident_speaker_activities"
+            if _DEMO_BOOKING_RE.search(stripped):
+                return "demo_booking"
+            if has_cs_mention:
+                return "confident_speaker"
+
+        # Check for Board Exam questions and contextual follow-ups
+        has_board_mention = bool(_BOARD_EXAM_RE.search(stripped) or _BOARD_EXAM_RE.search(normalized))
+        is_board_context = has_board_mention or (current_subject == "board_exam")
+
+        if is_board_context:
+            if _MARKS_GUARANTEE_RE.search(stripped) or _MARKS_GUARANTEE_RE.search(normalized):
+                return "marks_guarantee"
+            if _PARENT_UPDATES_RE.search(stripped) or _PARENT_UPDATES_RE.search(normalized):
+                return "parent_updates"
+            if _MENTORING_RE.search(stripped) or _MENTORING_RE.search(normalized):
+                return "board_mentoring"
+            if has_board_mention:
+                return "board_exam"
+
+        # Independent checks for specific fields without explicit program mention
+        if _MARKS_GUARANTEE_RE.search(stripped) or _MARKS_GUARANTEE_RE.search(normalized):
+            return "marks_guarantee"
+        if _PARENT_UPDATES_RE.search(stripped) or _PARENT_UPDATES_RE.search(normalized):
+            return "parent_updates"
+        if _MENTORING_RE.search(stripped) or _MENTORING_RE.search(normalized):
+            return "one_on_one_general"
+        if _FORMAT_RE.search(stripped) or _FORMAT_RE.search(normalized):
+            return "unclear_format"
+
         if _VAGUE_INFO_RE.match(stripped):
             return "vague_info"
         if _HOW_TO_BOOK_RE.match(stripped):
@@ -342,6 +818,8 @@ class ConversationEngine:
             if re.search(r"\b(subject|course|program|curriculum|grade|teach|learn|batch|online)\w*\b", remainder, re.IGNORECASE):
                 return "multi_intent"
             return "demo_booking"
+        if _CONFIRMATION_RE.match(stripped):
+            return "confirmation"
         if _THANKS_RE.search(stripped) and len(stripped.split()) <= 6:
             return "thanks"
         if _COMPARISON_RE.search(stripped):
@@ -543,10 +1021,10 @@ class ConversationEngine:
         if re.search(r"\b(board|boards|exam|exams|grade\s*9|grade\s*10|class\s*9|class\s*10|10th|9th)\b", msg_norm):
             return personality.UNCLEAR_BOARD_FALLBACK
         if re.search(r"\b(duration|schedule|hours|timing|timings|frequency|material|materials|books|notes|syllabus|guarantee|rank|marks|score|teacher|teachers|faculty)\b", msg_norm):
-            return personality.UNSUPPORTED_DETAILS_FALLBACK
+            return personality.UNCONFIRMED_DETAILS_FALLBACK
         if re.search(r"\b(course|courses|program|programs|curriculum|class|classes)\b", msg_norm):
-            return personality.UNCLEAR_PROGRAM_FALLBACK
-        return personality.AMBIGUOUS_GENERAL_FALLBACK
+            return personality.VAGUE_MENU_RESPONSE
+        return personality.VAGUE_MENU_RESPONSE
 
     def _run_response_quality_checks(
         self, query: str, reply: str, intent: str, matched_entries: List[KBEntry]
@@ -589,6 +1067,7 @@ class ConversationEngine:
     # ---- main entry point ---------------------------------------------------
     def handle_message(self, session_id: str, message: str) -> ReplyResult:
         message = message.strip()
+        memory = database.get_conversation_memory(session_id) if session_id else database.ConversationMemory(session_id="")
 
         if len(message) > 2000:
             return ReplyResult(personality.TOO_LONG_MESSAGE_RESPONSE, "too_long", [], None)
@@ -706,15 +1185,110 @@ class ConversationEngine:
                 reply, resolved_intent, updated_lead = leads.process_demo_flow(session_id, message, current_lead)
                 return ReplyResult(reply, resolved_intent, ["contact-info", "how-to-book-demo"], None)
 
-        intent = self.detect_intent(message)
+        intent = self.detect_intent(message, session_id)
+
+        # Handle relative/ordinal reference and corrections via conversation memory
+        if intent == "reference_resolution" or self._extract_ordinal_index(message) is not None:
+            ref_res = self._resolve_relative_or_correction(message, memory, session_id)
+            if ref_res:
+                return self._finalize_result(session_id, ref_res, memory)
+
+        if intent == "personalized_mentoring_general":
+            res = ReplyResult(
+                personality.PERSONALIZED_MENTORING_GENERAL_RESPONSE,
+                "personalized_mentoring_general",
+                ["personalized-mentoring-concept"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory)
+
+        if intent == "foundation_years_clarification":
+            res = ReplyResult(
+                personality.FOUNDATION_YEARS_CLARIFICATION,
+                "foundation_years_clarification",
+                ["program-foundation-years"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory)
+
+        if intent == "foundation_years_overview":
+            res = ReplyResult(
+                personality.FOUNDATION_YEARS_DIRECT_RESPONSE,
+                "foundation_years_overview",
+                ["program-foundation-years"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory)
+
+        if intent == "middle_school_overview":
+            res = ReplyResult(
+                personality.MIDDLE_SCHOOL_OVERVIEW_RESPONSE,
+                "middle_school_overview",
+                ["program-middle-school"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory)
+
+        if intent == "middle_school_grades":
+            res = ReplyResult(
+                personality.MIDDLE_SCHOOL_GRADES_RESPONSE,
+                "middle_school_grades",
+                ["program-middle-school"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory)
+
+        if intent == "middle_school_subjects":
+            res = ReplyResult(
+                personality.MIDDLE_SCHOOL_SUBJECTS_RESPONSE,
+                "middle_school_subjects",
+                ["middle-school-subjects", "program-middle-school"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory)
+
+        if intent == "middle_school_doubt_clinics":
+            res = ReplyResult(
+                personality.MIDDLE_SCHOOL_DOUBT_CLINICS_RESPONSE,
+                "middle_school_doubt_clinics",
+                ["middle-school-doubt-clinics", "program-middle-school"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory)
+
+        if intent == "middle_school_practical_labs":
+            res = ReplyResult(
+                personality.MIDDLE_SCHOOL_PRACTICAL_LABS_RESPONSE,
+                "middle_school_practical_labs",
+                ["middle-school-practical-labs", "program-middle-school"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory)
+
+        if intent == "middle_school_progress_dashboard":
+            res = ReplyResult(
+                personality.MIDDLE_SCHOOL_PROGRESS_DASHBOARD_RESPONSE,
+                "middle_school_progress_dashboard",
+                ["middle-school-progress-dashboard", "program-middle-school"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory)
 
         if intent == "general_info":
-            entry = self.entries_by_id.get("what-is-wementors")
-            if entry:
-                scored = [ScoredEntry(entry=entry, score=1.0)]
-                answer = self._generate_answer(message, scored, session_id)
-                answer = self._run_response_quality_checks(message, answer, "general_info", [entry])
-                return ReplyResult(answer, "general_info", ["what-is-wementors"], 1.0)
+            return ReplyResult(
+                personality.GENERAL_INFO_DIRECT_RESPONSE,
+                "general_info",
+                ["what-is-wementors"],
+                1.0,
+            )
+
+        if intent == "beginner_recommendation":
+            return ReplyResult(
+                personality.BEGINNER_RECOMMENDATION_RESPONSE,
+                "beginner_recommendation",
+                ["programs-overview"],
+                1.0,
+            )
 
         if intent == "board_exam":
             entry = self.entries_by_id.get("program-senior-school")
@@ -722,7 +1296,8 @@ class ConversationEngine:
                 scored = [ScoredEntry(entry=entry, score=1.0)]
                 answer = self._generate_answer(message, scored, session_id)
                 answer = self._run_response_quality_checks(message, answer, "board_exam", [entry])
-                return ReplyResult(answer, "board_exam", ["program-senior-school"], 1.0)
+                res = ReplyResult(answer, "board_exam", ["program-senior-school"], 1.0)
+                return self._finalize_result(session_id, res, memory)
 
         if intent == "confident_speaker":
             entry = self.entries_by_id.get("program-confident-speaker")
@@ -730,7 +1305,102 @@ class ConversationEngine:
                 scored = [ScoredEntry(entry=entry, score=1.0)]
                 answer = self._generate_answer(message, scored, session_id)
                 answer = self._run_response_quality_checks(message, answer, "confident_speaker", [entry])
-                return ReplyResult(answer, "confident_speaker", ["program-confident-speaker"], 1.0)
+                res = ReplyResult(answer, "confident_speaker", ["program-confident-speaker"], 1.0)
+                return self._finalize_result(session_id, res, memory)
+
+        if intent == "confident_speaker_format":
+            last_intent = self._last_assistant_intent(session_id)
+            if last_intent == "confident_speaker_format":
+                res = ReplyResult(
+                    personality.CONFIDENT_SPEAKER_FORMAT_CONCISE,
+                    "confident_speaker_format",
+                    ["confident-speaker-format"],
+                    1.0,
+                )
+            else:
+                res = ReplyResult(
+                    personality.CONFIDENT_SPEAKER_FORMAT_DIRECT,
+                    "confident_speaker_format",
+                    ["confident-speaker-format"],
+                    1.0,
+                )
+            return self._finalize_result(session_id, res, memory)
+
+        if intent == "confident_speaker_audience":
+            res = ReplyResult(
+                personality.CONFIDENT_SPEAKER_AUDIENCE_DIRECT,
+                "confident_speaker_audience",
+                ["confident-speaker-audience"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory)
+
+        if intent == "confident_speaker_scope":
+            res = ReplyResult(
+                personality.CONFIDENT_SPEAKER_SCOPE_DIRECT,
+                "confident_speaker_scope",
+                ["confident-speaker-scope"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory)
+
+        if intent == "confident_speaker_mentoring":
+            res = ReplyResult(
+                personality.CONFIDENT_SPEAKER_MENTORING_DIRECT,
+                "confident_speaker_mentoring",
+                ["confident-speaker-mentoring"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory)
+
+        if intent == "confident_speaker_activities":
+            res = ReplyResult(
+                personality.CONFIDENT_SPEAKER_ACTIVITIES_DIRECT,
+                "confident_speaker_activities",
+                ["confident-speaker-activities"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory)
+
+        if intent == "parent_updates":
+            return ReplyResult(
+                personality.PARENT_UPDATES_RESPONSE,
+                "parent_updates",
+                ["program-senior-school"],
+                1.0,
+            )
+
+        if intent in ("board_mentoring", "one_on_one_general"):
+            return ReplyResult(
+                personality.ONE_ON_ONE_GENERAL_RESPONSE,
+                intent,
+                ["program-senior-school", "program-confident-speaker"],
+                1.0,
+            )
+
+        if intent == "marks_guarantee":
+            return ReplyResult(
+                personality.GUARANTEE_MARKS_RESPONSE,
+                "marks_guarantee",
+                ["program-senior-school"],
+                1.0,
+            )
+
+        if intent == "confirmation":
+            return ReplyResult(
+                personality.OKAY_CONFIRMATION_RESPONSE,
+                "confirmation",
+                [],
+                None,
+            )
+
+        if intent == "unclear_format":
+            return ReplyResult(
+                "Which program would you like to know the format for — our Grades 9–10 learning support or the Confident Speaker program?",
+                "unclear_format",
+                ["programs-overview"],
+                1.0,
+            )
 
         last_intent = self._last_assistant_intent(session_id)
 
@@ -865,4 +1535,8 @@ class ConversationEngine:
         answer = self._run_response_quality_checks(message, answer, intent, matched_entries)
         matched_ids = [item.entry.id for item in best]
         resolved_intent = "multi_intent" if len(multi_scored) >= 2 else ("faq" if intent == "faq" else intent)
-        return ReplyResult(answer, resolved_intent, matched_ids, top_score)
+        return self._finalize_result(
+            session_id,
+            ReplyResult(answer, resolved_intent, matched_ids, top_score),
+            memory,
+        )
