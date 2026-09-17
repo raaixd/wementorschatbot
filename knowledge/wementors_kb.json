@@ -527,6 +527,10 @@
         "how do i enroll",
         "how to start",
         "how to join wementors",
+        "how can i join",
+        "how do i join",
+        "how to join",
+        "i want to join",
         "how do i register",
         "how to register",
         "register for a demo"
@@ -536,7 +540,9 @@
         "application",
         "apply",
         "enroll",
-        "enrollment"
+        "enrollment",
+        "join",
+        "joining"
       ],
       "answer": "To book a free demo class, please contact the WeMentors team directly by email at admin@wementors.co or phone/WhatsApp at +91 76111 92227 (Mon-Sat, 9:00 AM - 8:00 PM IST). Our team will be happy to help coordinate your demo session.",
       "follow_ups": [

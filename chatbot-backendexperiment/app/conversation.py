@@ -140,6 +140,8 @@ class ConversationEngine:
         if _FRUSTRATED_RE.search(stripped):
             return "frustrated"
         if _DEMO_BOOKING_RE.search(stripped):
+            if re.search(r"\b(subject|course|program|curriculum|grade|class|teach|learn)\w*\b", stripped, re.IGNORECASE):
+                return "multi_intent"
             return "demo_booking"
         if _THANKS_RE.search(stripped) and len(stripped.split()) <= 6:
             return "thanks"
@@ -333,7 +335,10 @@ class ConversationEngine:
         if intent == "help":
             return ReplyResult(personality.HELP_RESPONSE, intent, [], None)
         if intent == "advising":
-            return ReplyResult(personality.ADVISING_RESPONSE, intent, [], None)
+            if re.search(r"\b(grade\s*\d+|class\s*\d+|\d+th\s*(grade|class|standard)?|math|science|english|speaker|middle|senior|foundation)\b", message, re.IGNORECASE):
+                pass  # Fall through to conversational RAG advising with specific grade context
+            else:
+                return ReplyResult(personality.ADVISING_RESPONSE, intent, [], None)
         if intent == "greeting":
             return ReplyResult(personality.pick(personality.GREETINGS), intent, [], None)
         if intent == "goodbye":
@@ -343,8 +348,16 @@ class ConversationEngine:
         if intent == "injection_attempt":
             return ReplyResult(personality.INJECTION_DEFLECTION, intent, [], None)
         if intent == "frustrated":
+            if config.LLM_ENABLED:
+                gen = self._generate_general_answer(message, session_id)
+                if gen:
+                    return ReplyResult(gen, "frustrated", [], None)
             return ReplyResult(personality.pick(personality.FRUSTRATED_RESPONSES), intent, [], None)
         if intent == "confused":
+            if config.LLM_ENABLED:
+                gen = self._generate_general_answer(message, session_id)
+                if gen:
+                    return ReplyResult(gen, "confused", [], None)
             return ReplyResult(personality.pick(personality.CONFUSED_RESPONSES), intent, [], None)
         if intent == "comparison":
             return self._handle_comparison(message)
@@ -375,8 +388,22 @@ class ConversationEngine:
         if referenced_entry is None and direct_top_score < 0.3:
             referenced_entry = self._resolve_pronoun_reference(message, last_matched_ids)
 
+        # Check for multi-clause or multi-intent questions (e.g. subjects and how to join)
+        clauses = [c.strip() for c in re.split(r"\band\b|[?!;]|\balso\b", message) if len(c.strip().split()) >= 2]
+        multi_scored: List[ScoredEntry] = []
+        if len(clauses) > 1 and referenced_entry is None:
+            seen_ids = set()
+            for clause in clauses:
+                sub_res = self.retriever.search(clause, top_k=2)
+                for item in sub_res:
+                    if item.entry.id not in seen_ids and item.score >= config.RETRIEVAL_CONFIDENCE_THRESHOLD:
+                        seen_ids.add(item.entry.id)
+                        multi_scored.append(item)
+
         if referenced_entry is not None:
             scored = [ScoredEntry(entry=referenced_entry, score=1.0)]
+        elif len(multi_scored) >= 2:
+            scored = multi_scored[:3]
         else:
             scored = direct_scored
 
@@ -396,9 +423,15 @@ class ConversationEngine:
                 return ReplyResult(general_answer, "general", [], None)
             return ReplyResult(personality.FALLBACK_RESPONSE, "low_confidence", [], top_score)
 
-        # Keep only the single best match once we're past the threshold —
-        # never dump the whole knowledge base into one reply.
-        best = scored[:1] if referenced_entry is None else scored
+        # For multi-clause questions, keep the multiple matched entries; otherwise keep the best single match.
+        if referenced_entry is not None:
+            best = scored
+        elif len(multi_scored) >= 2:
+            best = scored
+        else:
+            best = scored[:1]
+
         answer = self._generate_answer(message, best, session_id)
         matched_ids = [item.entry.id for item in best]
-        return ReplyResult(answer, "faq", matched_ids, top_score)
+        resolved_intent = "multi_intent" if len(multi_scored) >= 2 else ("faq" if intent == "faq" else intent)
+        return ReplyResult(answer, resolved_intent, matched_ids, top_score)
