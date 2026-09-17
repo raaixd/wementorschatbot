@@ -22,7 +22,7 @@ from typing import Dict, List, Optional
 
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi.responses import JSONResponse, HTMLResponse, Response
 
 
 class UTF8JSONResponse(JSONResponse):
@@ -208,6 +208,27 @@ def serve_logo():
     except Exception:
         pass
     return HTMLResponse("", status_code=404)
+
+
+@app.get("/wm_brand_logo.png", include_in_schema=False)
+@app.get("/download.png", include_in_schema=False)
+def serve_logo_png():
+    try:
+        candidates = [
+            config.PROJECT_ROOT / "wm_brand_logo.png",
+            config.PROJECT_ROOT / "download.png",
+            Path("wm_brand_logo.png"),
+            Path("download.png"),
+            Path(__file__).resolve().parent.parent / "wm_brand_logo.png",
+            Path(__file__).resolve().parents[2] / "wm_brand_logo.png",
+            Path("api/wm_brand_logo.png"),
+        ]
+        for c in candidates:
+            if c and c.exists():
+                return Response(content=c.read_bytes(), media_type="image/png")
+    except Exception:
+        pass
+    return Response(b"", status_code=404)
 
 
 @app.get("/health")
