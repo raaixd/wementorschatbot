@@ -88,12 +88,34 @@ _HELP_RE = re.compile(
     re.IGNORECASE,
 )
 
+
+def normalize_query(text: str) -> str:
+    cleaned = text.strip().lower()
+    cleaned = cleaned.replace("’", "'")
+    cleaned = re.sub(r"\bwanna\b", "want to", cleaned)
+    cleaned = re.sub(r"\bgonna\b", "going to", cleaned)
+    cleaned = re.sub(r"\bu\b", "you", cleaned)
+    cleaned = re.sub(r"\bur\b", "your", cleaned)
+    cleaned = re.sub(r"\br\b", "are", cleaned)
+    cleaned = re.sub(r"\bi'm\b", "i am", cleaned)
+    cleaned = re.sub(r"\bim\b", "i am", cleaned)
+    cleaned = re.sub(r"\bdon't\b", "do not", cleaned)
+    cleaned = re.sub(r"\bdont\b", "do not", cleaned)
+    cleaned = re.sub(r"\bcan't\b", "cannot", cleaned)
+    cleaned = re.sub(r"\bcant\b", "cannot", cleaned)
+    cleaned = re.sub(r"\bwhat's\b", "what is", cleaned)
+    cleaned = re.sub(r"\bwhats\b", "what is", cleaned)
+    cleaned = re.sub(r"\bprep\b", "prepare", cleaned)
+    cleaned = re.sub(r"\bprepping\b", "preparing", cleaned)
+    cleaned = re.sub(r"\bboards\b", "board", cleaned)
+    cleaned = re.sub(r"\bexams\b", "exam", cleaned)
+    return cleaned
+
+
 _CAPABILITY_RE = re.compile(
     r"^\s*(what\s+(?:can\s+)?(?:you|u)\s+help\s+(?:me\s+)?with\??|"
     r"what\s+do\s+(?:you|u)\s+know\??|"
     r"what\s+(?:information|info)\s+do\s+(?:you|u)\s+have\??|"
-    r"tell\s+me\s+about\s+wementors\??|"
-    r"what\s+is\s+wementors\??|"
     r"how\s+can\s+(?:you|u)\s+help\??|"
     r"what\s+can\s+i\s+ask\s+(?:you|u)\??|"
     r"can\s+(?:you|u)\s+help\s+me\??|"
@@ -104,13 +126,86 @@ _CAPABILITY_RE = re.compile(
     re.IGNORECASE,
 )
 
+_GENERAL_INFO_RE = re.compile(
+    r"^\s*(what\s+(?:is|are)\s+wementors|"
+    r"who\s+(?:is|are)\s+wementors|"
+    r"about\s+wementors|"
+    r"tell\s+me\s+about\s+wementors|"
+    r"tell\s+me\s+about\s+(?:your\s+)?(?:academy|organization|organisation|institution|company|school)|"
+    r"what\s+is\s+(?:your\s+)?(?:academy|organization|organisation|institution|company|school)\s+about|"
+    r"what\s+do\s+you\s+(?:guys\s+)?do|"
+    r"what\s+does\s+wementors\s+do|"
+    r"tell\s+me\s+what\s+you\s+(?:guys\s+)?do|"
+    r"tell\s+me\s+what\s+you\s+do|"
+    r"can\s+you\s+explain\s+wementors|"
+    r"explain\s+wementors|"
+    r"give\s+me\s+(?:some\s+)?information\s+about\s+wementors|"
+    r"give\s+me\s+(?:some\s+)?information\s+about\s+(?:your\s+)?(?:academy|organization|organisation)|"
+    r"i\s+(?:want|wanna)\s+to\s+know\s+more\s+about\s+wementors|"
+    r"i\s+(?:want|wanna)\s+to\s+know\s+more\s+about\s+you|"
+    r"tell\s+me\s+more\s+about\s+(?:your\s+)?classes|"
+    r"how\s+does\s+wementors\s+work|"
+    r"how\s+do\s+you\s+(?:guys\s+)?work|"
+    r"what\s+does\s+wementors\s+offer|"
+    r"can\s+you\s+introduce\s+(?:me\s+to\s+)?wementors|"
+    r"introduce\s+wementors|"
+    r"can\s+you\s+introduce\s+(?:your\s+)?services|"
+    r"introduce\s+(?:your\s+)?services|"
+    r"how\s+does\s+(?:your\s+)?academy\s+help(?:\s+students)?|"
+    r"how\s+do\s+you\s+help\s+students)\s*[?!.]*$",
+    re.IGNORECASE,
+)
+
+_BOARD_EXAM_RE = re.compile(
+    r"\b(how\s+will\s+you\s+(?:prep|prepare)\s+(?:my\s+)?(?:child|student|son|daughter|kid)\s+for\s+board(?:\s+exam)?s?|"
+    r"how\s+do\s+you\s+prepare\s+students\s+for\s+board(?:\s+exam)?s?|"
+    r"can\s+you\s+help\s+(?:(?:my\s+)?(?:child|student|son|daughter|kid)|me)?\s*with\s+board(?:\s+exam)?s?|"
+    r"what\s+support\s+do\s+you\s+provide\s+for\s+(?:class|grade)\s+(?:9|10|9\s+(?:and|&)\s+10)|"
+    r"how\s+will\s+you\s+help\s+(?:my\s+)?(?:child|student|son|daughter|kid)\s+score\s+well\s+in\s+board(?:\s+exam)?s?|"
+    r"do\s+you\s+have\s+a\s+board(?:\s+exam)?\s+preparation\s+course|"
+    r"how\s+do\s+you\s+prepare\s+(?:class|grade)\s+(?:9|10|9\s+(?:and|&)\s+10)\s+students|"
+    r"how\s+will\s+you\s+prep\s+(?:my\s+)?(?:child|student|son|daughter|kid)\s+for\s+board(?:\s+exam)?s?|"
+    r"how\s+do\s+you\s+prepare\s+(?:class|grade)\s+10\s+students|"
+    r"how\s+do\s+you\s+prepare\s+(?:class|grade)\s+9\s+students|"
+    r"can\s+you\s+help\s+(?:my\s+)?(?:child|student|son|daughter|kid)\s+with\s+boards?|"
+    r"what\s+support\s+do\s+you\s+provide\s+for\s+(?:grade|class)\s+9|"
+    r"what\s+support\s+do\s+you\s+provide\s+for\s+(?:grade|class)\s+10|"
+    r"how\s+will\s+the\s+mentor\s+work\s+with\s+my\s+child|"
+    r"my\s+(?:son|daughter|child|kid)\s+is\s+in\s+(?:10th|9th)|"
+    r"can\s+(?:your\s+)?mentors\s+help\s+with\s+board\s+preparation|"
+    r"academic\s+support\s+for\s+.*board\s+exams?|"
+    r"board\s+exam\s+prep(?:aration)?|"
+    r"preparation\s+for\s+board(?:\s+exam)?s?|"
+    r"board\s+preparation\s+course|"
+    r"what\s+about\s+board\s+exams?|"
+    r"support\s+for\s+(?:class|grade)\s+(?:9|10))\b",
+    re.IGNORECASE,
+)
+
+_CONFIDENT_SPEAKER_RE = re.compile(
+    r"\b(tell\s+me\s+about\s+(?:the\s+)?confident\s+speaker(?:\s+program)?|"
+    r"what\s+is\s+(?:your\s+)?confident\s+speaker(?:\s+(?:course|program))?|"
+    r"how\s+does\s+(?:the\s+)?confident\s+speaker(?:\s+program)?\s+work|"
+    r"can\s+you\s+help\s+(?:my\s+)?(?:child|student|son|daughter|kid|me)\s+become\s+(?:a\s+)?confident\s+speaker|"
+    r"what\s+do\s+students\s+learn\s+in\s+confident\s+speaker|"
+    r"is\s+there\s+personalized\s+mentoring\s+for\s+confident\s+speaking|"
+    r"how\s+will\s+you\s+work\s+on\s+(?:my\s+)?(?:child'?s\s+|kid'?s\s+)?speaking\s+confidence|"
+    r"how\s+can\s+(?:my\s+)?(?:child|student|son|daughter|kid|me)\s+become\s+better\s+at\s+speaking|"
+    r"tell\s+me\s+about\s+your\s+speaking\s+confidence\s+program|"
+    r"do\s+you\s+have\s+something\s+for\s+public\s+speaking\s+confidence|"
+    r"confident\s+speaker|"
+    r"speaking\s+confidence|"
+    r"public\s+speaking\s+confidence)\b",
+    re.IGNORECASE,
+)
+
 _VAGUE_INFO_RE = re.compile(
     r"^\s*(information|info|details)\s*[?!.]*\s*$",
     re.IGNORECASE,
 )
 
 _HOW_TO_BOOK_RE = re.compile(
-    r"^\s*(how\s+(?:can|do)\s+i\s+book(?:\s+(?:a\s+)?demo)?\??|how\s+to\s+book(?:\s+(?:a\s+)?demo)?\??)\s*$",
+    r"^\s*(how\s+(?:can|do)\s+i\s+book(?:\s+(?:a\s+)?(?:free\s+)?demo(?:\s+class)?)?\??|how\s+to\s+book(?:\s+(?:a\s+)?(?:free\s+)?demo(?:\s+class)?)?\??)\s*$",
     re.IGNORECASE,
 )
 
@@ -199,13 +294,20 @@ class ConversationEngine:
     # ---- intent detection -------------------------------------------------
     def detect_intent(self, text: str) -> str:
         stripped = text.strip()
+        normalized = normalize_query(stripped)
         word_count = len(stripped.split())
         if _SHORT_CONFUSION_RE.match(stripped):
             return "confused"
         if _BOOK_ENROLL_RE.match(stripped):
             return "book_enroll"
-        if _CAPABILITY_RE.match(stripped):
+        if _CAPABILITY_RE.match(stripped) or _CAPABILITY_RE.match(normalized):
             return "capability"
+        if _GENERAL_INFO_RE.match(stripped) or _GENERAL_INFO_RE.match(normalized):
+            return "general_info"
+        if _CONFIDENT_SPEAKER_RE.search(stripped) or _CONFIDENT_SPEAKER_RE.search(normalized):
+            return "confident_speaker"
+        if _BOARD_EXAM_RE.search(stripped) or _BOARD_EXAM_RE.search(normalized):
+            return "board_exam"
         if _VAGUE_INFO_RE.match(stripped):
             return "vague_info"
         if _HOW_TO_BOOK_RE.match(stripped):
@@ -384,7 +486,7 @@ class ConversationEngine:
                 set(tokenize(user_message)) & _FEE_TRIGGER_WORDS
                 or re.search(r"\b(fee|fees|cost|costs|price|prices|pricing|charge|rate|how much)\b", user_message, re.IGNORECASE)
             )
-            is_course_query = any(item.entry.id.startswith(("program-", "curriculum-", "programs-overview")) for item in scored)
+            is_course_query = any(item.entry.id.startswith(("program-", "curriculum-", "programs-overview", "what-is-")) for item in scored)
             if is_course_query and not has_fee_word:
                 turns = [
                     t for t in turns
@@ -436,6 +538,54 @@ class ConversationEngine:
             return None
         return llm.generate_answer(user_message, [], self._recent_turns(session_id))
 
+    def _get_fallback_reply(self, message: str) -> str:
+        msg_norm = normalize_query(message)
+        if re.search(r"\b(board|boards|exam|exams|grade\s*9|grade\s*10|class\s*9|class\s*10|10th|9th)\b", msg_norm):
+            return personality.UNCLEAR_BOARD_FALLBACK
+        if re.search(r"\b(duration|schedule|hours|timing|timings|frequency|material|materials|books|notes|syllabus|guarantee|rank|marks|score|teacher|teachers|faculty)\b", msg_norm):
+            return personality.UNSUPPORTED_DETAILS_FALLBACK
+        if re.search(r"\b(course|courses|program|programs|curriculum|class|classes)\b", msg_norm):
+            return personality.UNCLEAR_PROGRAM_FALLBACK
+        return personality.AMBIGUOUS_GENERAL_FALLBACK
+
+    def _run_response_quality_checks(
+        self, query: str, reply: str, intent: str, matched_entries: List[KBEntry]
+    ) -> str:
+        """Verify and sanitize response quality before returning it to the user.
+        Ensures fee isolation, strips unsupported claims/hallucinations, and enforces
+        clear, verified facts and next steps.
+        """
+        if not reply:
+            return personality.AMBIGUOUS_GENERAL_FALLBACK
+
+        query_norm = normalize_query(query)
+        has_fee_intent = bool(
+            set(tokenize(query_norm)) & _FEE_TRIGGER_WORDS
+            or re.search(r"\b(fee|fees|cost|costs|price|prices|pricing|charge|rate|how much)\b", query_norm)
+        )
+
+        # Avoid unrelated fee information if user did not ask about fees
+        if not has_fee_intent and intent not in ("fees", "unverified_course_fees"):
+            if re.search(r"\b(fee details are shared individually|our fees are|fee structure|tuition fees?)\b", reply, re.IGNORECASE):
+                reply = re.sub(r"\b(Fee details are shared individually[^.\n]*[.\n]?|Our fees are[^.\n]*[.\n]?)", "", reply, flags=re.IGNORECASE).strip()
+
+        # Avoid unsupported claims or guarantees (marks, ranks, 100%, guaranteed results, fluency)
+        unsupported_phrases = [
+            r"\bguaranteed\s+(?:marks|results?|ranks?|success|grades?|score)\b",
+            r"\b100%\s+(?:guaranteed|success|pass)\b",
+            r"\bguarantee\s+(?:that|your|a|to)\b",
+            r"\beliminate\s+all\s+(?:anxiety|fear)\b",
+            r"\bbecome\s+(?:completely\s+)?fluent\s+overnight\b",
+        ]
+        for pat in unsupported_phrases:
+            reply = re.sub(pat, "individual progress and guided development", reply, flags=re.IGNORECASE)
+
+        # For program/course/general questions, ensure a practical next step exists
+        if intent in ("general_info", "board_exam", "confident_speaker") and not re.search(r"\b(book free demo|free demo)\b", reply, re.IGNORECASE):
+            reply += "\n\nYou can click **Book Free Demo** at the top-right of the website to explore our mentoring."
+
+        return reply
+
     # ---- main entry point ---------------------------------------------------
     def handle_message(self, session_id: str, message: str) -> ReplyResult:
         message = message.strip()
@@ -456,7 +606,7 @@ class ConversationEngine:
             return ReplyResult(personality.BOOK_ENROLL_RESPONSE, "book_enroll", ["how-to-book-demo", "how-to-apply"], 1.0)
 
         # General chatbot capability & broad scope questions ("what can u help me with", "what do you know", etc.)
-        if _CAPABILITY_RE.match(message):
+        if _CAPABILITY_RE.match(message) or _CAPABILITY_RE.match(normalize_query(message)):
             return ReplyResult(personality.CAPABILITY_RESPONSE, "capability", ["programs-overview", "how-to-book-demo"], 1.0)
 
         # Single-word vague information request ("information", "info", "details")
@@ -557,6 +707,30 @@ class ConversationEngine:
                 return ReplyResult(reply, resolved_intent, ["contact-info", "how-to-book-demo"], None)
 
         intent = self.detect_intent(message)
+
+        if intent == "general_info":
+            entry = self.entries_by_id.get("what-is-wementors")
+            if entry:
+                scored = [ScoredEntry(entry=entry, score=1.0)]
+                answer = self._generate_answer(message, scored, session_id)
+                answer = self._run_response_quality_checks(message, answer, "general_info", [entry])
+                return ReplyResult(answer, "general_info", ["what-is-wementors"], 1.0)
+
+        if intent == "board_exam":
+            entry = self.entries_by_id.get("program-senior-school")
+            if entry:
+                scored = [ScoredEntry(entry=entry, score=1.0)]
+                answer = self._generate_answer(message, scored, session_id)
+                answer = self._run_response_quality_checks(message, answer, "board_exam", [entry])
+                return ReplyResult(answer, "board_exam", ["program-senior-school"], 1.0)
+
+        if intent == "confident_speaker":
+            entry = self.entries_by_id.get("program-confident-speaker")
+            if entry:
+                scored = [ScoredEntry(entry=entry, score=1.0)]
+                answer = self._generate_answer(message, scored, session_id)
+                answer = self._run_response_quality_checks(message, answer, "confident_speaker", [entry])
+                return ReplyResult(answer, "confident_speaker", ["program-confident-speaker"], 1.0)
 
         last_intent = self._last_assistant_intent(session_id)
 
@@ -675,7 +849,8 @@ class ConversationEngine:
             general_answer = self._generate_general_answer(message, session_id)
             if general_answer:
                 return ReplyResult(general_answer, "general", [], None)
-            return ReplyResult(personality.LOW_CONFIDENCE_FALLBACK, "low_confidence", [], top_score)
+            fallback_text = self._get_fallback_reply(message)
+            return ReplyResult(fallback_text, "low_confidence", [], top_score)
 
         # For multi-clause questions, keep the multiple matched entries; otherwise keep the best single match.
         if referenced_entry is not None:
@@ -686,6 +861,8 @@ class ConversationEngine:
             best = scored[:1]
 
         answer = self._generate_answer(message, best, session_id)
+        matched_entries = [item.entry for item in best]
+        answer = self._run_response_quality_checks(message, answer, intent, matched_entries)
         matched_ids = [item.entry.id for item in best]
         resolved_intent = "multi_intent" if len(multi_scored) >= 2 else ("faq" if intent == "faq" else intent)
         return ReplyResult(answer, resolved_intent, matched_ids, top_score)

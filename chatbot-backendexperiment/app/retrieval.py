@@ -48,6 +48,17 @@ _STOPWORDS = {
     "there", "here", "any", "some", "please", "tell",
 }
 
+_TARGET_STEMS = {
+    "boards": "board",
+    "exams": "exam",
+    "prepping": "prepare",
+    "preparation": "prepare",
+}
+
+
+def _stem_token(t: str) -> str:
+    return _TARGET_STEMS.get(t, t)
+
 
 def tokenize(text: str) -> List[str]:
     tokens = _TOKEN_RE.findall(text.lower())
@@ -55,7 +66,16 @@ def tokenize(text: str) -> List[str]:
     # are single digits ("class 8", "grade 5") and are the most important
     # word in such a query. Dropping them made "class 8" retrieve the
     # free-demo-class entry instead of anything about grade 8.
-    return [t for t in tokens if t not in _STOPWORDS and (len(t) > 1 or t.isdigit())]
+    result = []
+    for t in tokens:
+        if t in _STOPWORDS:
+            continue
+        if len(t) <= 1 and not t.isdigit():
+            continue
+        stemmed = _stem_token(t)
+        if stemmed not in _STOPWORDS:
+            result.append(stemmed)
+    return result
 
 
 _FEE_TRIGGER_WORDS = {
