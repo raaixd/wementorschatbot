@@ -221,8 +221,9 @@ class GroqProvider(LLMProvider):
 
     def generate(self, system_prompt: str, messages: Sequence[Dict[str, str]]) -> Optional[str]:
         candidate_models = [self._model]
-        if self._model == "openai/gpt-oss-120b":
-            candidate_models.extend(["openai/gpt-oss-20b", "qwen/qwen3.8-27b"])
+        for fast_m in ("llama-3.3-70b-versatile", "llama-3.1-8b-instant"):
+            if fast_m not in candidate_models:
+                candidate_models.append(fast_m)
 
         last_error = None
         for m in candidate_models:
@@ -241,8 +242,8 @@ class GroqProvider(LLMProvider):
             except Exception as exc:
                 last_error = exc
                 err_str = str(exc).lower()
-                if "rate_limit" in err_str or "429" in err_str:
-                    logger.warning("Groq model %s rate limited; falling back to alternative model", m)
+                if "rate_limit" in err_str or "429" in err_str or "not_found" in err_str or "404" in err_str or "decommissioned" in err_str:
+                    logger.warning("Groq model %s unavailable (%s); falling back to alternative model", m, type(exc).__name__)
                     continue
                 raise
 

@@ -1546,6 +1546,9 @@ document.querySelectorAll('[data-counter]').forEach(el=>counterIO.observe(el));
   chatbotClear.addEventListener('click', async () => {
     chatbotMessages.innerHTML = '';
     addChatbotMessage(WELCOME_MESSAGE, 'assistant');
+    if (chatbotSuggestions) {
+      chatbotSuggestions.style.display = '';
+    }
     try {
       await fetch(`${API_BASE}/chat/clear`, {
         method: 'POST',
@@ -1591,7 +1594,7 @@ document.querySelectorAll('[data-counter]').forEach(el=>counterIO.observe(el));
     chatbotSuggestions.addEventListener('click', (event) => {
       const button = event.target.closest('.chatbot-suggestion');
       if (!button) return;
-      chatbotSuggestions.remove();
+      chatbotSuggestions.style.display = 'none';
       handleUserMessage(button.textContent.trim());
     });
   }
@@ -1601,7 +1604,7 @@ document.querySelectorAll('[data-counter]').forEach(el=>counterIO.observe(el));
     if (isProcessing) return;
     const message = chatbotInput.value.trim();
     if (!message) return;
-    if (chatbotSuggestions && chatbotSuggestions.isConnected) chatbotSuggestions.remove();
+    if (chatbotSuggestions) chatbotSuggestions.style.display = 'none';
     handleUserMessage(message);
   });
 })();

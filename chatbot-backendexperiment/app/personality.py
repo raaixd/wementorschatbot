@@ -140,40 +140,62 @@ OFF_TOPIC_RESPONSE = (
     "but I can help you explore WeMentors’ learning options."
 )
 
+CAPABILITY_RESPONSE = (
+    "I can help you explore WeMentors’ academic programs, subjects, learning options, "
+    "mentoring approach, curriculum information, free demo class, enrollment guidance, "
+    "and contact details. You can ask about a specific grade, subject, course, or how to book a free demo."
+)
+
+VAGUE_INFO_CLARIFICATION = (
+    "Sure. Are you looking for information about WeMentors’ classes, available subjects, "
+    "curriculum, the free demo class, or enrollment? You can also tell me the student’s grade and subject."
+)
+
+HOW_TO_BOOK_RESPONSE = (
+    "You can request a free demo by clicking **Book Free Demo** at the top-right of the website "
+    "and submitting the required details."
+)
+
+LOW_CONFIDENCE_FALLBACK = (
+    "I’m not completely sure which WeMentors information you’re looking for. "
+    "Are you asking about classes, subjects, curriculum, fees, or the free demo class?"
+)
+
+GENERAL_INFO_FALLBACK = (
+    "I can help you explore WeMentors’ classes, subjects, academic programs, "
+    "curriculum information, mentoring approach, free demo class, enrollment guidance, "
+    "and contact details. What would you like to know?"
+)
+
 DEMO_CLASS_RESPONSE = (
     "Yes, WeMentors offers a free demo class with no obligation to continue. "
-    "To request one, click the **Book Free Demo** option at the top-right of the website and submit your details. "
-    "The WeMentors team can then coordinate the demo with you."
+    "To request one, click the **Book Free Demo** option at the top-right of the website and submit your details."
 )
 
 BOOK_ENROLL_RESPONSE = (
-    "Would you like to book a free demo class? You can do that by clicking **Book Free Demo** "
-    "at the top-right of the website and submitting your details. "
-    "If you mean course enrollment after the demo, tell me your grade and subject so I can guide you."
+    "Would you like to book a free demo class or ask about enrollment after the demo? "
+    "To request a demo, click **Book Free Demo** at the top-right of the website and submit your details."
 )
 
 CONFUSION_CLARIFICATION_RESPONSE = (
     "Sorry if that wasn’t clear. Are you asking about WeMentors’ classes, available subjects, "
-    "course details, or booking a free demo? You can also tell me the subject and your grade."
+    "curriculum, or booking a free demo? You can also tell me the subject and your grade."
 )
 
 BEGINNER_RECOMMENDATION_RESPONSE = (
-    "What would you like to learn as a beginner — school subjects, coding, mathematics, science, or something else? "
-    "Tell me your grade or learning goal, and I can help you understand which WeMentors option may fit."
+    "What would you like to learn as a beginner — coding, mathematics, science, or another subject? "
+    "Tell me the student’s grade and learning goal, and I can help you explore the relevant WeMentors options."
 )
 
 UNVERIFIED_PYTHON_COURSE_RESPONSE = (
-    "I couldn’t find a verified WeMentors Python course in our current course information. "
-    "WeMentors offers academic mentoring based on students’ grades, subjects, and learning needs. "
-    "If you’re looking for Python specifically, you can contact the team or use the Book Free Demo option "
-    "at the top-right of the website to ask whether it is currently available."
+    "I couldn’t find a verified listing for a Python course in the current WeMentors information. "
+    "Are you looking for Python for school, university, or general programming? "
+    "You can also click **Book Free Demo** at the top-right of the website and mention Python in your request."
 )
 
 UNVERIFIED_PYTHON_FEES_RESPONSE = (
-    "WeMentors does not have a verified Python course listed in our current programs, so there are no fees for it. "
-    "Our verified programs cover school core subjects (Grades 3–10) and the Confident Speaker program. "
-    "If you'd like to ask whether custom Python mentoring is possible and what it would cost, please contact the "
-    "WeMentors team directly or use the **Book Free Demo** option at the top-right of the website."
+    "I couldn’t confirm that WeMentors currently lists a Python course, so I can’t provide a reliable fee for it. "
+    "You can click **Book Free Demo** at the top-right of the website and ask the team about Python availability."
 )
 
 DEMO_OFFER_YES_RESPONSE = (

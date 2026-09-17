@@ -674,9 +674,9 @@
     {
       "id": "policy-restrictions",
       "category": "policies",
-      "question": "What information can the chatbot not confirm?",
+      "question": "What details are outside the chatbot's scope?",
       "phrasings": [
-        "what don't you know",
+        "what details can you not confirm",
         "can you guarantee results",
         "can you promise admission"
       ],

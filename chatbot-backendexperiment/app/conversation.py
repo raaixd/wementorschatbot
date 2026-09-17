@@ -88,6 +88,32 @@ _HELP_RE = re.compile(
     re.IGNORECASE,
 )
 
+_CAPABILITY_RE = re.compile(
+    r"^\s*(what\s+(?:can\s+)?(?:you|u)\s+help\s+(?:me\s+)?with\??|"
+    r"what\s+do\s+(?:you|u)\s+know\??|"
+    r"what\s+(?:information|info)\s+do\s+(?:you|u)\s+have\??|"
+    r"tell\s+me\s+about\s+wementors\??|"
+    r"what\s+is\s+wementors\??|"
+    r"how\s+can\s+(?:you|u)\s+help\??|"
+    r"what\s+can\s+i\s+ask\s+(?:you|u)\??|"
+    r"can\s+(?:you|u)\s+help\s+me\??|"
+    r"can\s+(?:you|u)\s+help\??|"
+    r"i\s+need\s+information\??|"
+    r"what\s+are\s+your\s+capabilities\??|"
+    r"what\s+can\s+(?:you|u)\s+do\??)\s*$",
+    re.IGNORECASE,
+)
+
+_VAGUE_INFO_RE = re.compile(
+    r"^\s*(information|info|details)\s*[?!.]*\s*$",
+    re.IGNORECASE,
+)
+
+_HOW_TO_BOOK_RE = re.compile(
+    r"^\s*(how\s+(?:can|do)\s+i\s+book(?:\s+(?:a\s+)?demo)?\??|how\s+to\s+book(?:\s+(?:a\s+)?demo)?\??)\s*$",
+    re.IGNORECASE,
+)
+
 _ADVISING_RE = re.compile(
     r"\b(help (me )?choose|recommend( a)? (class|course|program)|which (class|program|course) should (i|my child)|which (class|program|course) is (best|right|suitable)|not sure which (class|program|course)|choose a class)\b",
     re.IGNORECASE,
@@ -178,6 +204,12 @@ class ConversationEngine:
             return "confused"
         if _BOOK_ENROLL_RE.match(stripped):
             return "book_enroll"
+        if _CAPABILITY_RE.match(stripped):
+            return "capability"
+        if _VAGUE_INFO_RE.match(stripped):
+            return "vague_info"
+        if _HOW_TO_BOOK_RE.match(stripped):
+            return "demo_booking"
         if _DEMO_CLASS_EXACT_RE.match(stripped):
             return "demo_inquiry"
         if _BEGINNER_RE.search(stripped):
@@ -347,7 +379,18 @@ class ConversationEngine:
 
     def _generate_answer(self, user_message: str, scored: List[ScoredEntry], session_id: str) -> str:
         if config.LLM_ENABLED:
-            answer = llm.generate_answer(user_message, scored, self._recent_turns(session_id))
+            turns = self._recent_turns(session_id)
+            has_fee_word = bool(
+                set(tokenize(user_message)) & _FEE_TRIGGER_WORDS
+                or re.search(r"\b(fee|fees|cost|costs|price|prices|pricing|charge|rate|how much)\b", user_message, re.IGNORECASE)
+            )
+            is_course_query = any(item.entry.id.startswith(("program-", "curriculum-", "programs-overview")) for item in scored)
+            if is_course_query and not has_fee_word:
+                turns = [
+                    t for t in turns
+                    if not re.search(r"\b(fee|fees|pricing|cost|costs|price|prices|charge|scholarship)\b", t.get("content", ""), re.IGNORECASE)
+                ]
+            answer = llm.generate_answer(user_message, scored, turns)
             if answer:
                 return answer
             # LLM failed or timed out -> fall through to the safe template path.
@@ -411,6 +454,18 @@ class ConversationEngine:
         # Exact "Book enroll"
         if _BOOK_ENROLL_RE.match(message):
             return ReplyResult(personality.BOOK_ENROLL_RESPONSE, "book_enroll", ["how-to-book-demo", "how-to-apply"], 1.0)
+
+        # General chatbot capability & broad scope questions ("what can u help me with", "what do you know", etc.)
+        if _CAPABILITY_RE.match(message):
+            return ReplyResult(personality.CAPABILITY_RESPONSE, "capability", ["programs-overview", "how-to-book-demo"], 1.0)
+
+        # Single-word vague information request ("information", "info", "details")
+        if _VAGUE_INFO_RE.match(message):
+            return ReplyResult(personality.VAGUE_INFO_CLARIFICATION, "vague_info", ["programs-overview", "how-to-book-demo"], 1.0)
+
+        # How to book a demo ("how do i book", "how to book a demo")
+        if _HOW_TO_BOOK_RE.match(message):
+            return ReplyResult(personality.HOW_TO_BOOK_RESPONSE, "demo_booking", ["how-to-book-demo"], 1.0)
 
         # Exact "Demo class"
         if _DEMO_CLASS_EXACT_RE.match(message):
@@ -620,7 +675,7 @@ class ConversationEngine:
             general_answer = self._generate_general_answer(message, session_id)
             if general_answer:
                 return ReplyResult(general_answer, "general", [], None)
-            return ReplyResult(personality.FALLBACK_RESPONSE, "low_confidence", [], top_score)
+            return ReplyResult(personality.LOW_CONFIDENCE_FALLBACK, "low_confidence", [], top_score)
 
         # For multi-clause questions, keep the multiple matched entries; otherwise keep the best single match.
         if referenced_entry is not None:

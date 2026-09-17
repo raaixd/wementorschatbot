@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import logging
 import re
+import time
 import uuid
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -280,6 +281,7 @@ def chat(
 
     database.log_message(session_id, "user", message)
 
+    t_start = time.perf_counter()
     try:
         result = engine.handle_message(session_id, message)
     except Exception as exc:  # noqa: BLE001 - must never leak internals to the visitor
@@ -290,6 +292,15 @@ def chat(
             session_id=session_id,
             intent="system_error",
         )
+
+    duration_ms = round((time.perf_counter() - t_start) * 1000, 2)
+    logger.info(
+        "[TIMING] duration_ms=%.1f intent=%s matched_ids=%s chars=%d",
+        duration_ms,
+        result.intent,
+        result.matched_entry_ids,
+        len(result.reply),
+    )
 
     database.log_message(
         session_id,
