@@ -58,6 +58,14 @@ def tokenize(text: str) -> List[str]:
     return [t for t in tokens if t not in _STOPWORDS and (len(t) > 1 or t.isdigit())]
 
 
+_FEE_TRIGGER_WORDS = {
+    "fee", "fees", "cost", "costs", "price", "prices", "pricing",
+    "charge", "charges", "rate", "rates", "tuition", "inr", "rupee",
+    "rupees", "pay", "payment", "expensive", "affordable", "afford",
+    "discount", "discounts", "scholarship", "scholarships",
+}
+
+
 @dataclass
 class ScoredEntry:
     entry: KBEntry
@@ -132,9 +140,16 @@ class Retriever:
         query_vec = self._vectorize(query_tokens)
         query_norm = self._norm(query_vec)
         query_token_set = set(query_tokens)
+        lowered_query = query.lower()
+        has_fee_word = bool(query_token_set & _FEE_TRIGGER_WORDS or "how much" in lowered_query)
 
         scored: List[ScoredEntry] = []
         for index, entry in enumerate(self.entries):
+            # Category gate: fee entries must never match queries that do not
+            # explicitly ask about fees, costs, or pricing.
+            if (entry.category == "fees" or entry.id == "fees-and-pricing") and not has_fee_word:
+                continue
+
             cosine = self._cosine(query_vec, query_norm, index)
             overlap = len(query_token_set & self._question_tokens[index])
             overlap_bonus = overlap * 0.08

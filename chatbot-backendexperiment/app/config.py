@@ -188,7 +188,7 @@ def _select_provider() -> tuple[str, str]:
 LLM_PROVIDER, LLM_PROVIDER_CONFIG_ERROR = _select_provider()
 LLM_ENABLED = LLM_PROVIDER != "none"
 LLM_TIMEOUT_SECONDS = _get_int("LLM_TIMEOUT_SECONDS", 15)
-LLM_MAX_TOKENS = _get_int("LLM_MAX_TOKENS", 600)
+LLM_MAX_TOKENS = _get_int("LLM_MAX_TOKENS", 1000)
 LLM_TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", "0.3"))
 
 # How many prior turns are replayed to the model so follow-ups resolve.

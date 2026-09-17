@@ -333,11 +333,8 @@
         "how do you teach",
         "teaching method",
         "teaching style",
-        "can i join if i am a beginner",
-        "im a beginner",
-        "do i need experience",
-        "can beginners join",
-        "is this good for beginners"
+        "pedagogy",
+        "mentoring approach"
       ],
       "keywords": [
         "concepts",
@@ -476,7 +473,7 @@
         "i want to enroll my child"
       ],
       "keywords": [],
-      "answer": "Yes. WeMentors advertises a free demo class with no obligation to continue.",
+      "answer": "Yes, WeMentors offers a free demo class with no obligation to continue. To request one, click the **Book Free Demo** option at the top-right of the website and submit your details. The WeMentors team can then coordinate the demo with you.",
       "follow_ups": [
         "How long is the demo class?",
         "How can I book a demo class?"
@@ -533,7 +530,12 @@
         "i want to join",
         "how do i register",
         "how to register",
-        "register for a demo"
+        "register for a demo",
+        "where can i register for a demo",
+        "where do i enter my details",
+        "where to enter my details",
+        "can i get a free trial class",
+        "how can i schedule a demo"
       ],
       "keywords": [
         "admission",
@@ -542,9 +544,11 @@
         "enroll",
         "enrollment",
         "join",
-        "joining"
+        "joining",
+        "demo",
+        "register"
       ],
-      "answer": "To book a free demo class, please contact the WeMentors team directly by email at admin@wementors.co or phone/WhatsApp at +91 76111 92227 (Mon-Sat, 9:00 AM - 8:00 PM IST). Our team will be happy to help coordinate your demo session.",
+      "answer": "You can book a free demo in either of these ways:\n\n* Use the **Book Free Demo** option at the top-right of the website and enter your details directly.\n* Contact the WeMentors team through phone/WhatsApp at **+91 76111 92227** (alternate: +91 90398 03526, +91 88719 34995) or email at **admin@wementors.co** (Monday to Saturday, 9:00 AM to 8:00 PM IST).\n\nThe team can then help you with the next steps and confirm the available demo arrangements.",
       "follow_ups": [
         "What are the working hours?",
         "How can I contact WeMentors?"
@@ -557,8 +561,8 @@
       "question": "How much does WeMentors cost?",
       "phrasings": [
         "fees",
-        "course fees",
-        "what are the course fees",
+        "program fees",
+        "tuition fees",
         "pricing",
         "cost",
         "price",
@@ -569,8 +573,9 @@
       ],
       "keywords": [
         "fee structure",
-        "course fees",
-        "fees"
+        "tuition",
+        "pricing",
+        "cost"
       ],
       "answer": "Fee details are not published in our verified knowledge base, since pricing depends on grade, subject, and mentoring format. Please contact the WeMentors team directly (Email: admin@wementors.co, Phone/WhatsApp: +91 76111 92227) for current fees and tailored program pricing.",
       "follow_ups": [

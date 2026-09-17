@@ -65,6 +65,22 @@ CREATE TABLE IF NOT EXISTS error_logs (
     created_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_error_logs_created ON error_logs (created_at);
+
+CREATE TABLE IF NOT EXISTS demo_leads (
+    session_id TEXT PRIMARY KEY,
+    name TEXT,
+    grade TEXT,
+    subject TEXT,
+    contact_method TEXT,
+    contact_value TEXT,
+    preferred_time TEXT,
+    stage TEXT NOT NULL DEFAULT 'idle',
+    submission_status TEXT NOT NULL DEFAULT 'pending',
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    FOREIGN KEY (session_id) REFERENCES sessions (id)
+);
+CREATE INDEX IF NOT EXISTS idx_demo_leads_session ON demo_leads (session_id);
 """
 
 _EMAIL_REDACT_RE = re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b")
@@ -89,8 +105,6 @@ def init_db() -> None:
     config.DATABASE_PATH.parent.mkdir(parents=True, exist_ok=True)
     with get_connection() as conn:
         conn.executescript(_SCHEMA)
-        # Ensure demo_leads table is removed if it previously existed
-        conn.execute("DROP TABLE IF EXISTS demo_leads")
         conn.commit()
 
 
@@ -159,9 +173,71 @@ def get_recent_messages(session_id: str, limit: int) -> list[sqlite3.Row]:
 
 
 def clear_session(session_id: str) -> None:
-    """Remove stored messages for a session (used by Clear Chat)."""
+    """Remove stored messages and demo state for a session (used by Clear Chat)."""
     with get_connection() as conn:
         conn.execute("DELETE FROM messages WHERE session_id = ?", (session_id,))
+        conn.execute("DELETE FROM demo_leads WHERE session_id = ?", (session_id,))
+        conn.commit()
+
+
+def get_demo_lead(session_id: str) -> Optional[dict]:
+    """Retrieve the current structured demo lead state for a session."""
+    with get_connection() as conn:
+        row = conn.execute(
+            """
+            SELECT session_id, name, grade, subject, contact_method, contact_value,
+                   preferred_time, stage, submission_status, created_at, updated_at
+            FROM demo_leads
+            WHERE session_id = ?
+            """,
+            (session_id,),
+        ).fetchone()
+        if row:
+            return dict(row)
+        return None
+
+
+def save_demo_lead(
+    session_id: str,
+    name: Optional[str] = None,
+    grade: Optional[str] = None,
+    subject: Optional[str] = None,
+    contact_method: Optional[str] = None,
+    contact_value: Optional[str] = None,
+    preferred_time: Optional[str] = None,
+    stage: str = "collecting",
+    submission_status: str = "pending",
+) -> None:
+    """Insert or update the demo lead state for a session."""
+    now = _now()
+    with get_connection() as conn:
+        conn.execute(
+            """
+            INSERT INTO demo_leads (
+                session_id, name, grade, subject, contact_method, contact_value,
+                preferred_time, stage, submission_status, created_at, updated_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (session_id) DO UPDATE SET
+                name = coalesce(excluded.name, demo_leads.name),
+                grade = coalesce(excluded.grade, demo_leads.grade),
+                subject = coalesce(excluded.subject, demo_leads.subject),
+                contact_method = coalesce(excluded.contact_method, demo_leads.contact_method),
+                contact_value = coalesce(excluded.contact_value, demo_leads.contact_value),
+                preferred_time = coalesce(excluded.preferred_time, demo_leads.preferred_time),
+                stage = excluded.stage,
+                submission_status = excluded.submission_status,
+                updated_at = excluded.updated_at
+            """,
+            (session_id, name, grade, subject, contact_method, contact_value, preferred_time, stage, submission_status, now, now),
+        )
+        conn.commit()
+
+
+def clear_demo_lead(session_id: str) -> None:
+    """Remove demo lead state for a session."""
+    with get_connection() as conn:
+        conn.execute("DELETE FROM demo_leads WHERE session_id = ?", (session_id,))
         conn.commit()
 
 

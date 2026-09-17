@@ -220,15 +220,35 @@ class GroqProvider(LLMProvider):
         self._model = model
 
     def generate(self, system_prompt: str, messages: Sequence[Dict[str, str]]) -> Optional[str]:
-        response = self._client.chat.completions.create(
-            model=self._model,
-            max_tokens=config.LLM_MAX_TOKENS,
-            temperature=config.LLM_TEMPERATURE,
-            messages=[{"role": "system", "content": system_prompt}, *messages],
-        )
-        if not response.choices:
-            return None
-        return (response.choices[0].message.content or "").strip() or None
+        candidate_models = [self._model]
+        if self._model == "openai/gpt-oss-120b":
+            candidate_models.extend(["openai/gpt-oss-20b", "qwen/qwen3.8-27b"])
+
+        last_error = None
+        for m in candidate_models:
+            try:
+                response = self._client.chat.completions.create(
+                    model=m,
+                    max_tokens=config.LLM_MAX_TOKENS,
+                    temperature=config.LLM_TEMPERATURE,
+                    messages=[{"role": "system", "content": system_prompt}, *messages],
+                )
+                if not response.choices:
+                    continue
+                content = (response.choices[0].message.content or "").strip()
+                if content:
+                    return content
+            except Exception as exc:
+                last_error = exc
+                err_str = str(exc).lower()
+                if "rate_limit" in err_str or "429" in err_str:
+                    logger.warning("Groq model %s rate limited; falling back to alternative model", m)
+                    continue
+                raise
+
+        if last_error:
+            raise last_error
+        return None
 
 
 class AnthropicProvider(LLMProvider):

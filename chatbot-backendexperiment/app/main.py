@@ -22,7 +22,7 @@ from typing import Dict, List, Optional
 
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, HTMLResponse, Response
+from fastapi.responses import JSONResponse, HTMLResponse, Response, FileResponse
 
 
 class UTF8JSONResponse(JSONResponse):
@@ -327,6 +327,29 @@ def admin_analytics(x_admin_key: Optional[str] = Header(default=None)) -> Dict[s
     if not config.ADMIN_API_KEY or x_admin_key != config.ADMIN_API_KEY:
         raise HTTPException(status_code=404, detail="Not found")
     return database.get_analytics_summary()
+
+
+@app.get("/", response_class=HTMLResponse)
+@app.get("/index.html", response_class=HTMLResponse)
+def serve_index() -> HTMLResponse:
+    index_path = config.PROJECT_ROOT / "index.html"
+    if not index_path.exists():
+        index_path = config.PROJECT_ROOT.parent / "index.html"
+    if index_path.exists():
+        return HTMLResponse(content=index_path.read_text(encoding="utf-8"))
+    return HTMLResponse(content="<h1>WeMentors Chatbot API</h1>", status_code=200)
+
+
+@app.get("/{filename:path}")
+def serve_static(filename: str):
+    allowed_files = {"wm_brand_logo.png", "wm_brand_logo.svg", "download.png", "favicon.ico"}
+    if filename in allowed_files:
+        fpath = config.PROJECT_ROOT / filename
+        if not fpath.exists():
+            fpath = config.PROJECT_ROOT.parent / filename
+        if fpath.exists():
+            return FileResponse(str(fpath))
+    raise HTTPException(status_code=404, detail="Not found")
 
 
 @app.exception_handler(Exception)

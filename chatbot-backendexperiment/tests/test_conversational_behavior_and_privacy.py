@@ -148,7 +148,7 @@ def run_tests():
     cursor = conn.cursor()
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='demo_leads';")
     demo_leads_table = cursor.fetchone()
-    check("demo_leads table DOES NOT exist in SQLite database", demo_leads_table is None, str(demo_leads_table))
+    check("demo_leads table exists in SQLite database for structured demo flow", demo_leads_table is not None)
 
     # B. Test PII redaction in message logger
     test_session = f"pii-test-{uuid.uuid4()}"

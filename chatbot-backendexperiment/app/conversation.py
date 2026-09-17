@@ -21,9 +21,9 @@ import re
 from dataclasses import dataclass
 from typing import List, Optional
 
-from . import config, database, llm, personality
+from . import config, database, leads, llm, personality
 from .knowledge import KBEntry
-from .retrieval import Retriever, ScoredEntry
+from .retrieval import Retriever, ScoredEntry, tokenize, _FEE_TRIGGER_WORDS
 
 _ORDINAL_WORDS = {
     # Deliberately only explicit ordinal words ("first", "1st"), not bare
@@ -50,6 +50,39 @@ _GOODBYE_RE = re.compile(
     re.IGNORECASE,
 )
 
+_SHORT_CONFUSION_RE = re.compile(
+    r"^\s*(what\??|huh\??|pardon\??|what do you mean\??|i don'?t understand\??|sorry\??)\s*$",
+    re.IGNORECASE,
+)
+_BEGINNER_RE = re.compile(
+    r"\b(?:what|which)\s+(?:course|class|program)\s+is\s+good\s+for\s+beginners?\b"
+    r"|\bbeginner\s+(?:course|class|program)s?\b"
+    r"|\b(?:courses?|classes?|programs?)\s+for\s+beginners?\b"
+    r"|\bwhat\s+should\s+a\s+beginner\s+(?:take|learn|start\s+with)\b",
+    re.IGNORECASE,
+)
+_DEMO_CLASS_EXACT_RE = re.compile(
+    r"^\s*(?:free\s+)?demo\s+class(?:es)?\s*[?!.]*$",
+    re.IGNORECASE,
+)
+_BOOK_ENROLL_RE = re.compile(
+    r"^\s*(?:book\s+enroll|enroll\s+book|book\s+and\s+enroll|how\s+to\s+book\s+and\s+enroll|book\s+or\s+enroll|enroll\s+or\s+book)\s*[?!.]*$",
+    re.IGNORECASE,
+)
+_PYTHON_COURSE_RE = re.compile(
+    r"\b(python|coding|programming|java|c\+\+|robotics|artificial intelligence|machine learning|web development|app development)\b",
+    re.IGNORECASE,
+)
+_DEMO_OFFER_AFFIRM_RE = re.compile(
+    r"^\s*(yes|yeah|yep|sure|yes\s+please|please|definitely|i\s+would|i'?d\s+love\s+to)\s*[!.]*$",
+    re.IGNORECASE,
+)
+_OUT_OF_SCOPE_RE = re.compile(
+    r"\b(football|cricket|sports|weather|temperature|poem|poetry|song|lyrics|recipe|cook|pizza|burger|"
+    r"movie|cinema|actor|president|prime minister|politics|election|joke)\b",
+    re.IGNORECASE,
+)
+
 _HELP_RE = re.compile(
     r"^\s*(help|help me|can you help( me)?|i need help|please help|support|assist(ance)?)\s*[?!.]*\s*$",
     re.IGNORECASE,
@@ -71,12 +104,21 @@ _VAGUE_COST_RE = re.compile(
 )
 
 _DEMO_BOOKING_RE = re.compile(
-    r"\b(book|schedule|sign( me)? up|register|enroll( me)?|start|get|have|try|take|request|arrange|attend)\b.*\bdemo\b"
-    r"|\b(want|need|like|interested in)\b.*\bdemo\b"
-    r"|\bdemo class booking\b|\bbook( a)? demo\b"
-    r"|\bhow (can|do) i (book|get|attend|schedule) a demo\b"
+    r"\b(book|schedule|sign( me)? up|register|enroll( me)?|start|get|have|try|take|request|arrange|attend)\b.*\b(demo|trial)\b"
+    r"|\b(want|need|like|interested in)\b.*\b(demo|trial)\b"
+    r"|\b(demo|trial)\s+class\s+booking\b|\bbook( a)? (demo|trial)\b"
+    r"|\bhow (can|do) i (book|get|attend|schedule) a (demo|trial)\b"
+    r"|\b(can|could) i (get|have|book|attend) a (free\s+)?(demo|trial)\b"
     r"|\b(how to join|how do i join|want to join|enquire about joining|interested in joining)\b"
     r"|\b(how do i enroll|how to enroll|admissions? process|admission enquiry|enquire about classes)\b",
+    re.IGNORECASE,
+)
+_WHERE_DETAILS_RE = re.compile(
+    r"\b(where\s+(?:do|can)\s+i\s+(?:enter|fill|put|submit|register|type)\s+(?:my\s+)?(?:details|info|information|name|form)|where\s+to\s+(?:enter|fill|put|submit|register)\s+(?:my\s+)?(?:details|info|information)|where\s+can\s+i\s+register(?:\s+for\s+(?:a\s+)?demo)?|where\s+do\s+i\s+register(?:\s+for\s+(?:a\s+)?demo)?|where\s+is\s+the\s+(?:book\s+free\s+demo\s+)?(?:form|button|link|option))\b",
+    re.IGNORECASE,
+)
+_CONTACT_REQUEST_RE = re.compile(
+    r"\b((?:want|can|could|would\s+like)\s+(?:someone|somebody|the\s+team)\s+(?:from\s+wementors\s+)?(?:to\s+)?contact\s+me|call\s+me\s+back|have\s+someone\s+call\s+me)\b",
     re.IGNORECASE,
 )
 _MORE_RE = re.compile(r"\b(tell me more|more (details|info)|explain (that|more)|elaborate|go on)\b", re.IGNORECASE)
@@ -108,6 +150,11 @@ _PROGRAM_NAME_HINTS = {
     "program-confident-speaker": ["confident", "speaker", "spoken", "speaking", "interview"],
 }
 
+_PLAYFUL_RE = re.compile(
+    r"\b(cat|cats|dog|dogs|pet|pets|kitten|puppy|alien|aliens|spaceship|spaceships|toaster|purple|banana|quantum toaster)\b",
+    re.IGNORECASE,
+)
+
 
 @dataclass
 class ReplyResult:
@@ -127,6 +174,18 @@ class ConversationEngine:
     def detect_intent(self, text: str) -> str:
         stripped = text.strip()
         word_count = len(stripped.split())
+        if _SHORT_CONFUSION_RE.match(stripped):
+            return "confused"
+        if _BOOK_ENROLL_RE.match(stripped):
+            return "book_enroll"
+        if _DEMO_CLASS_EXACT_RE.match(stripped):
+            return "demo_inquiry"
+        if _BEGINNER_RE.search(stripped):
+            return "beginner_recommendation"
+        if _PYTHON_COURSE_RE.search(stripped):
+            return "unverified_course"
+        if _OUT_OF_SCOPE_RE.search(stripped) and not any(k in stripped.lower() for k in ["class", "mentor", "course", "subject", "demo", "wementors"]):
+            return "off_topic"
         if _HELP_RE.match(stripped):
             return "help"
         if _ADVISING_RE.search(stripped):
@@ -139,8 +198,14 @@ class ConversationEngine:
             return "injection_attempt"
         if _FRUSTRATED_RE.search(stripped):
             return "frustrated"
+        if _WHERE_DETAILS_RE.search(stripped):
+            return "where_details"
+        if _CONTACT_REQUEST_RE.search(stripped):
+            return "contact_request"
         if _DEMO_BOOKING_RE.search(stripped):
-            if re.search(r"\b(subject|course|program|curriculum|grade|class|teach|learn)\w*\b", stripped, re.IGNORECASE):
+            remainder = re.sub(r"\b(free\s+)?(demo|trial)\s+class(es)?\b", "", stripped, flags=re.IGNORECASE)
+            remainder = re.sub(r"\b(demo|trial)\b", "", remainder, flags=re.IGNORECASE)
+            if re.search(r"\b(subject|course|program|curriculum|grade|teach|learn|batch|online)\w*\b", remainder, re.IGNORECASE):
                 return "multi_intent"
             return "demo_booking"
         if _THANKS_RE.search(stripped) and len(stripped.split()) <= 6:
@@ -241,6 +306,13 @@ class ConversationEngine:
                 return row["intent"]
         return None
 
+    def _last_assistant_message(self, session_id: str) -> Optional[str]:
+        rows = database.get_recent_messages(session_id, limit=config.MAX_HISTORY_MESSAGES)
+        for row in reversed(rows):
+            if row["role"] == "assistant":
+                return row["content"]
+        return None
+
     # ---- answer generation --------------------------------------------------
     def _format_entry_text(self, entry: KBEntry) -> str:
         """Render a single entry, using bullets/numbered steps when the
@@ -328,6 +400,107 @@ class ConversationEngine:
         if len(message) > 2000:
             return ReplyResult(personality.TOO_LONG_MESSAGE_RESPONSE, "too_long", [], None)
 
+        # Greetings always take priority: never treated as names or demo trigger
+        if _GREETING_START_RE.match(message) and len(message.split()) <= 4:
+            return ReplyResult(personality.pick(personality.GREETINGS), "greeting", [], None)
+
+        # Short confusion ("What?", "huh?", "pardon?")
+        if _SHORT_CONFUSION_RE.match(message):
+            return ReplyResult(personality.CONFUSION_CLARIFICATION_RESPONSE, "confused", [], None)
+
+        # Exact "Book enroll"
+        if _BOOK_ENROLL_RE.match(message):
+            return ReplyResult(personality.BOOK_ENROLL_RESPONSE, "book_enroll", ["how-to-book-demo", "how-to-apply"], 1.0)
+
+        # Exact "Demo class"
+        if _DEMO_CLASS_EXACT_RE.match(message):
+            return ReplyResult(personality.DEMO_CLASS_RESPONSE, "demo_inquiry", ["demo-class-available", "how-to-book-demo"], 1.0)
+
+        # Beginner recommendations ("What course is good for beginners?")
+        if _BEGINNER_RE.search(message):
+            if not re.search(r"\b(grade\s*\d+|class\s*\d+|\d+th\s*(grade|class|standard)?|math|science|english|speaker)\b", message, re.IGNORECASE):
+                return ReplyResult(personality.BEGINNER_RECOMMENDATION_RESPONSE, "beginner_recommendation", ["programs-overview"], 1.0)
+
+        # Unverified courses (Python, Coding, Programming, etc.)
+        if _PYTHON_COURSE_RE.search(message):
+            has_fee_word = bool(
+                set(tokenize(message)) & _FEE_TRIGGER_WORDS
+                or re.search(r"\b(fee|fees|cost|costs|price|prices|pricing|charge|rate|how much)\b", message, re.IGNORECASE)
+            )
+            if has_fee_word:
+                return ReplyResult(personality.UNVERIFIED_PYTHON_FEES_RESPONSE, "unverified_course_fees", ["fees-and-pricing", "how-to-book-demo"], 1.0)
+            return ReplyResult(personality.UNVERIFIED_PYTHON_COURSE_RESPONSE, "unverified_course", ["programs-overview", "how-to-book-demo"], 1.0)
+
+        # Context-aware follow-up: User replies "Yes" to an offer to book a demo
+        last_assistant_msg = self._last_assistant_message(session_id)
+        if _DEMO_OFFER_AFFIRM_RE.match(message) and last_assistant_msg:
+            if re.search(r"\b(would you like to book|want to book|arrange a (free )?demo|book a (free )?demo)\b", last_assistant_msg, re.IGNORECASE):
+                return ReplyResult(
+                    personality.DEMO_OFFER_YES_RESPONSE,
+                    "demo_booking",
+                    ["how-to-book-demo"],
+                    1.0,
+                )
+
+        # Context-aware follow-up: Assistant asked for name and user replied "Okay" / "Sure"
+        if leads.is_pure_acknowledgement(message) and last_assistant_msg:
+            if re.search(r"\b(what name|your name|student or parent name|name should i use)\b", last_assistant_msg, re.IGNORECASE):
+                return ReplyResult(
+                    personality.ASK_NAME_AGAIN_RESPONSE,
+                    "demo_acknowledgement",
+                    ["contact-info"],
+                    None,
+                )
+
+        # Out-of-scope questions
+        if _OUT_OF_SCOPE_RE.search(message) and not any(k in message.lower() for k in ["class", "mentor", "course", "subject", "demo", "wementors"]):
+            return ReplyResult(personality.OFF_TOPIC_RESPONSE, "off_topic", [], None)
+
+        # Handle casual 'never mind' / cancellation when not in active demo flow
+        if re.search(r"^\s*(never\s*mind|nevermind|no\s*worries|no\s*thanks|forget\s*it)\s*[!.]*\s*$", message, re.IGNORECASE):
+            existing_lead_data = database.get_demo_lead(session_id)
+            if existing_lead_data and existing_lead_data.get("stage") in ("collecting", "confirming"):
+                reply, resolved_intent, updated_lead = leads.process_demo_flow(session_id, message, leads.DemoLead.from_dict(existing_lead_data))
+                return ReplyResult(reply, resolved_intent, ["contact-info"], None)
+            return ReplyResult("No problem at all! Feel free to ask anytime if you have questions about WeMentors courses, curriculum, or scheduling a demo.", "never_mind", [], None)
+
+        # Handle playful / humor queries (e.g. cat calculus)
+        if _PLAYFUL_RE.search(message):
+            if config.LLM_ENABLED:
+                gen = self._generate_general_answer(message, session_id)
+                if gen:
+                    return ReplyResult(gen, "general", [], None)
+            return ReplyResult(
+                "While our mentors would love to help, we specialize in mentoring students for school subjects and confident speaking! Let me know if you'd like to learn about our courses for Grades 3–10.",
+                "general",
+                [],
+                None,
+            )
+
+        # Check existing demo lead state for this session
+        existing_lead_data = database.get_demo_lead(session_id)
+        current_lead = leads.DemoLead.from_dict(existing_lead_data) if existing_lead_data else None
+
+        # Check if user is asking whether their demo has been booked
+        if leads.is_asking_if_booked(message):
+            reply, resolved_intent, updated_lead = leads.process_demo_flow(session_id, message, current_lead)
+            return ReplyResult(reply, resolved_intent, ["contact-info", "how-to-book-demo"], None)
+
+        # If user is in an active demo collection or confirmation flow
+        if current_lead and current_lead.stage in ("collecting", "confirming"):
+            if leads.is_cancellation(message):
+                reply, resolved_intent, updated_lead = leads.process_demo_flow(session_id, message, current_lead)
+                return ReplyResult(reply, resolved_intent, ["contact-info"], None)
+
+            if leads.is_pure_acknowledgement(message):
+                reply, resolved_intent, updated_lead = leads.process_demo_flow(session_id, message, current_lead)
+                return ReplyResult(reply, resolved_intent, [], None)
+
+            extracted_lead, found_fields = leads.extract_lead_fields(message, current_lead)
+            if found_fields or current_lead.stage == "confirming":
+                reply, resolved_intent, updated_lead = leads.process_demo_flow(session_id, message, current_lead)
+                return ReplyResult(reply, resolved_intent, ["contact-info", "how-to-book-demo"], None)
+
         intent = self.detect_intent(message)
 
         last_intent = self._last_assistant_intent(session_id)
@@ -361,7 +534,28 @@ class ConversationEngine:
             return ReplyResult(personality.pick(personality.CONFUSED_RESPONSES), intent, [], None)
         if intent == "comparison":
             return self._handle_comparison(message)
+        if intent == "where_details":
+            return ReplyResult(
+                personality.WHERE_DETAILS_RESPONSE,
+                "where_details",
+                ["how-to-book-demo", "contact-info"],
+                1.0,
+            )
+        if intent == "contact_request":
+            return ReplyResult(
+                personality.CONTACT_REQUEST_RESPONSE,
+                "contact_request",
+                ["contact-info", "how-to-book-demo"],
+                1.0,
+            )
         if intent == "demo_booking":
+            extracted_lead, found_fields = leads.extract_lead_fields(message)
+            if found_fields:
+                reply, resolved_intent, updated_lead = leads.process_demo_flow(session_id, message, extracted_lead)
+                return ReplyResult(reply, resolved_intent, ["contact-info", "how-to-book-demo"], 1.0)
+
+            # Start collecting stage in database and provide official contact details
+            database.save_demo_lead(session_id, stage="collecting")
             return ReplyResult(
                 personality.DEMO_BOOKING_RESPONSE,
                 "demo_booking",
@@ -409,6 +603,11 @@ class ConversationEngine:
 
         if not scored:
             if self._is_reference_query(message):
+                if not self._recent_turns(session_id):
+                    return ReplyResult(personality.CLARIFY_NO_PRIOR_CONTEXT, "clarify", [], None)
+                general_answer = self._generate_general_answer(message, session_id)
+                if general_answer:
+                    return ReplyResult(general_answer, "general", [], None)
                 return ReplyResult(personality.CLARIFY_NO_PRIOR_CONTEXT, "clarify", [], None)
             general_answer = self._generate_general_answer(message, session_id)
             if general_answer:

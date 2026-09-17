@@ -55,24 +55,42 @@ class KnowledgeBaseError(RuntimeError):
 
 
 def load_entries() -> List[KBEntry]:
-    candidates = [
-        config.KNOWLEDGE_FILE,
-        Path(__file__).resolve().parent / "wementors_kb.json",
-        Path(__file__).resolve().parents[2] / "knowledge" / "wementors_kb.json",
-        Path("api/wementors_kb.json"),
-        Path("knowledge/wementors_kb.json"),
-    ]
+    target_path = Path(config.KNOWLEDGE_FILE) if config.KNOWLEDGE_FILE else None
     raw = None
     last_exc = None
-    for cand in candidates:
-        if cand and cand.exists():
-            try:
-                raw = cand.read_text(encoding="utf-8-sig")
-                break
-            except Exception as e:
-                last_exc = e
-    if raw is None:
-        raise KnowledgeBaseError(f"Could not read knowledge base file from any candidate path: {last_exc}")
+
+    if target_path and target_path.exists():
+        try:
+            raw = target_path.read_text(encoding="utf-8-sig")
+        except Exception as e:
+            raise KnowledgeBaseError(f"Could not read knowledge base file from {target_path}: {e}") from e
+    elif target_path:
+        default_path = (config.PROJECT_ROOT / "knowledge" / "wementors_kb.json").resolve()
+        try:
+            is_custom = target_path.resolve() != default_path
+        except Exception:
+            is_custom = True
+
+        if is_custom:
+            raise KnowledgeBaseError(f"Could not read knowledge base file from {target_path}: file does not exist")
+
+        fallbacks = [
+            Path(__file__).resolve().parent / "wementors_kb.json",
+            Path(__file__).resolve().parents[2] / "knowledge" / "wementors_kb.json",
+            Path("api/wementors_kb.json"),
+            Path("knowledge/wementors_kb.json"),
+        ]
+        for cand in fallbacks:
+            if cand and cand.exists():
+                try:
+                    raw = cand.read_text(encoding="utf-8-sig")
+                    break
+                except Exception as e:
+                    last_exc = e
+        if raw is None:
+            raise KnowledgeBaseError(f"Could not read knowledge base file from any candidate path: {last_exc or 'not found'}")
+    else:
+        raise KnowledgeBaseError("No knowledge base path configured")
 
     try:
         data = json.loads(raw)
