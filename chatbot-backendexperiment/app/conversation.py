@@ -80,7 +80,7 @@ _DEMO_BOOKING_RE = re.compile(
     re.IGNORECASE,
 )
 _MORE_RE = re.compile(r"\b(tell me more|more (details|info)|explain (that|more)|elaborate|go on)\b", re.IGNORECASE)
-_REFERENCE_WORD_RE = re.compile(r"\b(it|that|this|they|those|these|the\s+program|the\s+one)\b", re.IGNORECASE)
+_REFERENCE_WORD_RE = re.compile(r"\b(it|that|this|they|those|these|the\s+program|the\s+course|the\s+one)\b", re.IGNORECASE)
 
 _INJECTION_MARKERS_RE = re.compile(
     r"\b(ignore (all |any )?(previous|prior|above) instructions|system prompt|you are now|"
