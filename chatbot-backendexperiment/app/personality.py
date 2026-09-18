@@ -599,6 +599,25 @@ ONLINE_CLASSES_RESPONSE = (
     "physical center you need to travel to."
 )
 
+# Grade 1 & 2 unavailable response
+GRADE_1_2_UNAVAILABLE_RESPONSE = (
+    "Currently, WeMentors does not offer courses for first grade or second grade yet. "
+    "Our academic programs begin from Grade 3:\n\n"
+    "- **Foundation Years**: Grades 3–5 (Mathematics, Science, English, Environmental Studies)\n"
+    "- **Middle School**: Grades 6–8 (all core subjects with practical labs and doubt clinics)\n"
+    "- **Senior School Focus**: Grades 9–10 (Board exam preparation and mock tests)\n\n"
+    "We also offer our **Confident Speaker** program for learners looking to build communication and public speaking skills. "
+    "Feel free to ask if you'd like to explore any of these programs!"
+)
+
+# International / Global access response
+INTERNATIONAL_ELIGIBILITY_RESPONSE = (
+    "Yes! Anyone globally can join from any country. "
+    "All WeMentors classes and mentoring sessions are conducted 1-on-1 live and online, so learners can join from Saudi Arabia, the UAE, the US, the UK, India, or anywhere else in the world. "
+    "Sessions and schedules are flexible and can be coordinated to fit your local time zone.\n\n"
+    "You can explore our academic mentoring programs for Grades 3–10 or our Confident Speaker program for communication skills, or click **Book Free Demo** at the top-right of the website to experience an online session."
+)
+
 
 def pick(responses: list[str]) -> str:
     return random.choice(responses)

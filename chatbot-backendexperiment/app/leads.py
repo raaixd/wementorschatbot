@@ -192,7 +192,9 @@ _NAME_BLACKLIST = {
     "course", "courses", "program", "programs", "student", "students", "parent", "parents",
     "child", "children", "kid", "kids", "learner", "learners", "tutor", "tuition", "mentor", "mentors", "mentoring",
     "adult", "adults", "an adult", "grown up", "professional", "professionals", "a professional", "homemaker", "homemakers", "a homemaker", "housewife", "college", "university",
-    "an", "a", "the", "person", "someone",
+    "an", "a", "the", "person", "someone", "first", "second",
+    # Countries & Global
+    "saudi", "arabia", "dubai", "uae", "qatar", "oman", "kuwait", "bahrain", "usa", "uk", "america", "global", "international",
     # Actions & Inquiry types
     "demo", "trial", "session", "sessions", "book", "booking", "enroll", "enrollment", "admission", "admissions",
     "register", "registration", "fee", "fees", "cost", "price", "pricing", "details", "info", "information",

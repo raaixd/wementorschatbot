@@ -1050,6 +1050,90 @@
         "Which grades are supported?"
       ],
       "confidence": "verified"
+    },
+    {
+      "id": "grade-1-and-2-availability",
+      "category": "eligibility",
+      "question": "Do you offer courses for first grade or second grade?",
+      "phrasings": [
+        "courses for first grade",
+        "courses for second grade",
+        "what about first grade",
+        "what about second grade",
+        "first grade",
+        "second grade",
+        "grade 1",
+        "grade 2",
+        "class 1",
+        "class 2",
+        "1st grade",
+        "2nd grade",
+        "can a first grader join",
+        "can my child in second grade join",
+        "is there anything for 1st grade",
+        "do you have classes for grade 1 or grade 2"
+      ],
+      "keywords": [
+        "first grade",
+        "second grade",
+        "1st grade",
+        "2nd grade",
+        "grade 1",
+        "grade 2",
+        "class 1",
+        "class 2",
+        "unavailable",
+        "courses"
+      ],
+      "answer": "Currently, WeMentors does not offer courses for first grade or second grade yet. Our academic programs support learners starting from Grade 3 (Foundation Years for Grades 3–5, Middle School for Grades 6–8, and Senior School Focus for Grades 9–10). We also offer the Confident Speaker program for communication and public speaking skills.",
+      "follow_ups": [
+        "What is the Foundation Years program?",
+        "What is the Confident Speaker program?",
+        "Which grades do you support?"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "id": "international-students-eligibility",
+      "category": "eligibility",
+      "question": "Can I join from Saudi Arabia or other countries?",
+      "phrasings": [
+        "can i join from saudi arabia",
+        "can i join from the UAE",
+        "can i join from dubai",
+        "can i join from USA",
+        "can someone join from the US or UAE",
+        "do you accept students from other countries",
+        "can i attend classes from dubai",
+        "can international students join",
+        "can anyone globally join",
+        "can we join from any country",
+        "is wementors available in saudi arabia",
+        "i live in saudi arabia can i join",
+        "can i join from outside india",
+        "do you teach students abroad"
+      ],
+      "keywords": [
+        "saudi arabia",
+        "uae",
+        "dubai",
+        "usa",
+        "uk",
+        "international",
+        "global",
+        "worldwide",
+        "outside india",
+        "abroad",
+        "foreign",
+        "country"
+      ],
+      "answer": "Yes! Anyone globally can join from any country. All WeMentors classes and mentoring sessions are conducted 1-on-1 live and online, so learners can join from Saudi Arabia, the UAE, the US, the UK, India, or anywhere else in the world. Sessions are scheduled flexibly to accommodate your local time zone.",
+      "follow_ups": [
+        "Are the classes online?",
+        "How do 1-on-1 sessions work?",
+        "How can I book a free demo?"
+      ],
+      "confidence": "verified"
     }
   ]
 }

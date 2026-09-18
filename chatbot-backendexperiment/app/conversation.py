@@ -677,6 +677,41 @@ _ONLINE_CLASSES_RE = re.compile(
     r")\b",
     re.IGNORECASE,
 )
+
+_GRADE_1_2_RE = re.compile(
+    r"\b("
+    r"(?:first|1st|second|2nd)\s+grades?|"
+    r"grades?\s*(?:1|2|one|two)\b(?!\s*[012])|"
+    r"(?:first|1st|second|2nd)\s+class(?:es)?|"
+    r"class\s*(?:1|2|one|two)\b(?!\s*[012])|"
+    r"(?:first|1st|second|2nd)\s+standards?|"
+    r"standards?\s*(?:1|2|one|two)\b(?!\s*[012])|"
+    r"grades?\s*(?:1\s*(?:and|&|or|to|-|–)\s*2|1\s*,\s*2)|"
+    r"classes\s*(?:1\s*(?:and|&|or|to|-|–)\s*2|1\s*,\s*2)|"
+    r"(?:first|1st)\s*(?:and|&|or|to|-|–)\s*(?:second|2nd)\s+grades?|"
+    r"(?:first|1st)\s+or\s+(?:second|2nd)\s+grade|"
+    r"(?:first|second)\s+grader"
+    r")\b",
+    re.IGNORECASE,
+)
+
+_INTERNATIONAL_ELIGIBILITY_RE = re.compile(
+    r"\b("
+    r"(?:can|could|may|is\s+it\s+possible\s+to|how\s+can)\s+(?:i|we|a\s+student|someone|anyone|learners?)\s+(?:join|enroll|attend(?:\s+classes|\s+sessions)?|register|participate|take\s+classes|take\s+sessions)\s+(?:from|in)\s+(?:the\s+)?(?:saudi\s+arabia|saudi|ksa|uae|dubai|abu\s+dhabi|qatar|oman|kuwait|bahrain|middle\s+east|gulf|usa|us|united\s+states|america|uk|united\s+kingdom|london|england|canada|australia|singapore|new\s+zealand|malaysia|europe|germany|france|outside\s+india|abroad|overseas|another\s+country|other\s+countries|any\s+country|anywhere(?:\s+in\s+the\s+world)?)|"
+    r"(?:i\s+live\s+in|i['’]?m\s+(?:living\s+)?in|i\s+am\s+(?:living\s+)?in|i['’]?m\s+from|i\s+am\s+from)\s+(?:the\s+)?(?:saudi\s+arabia|saudi|ksa|uae|dubai|abu\s+dhabi|qatar|oman|kuwait|bahrain|middle\s+east|gulf|usa|us|united\s+states|america|uk|united\s+kingdom|london|england|canada|australia|singapore|outside\s+india|abroad|overseas).*(?:can|could|may|is\s+it\s+possible)\s+(?:i|we|my\s+child)\s+join|"
+    r"(?:is\s+(?:this|it|wementors)\s+available|do\s+you\s+(?:offer|have)\s+(?:classes|courses|programs?|mentoring))\s+(?:in|for|from)\s+(?:the\s+)?(?:saudi\s+arabia|saudi|ksa|uae|dubai|abu\s+dhabi|qatar|oman|kuwait|bahrain|middle\s+east|gulf|usa|us|united\s+states|america|uk|united\s+kingdom|london|england|canada|australia|singapore|outside\s+india|abroad|overseas|other\s+countries|internationally|globally|worldwide)|"
+    r"(?:can|do\s+you\s+(?:accept|take|teach))\s+(?:international|nri|foreign|overseas|global)\s+students?(?:\s+join)?|"
+    r"can\s+(?:someone|anyone)\s+globally\s+join|"
+    r"can\s+anyone\s+join\s+from\s+any\s+country|"
+    r"can\s+we\s+join\s+from\s+any\s+country|"
+    r"is\s+(?:it|wementors|this)\s+open\s+(?:globally|internationally|worldwide|to\s+international\s+students)|"
+    r"(?:available|accessible)\s+(?:globally|internationally|worldwide)|"
+    r"(?:accept|teach)\s+students\s+from\s+(?:other\s+countries|outside\s+india|abroad|overseas)|"
+    r"can\s+i\s+join\s+from\s+anywhere"
+    r")\b",
+    re.IGNORECASE,
+)
+
 _CONTACT_REQUEST_RE = re.compile(
     r"\b((?:want|can|could|would\s+like)\s+(?:someone|somebody|the\s+team)\s+(?:from\s+wementors\s+)?(?:to\s+)?contact\s+me|call\s+me\s+back|have\s+someone\s+call\s+me)\b",
     re.IGNORECASE,
@@ -1241,6 +1276,16 @@ class ConversationEngine:
         if _ELIGIBILITY_MIXED_FEES_RE.search(stripped) or _ELIGIBILITY_MIXED_FEES_RE.search(normalized):
             return "eligibility_mixed_fees"
 
+        # First / Second Grade inquiry: explicitly handled so queries like
+        # "courses for first grade", "what about second grade", "grade 1", "grade 2"
+        # are accurately informed that there are no courses for them yet.
+        if _GRADE_1_2_RE.search(stripped) or _GRADE_1_2_RE.search(normalized):
+            return "grade_1_2_unavailable"
+
+        # International / Global access inquiry: "can i join from saudi arabia", etc.
+        if _INTERNATIONAL_ELIGIBILITY_RE.search(stripped) or _INTERNATIONAL_ELIGIBILITY_RE.search(normalized):
+            return "international_eligibility"
+
         # Single-topic Location, Online delivery, and Eligibility checked next
         if _LOCATION_RE.search(stripped) or _LOCATION_RE.search(normalized):
             return "location"
@@ -1338,6 +1383,8 @@ class ConversationEngine:
             and not _ELIGIBILITY_ADULT_RE.search(stripped)
             and not _ELIGIBILITY_COLLEGE_RE.search(stripped)
             and not _ELIGIBILITY_GENERAL_RE.match(stripped)
+            and not _GRADE_1_2_RE.search(stripped)
+            and not _INTERNATIONAL_ELIGIBILITY_RE.search(stripped)
             and not _LOCATION_RE.search(stripped)
             and not _ONLINE_CLASSES_RE.search(stripped)
         ):
@@ -1631,7 +1678,7 @@ class ConversationEngine:
             "grade7_maths_sessions", "confident_speaker_activities",
         ):
             return "program/topic"
-        if detected.startswith("eligibility"):
+        if detected.startswith("eligibility") or detected in ("grade_1_2_unavailable", "international_eligibility"):
             return "eligibility"
         if detected == "location":
             return "location"
@@ -1901,6 +1948,7 @@ class ConversationEngine:
             "eligibility_mixed_online",
             "eligibility_mixed_programs",
             "eligibility_mixed_fees",
+            "international_eligibility",
             "online_classes",
         )
         if intent not in allowed_yes_intents:
@@ -2487,6 +2535,24 @@ class ConversationEngine:
                 personality.ONLINE_CLASSES_RESPONSE,
                 "online_classes",
                 ["programs-overview"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "grade_1_2_unavailable":
+            res = ReplyResult(
+                personality.GRADE_1_2_UNAVAILABLE_RESPONSE,
+                "grade_1_2_unavailable",
+                ["programs-overview", "program-foundation-years"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "international_eligibility":
+            res = ReplyResult(
+                personality.INTERNATIONAL_ELIGIBILITY_RESPONSE,
+                "international_eligibility",
+                ["programs-overview", "contact-info"],
                 1.0,
             )
             return self._finalize_result(session_id, res, memory, message)
