@@ -201,7 +201,8 @@ r12 = engine.handle_message(sid12, "Okay")
 check("Must NOT save 'Okay' as name", "noted your name as okay" not in r12.reply.lower(), r12.reply)
 lead12 = database.get_demo_lead(sid12)
 check("Lead name in database is not 'Okay'", not lead12 or lead12.get("name") != "Okay", f"lead={lead12}")
-check("Asks what name to use for demo request", "what name should i use" in r12.reply.lower(), r12.reply)
+check("Guides to website demo booking instead of asking for name", "book free demo" in r12.reply.lower(), r12.reply)
+check("Does not ask for name for demo request", "what name should i use" not in r12.reply.lower(), r12.reply)
 
 # --- 13. Assistant asks whether user wants a demo, user says "Yes" ---
 print("\n--- 13. Assistant asks whether user wants a demo, user says 'Yes' ---")

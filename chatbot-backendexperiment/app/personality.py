@@ -337,8 +337,8 @@ DEMO_FIELD_CLARIFICATION_RESPONSE = (
 )
 
 STANDALONE_NAME_DEMO_RESPONSE = (
-    "If you'd like to book a demo for {name}, you can enter their name and details in the **Book Free Demo** form "
-    "at the top-right of the website, or contact our team directly at **+91 76111 92227**."
+    "Thanks, {name}. If you're booking a demo, you can enter your details directly through the "
+    "**Book Free Demo** option at the top-right of the website, or contact our team at **+91 76111 92227**."
 )
 
 STANDALONE_NAME_GENERAL_RESPONSE = (
@@ -444,8 +444,11 @@ DEMO_OFFER_YES_RESPONSE = (
     "Great. Click **Book Free Demo** at the top-right of the website and submit your details."
 )
 
+# DEPRECATED: No longer used since the chatbot doesn't collect booking info through chat.
+# Kept for backwards compatibility with any test files that may reference it.
 ASK_NAME_AGAIN_RESPONSE = (
-    "Sure. What name should I use for the demo request?"
+    "If you'd like to book a demo, you can enter your details through the "
+    "**Book Free Demo** form at the top-right of the website."
 )
 
 WHERE_DETAILS_RESPONSE = (

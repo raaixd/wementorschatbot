@@ -354,14 +354,13 @@ check("Middle School acknowledged as subject/program", "Middle School" in r_d2.j
 check("Middle School is NOT falsely captured as student/parent name", 
       "name: Middle School" not in r_d2.json()["reply"] and "name as middle school" not in r_d2.json()["reply"].lower(),
       r_d2.json()["reply"])
-check("Missing fields still include student or parent name",
-      "student or parent name" in r_d2.json()["reply"].lower(),
+check("Does not ask for missing booking fields",
+      "student or parent name" not in r_d2.json()["reply"].lower(),
       r_d2.json()["reply"])
 
-# Check database lead state
+# Check database lead state - no fake lead should be saved
 db_lead = database.get_demo_lead(lead_sid)
-check("Database demo lead name is None", db_lead.get("name") is None, f"got {db_lead.get('name')}")
-check("Database demo lead subject is Middle School", db_lead.get("subject") == "Middle School", f"got {db_lead.get('subject')}")
+check("Database demo lead is None (no fake lead stored)", db_lead is None, f"got {db_lead}")
 
 # User asks general info question
 r_gen = client.post("/chat", json={

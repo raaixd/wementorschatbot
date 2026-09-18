@@ -427,7 +427,10 @@ _DEMO_TRANSACTION_RE = re.compile(
     r"i\s+want\s+you\s+to\s+book\s+it|"
     r"i\s+want\s+you\s+to\s+book\s+(?:a\s+)?(?:free\s+)?demo|"
     r"can\s+you\s+sign\s+me\s+up(?:\s+for\s+(?:a\s+)?(?:free\s+)?demo)?|"
-    r"sign\s+me\s+up\s+for\s+(?:a\s+)?(?:free\s+)?demo"
+    r"sign\s+me\s+up\s+for\s+(?:a\s+)?(?:free\s+)?demo|"
+    r"can\s+you\s+send\s+my\s+details\s+to\s+the\s+team|"
+    r"(?:can\s+you\s+)?sign\s+(?:my\s+)?(?:child|kid)\s+up(?:\s+for\s+(?:a\s+)?(?:free\s+)?demo)?|"
+    r"can\s+you\s+book\s+something\s+for\s+me"
     r")\b",
     re.IGNORECASE,
 )
@@ -1459,45 +1462,84 @@ class ConversationEngine:
                 res = ReplyResult("Could you clarify what you'd like to know about our programs or mentoring?", "clarify", [], None)
                 return self._finalize_result(session_id, res, memory, message)
 
-        # Standalone person name without explicit field introduction (e.g. "Raaid")
-        # Recognition is NOT permission to create a transactional state or fake lead.
-        words = message.split()
-        is_known_non_name = bool(
-            _GREETING_START_RE.match(message)
-            or _GOODBYE_RE.match(message)
-            or _THANKS_RE.match(message)
-            or _HELP_RE.match(message)
-            or _SHORT_CONFUSION_RE.match(message)
-            or _OUT_OF_SCOPE_RE.search(message)
-            or _PLAYFUL_RE.search(message)
-            or _CAPABILITY_RE.match(message)
-            or _GENERAL_INFO_RE.match(message)
-            or _BOOK_ENROLL_RE.match(message)
-            or re.search(r"\b(foundation|found|foundating|doundation|foudation|foundaton|middle|senior|confident|speaker|program|programs|course|courses|curriculum|subject|subjects|grade|grades|class|standard|fee|fees|cost|costs|pricing|price|demo|trial|enroll|enrollment|apply|admissions?|clinic|clinics|dashboard|mentor|mentors|mentoring)\b", message, re.I)
-        )
-        if (
-            len(words) <= 3
-            and re.match(r"^[A-Za-z\s]+$", message)
-            and not is_known_non_name
-            and message.lower() not in leads._NAME_BLACKLIST
-            and not (set(message.lower().split()) & leads._NAME_BLACKLIST)
-            and not any(p.search(message) for p, _ in leads._SUBJECT_PATTERNS)
-            and not any(p.search(message) for p in leads._GRADE_PATTERNS)
-            and not any(p.search(message) for p in leads._TIME_PATTERNS)
-            and not re.search(r"[?]|^(what|how|why|who|where|when|tell me|explain|can you|do you|which|i want|book)\b", message, re.I)
-        ):
+        # Name detection (explicit intro e.g. "my name is raaid", "name is raaid", or standalone "Raaid")
+        # Recognition of a name is NOT permission to create a transactional state or fake lead.
+        extracted_name = None
+        if not _FRUSTRATED_RE.search(message) and not _SHORT_CONFUSION_RE.match(message) and not _OUT_OF_SCOPE_RE.search(message):
+            m_intro = re.match(r"^\s*(?:my\s+name\s+is|name\s+is|i\s+am|i'm|call\s+me|(?:student|child|son|daughter)(?:'s)?\s+name\s+is)\s+([A-Za-z][A-Za-z\s]{0,30})\s*[.!]*\s*$", message, re.IGNORECASE)
+            if m_intro:
+                cand = m_intro.group(1).strip()
+                cand_words = cand.split()
+                if cand_words and cand_words[0].lower() not in leads._NAME_BLACKLIST:
+                    if not any(p.search(cand) for p, _ in leads._SUBJECT_PATTERNS) and not any(p.search(cand) for p in leads._GRADE_PATTERNS):
+                        extracted_name = cand_words[0].capitalize() if len(cand_words) == 1 else " ".join(w.capitalize() for w in cand_words)
+
+            if not extracted_name:
+                words = message.split()
+                is_known_non_name = bool(
+                    _GREETING_START_RE.match(message)
+                    or _GOODBYE_RE.match(message)
+                    or _THANKS_RE.match(message)
+                    or _HELP_RE.match(message)
+                    or _SHORT_CONFUSION_RE.match(message)
+                    or _OUT_OF_SCOPE_RE.search(message)
+                    or _PLAYFUL_RE.search(message)
+                    or _CAPABILITY_RE.match(message)
+                    or _GENERAL_INFO_RE.match(message)
+                    or _BOOK_ENROLL_RE.match(message)
+                    or _FRUSTRATED_RE.search(message)
+                    or re.search(r"\b(foundation|found|foundating|doundation|foudation|foundaton|middle|senior|confident|speaker|program|programs|course|courses|curriculum|subject|subjects|grade|grades|class|standard|fee|fees|cost|costs|pricing|price|demo|trial|enroll|enrollment|apply|admissions?|clinic|clinics|dashboard|mentor|mentors|mentoring)\b", message, re.I)
+                )
+                if (
+                    len(words) <= 3
+                    and re.match(r"^[A-Za-z\s]+$", message)
+                    and not is_known_non_name
+                    and message.lower() not in leads._NAME_BLACKLIST
+                    and not (set(message.lower().split()) & leads._NAME_BLACKLIST)
+                    and not any(p.search(message) for p, _ in leads._SUBJECT_PATTERNS)
+                    and not any(p.search(message) for p in leads._GRADE_PATTERNS)
+                    and not any(p.search(message) for p in leads._TIME_PATTERNS)
+                    and not re.search(r"[?]|^(what|how|why|who|where|when|tell me|explain|can you|do you|which|i want|book)\b", message, re.I)
+                ):
+                    extracted_name = message.strip().title()
+
+        if extracted_name:
             last_intent = self._last_assistant_intent(session_id)
             last_msg = self._last_assistant_message(session_id) or ""
             is_demo_context = (
-                last_intent in ("demo_booking", "demo_inquiry", "demo_information", "demo_transaction_request")
+                last_intent in ("demo_booking", "demo_inquiry", "demo_information", "demo_transaction_request", "demo_field_clarification", "standalone_name")
                 or bool(re.search(r"\b(demo|trial|book free demo)\b", last_msg, re.I))
             )
             if is_demo_context:
-                formatted_name = message.strip().title()
-                reply = personality.STANDALONE_NAME_DEMO_RESPONSE.format(name=formatted_name)
+                reply = personality.STANDALONE_NAME_DEMO_RESPONSE.format(name=extracted_name)
                 res = ReplyResult(reply, "standalone_name", ["how-to-book-demo"], 1.0)
             else:
-                res = ReplyResult(personality.STANDALONE_NAME_GENERAL_RESPONSE, "standalone_name", ["programs-overview", "how-to-book-demo"], 1.0)
+                reply = f"Nice to meet you, {extracted_name}! How can I help you today with WeMentors' programs and mentoring?"
+                res = ReplyResult(reply, "greeting", ["programs-overview"], 1.0)
+            return self._finalize_result(session_id, res, memory, message)
+
+        # Contact details provided (phone number or email address)
+        # The chatbot must NOT collect contact details or claim to save them.
+        if (leads._PHONE_RE.search(message) or leads._EMAIL_RE.search(message)) and not re.search(r"\b(what|how|where|when|why)\b", message, re.I):
+            last_intent = self._last_assistant_intent(session_id)
+            last_msg = self._last_assistant_message(session_id) or ""
+            is_demo_context = (
+                last_intent in ("demo_booking", "demo_inquiry", "demo_information", "demo_transaction_request", "demo_field_clarification", "standalone_name")
+                or bool(re.search(r"\b(demo|trial|book free demo)\b", last_msg, re.I))
+            )
+            if is_demo_context:
+                reply = (
+                    "Got it. If that's for a demo, please enter your contact details through the "
+                    "**Book Free Demo** form at the top-right of the website."
+                )
+                res = ReplyResult(reply, "demo_booking", ["how-to-book-demo"], 1.0)
+            else:
+                reply = (
+                    "If you'd like our team to contact you or if you're booking a demo, "
+                    "please enter your details through the **Book Free Demo** form at the top-right of the website, "
+                    "or contact us directly at **admin@wementors.co** or **+91 76111 92227**."
+                )
+                res = ReplyResult(reply, "contact_info", ["contact-info", "how-to-book-demo"], 1.0)
             return self._finalize_result(session_id, res, memory, message)
 
         # Narrow grade questions: direct and concise without full program dump
@@ -1513,13 +1555,11 @@ class ConversationEngine:
 
         # Where to book
         if _DEMO_WHERE_TO_BOOK_RE.search(message):
-            database.save_demo_lead(session_id, stage="collecting")
             res = ReplyResult(personality.DEMO_BOOKING_RESPONSE, "demo_booking", ["how-to-book-demo"], 1.0)
             return self._finalize_result(session_id, res, memory, message)
 
         # How to book a demo ("how do i book", "how to book a demo")
         if _HOW_TO_BOOK_RE.match(message):
-            database.save_demo_lead(session_id, stage="collecting")
             res = ReplyResult(personality.HOW_TO_BOOK_RESPONSE, "demo_booking", ["how-to-book-demo"], 1.0)
             return self._finalize_result(session_id, res, memory, message)
 
@@ -1554,12 +1594,14 @@ class ConversationEngine:
                 )
 
         # Context-aware follow-up: Assistant asked for name and user replied "Okay" / "Sure"
+        # (No longer re-asks for name since we don't collect booking info in chat)
         if leads.is_pure_acknowledgement(message) and last_assistant_msg:
             if re.search(r"\b(what name|your name|student or parent name|name should i use)\b", last_assistant_msg, re.IGNORECASE):
                 return ReplyResult(
-                    personality.ASK_NAME_AGAIN_RESPONSE,
-                    "demo_acknowledgement",
-                    ["contact-info"],
+                    "No worries. If you'd like to book a demo, you can enter your details through "
+                    "the **Book Free Demo** form at the top-right of the website.",
+                    "demo_booking",
+                    ["how-to-book-demo"],
                     None,
                 )
 
@@ -1567,12 +1609,10 @@ class ConversationEngine:
         if _OUT_OF_SCOPE_RE.search(message) and not any(k in message.lower() for k in ["class", "mentor", "course", "subject", "demo", "wementors"]):
             return ReplyResult(personality.OFF_TOPIC_RESPONSE, "off_topic", [], None)
 
-        # Handle casual 'never mind' / cancellation when not in active demo flow
+        # Handle casual 'never mind' / cancellation
         if re.search(r"^\s*(never\s*mind|nevermind|no\s*worries|no\s*thanks|forget\s*it)\s*[!.]*\s*$", message, re.IGNORECASE):
-            existing_lead_data = database.get_demo_lead(session_id)
-            if existing_lead_data and existing_lead_data.get("stage") in ("collecting", "confirming"):
-                reply, resolved_intent, updated_lead = leads.process_demo_flow(session_id, message, leads.DemoLead.from_dict(existing_lead_data))
-                return ReplyResult(reply, resolved_intent, ["contact-info"], None)
+            # Clear any stale demo lead state
+            database.clear_demo_lead(session_id)
             return ReplyResult("No problem at all! Feel free to ask anytime if you have questions about WeMentors courses, curriculum, or scheduling a demo.", "never_mind", [], None)
 
         # Handle playful / humor queries (e.g. cat calculus)
@@ -1588,31 +1628,10 @@ class ConversationEngine:
                 None,
             )
 
-        # Check existing demo lead state for this session
-        existing_lead_data = database.get_demo_lead(session_id)
-        current_lead = leads.DemoLead.from_dict(existing_lead_data) if existing_lead_data else None
-
-        # Check if user is asking whether their demo has been booked
-        if leads.is_asking_if_booked(message):
-            reply, resolved_intent, updated_lead = leads.process_demo_flow(session_id, message, current_lead)
-            return ReplyResult(reply, resolved_intent, ["contact-info", "how-to-book-demo"], None)
-
-        # If user is in an active demo collection or confirmation flow
-        if current_lead and current_lead.stage in ("collecting", "confirming"):
-            if leads.is_cancellation(message):
-                reply, resolved_intent, updated_lead = leads.process_demo_flow(session_id, message, current_lead)
-                return ReplyResult(reply, resolved_intent, ["contact-info"], None)
-
-            if leads.is_pure_acknowledgement(message):
-                reply, resolved_intent, updated_lead = leads.process_demo_flow(session_id, message, current_lead)
-                return ReplyResult(reply, resolved_intent, [], None)
-
-            is_explicit_query = bool(re.search(r"[?]|^(what|how|why|who|where|when|tell me|explain|can you|do you|which|is)\b", message, re.I))
-            if not is_explicit_query or (current_lead.stage == "confirming" and leads.is_confirmation(message)):
-                extracted_lead, found_fields = leads.extract_lead_fields(message, current_lead)
-                if found_fields or current_lead.stage == "confirming":
-                    reply, resolved_intent, updated_lead = leads.process_demo_flow(session_id, message, current_lead)
-                    return ReplyResult(reply, resolved_intent, ["contact-info", "how-to-book-demo"], None)
+        # NOTE: The old active-lead interception block has been removed.
+        # The chatbot no longer enters a multi-turn lead-collection workflow.
+        # All demo-related intents are handled by the intent routing below,
+        # which provides guidance to the Book Free Demo form.
 
         intent = self.detect_intent(message, session_id)
 
@@ -2097,13 +2116,7 @@ class ConversationEngine:
                 return ReplyResult(entry.answer, "demo_information", [entry.id, "how-to-book-demo"], 1.0)
             return ReplyResult(personality.DEMO_BOOKING_RESPONSE, "demo_information", ["how-to-book-demo"], 1.0)
         if intent in ("demo_booking", "demo_booking_instructions"):
-            extracted_lead, found_fields = leads.extract_lead_fields(message)
-            if found_fields:
-                reply, resolved_intent, updated_lead = leads.process_demo_flow(session_id, message, extracted_lead)
-                res = ReplyResult(reply, resolved_intent, ["contact-info", "how-to-book-demo"], 1.0)
-                return self._finalize_result(session_id, res, memory, message)
-
-            database.save_demo_lead(session_id, stage="collecting")
+            # Guide user to the website form — never collect booking info in chat
             res = ReplyResult(
                 personality.DEMO_BOOKING_RESPONSE,
                 "demo_booking",

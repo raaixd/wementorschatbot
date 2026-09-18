@@ -1,27 +1,19 @@
 """
-Structured demo enquiry state machine and lead management.
+Demo enquiry lead helpers and guidance.
 
-Enforces:
-1. Multi-turn collection of demo information:
-   - Student or parent name
-   - Student grade (Grades 3–10)
-   - Preferred subject (Maths, Science, Confident Speaker, etc.)
-   - Preferred contact method & value (Phone / Email)
-   - Preferred time
-2. Strict false-confirmation prevention:
-   - Simple acknowledgements ("ok", "sure", "yes", "alright", "fine", "got it",
-     "thanks", "understood", "I will", "maybe") must NEVER be treated as submitted
-     details or lead completion.
-   - Responds naturally: "Sure. You can send the details whenever you’re ready,
-     either all together or one at a time."
-3. Strict separation of stages:
-   Stage 1: Bot asks for details.
-   Stage 2: User provides details (accumulated across turns).
-   Stage 3: Backend validates details and prompts for missing fields.
-   Stage 4: User confirms details when all required fields are present.
-   Stage 5: Backend submits the information.
-   Stage 6: System confirms success.
-   Stage 7: ONLY then may the chatbot state that the request was submitted.
+Capability architecture:
+- DEMO_TRANSACTION_ENABLED controls whether the chatbot can collect,
+  store, and submit demo booking leads through conversational chat.
+- When False (current default), the chatbot understands demo-related
+  user intent but NEVER collects personal information, saves leads,
+  or claims a submission occurred.  It redirects users to the actual
+  Book Free Demo form on the website.
+- When True (future), the full multi-turn collection state machine
+  in process_demo_flow() is activated.
+
+Utility functions (is_pure_acknowledgement, is_cancellation, etc.) and
+the _NAME_BLACKLIST are used by conversation.py for intent detection
+and are always available regardless of the capability flag.
 """
 
 from __future__ import annotations
@@ -31,6 +23,13 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 
 from . import database
+
+# ── Capability gate ──────────────────────────────────────────────────
+# Set to True ONLY when a real backend submission mechanism exists
+# (e.g. Google Sheets API, CRM webhook, verified email sender).
+# While False, the chatbot will guide users to the website form and
+# NEVER pretend to collect, store, or submit booking information.
+DEMO_TRANSACTION_ENABLED = False
 
 
 _ACKNOWLEDGEMENT_RE = re.compile(
@@ -291,6 +290,50 @@ def format_lead_summary(lead: DemoLead) -> str:
     return "\n".join(lines)
 
 
+def guide_to_demo_booking(message: str, user_name: Optional[str] = None, context_program: Optional[str] = None) -> str:
+    """Return a natural, context-aware redirect to the Book Free Demo form.
+
+    This is the primary response generator when DEMO_TRANSACTION_ENABLED is
+    False.  It understands what the user said and responds helpfully without
+    ever claiming to collect, store, or submit information.
+    """
+    lowered = message.strip().lower()
+
+    # Detect if the user is providing personal info (name, grade, phone, etc.)
+    has_name_intro = bool(re.search(r"\b(?:my name is|i am|i'm|this is|call me|name is)\b", lowered))
+    has_phone = bool(_PHONE_RE.search(message))
+    has_email = bool(_EMAIL_RE.search(message))
+    has_grade = any(p.search(message) for p in _GRADE_PATTERNS)
+    has_subject = any(p.search(message) for p, _ in _SUBJECT_PATTERNS)
+    is_providing_info = has_name_intro or has_phone or has_email or has_grade or has_subject
+
+    # Build a natural response
+    if user_name and is_providing_info:
+        return (
+            f"Thanks, {user_name}. You can enter those details through the "
+            f"**Book Free Demo** form at the top-right of the website."
+        )
+    if is_providing_info:
+        return (
+            "Got it. If that's for a demo, please enter those details in the "
+            "**Book Free Demo** form at the top-right of the website."
+        )
+    if re.search(r"\b(book|register|sign\s*up|submit|arrange|schedule)\b.*\b(for me|for us|it|demo|trial)\b", lowered):
+        return (
+            "I can't submit the demo booking directly from the chat right now. "
+            "You can use the **Book Free Demo** button at the top-right of the website to enter your details directly, "
+            "or reach out to our team at **admin@wementors.co** or **+91 76111 92227**."
+        )
+    # General demo booking guidance
+    return (
+        "You can book a free demo in either of these ways:\n\n"
+        "- Use the **Book Free Demo** option at the top-right of the website and enter your details directly.\n"
+        "- Contact the WeMentors team directly through phone/WhatsApp at **+91 76111 92227** "
+        "(alternate: +91 90398 03526, +91 88719 34995) or email at **admin@wementors.co** "
+        "(Monday to Saturday, 9:00 AM to 8:00 PM IST)."
+    )
+
+
 def process_demo_flow(
     session_id: str,
     message: str,
@@ -300,8 +343,37 @@ def process_demo_flow(
     """
     State machine transition for demo class bookings.
     Returns: (reply_text, intent, updated_lead)
+
+    IMPORTANT: When DEMO_TRANSACTION_ENABLED is False, this function
+    immediately returns guidance to the website form and never enters
+    the collecting/confirming/submitted workflow.
     """
     lead = DemoLead.from_dict(current_lead.to_dict()) if current_lead else DemoLead()
+
+    # ── Capability gate ──────────────────────────────────────────────
+    if not DEMO_TRANSACTION_ENABLED:
+        # Cancellation when transaction is disabled
+        if is_cancellation(message):
+            database.clear_demo_lead(session_id)
+            return (
+                "No problem at all! Feel free to reach out to the WeMentors team anytime "
+                "by email at admin@wementors.co or phone/WhatsApp at +91 76111 92227. "
+                "What else can I help you with?",
+                "demo_cancelled",
+                DemoLead(),
+            )
+        # User asking if demo is booked
+        if is_asking_if_booked(message):
+            return (
+                "The chatbot doesn't handle demo bookings directly. To submit a demo request, "
+                "use the **Book Free Demo** form at the top-right of the website, or contact "
+                "the team at **+91 76111 92227** / **admin@wementors.co**.",
+                "demo_status",
+                DemoLead(),
+            )
+        # All other messages: redirect to website form
+        reply = guide_to_demo_booking(message)
+        return reply, "demo_booking", DemoLead()
 
     # If user asks if demo is booked before it is submitted
     if is_asking_if_booked(message):

@@ -268,6 +268,164 @@ def run_tests():
     check("6b. Explicit program mentoring question is program-specific", "confident speaker" in r_prog_ment.reply.lower() or "speech" in r_prog_ment.reply.lower() or "mentor" in r_prog_ment.reply.lower(), r_prog_ment.reply)
 
     # -------------------------------------------------------------------------
+    # PART 7: The 20 Explicit Required Scenarios
+    # -------------------------------------------------------------------------
+    print("\n--- 7. The 20 Required Regression Test Cases ---")
+
+    # TEST 1: book demo
+    s1 = f"t1-{uuid.uuid4()}"
+    database.ensure_session(s1)
+    r_t1 = ask(engine, s1, "book demo")
+    check("TEST 1: 'book demo' gives booking instructions", "book free demo" in r_t1.reply.lower(), r_t1.reply)
+    check("TEST 1: No fake lead created in DB", database.get_demo_lead(s1) is None)
+
+    # TEST 2: book demo -> name is raaid
+    s2 = f"t2-{uuid.uuid4()}"
+    database.ensure_session(s2)
+    ask(engine, s2, "book demo")
+    r_t2 = ask(engine, s2, "name is raaid")
+    check("TEST 2: 'name is raaid' acknowledges name without fake save", "raaid" in r_t2.reply.lower() and "noted your name" not in r_t2.reply.lower() and "saved your name" not in r_t2.reply.lower(), r_t2.reply)
+    check("TEST 2: 'name is raaid' guides to website form", "book free demo" in r_t2.reply.lower(), r_t2.reply)
+    check("TEST 2: 'name is raaid' does not ask for grade", "grade" not in r_t2.reply.lower(), r_t2.reply)
+    check("TEST 2: No fake lead created in DB", database.get_demo_lead(s2) is None)
+
+    # TEST 3: book demo -> Raaid
+    s3 = f"t3-{uuid.uuid4()}"
+    database.ensure_session(s3)
+    ask(engine, s3, "book demo")
+    r_t3 = ask(engine, s3, "Raaid")
+    check("TEST 3: 'Raaid' after demo guides to form", "book free demo" in r_t3.reply.lower(), r_t3.reply)
+    check("TEST 3: 'Raaid' does not claim to save", "noted your name" not in r_t3.reply.lower() and "saved your name" not in r_t3.reply.lower(), r_t3.reply)
+    check("TEST 3: No fake lead created in DB", database.get_demo_lead(s3) is None)
+
+    # TEST 4: book demo -> grade 7
+    s4 = f"t4-{uuid.uuid4()}"
+    database.ensure_session(s4)
+    ask(engine, s4, "book demo")
+    r_t4 = ask(engine, s4, "grade 7")
+    check("TEST 4: 'grade 7' after demo references Middle School or booking", "middle school" in r_t4.reply.lower() or "book free demo" in r_t4.reply.lower(), r_t4.reply)
+    check("TEST 4: 'grade 7' does not claim to save grade", "noted your grade" not in r_t4.reply.lower() and "saved your grade" not in r_t4.reply.lower(), r_t4.reply)
+    check("TEST 4: No fake lead created in DB", database.get_demo_lead(s4) is None)
+
+    # TEST 5: book demo -> grade 7 maths
+    s5 = f"t5-{uuid.uuid4()}"
+    database.ensure_session(s5)
+    ask(engine, s5, "book demo")
+    r_t5 = ask(engine, s5, "grade 7 maths")
+    check("TEST 5: 'grade 7 maths' gives Middle School info or guidance", "middle school" in r_t5.reply.lower() or "book free demo" in r_t5.reply.lower(), r_t5.reply)
+    check("TEST 5: 'grade 7 maths' does not claim to save", "noted" not in r_t5.reply.lower() and "saved" not in r_t5.reply.lower(), r_t5.reply)
+    check("TEST 5: No fake lead created in DB", database.get_demo_lead(s5) is None)
+
+    # TEST 6: name is raaid without demo context
+    s6 = f"t6-{uuid.uuid4()}"
+    database.ensure_session(s6)
+    r_t6 = ask(engine, s6, "name is raaid")
+    check("TEST 6: 'name is raaid' without demo greets naturally", "raaid" in r_t6.reply.lower() and ("nice to meet you" in r_t6.reply.lower() or "hello" in r_t6.reply.lower() or "how can i help" in r_t6.reply.lower()), r_t6.reply)
+    check("TEST 6: 'name is raaid' does not start booking", "noted your name" not in r_t6.reply.lower() and "what's the student's grade" not in r_t6.reply.lower(), r_t6.reply)
+    check("TEST 6: No fake lead created in DB", database.get_demo_lead(s6) is None)
+
+    # TEST 7: name is raaid after demo instructions
+    s7 = f"t7-{uuid.uuid4()}"
+    database.ensure_session(s7)
+    ask(engine, s7, "How do I book a demo?")
+    r_t7 = ask(engine, s7, "name is raaid")
+    check("TEST 7: 'name is raaid' after demo directs to website", "book free demo" in r_t7.reply.lower() or "website" in r_t7.reply.lower(), r_t7.reply)
+    check("TEST 7: Does not claim to save name", "noted your name" not in r_t7.reply.lower() and "saved your name" not in r_t7.reply.lower(), r_t7.reply)
+    check("TEST 7: No fake lead created in DB", database.get_demo_lead(s7) is None)
+
+    # TEST 8: grade 7 maths after demo instructions
+    s8 = f"t8-{uuid.uuid4()}"
+    database.ensure_session(s8)
+    ask(engine, s8, "How do I book a demo?")
+    r_t8 = ask(engine, s8, "grade 7 maths")
+    check("TEST 8: 'grade 7 maths' after demo gives Middle School / demo guidance", "middle school" in r_t8.reply.lower() or "book free demo" in r_t8.reply.lower(), r_t8.reply)
+    check("TEST 8: Does not claim to save grade/subject", "noted" not in r_t8.reply.lower() and "saved" not in r_t8.reply.lower(), r_t8.reply)
+    check("TEST 8: No fake lead created in DB", database.get_demo_lead(s8) is None)
+
+    # TEST 9: 8085947527 after demo instructions
+    s9 = f"t9-{uuid.uuid4()}"
+    database.ensure_session(s9)
+    ask(engine, s9, "How do I book a demo?")
+    r_t9 = ask(engine, s9, "8085947527")
+    check("TEST 9: '8085947527' redirects contact details to website form", "book free demo" in r_t9.reply.lower(), r_t9.reply)
+    check("TEST 9: Does not claim to save phone number", "noted your" not in r_t9.reply.lower() and "saved your" not in r_t9.reply.lower(), r_t9.reply)
+    check("TEST 9: Does not ask 'Would you like me to submit'", "would you like me to submit" not in r_t9.reply.lower(), r_t9.reply)
+    check("TEST 9: No fake lead created in DB", database.get_demo_lead(s9) is None)
+
+    # TEST 10: book a demo for me
+    s10 = f"t10-{uuid.uuid4()}"
+    database.ensure_session(s10)
+    r_t10 = ask(engine, s10, "book a demo for me")
+    check("TEST 10: 'book a demo for me' clarifies chat limitation", "i can't submit" in r_t10.reply.lower() or "cannot submit" in r_t10.reply.lower() or "directly from the chat" in r_t10.reply.lower(), r_t10.reply)
+    check("TEST 10: Guides to Book Free Demo", "book free demo" in r_t10.reply.lower(), r_t10.reply)
+
+    # TEST 11: submit my demo request
+    s11 = f"t11-{uuid.uuid4()}"
+    database.ensure_session(s11)
+    r_t11 = ask(engine, s11, "submit my demo request")
+    check("TEST 11: 'submit my demo request' does not pretend to submit", "submitted successfully" not in r_t11.reply.lower(), r_t11.reply)
+    check("TEST 11: Guides to Book Free Demo", "book free demo" in r_t11.reply.lower(), r_t11.reply)
+
+    # TEST 12: can you register me
+    s12 = f"t12-{uuid.uuid4()}"
+    database.ensure_session(s12)
+    r_t12 = ask(engine, s12, "can you register me")
+    check("TEST 12: 'can you register me' does not pretend to register", "registered" not in r_t12.reply.lower(), r_t12.reply)
+    check("TEST 12: Guides to Book Free Demo", "book free demo" in r_t12.reply.lower(), r_t12.reply)
+
+    # TEST 13: would you like me to submit (if stale phrase enters system)
+    s13 = f"t13-{uuid.uuid4()}"
+    database.ensure_session(s13)
+    r_t13 = ask(engine, s13, "would you like me to submit")
+    check("TEST 13: Stale submit phrase does not trigger fake submission", "submitted successfully" not in r_t13.reply.lower() and "your demo is booked" not in r_t13.reply.lower(), r_t13.reply)
+
+    # TEST 14: yes after demo-related context
+    s14 = f"t14-{uuid.uuid4()}"
+    database.ensure_session(s14)
+    ask(engine, s14, "book demo")
+    ask(engine, s14, "name is raaid")
+    r_t14 = ask(engine, s14, "yes")
+    check("TEST 14: 'yes' after demo context does NOT claim submission", "submitted successfully" not in r_t14.reply.lower() and "demo class request has been submitted" not in r_t14.reply.lower(), r_t14.reply)
+
+    # TEST 15: yes with no pending clarification
+    s15 = f"t15-{uuid.uuid4()}"
+    database.ensure_session(s15)
+    r_t15 = ask(engine, s15, "yes")
+    check("TEST 15: 'yes' without clarification asks what to confirm", "what would you like to confirm" in r_t15.reply.lower(), r_t15.reply)
+
+    # TEST 16: normal Foundation Years conversation
+    s16 = f"t16-{uuid.uuid4()}"
+    database.ensure_session(s16)
+    r_t16 = ask(engine, s16, "Tell me about Foundation Years.")
+    check("TEST 16: Foundation Years gives program details", "grades 3–5" in r_t16.reply.lower() or "grades 3-5" in r_t16.reply.lower(), r_t16.reply)
+
+    # TEST 17: normal Middle School conversation
+    s17 = f"t17-{uuid.uuid4()}"
+    database.ensure_session(s17)
+    r_t17 = ask(engine, s17, "Tell me about Middle School.")
+    check("TEST 17: Middle School gives program details", "grades 6–8" in r_t17.reply.lower() or "grades 6-8" in r_t17.reply.lower(), r_t17.reply)
+
+    # TEST 18: normal Confident Speaker conversation
+    s18 = f"t18-{uuid.uuid4()}"
+    database.ensure_session(s18)
+    r_t18 = ask(engine, s18, "Tell me about Confident Speaker.")
+    check("TEST 18: Confident Speaker gives program details", "confident speaker" in r_t18.reply.lower() and "speaking" in r_t18.reply.lower(), r_t18.reply)
+
+    # TEST 19: personalized mentoring conversation
+    s19 = f"t19-{uuid.uuid4()}"
+    database.ensure_session(s19)
+    r_t19 = ask(engine, s19, "What is personalized mentoring?")
+    check("TEST 19: Mentoring explains individual attention", "mentor" in r_t19.reply.lower() and "individual" in r_t19.reply.lower(), r_t19.reply)
+
+    # TEST 20: context switch after demo discussion
+    s20 = f"t20-{uuid.uuid4()}"
+    database.ensure_session(s20)
+    ask(engine, s20, "How do I book a demo?")
+    r_t20 = ask(engine, s20, "Tell me about Foundation Years.")
+    check("TEST 20: Context switch to Foundation Years works cleanly", "grades 3–5" in r_t20.reply.lower() or "grades 3-5" in r_t20.reply.lower(), r_t20.reply)
+    check("TEST 20: Intent is foundation_years_overview", r_t20.intent == "foundation_years_overview", r_t20.intent)
+
+    # -------------------------------------------------------------------------
     # SUMMARY
     # -------------------------------------------------------------------------
     print("\n" + "=" * 80)
