@@ -36,10 +36,10 @@ _TOKEN_RE = re.compile(r"[a-z0-9]+")
 _STOPWORDS = {
     "a", "an", "the", "is", "are", "was", "were", "be", "been", "being",
     "do", "does", "did", "have", "has", "had", "i", "you", "he", "she",
-    "it", "we", "they", "what", "which", "who", "whom", "this", "that",
-    "these", "those", "to", "of", "in", "on", "for", "and", "or", "but",
-    "with", "about", "how", "can", "will", "would", "should", "could",
-    "my", "your", "our", "me", "us", "at", "as", "by", "from",
+    "it", "we", "they", "what", "which", "who", "whom", "where", "when",
+    "this", "that", "these", "those", "to", "of", "in", "on", "for", "and",
+    "or", "but", "with", "about", "how", "can", "will", "would", "should",
+    "could", "my", "your", "our", "me", "us", "at", "as", "by", "from",
     # Possessives/pronouns carry no retrieval signal but DO count against
     # the coverage gate in search() if left in, which would wrongly sink
     # legitimate follow-ups like "What are its fees?" (see the
@@ -169,6 +169,38 @@ class Retriever:
             # explicitly ask about fees, costs, or pricing.
             if (entry.category == "fees" or entry.id == "fees-and-pricing") and not has_fee_word:
                 continue
+
+            # Middle school gate: generic 'school' in non-school context must not match Middle School
+            if (entry.id.startswith("middle-school-") or entry.id == "program-middle-school"):
+                if not any(k in lowered_query for k in ("middle", "middel", "midle", "class 6", "class 7", "class 8", "grade 6", "grade 7", "grade 8")):
+                    if any(k in lowered_query for k in ("not in school", "without being in school", "without school", "outside of school")):
+                        continue
+
+            # Demo booking gate: how-to-book-demo must not match on 'join' or 'where' alone without booking intent
+            if entry.id == "how-to-book-demo":
+                if not any(k in lowered_query for k in ("book", "demo", "trial", "register", "schedule", "sign up", "signup", "join")):
+                    continue
+
+            # Confident speaker gate: queries explicitly asking about academic courses/subjects/grades
+            # must not match Confident Speaker entries unless Confident Speaker or speaking is also mentioned
+            if entry.id.startswith("confident-speaker-") or entry.id == "program-confident-speaker":
+                has_academic_word = any(
+                    w in lowered_query
+                    for w in (
+                        "academic", "academics", "school student", "school course",
+                        "maths", "mathematics", "science", "social studies",
+                        "middle school", "foundation years", "board exam",
+                        "grade 3", "grade 4", "grade 5", "grade 6", "grade 7", "grade 8", "grade 9", "grade 10",
+                        "class 3", "class 4", "class 5", "class 6", "class 7", "class 8", "class 9", "class 10",
+                    )
+                )
+                has_speaker_word = any(
+                    w in lowered_query
+                    for w in ("confident", "speaker", "speaking", "spoken", "speech", "interview")
+                )
+                if has_academic_word and not has_speaker_word:
+                    continue
+
 
             cosine = self._cosine(query_vec, query_norm, index)
             overlap = len(query_token_set & self._question_tokens[index])

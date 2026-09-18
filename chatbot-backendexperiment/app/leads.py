@@ -38,7 +38,7 @@ _ACKNOWLEDGEMENT_RE = re.compile(
 )
 
 _CANCEL_RE = re.compile(
-    r"\b(cancel|never mind|nevermind|forget it|not interested|no thanks|stop|don'?t want)\b",
+    r"\b(cancel|never\s*mind|nevermind|nvm|forget\s*it|forget\s*that|leave\s*it|not\s*interested|no\s*thanks|stop|don'?t\s*want|doesn't\s*matter|doesnt\s*matter|no\s*worries|that's\s*okay|thats\s*ok|it's\s*fine|its\s*fine|i\s*changed\s*my\s*mind|ignore\s*that|skip\s*that|let's\s*forget\s*it)\b",
     re.IGNORECASE,
 )
 
@@ -169,6 +169,12 @@ _NAME_BLACKLIST = {
     "ok", "okay", "sure", "yes", "yeah", "yep", "alright", "fine", "got it", "cool", "sounds good",
     "thanks", "thank you", "thx", "no", "nope", "nah", "never", "cancel", "stop", "what", "why", "how",
     "who", "where", "when", "none", "nothing", "maybe",
+    # Conversational control, cancellation & discourse signals (MUST NEVER be person names)
+    "nevermind", "never mind", "nvm", "forget", "forget it", "forget that", "leave", "leave it",
+    "actually", "really", "interesting", "sense", "makes sense", "helpful", "wait", "hmm", "hmmm",
+    "changed", "mind", "matter", "doesn't matter", "doesnt matter", "worries", "no worries",
+    "it's fine", "its fine", "that's okay", "thats okay", "thats ok", "that's ok", "ignore", "skip",
+    "confused", "confusion", "sorry", "pardon", "i see",
     # Form fields and labels (MUST NEVER be treated as person names)
     "name", "names", "student name", "parent name", "full name", "first name", "last name",
     "email", "emails", "mail", "gmail",
@@ -185,6 +191,8 @@ _NAME_BLACKLIST = {
     "environmental", "studies", "history", "geography", "social", "board", "cbse", "icse", "curriculum", "syllabus", "exam", "exams",
     "course", "courses", "program", "programs", "student", "students", "parent", "parents",
     "child", "children", "kid", "kids", "learner", "learners", "tutor", "tuition", "mentor", "mentors", "mentoring",
+    "adult", "adults", "an adult", "grown up", "professional", "professionals", "a professional", "homemaker", "homemakers", "a homemaker", "housewife", "college", "university",
+    "an", "a", "the", "person", "someone",
     # Actions & Inquiry types
     "demo", "trial", "session", "sessions", "book", "booking", "enroll", "enrollment", "admission", "admissions",
     "register", "registration", "fee", "fees", "cost", "price", "pricing", "details", "info", "information",

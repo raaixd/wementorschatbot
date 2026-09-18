@@ -134,15 +134,58 @@ _MENTORING_RE = re.compile(
     re.IGNORECASE,
 )
 
-_ACTIVITIES_RE = re.compile(
-    r"\b(what\s+happens\s+during\s+(?:the\s+)?sessions|"
-    r"what\s+happens\s+in\s+a\s+session|"
-    r"what\s+do\s+(?:we|students|learners)\s+do\s+during\s+(?:the\s+)?sessions|"
-    r"what\s+will\s+my\s+child\s+do\s+in\s+the\s+program|"
+_SESSION_ACTIVITIES_RE = re.compile(
+    r"\b("
+    r"what\s+happens\s+(?:during|in)\s+(?:the\s+|practice\s+|class\s+|academic\s+)?sessions?|"
+    r"what\s+about\s+(?:the\s+|academic\s+|confident\s+speaker\s+)?practice\s+sessions?|"
+    r"what\s+about\s+(?:the\s+)?(?:sessions?|classes)|"
+    r"what\s+do\s+(?:we|students|learners)\s+do\s+during\s+(?:the\s+|practice\s+|academic\s+)?sessions?|"
+    r"what\s+will\s+my\s+child\s+do\s+in\s+(?:the\s+program|sessions?)|"
     r"session\s+activities|"
-    r"what\s+activities\s+happen)\b",
+    r"practice\s+sessions?|"
+    r"speaking\s+practice|"
+    r"how\s+are\s+(?:the\s+)?(?:classes|sessions)\s+conducted|"
+    r"how\s+are\s+(?:academic\s+)?subjects\s+taught|"
+    r"what\s+happens\s+in\s+academic\s+sessions"
+    r")\b",
     re.IGNORECASE,
 )
+_ACTIVITIES_RE = _SESSION_ACTIVITIES_RE
+
+_ACADEMIC_COURSES_OVERVIEW_RE = re.compile(
+    r"\b("
+    r"academic\s+(?:courses?|classes|programs?|subjects?|mentoring|learning)|"
+    r"classes\s+for\s+school\s+students|"
+    r"courses\s+for\s+school\s+students|"
+    r"what\s+about\s+academic\s+(?:courses?|classes|programs?|subjects?)|"
+    r"tell\s+me\s+about\s+academic\s+(?:courses?|classes|programs?)|"
+    r"academic\s+offerings?"
+    r")\b",
+    re.IGNORECASE,
+)
+
+_GRADE7_MATHS_SESSIONS_RE = re.compile(
+    r"\b("
+    r"grade\s*7\s+maths?\s+(?:practice\s+)?sessions?|"
+    r"how\s+are\s+maths?\s+classes\s+conducted|"
+    r"maths?\s+classes\s+conducted|"
+    r"what\s+about\s+grade\s*7\s+maths?\s+sessions?|"
+    r"practice\s+for\s+grade\s*7"
+    r")\b",
+    re.IGNORECASE,
+)
+
+
+_SPEAKING_PRACTICE_RE = re.compile(
+    r"\b("
+    r"speaking\s+practice|"
+    r"public\s+speaking\s+sessions?|"
+    r"how\s+does\s+speaking\s+practice\s+work|"
+    r"speaking\s+sessions?"
+    r")\b",
+    re.IGNORECASE,
+)
+
 
 _PARENT_UPDATES_RE = re.compile(
     r"\b(do\s+parents\s+(?:receive|get)\s+(?:progress\s+)?updates|"
@@ -181,7 +224,7 @@ _ENROLLMENT_ACTION_RE = re.compile(
 )
 
 _AFFIRMATION_RE = re.compile(
-    r"^\s*(yes|yeah|yep|correct|exactly|that\s+one|this\s+one|right|definitely)\s*[!.]*$",
+    r"^\s*(yes|yeah|yep|correct|exactly|that\s+one|this\s+one|right|definitely|sure)\s*[!.]*$",
     re.IGNORECASE,
 )
 
@@ -196,7 +239,7 @@ _THE_OTHER_ONE_RE = re.compile(
 )
 
 _ACKNOWLEDGEMENT_RE = re.compile(
-    r"^\s*(okay|ok|got\s+it|understood|alright|all\s+right|sure)\s*[!.]*$",
+    r"^\s*(okay|ok|okay\s+thanks|ok\s+thanks|got\s+it|understood|alright|all\s+right|makes\s+sense|that'?s\s+helpful|helpful|i\s+see)\s*[!.]*$",
     re.IGNORECASE,
 )
 
@@ -405,14 +448,14 @@ _DEMO_BOOKING_RE = re.compile(
     r"|\b(demo|trial)\s+class\s+booking\b|\bbook( a)? (demo|trial)\b"
     r"|\bhow (can|do) i (book|get|attend|schedule) a (demo|trial)\b"
     r"|\b(can|could) i (get|have|book|attend) a (free\s+)?(demo|trial)\b"
-    r"|\b(how to join|how do i join|want to join|i want to join|i wanna join|enquire about joining|interested in joining)\b"
-    r"|\b(how do i enroll|how to enroll|admissions? process|admission enquiry|enquire about classes|what'?s the process|how can my child attend)\b",
+    r"|\b(enquire\s+about\s+joining|interested\s+in\s+joining)\b",
     re.IGNORECASE,
 )
 
 _DEMO_TRANSACTION_RE = re.compile(
     r"\b("
     r"book\s+(?:a\s+)?(?:free\s+)?demo\s+for\s+me|"
+    r"book\s+me\s+(?:a\s+)?(?:free\s+)?demo|"
     r"book\s+it\s+for\s+me|"
     r"book\s+for\s+me|"
     r"can\s+you\s+book\s+it(?:\s+for\s+me)?|"
@@ -488,6 +531,152 @@ _WHERE_DETAILS_RE = re.compile(
     r"\b(where\s+(?:do|can)\s+i\s+(?:enter|fill|put|submit|register|type)\s+(?:my\s+)?(?:details|info|information|name|form)|where\s+to\s+(?:enter|fill|put|submit|register)\s+(?:my\s+)?(?:details|info|information)|where\s+can\s+i\s+register(?:\s+for\s+(?:a\s+)?demo)?|where\s+do\s+i\s+register(?:\s+for\s+(?:a\s+)?demo)?|where\s+is\s+the\s+(?:book\s+free\s+demo\s+)?(?:form|button|link|option))\b",
     re.IGNORECASE,
 )
+
+# Deep semantic routing: Eligibility, Location, and Delivery intents
+_ELIGIBILITY_NON_SCHOOL_RE = re.compile(
+    r"\b("
+    r"(?:can|could|may|is\s+it\s+possible\s+to)\s+(?:i|someone|anyone|a\s+person|we)\s+(?:still\s+)?join\b.*?\b(?:not\s+in\s+school|without\s+(?:being\s+in\s+)?school|out\s+of\s+school|not\s+a\s+student|not\s+studying)|"
+    r"(?:not\s+in\s+school|without\s+(?:being\s+in\s+)?school|out\s+of\s+school|not\s+a\s+student|not\s+studying)\b.*?\b(?:can|could|may)\s+(?:i|someone|anyone|a\s+person|we)\s+(?:still\s+)?join|"
+    r"can\s+i\s+join\s+as\s+a\s+person\s+(?:who['’]?s|whose|who\s+is)\s+not\s+(?:in\s+)?(?:school|a\s+student)|"
+    r"(?:can|could|may|is\s+it\s+possible\s+to)\s+(?:i|someone|anyone|a\s+person|we)\s+join\s+(?:without|if\s+not|not)\s+(?:being\s+)?(?:in\s+)?(?:school|a\s+student)|"
+    r"can\s+(?:someone|anyone)\s+who\s+isn['’]?t\s+(?:currently\s+)?(?:in\s+)?(?:school|a\s+student)\s+join|"
+    r"can\s+(?:someone|anyone)\s+who\s+is\s+not\s+(?:currently\s+)?(?:in\s+)?(?:school|a\s+student)\s+join|"
+    r"(?:i\s+want\s+to|want\s+to|wanna)\s+join\s+(?:but|though)\s+(?:i['’]?m|i\s+am)\s+not\s+(?:in\s+school|a\s+student)|"
+    r"(?:i['’]?m|i\s+am)\s+not\s+(?:in\s+school|a\s+student)(?:[,.]?\s+(?:can|could)\s+i\s+(?:still\s+)?join)?|"
+    r"do\s+i\s+(?:have|need)\s+to\s+be\s+in\s+school(?:\s+to\s+join)?|"
+    r"do\s+i\s+need\s+to\s+be\s+a\s+student(?:\s+to\s+join)?|"
+    r"must\s+i\s+be\s+in\s+school(?:\s+to\s+join)?|"
+    r"is\s+(?:this|it|wementors)\s+only\s+for\s+(?:school\s+)?students?|"
+    r"is\s+(?:this|it|wementors)\s+only\s+for\s+(?:school\s+)?children|"
+    r"are\s+(?:your\s+)?programs\s+only\s+for\s+(?:school\s+)?(?:students?|children|kids)|"
+    r"can\s+someone\s+who\s+isn['’]?t\s+a\s+student\s+use\s+this|"
+    r"i['’]?m\s+not\s+currently\s+studying(?:\s*,\s*can\s+i\s+join)?|"
+    r"(?:not\s+in\s+school|not\s+a\s+student)\s+though|"
+    r"(?:i['’]?m|i\s+am)\s+not\s+in\s+school|"
+    r"without\s+being\s+in\s+school"
+    r")\b",
+    re.IGNORECASE,
+)
+
+_ELIGIBILITY_ADULT_RE = re.compile(
+    r"\b("
+    r"(?:can|could|may|is\s+it\s+possible\s+for)\s+(?:adults?|working\s+professionals?|professionals?|homemakers?|housewives|parents?)\s+(?:to\s+)?join|"
+    r"(?:can|could|may)\s+(?:i|someone|anyone)\s+(?:still\s+)?join\b.*?\b(?:as|if)\s+(?:an?\s+)?(?:adult|professional|working\s+professional|homemaker|housewife|parent)|"
+    r"can\s+(?:an?\s+)?adult\s+take\s+(?:your\s+)?classes|"
+    r"can\s+i\s+join\s+if\s+(?:i['’]?m|i\s+am)\s+(?:an?\s+)?(?:adult|working\s+professional|professional|homemaker|housewife|parent)|"
+    r"can\s+i\s+join\s+as\s+(?:an?\s+)?(?:adult|working\s+professional|professional|homemaker|housewife|parent)|"
+    r"(?:i['’]?m|i\s+am)\s+(?:an?\s+)?(?:adult|working\s+professional|professional|homemaker|housewife)(?:[,.]?\s+(?:can|could)\s+i\s+(?:still\s+)?join)?|"
+    r"is\s+there\s+anything\s+for\s+(?:adults|professionals|homemakers)|"
+    r"do\s+you\s+have\s+(?:anything|programs?|classes?|courses?)\s+for\s+(?:adults|professionals|homemakers)|"
+    r"(?:are\s+there\s+)?classes\s+for\s+(?:adults|professionals|homemakers)|"
+    r"can\s+adults\s+learn|"
+    r"adult\s+learning|"
+    r"is\s+this\s+(?:open\s+to|for)\s+(?:adults|professionals|homemakers)|"
+    r"(?:actually\s+)?(?:i['’]?m|i\s+am)\s+an\s+adult|"
+    r"(?:actually\s+)?(?:i['’]?m|i\s+am)\s+a\s+(?:working\s+)?professional|"
+    r"(?:actually\s+)?(?:i['’]?m|i\s+am)\s+a\s+homemaker"
+    r")\b",
+    re.IGNORECASE,
+)
+
+_ELIGIBILITY_COLLEGE_RE = re.compile(
+    r"\b("
+    r"can\s+(?:college|university)\s+students?\s+join|"
+    r"can\s+i\s+join\s+if\s+(?:i['’]?m|i\s+am)\s+in\s+(?:college|university)|"
+    r"(?:i['’]?m|i\s+am)\s+(?:a\s+)?(?:college|university)\s+student(?:[,.]?\s+(?:can|could)\s+i\s+join)?|"
+    r"do\s+you\s+teach\s+(?:college|university)\s+students?"
+    r")\b",
+    re.IGNORECASE,
+)
+
+_ELIGIBILITY_GENERAL_RE = re.compile(
+    r"^\s*("
+    r"who\s+can\s+(?:join|enroll|apply|participate|register)|"
+    r"who\s+is\s+(?:eligible\s+to\s+join|eligible)|"
+    r"who\s+are\s+(?:your\s+)?programs\s+for|"
+    r"who\s+is\s+wementors\s+for|"
+    r"who\s+can\s+take\s+(?:your\s+)?classes|"
+    r"can\s+anyone\s+join|"
+    r"can\s+i\s+join\??|"
+    r"am\s+i\s+eligible(?:\s+to\s+join)?\??|"
+    r"eligibility\s+criteria|"
+    r"what\s+is\s+the\s+eligibility"
+    r")\s*[?!.]*$",
+    re.IGNORECASE,
+)
+
+_ELIGIBILITY_MIXED_ENGLISH_RE = re.compile(
+    r"\b("
+    r"(?:adult|adults|not\s+in\s+school|without\s+(?:being\s+in\s+)?school|not\s+a\s+student|professional|homemaker).*\b(?:english|speaking|public\s+speaking|spoken\s+english|communication)|"
+    r"(?:english|speaking|public\s+speaking|spoken\s+english|communication).*\b(?:adult|adults|not\s+in\s+school|without\s+(?:being\s+in\s+)?school|not\s+a\s+student|professional|homemaker)"
+    r")\b",
+    re.IGNORECASE,
+)
+
+_ELIGIBILITY_MIXED_ONLINE_RE = re.compile(
+    r"\b("
+    r"(?:adult|adults|not\s+in\s+school|without\s+(?:being\s+in\s+)?school|not\s+a\s+student|professional|homemaker).*\b(?:online|from\s+home|virtual|remote)|"
+    r"(?:online|from\s+home|virtual|remote).*\b(?:adult|adults|not\s+in\s+school|without\s+(?:being\s+in\s+)?school|not\s+a\s+student|professional|homemaker)"
+    r")\b",
+    re.IGNORECASE,
+)
+
+_ELIGIBILITY_MIXED_PROGRAMS_RE = re.compile(
+    r"\b("
+    r"(?:not\s+in\s+school|without\s+(?:being\s+in\s+)?school|not\s+a\s+student|adult|adults).*\b(?:what\s+programs|what\s+can\s+i\s+learn|which\s+programs|what\s+classes|available\s+programs)|"
+    r"(?:what\s+programs|what\s+can\s+i\s+learn|which\s+programs|what\s+classes).*\b(?:not\s+in\s+school|without\s+(?:being\s+in\s+)?school|not\s+a\s+student|adult|adults)"
+    r")\b",
+    re.IGNORECASE,
+)
+
+_ELIGIBILITY_MIXED_FEES_RE = re.compile(
+    r"\b("
+    r"(?:adult|adults|not\s+in\s+school|without\s+(?:being\s+in\s+)?school|not\s+a\s+student|professional).*\b(?:cost|price|fee|fees|pricing|how\s+much)|"
+    r"(?:cost|price|fee|fees|pricing|how\s+much).*\b(?:adult|adults|not\s+in\s+school|without\s+(?:being\s+in\s+)?school|not\s+a\s+student|professional)"
+    r")\b",
+    re.IGNORECASE,
+)
+
+_LOCATION_RE = re.compile(
+    r"\b("
+    r"where\s+(?:are\s+you|is\s+wementors|is\s+the\s+company|is\s+the\s+office|is\s+the\s+center|is\s+the\s+institute)\s+(?:located|based|situated)|"
+    r"where\s+(?:are\s+you|are\s+your\s+classes|are\s+the\s+sessions)\s+based|"
+    r"where\s+is\s+your\s+office|"
+    r"where\s+are\s+you\s+located|"
+    r"what\s+is\s+your\s+location|"
+    r"what['’]?s\s+your\s+location|"
+    r"your\s+location|"
+    r"location\s+of\s+wementors|"
+    r"physical\s+location|"
+    r"where\s+is\s+wementors\s+headquartered|"
+    r"are\s+you\s+based\s+in\s+[A-Za-z]+|"
+    r"which\s+city\s+are\s+you\s+in|"
+    r"what\s+city\s+are\s+you\s+located\s+in|"
+    r"do\s+you\s+have\s+a\s+physical\s+(?:office|center|branch|school|location)"
+    r")\b",
+    re.IGNORECASE,
+)
+
+_ONLINE_CLASSES_RE = re.compile(
+    r"\b("
+    r"are\s+(?:the\s+)?classes\s+online|"
+    r"are\s+(?:the\s+)?classes\s+(?:conducted\s+)?online\s+or\s+offline|"
+    r"is\s+it\s+online\s+or\s+offline|"
+    r"do\s+you\s+teach\s+online|"
+    r"are\s+(?:your\s+)?sessions\s+virtual|"
+    r"can\s+i\s+attend\s+from\s+home|"
+    r"do\s+i\s+have\s+to\s+come\s+somewhere(?:\s+for\s+classes)?|"
+    r"do\s+you\s+have\s+offline\s+(?:centers?|classes?)|"
+    r"do\s+you\s+offer\s+offline\s+classes|"
+    r"are\s+you\s+online\s+only|"
+    r"are\s+classes\s+virtual|"
+    r"online\s+or\s+offline|"
+    r"(?:what\s+about\s+)?online\s+classes\??|"
+    r"(?:what\s+about\s+)?virtual\s+classes\??|"
+    r"how\s+are\s+classes\s+conducted"
+    r")\b",
+    re.IGNORECASE,
+)
 _CONTACT_REQUEST_RE = re.compile(
     r"\b((?:want|can|could|would\s+like)\s+(?:someone|somebody|the\s+team)\s+(?:from\s+wementors\s+)?(?:to\s+)?contact\s+me|call\s+me\s+back|have\s+someone\s+call\s+me)\b",
     re.IGNORECASE,
@@ -513,6 +702,81 @@ _CONFUSED_RE = re.compile(
 _RELATIVE_REF_RE = re.compile(r"\b(next|following|after that|previous|prior|one before)\b", re.IGNORECASE)
 
 _COMPARISON_RE = re.compile(r"\b(compare|comparison|difference between|vs\.?|versus)\b", re.IGNORECASE)
+
+_CANCELLATION_RE = re.compile(
+    r"^\s*(?:actually\s+)?(?:never\s*mind|nevermind|nvm|forget\s+(?:it|that)|leave\s+it|"
+    r"no\s+worries|that['’]?s\s+okay|it['’]?s\s+fine|don['’]?t\s+worry(?:\s+about\s+it)?|"
+    r"i\s+changed\s+my\s+mind|doesn['’]?t\s+matter|ignore\s+that|skip\s+that|let['’]?s\s+forget\s+it|"
+    r"cancel|stop|drop\s+it)\s*[!.]*\s*$",
+    re.IGNORECASE,
+)
+
+_CANCELLATION_PREFIX_RE = re.compile(
+    r"^\s*(?:actually\s+)?(?:never\s*mind|nevermind|nvm|forget\s+(?:it|that)|leave\s+it|"
+    r"no\s+worries|that['’]?s\s+okay|it['’]?s\s+fine|don['’]?t\s+worry\s+about\s+it|don['’]?t\s+worry|"
+    r"doesn['’]?t\s+matter|ignore\s+that|skip\s+that|let['’]?s\s+forget\s+it)\s*[,.:;-]?\s+",
+    re.IGNORECASE,
+)
+
+_DISCOURSE_PREFIX_RE = re.compile(
+    r"^\s*(?:actually|wait|okay|ok|okay\s+so|ok\s+so|so|well|look|listen|oh|ah)\s*[,.:;-]?\s+",
+    re.IGNORECASE,
+)
+
+_STANDALONE_ACTUALLY_RE = re.compile(
+    r"^\s*actually\s*[.!?]*\s*$",
+    re.IGNORECASE,
+)
+
+_STANDALONE_WAIT_RE = re.compile(
+    r"^\s*wait\s*[.!?]*\s*$",
+    re.IGNORECASE,
+)
+
+_WHY_QUERY_RE = re.compile(
+    r"^\s*why(?:\s+so|\s+though|\s+is\s+that)?\s*[?!.]*\s*$",
+    re.IGNORECASE,
+)
+
+_REALLY_QUERY_RE = re.compile(
+    r"^\s*(?:really|is\s+that\s+so|are\s+you\s+sure)\s*[?!.]*\s*$",
+    re.IGNORECASE,
+)
+
+_CONVERSATIONAL_REACTION_RE = re.compile(
+    r"^\s*(?:interesting|hmm+|makes\s+sense|that'?s\s+helpful|helpful|i\s+see|fair\s+enough|cool|wow|awesome|nice)\s*[!.]*\s*$",
+    re.IGNORECASE,
+)
+
+_PURE_ACKNOWLEDGEMENT_RE = re.compile(
+    r"^\s*(?:okay|ok|okay\s+thanks|ok\s+thanks|got\s+it|understood|alright|fine)\s*[!.]*\s*$",
+    re.IGNORECASE,
+)
+
+_STANDALONE_AFFIRMATION_RE = re.compile(
+    r"^\s*(?:sure|definitely|absolutely)\s*[!.]*$",
+    re.IGNORECASE,
+)
+
+_MATHS_STANDALONE_RE = re.compile(
+    r"^\s*(?:maths?|mathematics)\s*[?!.]*\s*$",
+    re.IGNORECASE,
+)
+
+_SCIENCE_STANDALONE_RE = re.compile(
+    r"^\s*(?:science)\s*[?!.]*\s*$",
+    re.IGNORECASE,
+)
+
+_EXPLICIT_NAME_RE = re.compile(
+    r"^\s*(?:my\s+name\s+is|name\s+is|i\s+am|i'm|call\s+me|you\s+can\s+call\s+me|(?:student|child|son|daughter)(?:'s)?\s+name\s+is)\s+([A-Za-z][A-Za-z\s]{0,30})\s*[.!]*\s*$",
+    re.IGNORECASE,
+)
+
+_NAME_IS_MY_NAME_RE = re.compile(
+    r"^\s*([A-Za-z]{2,20})\s+is\s+my\s+name\s*[.!]*\s*$",
+    re.IGNORECASE,
+)
 
 _FOUNDATION_TYPO_EXACT_RE = re.compile(
     r"^\s*(foundation|found|foundating|doundation|foudation|foundaton)\s*[?!.]*$",
@@ -547,13 +811,21 @@ _MIDDLE_SCHOOL_GRADES_RE = re.compile(
     r"what\s+do\s+you\s+offer\s+for\s+(?:grades?|class)\s+[678]|"
     r"grades?\s+6\s*[-–to]\s*8(?:\s+support|\s+program)?|"
     r"class\s+[678](?:\s+support|\s+program)?|"
-    r"what\s+about\s+grades?\s+6\s*[-–to]\s*8)\b",
+    r"what\s+about\s+(?:grades?\s*6\s*[-–to]\s*8|(?:grades?|class)\s*[678])|"
+    r"tell\s+me\s+about\s+(?:grades?|class)\s+[678]|"
+    r"is\s+middle\s+school\s+for\s+(?:grades?|class)\s+[678]|"
+    r"can\s+(?:a\s+)?(?:grade|class)\s+[678]\s+(?:student\s+)?join|"
+    r"can\s+students?\s+in\s+(?:grade|class)\s+[678]\s+join|"
+    r"do\s+you\s+have\s+classes\s+for\s+(?:grades?|class)\s+[678])\b",
     re.IGNORECASE,
 )
 _MIDDLE_SCHOOL_SUBJECTS_RE = re.compile(
     r"\b(does\s+middle\s+school\s+include\s+all\s+subjects|"
+    r"does\s+middle\s+school\s+include\s+(?:science|maths?|english)|"
     r"what\s+does\s+middle\s+school\s+cover|"
+    r"what\s+does\s+(?:grades?|class)\s+[678](?:\s+(?:maths?|science))?\s+cover|"
     r"what\s+subjects\s+are\s+in\s+middle\s+school|"
+    r"what\s+subjects\s+are\s+taught\s+in\s+middle\s+school|"
     r"middle\s+school\s+subjects)\b",
     re.IGNORECASE,
 )
@@ -669,6 +941,8 @@ class ConversationEngine:
                     return "confident_speaker"
                 if "board_exam" in intent or "board" in content or "class 10" in content or "class 9" in content or "grade 10" in content or "grade 9" in content or "senior school" in content:
                     return "board_exam"
+                if "academic" in intent or "academic" in content:
+                    return "academic"
                 if intent in ("general_info", "capability"):
                     return "general"
         except Exception:
@@ -696,6 +970,8 @@ class ConversationEngine:
             return "senior"
         if "confident" in prog_id:
             return "confident_speaker"
+        if "academic" in prog_id:
+            return "academic"
         return "general"
 
     def _extract_program_from_text(self, text: str) -> Optional[str]:
@@ -706,8 +982,10 @@ class ConversationEngine:
             return "middle"
         if re.search(r"\b(senior(?:\s+school)?|board(?:\s+exam)?s?|grades?\s*9\s*[-–to]\s*10|class\s*(?:9|10)|10th|9th)\b", t):
             return "senior"
-        if re.search(r"\b(confident\s+speaker|speaking|spoken|interview|public\s+speaking)\b", t):
+        if re.search(r"\b(confident\s+speaker|public\s+speaking|spoken\s+english|interview\s+skills?|speaking\s+practice)\b", t):
             return "confident_speaker"
+        if re.search(r"\b(academic\s+(?:courses?|classes|sessions?|programs?|subjects?|mentoring|learning)|classes\s+for\s+school\s+students|courses\s+for\s+school\s+students|school\s+students|school\s+courses|academics?)\b", t):
+            return "academic"
         return None
 
 
@@ -828,6 +1106,17 @@ class ConversationEngine:
         memory: database.ConversationMemory,
         user_message: str = "",
     ) -> ReplyResult:
+        prefix = getattr(self, "_pending_intro_prefix", None)
+        self._pending_intro_prefix = None
+        if prefix and not result.reply.startswith("Nice to meet you"):
+            result = ReplyResult(
+                prefix + result.reply,
+                result.intent,
+                result.matched_entry_ids,
+                result.confidence,
+                result.suggestions,
+            )
+
         prog_id = next((m for m in result.matched_entry_ids if m in _PROGRAM_NAME_HINTS), None)
         if prog_id:
             memory.active_program = self._program_id_to_key(prog_id)
@@ -839,6 +1128,8 @@ class ConversationEngine:
             memory.active_program = "senior"
         elif "confident_speaker" in result.intent:
             memory.active_program = "confident_speaker"
+        elif "academic" in result.intent or result.intent == "grade7_maths_sessions":
+            memory.active_program = "academic"
         elif result.intent in ("programs_overview", "comparison") or "programs-overview" in result.matched_entry_ids:
             memory.ordered_programs = [
                 "program-foundation-years",
@@ -891,6 +1182,130 @@ class ConversationEngine:
         word_count = len(stripped.split())
         memory = database.get_conversation_memory(session_id) if session_id else database.ConversationMemory(session_id="")
 
+        # Pure cancellation signals (checked before prefix stripping so pure cancellation phrases are never split)
+        if _CANCELLATION_RE.match(stripped):
+            return "cancellation"
+
+        # Discourse / cancellation prefix followed by substantive question
+        # e.g. "nevermind, tell me about Middle School", "forget it, what subjects are offered?"
+        m_cancel_pref = _CANCELLATION_PREFIX_RE.match(stripped)
+        if m_cancel_pref:
+            remainder = stripped[m_cancel_pref.end():].strip()
+            if len(remainder) >= 3 and re.search(r"[A-Za-z]", remainder):
+                stripped = remainder
+                normalized = normalize_query(stripped)
+                word_count = len(stripped.split())
+
+        m_disc_pref = _DISCOURSE_PREFIX_RE.match(stripped)
+        if m_disc_pref:
+            remainder = stripped[m_disc_pref.end():].strip()
+            if len(remainder) >= 3 and re.search(r"[A-Za-z]", remainder):
+                stripped = remainder
+                normalized = normalize_query(stripped)
+                word_count = len(stripped.split())
+
+        # Vocative prefix, e.g. "Raaid, what programs do you offer?"
+        m_vocative = re.match(r"^\s*([A-Za-z]{2,20})\s*[,.:;-]\s*(.+)$", stripped)
+        if m_vocative:
+            cand_token = m_vocative.group(1).strip().lower()
+            rem = m_vocative.group(2).strip()
+            if (
+                cand_token not in ("how", "what", "why", "when", "where", "who", "which", "can", "do", "does", "is", "are")
+                and re.search(r"^(what|how|why|when|where|tell me|explain|can you|do you|which|i want|book)\b", rem, re.I)
+            ):
+                stripped = rem
+                normalized = normalize_query(stripped)
+                word_count = len(stripped.split())
+
+        # Explicit intro + question: "My name is Raaid, tell me about Grade 7"
+        m_intro_q = re.match(r"^\s*(?:my\s+name\s+is|name\s+is|i\s+am|i'm|call\s+me)\s+([A-Za-z]{2,20})\s*[,.:;-]\s*(.+)$", stripped, re.I)
+        if m_intro_q:
+            cand_name = m_intro_q.group(1).strip().capitalize()
+            rem_q = m_intro_q.group(2).strip()
+            if cand_name.lower() not in leads._NAME_BLACKLIST and len(rem_q) >= 3:
+                stripped = rem_q
+                normalized = normalize_query(stripped)
+                word_count = len(stripped.split())
+
+        # Deep semantic routing: Compound / Mixed intents checked FIRST
+        # to ensure compound whole-utterance meaning takes priority.
+        if _ELIGIBILITY_MIXED_ENGLISH_RE.search(stripped) or _ELIGIBILITY_MIXED_ENGLISH_RE.search(normalized):
+            return "eligibility_mixed_english"
+
+        if _ELIGIBILITY_MIXED_ONLINE_RE.search(stripped) or _ELIGIBILITY_MIXED_ONLINE_RE.search(normalized):
+            return "eligibility_mixed_online"
+
+        if _ELIGIBILITY_MIXED_PROGRAMS_RE.search(stripped) or _ELIGIBILITY_MIXED_PROGRAMS_RE.search(normalized):
+            return "eligibility_mixed_programs"
+
+        if _ELIGIBILITY_MIXED_FEES_RE.search(stripped) or _ELIGIBILITY_MIXED_FEES_RE.search(normalized):
+            return "eligibility_mixed_fees"
+
+        # Single-topic Location, Online delivery, and Eligibility checked next
+        if _LOCATION_RE.search(stripped) or _LOCATION_RE.search(normalized):
+            return "location"
+
+        if _ONLINE_CLASSES_RE.search(stripped) or _ONLINE_CLASSES_RE.search(normalized):
+            return "online_classes"
+
+        if _ELIGIBILITY_NON_SCHOOL_RE.search(stripped) or _ELIGIBILITY_NON_SCHOOL_RE.search(normalized):
+            return "eligibility_non_school"
+
+        if _ELIGIBILITY_ADULT_RE.search(stripped) or _ELIGIBILITY_ADULT_RE.search(normalized):
+            return "eligibility_adult"
+
+        if _ELIGIBILITY_COLLEGE_RE.search(stripped) or _ELIGIBILITY_COLLEGE_RE.search(normalized):
+            return "eligibility_college"
+
+        if _ELIGIBILITY_GENERAL_RE.match(stripped) or _ELIGIBILITY_GENERAL_RE.match(normalized):
+            return "eligibility_general"
+
+        # Explicit name intro (guarded against articles and roles)
+        if _EXPLICIT_NAME_RE.match(stripped) or _NAME_IS_MY_NAME_RE.match(stripped):
+            m_cand = _EXPLICIT_NAME_RE.match(stripped) or _NAME_IS_MY_NAME_RE.match(stripped)
+            cand_str = m_cand.group(1).strip().lower() if m_cand else ""
+            cand_tokens = cand_str.split()
+            if (
+                cand_tokens
+                and cand_tokens[0] not in ("a", "an", "the")
+                and not any(t in leads._NAME_BLACKLIST for t in cand_tokens)
+                and not _ELIGIBILITY_ADULT_RE.search(stripped)
+                and not _ELIGIBILITY_NON_SCHOOL_RE.search(stripped)
+            ):
+                return "explicit_name"
+
+        # Standalone discourse markers
+        if _STANDALONE_ACTUALLY_RE.match(stripped):
+            return "discourse_marker"
+        if _STANDALONE_WAIT_RE.match(stripped):
+            return "conversational_continuation"
+
+        # Conversational questions
+        if _WHY_QUERY_RE.match(stripped):
+            return "question"
+        if _REALLY_QUERY_RE.match(stripped):
+            return "conversational_question"
+
+        # Reactions & acknowledgements
+        if _CONVERSATIONAL_REACTION_RE.match(stripped):
+            if re.search(r"\b(makes\s+sense|that'?s\s+helpful|helpful|i\s+see|fair\s+enough)\b", stripped, re.I):
+                return "acknowledgement"
+            return "conversational_reaction"
+        if _PURE_ACKNOWLEDGEMENT_RE.match(stripped):
+            return "acknowledgement"
+        if _STANDALONE_AFFIRMATION_RE.match(stripped):
+            if memory.pending_clarification:
+                return "clarification_affirmation"
+            return "affirmation"
+
+        # Standalone subjects / topics
+        if _MATHS_STANDALONE_RE.match(stripped) or _SCIENCE_STANDALONE_RE.match(stripped):
+            return "subject/topic"
+
+        # Standalone subjects question
+        if re.search(r"^\s*what\s+subjects(?:\s+are)?\s+offered\??\s*$", stripped, re.I):
+            return "information_request"
+
         if _SHORT_CONFUSION_RE.match(stripped):
             return "confused"
         if _BOOK_ENROLL_RE.match(stripped):
@@ -919,6 +1334,12 @@ class ConversationEngine:
             and not is_generic_apply
             and (_ENROLLMENT_ACTION_RE.search(stripped) or _ENROLLMENT_ACTION_RE.search(normalized))
             and not re.search(r"\b(demo|trial)\b", stripped, re.I)
+            and not _ELIGIBILITY_NON_SCHOOL_RE.search(stripped)
+            and not _ELIGIBILITY_ADULT_RE.search(stripped)
+            and not _ELIGIBILITY_COLLEGE_RE.search(stripped)
+            and not _ELIGIBILITY_GENERAL_RE.match(stripped)
+            and not _LOCATION_RE.search(stripped)
+            and not _ONLINE_CLASSES_RE.search(stripped)
         ):
             explicit_prog = self._extract_program_from_text(stripped) or memory.active_program
             if explicit_prog == "foundation":
@@ -970,6 +1391,9 @@ class ConversationEngine:
             return "comparison"
 
         # PRIORITY 3: Explicit Program Mentions (Current message)
+        if _GRADE7_MATHS_SESSIONS_RE.search(stripped) or _GRADE7_MATHS_SESSIONS_RE.search(normalized):
+            return "grade7_maths_sessions"
+
         # Foundation Years explicit mentions
         if _FOUNDATION_TYPO_EXACT_RE.match(stripped):
             return "foundation_years_clarification"
@@ -1015,8 +1439,70 @@ class ConversationEngine:
         if _ACKNOWLEDGEMENT_RE.match(stripped):
             return "acknowledgement"
 
-        # PRIORITY 5 & 6: Active Program & Active Topic Context
-        active_prog = memory.active_program or self._get_current_subject(session_id)
+        # PRIORITY 5 & 6: Explicit Entity Resolution & Active Program Context
+        # Rule: CURRENT EXPLICIT REFERENT > PREVIOUS CONTEXT
+        explicit_prog = self._extract_program_from_text(stripped) or self._extract_program_from_text(normalized)
+        has_cs_explicit = bool(
+            _CONFIDENT_SPEAKER_RE.search(stripped)
+            or _CONFIDENT_SPEAKER_RE.search(normalized)
+            or _SPEAKING_PRACTICE_RE.search(stripped)
+        )
+        has_academic_explicit = bool(
+            explicit_prog == "academic"
+            or _ACADEMIC_COURSES_OVERVIEW_RE.search(stripped)
+            or _ACADEMIC_COURSES_OVERVIEW_RE.search(normalized)
+        )
+        has_grade7_maths = bool(
+            _GRADE7_MATHS_SESSIONS_RE.search(stripped)
+            or _GRADE7_MATHS_SESSIONS_RE.search(normalized)
+        )
+
+        if has_grade7_maths:
+            return "grade7_maths_sessions"
+
+        is_session_activities = bool(
+            _SESSION_ACTIVITIES_RE.search(stripped)
+            or _SESSION_ACTIVITIES_RE.search(normalized)
+        )
+
+        # Resolve effective program: explicit referent in current turn overrides previous context!
+        if has_cs_explicit:
+            effective_prog = "confident_speaker"
+        elif has_academic_explicit:
+            effective_prog = "academic"
+        elif explicit_prog:
+            effective_prog = explicit_prog
+        else:
+            effective_prog = memory.active_program or self._get_current_subject(session_id)
+
+        # Practice / Session activities routing based on effective program
+        if is_session_activities:
+            if effective_prog == "confident_speaker":
+                return "confident_speaker_activities"
+            else:
+                return "academic_sessions"
+
+        # Explicit academic courses overview / inquiries
+        if has_academic_explicit:
+            return "academic_courses_overview"
+
+        # Explicit Confident Speaker inquiries
+        if has_cs_explicit:
+            if re.search(r"^\s*(how\s+does\s+(?:it|the\s+program)\s+work\??|how\s+does\s+it\s+work\??)\s*$", stripped, re.I):
+                return "confident_speaker_format"
+            if _FORMAT_RE.search(stripped) or _FORMAT_RE.search(normalized):
+                return "confident_speaker_format"
+            if _AUDIENCE_RE.search(stripped) or _AUDIENCE_RE.search(normalized):
+                return "confident_speaker_audience"
+            if _SCOPE_RE.search(stripped) or _SCOPE_RE.search(normalized):
+                return "confident_speaker_scope"
+            if _MENTORING_RE.search(stripped) or _MENTORING_RE.search(normalized):
+                return "confident_speaker_mentoring"
+            if _DEMO_BOOKING_RE.search(stripped):
+                return "demo_booking"
+            return "confident_speaker"
+
+        active_prog = effective_prog
 
         if active_prog == "foundation":
             if _FOUNDATION_GRADES_NARROW_RE.match(stripped) or re.search(r"^\s*(what\s+grades?\??|grades?\??)\s*$", stripped, re.I):
@@ -1042,9 +1528,7 @@ class ConversationEngine:
             if re.search(r"^\s*(how\s+does\s+(?:it|the\s+program)\s+work\??|how\s+does\s+it\s+work\??)\s*$", stripped, re.I):
                 return "middle_school_overview"
 
-        has_cs_mention = bool(_CONFIDENT_SPEAKER_RE.search(stripped) or _CONFIDENT_SPEAKER_RE.search(normalized))
-        is_cs_context = has_cs_mention or (active_prog == "confident_speaker")
-        if is_cs_context:
+        if active_prog == "confident_speaker":
             if re.search(r"^\s*(how\s+does\s+(?:it|the\s+program)\s+work\??|how\s+does\s+it\s+work\??)\s*$", stripped, re.I):
                 return "confident_speaker_format"
             if _FORMAT_RE.search(stripped) or _FORMAT_RE.search(normalized):
@@ -1059,8 +1543,6 @@ class ConversationEngine:
                 return "confident_speaker_activities"
             if _DEMO_BOOKING_RE.search(stripped):
                 return "demo_booking"
-            if has_cs_mention:
-                return "confident_speaker"
 
         has_board_mention = bool(_BOARD_EXAM_RE.search(stripped) or _BOARD_EXAM_RE.search(normalized))
         is_board_context = has_board_mention or (active_prog in ("senior", "board_exam"))
@@ -1122,7 +1604,44 @@ class ConversationEngine:
             return "comparison"
         if _CONFUSED_RE.search(stripped):
             return "confused"
+
+        # Conservative standalone name candidate check
+        if (
+            word_count == 1
+            and re.match(r"^[A-Za-z]+$", stripped)
+            and stripped.lower() not in leads._NAME_BLACKLIST
+            and not any(p.search(stripped) for p, _ in leads._SUBJECT_PATTERNS)
+            and not any(p.search(stripped) for p in leads._GRADE_PATTERNS)
+            and stripped.lower() not in ("what", "how", "why", "where", "when", "who", "which", "yes", "no", "sure", "help", "demo", "info", "general")
+        ):
+            last_msg = memory.last_assistant_message or ""
+            asked_name = bool(re.search(r"\b(what('s| is) your name|may i (know|have) your name|can i have your name|your name\??)\b", last_msg, re.I))
+            if asked_name:
+                return "explicit_name"
+            return "context-dependent"
+
         return "faq"
+
+    def classify_conversation_intent(self, text: str, session_id: Optional[str] = None) -> str:
+        """Classify user intent into high-level conversational categories for regression and routing matrix."""
+        detected = self.detect_intent(text, session_id)
+        if detected in (
+            "foundation_years_overview", "middle_school_overview", "senior_school",
+            "confident_speaker", "academic_courses_overview", "academic_sessions",
+            "grade7_maths_sessions", "confident_speaker_activities",
+        ):
+            return "program/topic"
+        if detected.startswith("eligibility"):
+            return "eligibility"
+        if detected == "location":
+            return "location"
+        if detected == "online_classes":
+            return "online_classes"
+        if detected == "faq" and re.search(r"\b(subject|subjects|teach|curriculum)\b", text, re.I):
+            return "information_request"
+        if detected == "thanks" and re.search(r"\b(okay|ok)\b", text, re.I):
+            return "acknowledgement"
+        return detected
 
 
     def _extract_ordinal_index(self, text: str) -> Optional[int]:
@@ -1365,9 +1884,42 @@ class ConversationEngine:
             for pat, repl in unsupported_action_claims:
                 reply = re.sub(pat, repl, reply, flags=re.IGNORECASE)
 
-        # Remove accidental leading "Yes." if it wasn't an affirmative confirmation
-        if intent not in ("confirmation", "foundation_confirmation", "middle_school_confirmation", "senior_school_confirmation", "confident_speaker_confirmation", "clarification_affirmation", "demo_offer_affirm"):
+        # Remove accidental leading "Yes." if it wasn't an affirmative confirmation or direct positive answer
+        allowed_yes_intents = (
+            "confirmation",
+            "foundation_confirmation",
+            "middle_school_confirmation",
+            "senior_school_confirmation",
+            "confident_speaker_confirmation",
+            "clarification_affirmation",
+            "demo_offer_affirm",
+            "eligibility_non_school",
+            "eligibility_adult",
+            "eligibility_college",
+            "eligibility_general",
+            "eligibility_mixed_english",
+            "eligibility_mixed_online",
+            "eligibility_mixed_programs",
+            "eligibility_mixed_fees",
+            "online_classes",
+        )
+        if intent not in allowed_yes_intents:
             reply = re.sub(r"^\s*Yes\.\s*", "", reply)
+
+        # Intent mismatch check: prevent semantic drift / wrong program dumps
+        if intent.startswith("eligibility") and re.search(r"\b(Middle School covers Grades 6–8|Foundation Years covers Grades 3–5)\b", reply, re.IGNORECASE):
+            reply = personality.ELIGIBILITY_NON_SCHOOL_RESPONSE if "non_school" in intent else personality.ELIGIBILITY_ADULT_RESPONSE
+        elif intent == "location" and re.search(r"\b(Click Book Free Demo|Book Free Demo form at the top-right)\b", reply, re.IGNORECASE):
+            reply = personality.LOCATION_RESPONSE
+        elif intent == "online_classes" and re.search(r"\b(Middle School covers Grades 6–8|Which program would you like to enroll in)\b", reply, re.IGNORECASE):
+            reply = personality.ONLINE_CLASSES_RESPONSE
+        elif intent in ("academic_sessions", "academic_courses_overview", "grade7_maths_sessions") and re.search(r"\b(guided speaking practice|practical conversation|public speaking|confident speaker)\b", reply, re.IGNORECASE):
+            if intent == "academic_courses_overview":
+                reply = personality.ACADEMIC_COURSES_OVERVIEW_RESPONSE
+            elif intent == "grade7_maths_sessions":
+                reply = personality.GRADE7_MATHS_SESSIONS_RESPONSE
+            else:
+                reply = personality.ACADEMIC_SESSIONS_RESPONSE
 
         # Action intent check: If intent is an action intent (enrollment, booking, etc.), ensure action guidance exists
         if intent in ACTION_INTENTS:
@@ -1406,6 +1958,152 @@ class ConversationEngine:
 
         message = message.strip()
         memory = database.get_conversation_memory(session_id) if session_id else database.ConversationMemory(session_id="")
+
+        # Pure cancellation signals (checked before prefix stripping so pure cancellation phrases are never split)
+        if _CANCELLATION_RE.match(message):
+            memory.pending_clarification = None
+            memory.last_requested_action = None
+            database.save_conversation_memory(session_id, memory)
+            database.clear_demo_lead(session_id)
+            reply = personality.pick(personality.CANCELLATION_RESPONSES)
+            res = ReplyResult(reply, "cancellation", ["programs-overview"], 1.0)
+            return self._finalize_result(session_id, res, memory, message)
+
+        # 1. Discourse / cancellation prefix followed by substantive question
+        # e.g. "nevermind, tell me about Middle School", "forget it, what subjects are offered?"
+        m_cancel_pref = _CANCELLATION_PREFIX_RE.match(message)
+        if m_cancel_pref:
+            remainder = message[m_cancel_pref.end():].strip()
+            if len(remainder) >= 3 and re.search(r"[A-Za-z]", remainder):
+                message = remainder
+
+        m_disc_pref = _DISCOURSE_PREFIX_RE.match(message)
+        if m_disc_pref:
+            remainder = message[m_disc_pref.end():].strip()
+            if len(remainder) >= 3 and re.search(r"[A-Za-z]", remainder):
+                message = remainder
+
+        # Vocative prefix, e.g. "Raaid, what programs do you offer?"
+        m_vocative = re.match(r"^\s*([A-Za-z]{2,20})\s*[,.:;-]\s*(.+)$", message)
+        if m_vocative:
+            cand_token = m_vocative.group(1).strip().lower()
+            rem = m_vocative.group(2).strip()
+            if (
+                cand_token not in ("how", "what", "why", "when", "where", "who", "which", "can", "do", "does", "is", "are")
+                and re.search(r"^(what|how|why|when|where|tell me|explain|can you|do you|which|i want|book)\b", rem, re.I)
+            ):
+                message = rem
+
+        # Explicit intro + question: "My name is Raaid, tell me about Grade 7"
+        m_intro_q = re.match(r"^\s*(?:my\s+name\s+is|name\s+is|i\s+am|i'm|call\s+me)\s+([A-Za-z]{2,20})\s*[,.:;-]\s*(.+)$", message, re.I)
+        if m_intro_q:
+            cand_name = m_intro_q.group(1).strip().capitalize()
+            rem_q = m_intro_q.group(2).strip()
+            if cand_name.lower() not in leads._NAME_BLACKLIST and len(rem_q) >= 3:
+                message = rem_q
+                self._pending_intro_prefix = f"Nice to meet you, {cand_name}! "
+
+        # Standalone discourse markers
+        if _STANDALONE_ACTUALLY_RE.match(message):
+            res = ReplyResult(
+                "Go ahead! What would you like to know or explore about WeMentors?",
+                "discourse_marker",
+                ["programs-overview"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if _STANDALONE_WAIT_RE.match(message):
+            res = ReplyResult(
+                "Take your time! What would you like to check or ask?",
+                "conversational_continuation",
+                ["programs-overview"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        # Conversational questions
+        if _WHY_QUERY_RE.match(message):
+            res = ReplyResult(
+                "Could you clarify what you'd like to know more about? I'm happy to explain our mentoring methodology, curriculum, or programs.",
+                "question",
+                ["programs-overview", "personalized-mentoring-concept"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if _REALLY_QUERY_RE.match(message):
+            res = ReplyResult(
+                "Yes, absolutely! WeMentors pairs students with dedicated 1-on-1 personal mentors who customize the learning plan to their pace and goals. Would you like to know more about how it works?",
+                "conversational_question",
+                ["programs-overview", "personalized-mentoring-concept"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        # Conversational reactions & pure acknowledgements
+        if _CONVERSATIONAL_REACTION_RE.match(message):
+            if re.search(r"\b(makes\s+sense|that'?s\s+helpful|helpful|i\s+see|fair\s+enough)\b", message, re.I):
+                res = ReplyResult(
+                    "Glad to help! What would you like to explore next — our academic programs (Grades 3–10) or Confident Speaker?",
+                    "acknowledgement",
+                    ["programs-overview"],
+                    1.0,
+                )
+            else:
+                res = ReplyResult(
+                    "Glad you found that interesting! Let me know if you have any questions about our programs or mentors.",
+                    "conversational_reaction",
+                    ["programs-overview"],
+                    1.0,
+                )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if _PURE_ACKNOWLEDGEMENT_RE.match(message):
+            last_msg = self._last_assistant_message(session_id) or ""
+            if last_msg and re.search(r"\b(what name|your name|student or parent name|name should i use)\b", last_msg, re.I):
+                return self._finalize_result(
+                    session_id,
+                    ReplyResult(
+                        "No worries. If you'd like to book a demo, you can enter your details through "
+                        "the **Book Free Demo** form at the top-right of the website.",
+                        "demo_booking",
+                        ["how-to-book-demo"],
+                        None,
+                    ),
+                    memory,
+                    message,
+                )
+            res = ReplyResult(
+                "Glad to help! What would you like to explore next — our academic programs (Grades 3–10) or Confident Speaker?",
+                "acknowledgement",
+                ["programs-overview"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        # Standalone subjects
+        if _MATHS_STANDALONE_RE.match(message):
+            reply = (
+                "WeMentors provides personalized 1-on-1 mentoring in **Mathematics** across all school stages:\n\n"
+                "- **Foundation Years (Grades 3–5)**: Builds strong number sense, mental math, and problem-solving confidence.\n"
+                "- **Middle School (Grades 6–8)**: Deepens conceptual understanding with weekly doubt clinics and practical labs.\n"
+                "- **Grades 9–10 Board Preparation**: Focused board exam prep, past paper practice, and score improvement.\n\n"
+                "Which grade or program would you like to know more about?"
+            )
+            res = ReplyResult(reply, "subject_maths", ["subjects-offered", "programs-overview"], 1.0)
+            return self._finalize_result(session_id, res, memory, message)
+
+        if _SCIENCE_STANDALONE_RE.match(message):
+            reply = (
+                "WeMentors provides personalized 1-on-1 mentoring in **Science** across all school stages:\n\n"
+                "- **Foundation Years (Grades 3–5)**: Hands-on exploration and core scientific curiosity.\n"
+                "- **Middle School (Grades 6–8)**: Physics, Chemistry, and Biology concepts with weekly doubt clinics.\n"
+                "- **Grades 9–10 Board Preparation**: Rigorous syllabus coverage and exam-focused mentorship.\n\n"
+                "Which grade or program would you like to know more about?"
+            )
+            res = ReplyResult(reply, "subject_science", ["subjects-offered", "programs-overview"], 1.0)
+            return self._finalize_result(session_id, res, memory, message)
 
         if len(message) > 2000:
             return ReplyResult(personality.TOO_LONG_MESSAGE_RESPONSE, "too_long", [], None)
@@ -1462,19 +2160,47 @@ class ConversationEngine:
                 res = ReplyResult("Could you clarify what you'd like to know about our programs or mentoring?", "clarify", [], None)
                 return self._finalize_result(session_id, res, memory, message)
 
-        # Name detection (explicit intro e.g. "my name is raaid", "name is raaid", or standalone "Raaid")
+        # Name detection (explicit intro e.g. "my name is raaid", "name is raaid", or standalone "Raaid" WITH context)
         # Recognition of a name is NOT permission to create a transactional state or fake lead.
         extracted_name = None
-        if not _FRUSTRATED_RE.search(message) and not _SHORT_CONFUSION_RE.match(message) and not _OUT_OF_SCOPE_RE.search(message):
-            m_intro = re.match(r"^\s*(?:my\s+name\s+is|name\s+is|i\s+am|i'm|call\s+me|(?:student|child|son|daughter)(?:'s)?\s+name\s+is)\s+([A-Za-z][A-Za-z\s]{0,30})\s*[.!]*\s*$", message, re.IGNORECASE)
+        is_explicit_intro = False
+        if (
+            not _FRUSTRATED_RE.search(message)
+            and not _SHORT_CONFUSION_RE.match(message)
+            and not _OUT_OF_SCOPE_RE.search(message)
+            and not _ELIGIBILITY_ADULT_RE.search(message)
+            and not _ELIGIBILITY_NON_SCHOOL_RE.search(message)
+            and not _ELIGIBILITY_COLLEGE_RE.search(message)
+            and not _ELIGIBILITY_GENERAL_RE.match(message)
+            and not _LOCATION_RE.search(message)
+            and not _ONLINE_CLASSES_RE.search(message)
+        ):
+            m_intro = _EXPLICIT_NAME_RE.match(message) or _NAME_IS_MY_NAME_RE.match(message)
             if m_intro:
                 cand = m_intro.group(1).strip()
                 cand_words = cand.split()
-                if cand_words and cand_words[0].lower() not in leads._NAME_BLACKLIST:
-                    if not any(p.search(cand) for p, _ in leads._SUBJECT_PATTERNS) and not any(p.search(cand) for p in leads._GRADE_PATTERNS):
-                        extracted_name = cand_words[0].capitalize() if len(cand_words) == 1 else " ".join(w.capitalize() for w in cand_words)
+                if (
+                    cand_words
+                    and cand_words[0].lower() not in ("a", "an", "the")
+                    and not any(w.lower() in leads._NAME_BLACKLIST for w in cand_words)
+                    and not any(p.search(cand) for p, _ in leads._SUBJECT_PATTERNS)
+                    and not any(p.search(cand) for p in leads._GRADE_PATTERNS)
+                ):
+                    extracted_name = cand_words[0].capitalize() if len(cand_words) == 1 else " ".join(w.capitalize() for w in cand_words)
+                    is_explicit_intro = True
 
             if not extracted_name:
+                last_intent = self._last_assistant_intent(session_id)
+                last_msg = self._last_assistant_message(session_id) or ""
+                if last_intent in ("cancellation", "never_mind"):
+                    is_demo_context = False
+                else:
+                    is_demo_context = (
+                        last_intent in ("demo_booking", "demo_inquiry", "demo_information", "demo_transaction_request", "demo_field_clarification", "standalone_name")
+                        or bool(re.search(r"\b(book free demo|book a demo)\b", last_msg, re.I))
+                    )
+                asked_for_name = bool(re.search(r"\b(what('s| is) your name|may i (know|have) your name|can i have your name|your name\??)\b", last_msg, re.I))
+
                 words = message.split()
                 is_known_non_name = bool(
                     _GREETING_START_RE.match(message)
@@ -1501,21 +2227,36 @@ class ConversationEngine:
                     and not any(p.search(message) for p in leads._TIME_PATTERNS)
                     and not re.search(r"[?]|^(what|how|why|who|where|when|tell me|explain|can you|do you|which|i want|book)\b", message, re.I)
                 ):
-                    extracted_name = message.strip().title()
+                    # Standalone names are accepted ONLY when conversational context actively supports it
+                    if is_demo_context or asked_for_name:
+                        extracted_name = message.strip().title()
+                    else:
+                        # Low confidence / ambiguous standalone word: do NOT echo as a name!
+                        # Handle conservatively with natural clarification:
+                        res = ReplyResult(
+                            "Could you clarify what you'd like to know about our programs or mentoring? How can I help you today?",
+                            "clarify",
+                            ["programs-overview"],
+                            None,
+                        )
+                        return self._finalize_result(session_id, res, memory, message)
 
         if extracted_name:
             last_intent = self._last_assistant_intent(session_id)
             last_msg = self._last_assistant_message(session_id) or ""
-            is_demo_context = (
-                last_intent in ("demo_booking", "demo_inquiry", "demo_information", "demo_transaction_request", "demo_field_clarification", "standalone_name")
-                or bool(re.search(r"\b(demo|trial|book free demo)\b", last_msg, re.I))
-            )
+            if last_intent in ("cancellation", "never_mind"):
+                is_demo_context = False
+            else:
+                is_demo_context = (
+                    last_intent in ("demo_booking", "demo_inquiry", "demo_information", "demo_transaction_request", "demo_field_clarification", "standalone_name")
+                    or bool(re.search(r"\b(book free demo|book a demo)\b", last_msg, re.I))
+                )
             if is_demo_context:
                 reply = personality.STANDALONE_NAME_DEMO_RESPONSE.format(name=extracted_name)
                 res = ReplyResult(reply, "standalone_name", ["how-to-book-demo"], 1.0)
             else:
                 reply = f"Nice to meet you, {extracted_name}! How can I help you today with WeMentors' programs and mentoring?"
-                res = ReplyResult(reply, "greeting", ["programs-overview"], 1.0)
+                res = ReplyResult(reply, "explicit_name" if is_explicit_intro else "greeting", ["programs-overview"], 1.0)
             return self._finalize_result(session_id, res, memory, message)
 
         # Contact details provided (phone number or email address)
@@ -1655,6 +2396,97 @@ class ConversationEngine:
                 personality.MENTORING_APPROACH_RESPONSE,
                 "mentoring_approach",
                 ["personalized-mentoring-concept"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "eligibility_mixed_english":
+            memory.active_program = "confident_speaker"
+            res = ReplyResult(
+                personality.ELIGIBILITY_ENGLISH_RESPONSE,
+                "eligibility_mixed_english",
+                ["program-confident-speaker", "confident-speaker-audience"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "eligibility_mixed_online":
+            res = ReplyResult(
+                personality.ELIGIBILITY_ONLINE_RESPONSE,
+                "eligibility_mixed_online",
+                ["programs-overview", "confident-speaker-audience"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "eligibility_mixed_programs":
+            res = ReplyResult(
+                personality.ELIGIBILITY_PROGRAMS_RESPONSE,
+                "eligibility_mixed_programs",
+                ["programs-overview", "confident-speaker-audience"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "eligibility_mixed_fees":
+            res = ReplyResult(
+                personality.ELIGIBILITY_FEES_RESPONSE,
+                "eligibility_mixed_fees",
+                ["fee-structure", "confident-speaker-audience"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "eligibility_non_school":
+            res = ReplyResult(
+                personality.ELIGIBILITY_NON_SCHOOL_RESPONSE,
+                "eligibility_non_school",
+                ["confident-speaker-audience", "programs-overview"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "eligibility_adult":
+            res = ReplyResult(
+                personality.ELIGIBILITY_ADULT_RESPONSE,
+                "eligibility_adult",
+                ["confident-speaker-audience", "programs-overview"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "eligibility_college":
+            res = ReplyResult(
+                personality.ELIGIBILITY_COLLEGE_RESPONSE,
+                "eligibility_college",
+                ["confident-speaker-audience", "programs-overview"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "eligibility_general":
+            res = ReplyResult(
+                personality.ELIGIBILITY_GENERAL_RESPONSE,
+                "eligibility_general",
+                ["programs-overview", "confident-speaker-audience"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "location":
+            res = ReplyResult(
+                personality.LOCATION_RESPONSE,
+                "location",
+                ["contact-info"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "online_classes":
+            res = ReplyResult(
+                personality.ONLINE_CLASSES_RESPONSE,
+                "online_classes",
+                ["programs-overview"],
                 1.0,
             )
             return self._finalize_result(session_id, res, memory, message)
@@ -2004,6 +2836,33 @@ class ConversationEngine:
                 personality.CONFIDENT_SPEAKER_ACTIVITIES_DIRECT,
                 "confident_speaker_activities",
                 ["confident-speaker-activities"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "academic_sessions":
+            res = ReplyResult(
+                personality.ACADEMIC_SESSIONS_RESPONSE,
+                "academic_sessions",
+                ["mentoring-process", "teaching-approach", "one-on-one-available"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "academic_courses_overview":
+            res = ReplyResult(
+                personality.ACADEMIC_COURSES_OVERVIEW_RESPONSE,
+                "academic_courses_overview",
+                ["programs-overview", "program-foundation-years", "program-middle-school", "program-senior-school"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "grade7_maths_sessions":
+            res = ReplyResult(
+                personality.GRADE7_MATHS_SESSIONS_RESPONSE,
+                "grade7_maths_sessions",
+                ["program-middle-school", "middle-school-subjects"],
                 1.0,
             )
             return self._finalize_result(session_id, res, memory, message)

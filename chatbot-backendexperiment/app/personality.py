@@ -170,6 +170,31 @@ CONFIDENT_SPEAKER_ACTIVITIES_DIRECT = (
     "You can click **Book Free Demo** at the top-right of the website to experience a trial session."
 )
 
+ACADEMIC_SESSIONS_RESPONSE = (
+    "During academic sessions, learners work 1-on-1 with a dedicated personal mentor through interactive live sessions. "
+    "Mentors focus on fundamental concept clarity and deep understanding rather than rote memorization. "
+    "Practice is customized to the learner's syllabus and includes concept-based problem sets, dedicated doubt-clearing "
+    "(such as fortnightly doubt clinics in Middle School or weekly mock tests in Grades 9–10), and weekly progress updates shared with parents.\n\n"
+    "You can click **Book Free Demo** at the top-right of the website to experience an academic trial session."
+)
+
+ACADEMIC_COURSES_OVERVIEW_RESPONSE = (
+    "WeMentors provides personalized 1-on-1 academic mentoring across three key stages for school students:\n\n"
+    "- **Foundation Years (Grades 3–5)**: Mathematics, Science, and English, focusing on concept clarity and building strong study habits.\n"
+    "- **Middle School (Grades 6–8)**: Core subjects (Mathematics, Science, English, Social Studies) with concept-based learning, practical problem sets, and fortnightly doubt clinics.\n"
+    "- **Senior School Focus (Grades 9–10)**: Mathematics, Science, and board-exam preparation with weekly mock tests, review, and priority doubt clearing.\n\n"
+    "All academic programs feature a dedicated personal mentor and weekly progress updates shared with parents.\n\n"
+    "You can click **Book Free Demo** at the top-right of the website to explore our academic programs."
+)
+
+GRADE7_MATHS_SESSIONS_RESPONSE = (
+    "In Grade 7 Mathematics (part of our Middle School program), sessions are conducted 1-on-1 with a personal mentor. "
+    "The mentor focuses on concept clarity and practical problem sets aligned with your child's school board curriculum. "
+    "Students also participate in dedicated fortnightly doubt clinics to resolve questions and reinforce mathematical problem-solving skills.\n\n"
+    "You can click **Book Free Demo** at the top-right of the website to schedule a trial session."
+)
+
+
 PARENT_UPDATES_RESPONSE = (
     "Learner progress is tracked and shared with parents every week so parents stay informed about the student's development."
 )
@@ -191,7 +216,8 @@ MIDDLE_SCHOOL_OVERVIEW_RESPONSE = (
 )
 
 MIDDLE_SCHOOL_SUBJECTS_RESPONSE = (
-    "The Middle School program covers all core subjects, along with doubt-solving and practical labs designed for Grades 6–8."
+    "The Middle School program (Grades 6–8) covers all core subjects — Mathematics, Science, English, "
+    "and Social Studies — along with dedicated doubt-solving clinics and practical labs designed for Grades 6–8."
 )
 
 MIDDLE_SCHOOL_DOUBT_CLINICS_RESPONSE = (
@@ -500,6 +526,77 @@ DEMO_SUBMITTED_SUCCESS = DEMO_BOOKING_RESPONSE
 DEMO_ENQUIRY_THANKS = DEMO_BOOKING_RESPONSE
 DEMO_CANCELLED_RESPONSE = (
     "No problem at all! Feel free to reach out to the WeMentors team whenever you're ready. What else can I help you with?"
+)
+
+CANCELLATION_RESPONSES = [
+    "No problem. What would you like to know about?",
+    "No problem! How can I help you today?",
+    "No problem — what would you like to explore instead?",
+]
+
+# Eligibility & Audience responses
+ELIGIBILITY_ADULT_RESPONSE = (
+    "Yes. WeMentors' Confident Speaker program is open to students, working professionals, and homemakers of any age. "
+    "It focuses on Spoken English, Public Speaking, and Interview Skills through personalized one-to-one mentoring."
+)
+
+ELIGIBILITY_NON_SCHOOL_RESPONSE = (
+    "Yes! Being out of school does not prevent you from joining. While our academic curriculum programs are designed "
+    "for school students in Grades 3–10, WeMentors' Confident Speaker program is open to adults, working professionals, "
+    "and homemakers. It provides personalized one-to-one mentoring in Spoken English, Public Speaking, and Interview Skills."
+)
+
+ELIGIBILITY_COLLEGE_RESPONSE = (
+    "College students are not eligible for the academic curriculum programs (which are grade-banded for Grades 3–10). "
+    "However, the Confident Speaker program (Spoken English, Public Speaking, and Interview Skills) is open to everyone, "
+    "including college students, through personalized one-to-one mentoring."
+)
+
+ELIGIBILITY_GENERAL_RESPONSE = (
+    "WeMentors supports school students in Grades 3–10 across our academic programs (Foundation Years, Middle School, "
+    "and Board Exam Preparation), as well as learners of any background — including students, working professionals, "
+    "and homemakers — in our Confident Speaker program (Spoken English, Public Speaking, and Interview Skills)."
+)
+
+ELIGIBILITY_ENGLISH_RESPONSE = (
+    "Yes! WeMentors' Confident Speaker program is specifically designed for learners of all backgrounds, including adults, "
+    "working professionals, and homemakers. It covers Spoken English, Public Speaking, and Interview Skills with "
+    "personalized 1-on-1 mentoring, practical conversation, and regular feedback."
+)
+
+ELIGIBILITY_ONLINE_RESPONSE = (
+    "Yes! Adults and learners who are not in school can join our Confident Speaker program (covering Spoken English, "
+    "Public Speaking, and Interview Skills). Additionally, all WeMentors classes are conducted live and online via "
+    "interactive video calls with digital whiteboard support, so you can attend from home anywhere."
+)
+
+ELIGIBILITY_PROGRAMS_RESPONSE = (
+    "As a non-student or adult, you can join our **Confident Speaker** program, which is open to learners of all backgrounds "
+    "(including working professionals and homemakers). It offers personalized 1-on-1 mentoring in Spoken English, "
+    "Public Speaking, and Interview Skills. (Our academic subject programs in Math and Science are structured specifically "
+    "for school students in Grades 3–10.)"
+)
+
+ELIGIBILITY_FEES_RESPONSE = (
+    "Yes, adults can join our Confident Speaker program for Spoken English, Public Speaking, and Interview Skills. "
+    "Regarding fees, WeMentors provides customized 1-on-1 mentoring, and fee details are shared individually based on the "
+    "learner's personalized learning plan and session frequency. You can connect with the WeMentors team to get detailed "
+    "fee information."
+)
+
+# Location response (answers location directly without pushing demo booking)
+LOCATION_RESPONSE = (
+    "WeMentors does not operate physical offline coaching centers — all classes are conducted live and online, "
+    "allowing students and mentors to connect from anywhere across India and globally.\n\n"
+    "For specific administrative, office, or direct contact inquiries, you can reach the WeMentors team directly "
+    "at **admin@wementors.co** or via phone/WhatsApp at **+91 76111 92227**."
+)
+
+# Online classes response
+ONLINE_CLASSES_RESPONSE = (
+    "Yes, WeMentors classes are conducted live and online through interactive video calls with digital whiteboard support, "
+    "allowing mentors to teach and solve problems in real time. Students attend all sessions from home, so there is no "
+    "physical center you need to travel to."
 )
 
 
