@@ -164,12 +164,35 @@ class DemoLead:
 
 
 _NAME_BLACKLIST = {
+    # Greetings & Salutations
     "hey", "hi", "hello", "namaste", "greetings", "yo", "good morning", "good afternoon", "good evening",
+    # Acknowledgements & Confirmations
     "ok", "okay", "sure", "yes", "yeah", "yep", "alright", "fine", "got it", "cool", "sounds good",
     "thanks", "thank you", "thx", "no", "nope", "nah", "never", "cancel", "stop", "what", "why", "how",
-    "who", "where", "when", "math", "maths", "science", "english", "evs", "grade", "class", "demo",
-    "help", "book", "enroll", "python", "java", "coding", "course", "courses", "program", "programs",
-    "fees", "cost", "price", "pricing", "details", "info", "information", "classes", "none", "nothing",
+    "who", "where", "when", "none", "nothing", "maybe",
+    # Form fields and labels (MUST NEVER be treated as person names)
+    "name", "names", "student name", "parent name", "full name", "first name", "last name",
+    "email", "emails", "mail", "gmail",
+    "phone", "phones", "number", "numbers", "phone number", "mobile", "mobile number", "contact", "contact number",
+    "grade", "grades", "class", "classes", "standard", "standards",
+    "subject", "subjects",
+    "time", "times", "timing", "timings", "slot", "slots", "schedule", "date", "dates", "preferred time",
+    "form", "forms", "field", "fields", "button", "link", "option", "website",
+    # Programs & Scope
+    "foundation", "years", "middle", "school", "senior", "confident", "speaker", "academy", "platform",
+    "spoken", "public", "speaking", "interview", "skills", "focus",
+    # Academic & Subjects
+    "math", "maths", "mathematics", "science", "physics", "chemistry", "biology", "english", "evs",
+    "environmental", "studies", "history", "geography", "social", "board", "cbse", "icse", "curriculum", "syllabus", "exam", "exams",
+    "course", "courses", "program", "programs", "student", "students", "parent", "parents",
+    "child", "children", "kid", "kids", "learner", "learners", "tutor", "tuition", "mentor", "mentors", "mentoring",
+    # Actions & Inquiry types
+    "demo", "trial", "session", "sessions", "book", "booking", "enroll", "enrollment", "admission", "admissions",
+    "register", "registration", "fee", "fees", "cost", "price", "pricing", "details", "info", "information",
+    "help", "online", "offline", "live", "free", "wementors", "wementor", "python", "java", "coding",
+    # Times & Days
+    "morning", "afternoon", "evening", "night", "today", "tomorrow", "am", "pm", "weekend", "weekday",
+    "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday", "anytime", "flexible",
 }
 
 
@@ -202,13 +225,15 @@ def extract_lead_fields(text: str, current: Optional[DemoLead] = None) -> Tuple[
             break
 
     # 3. Subject (handling "X instead of Y" or "X rather than Y")
-    subject_text = re.sub(r"\b(instead of|rather than|not)\s+[A-Za-z0-9\s]+$", "", text, flags=re.IGNORECASE)
-    subject_text = re.sub(r"\b(instead of|rather than|not)\s+[A-Za-z0-9]+\b", "", subject_text, flags=re.IGNORECASE)
-    for pat, subj in _SUBJECT_PATTERNS:
-        if pat.search(subject_text):
-            lead.subject = subj
-            newly_found.append(subj)
-            break
+    is_question = bool(re.search(r"[?]|^(what|how|why|tell me|explain|can you|do you|which|is)\b", text.strip(), re.I))
+    if not is_question:
+        subject_text = re.sub(r"\b(instead of|rather than|not)\s+[A-Za-z0-9\s]+$", "", text, flags=re.IGNORECASE)
+        subject_text = re.sub(r"\b(instead of|rather than|not)\s+[A-Za-z0-9]+\b", "", subject_text, flags=re.IGNORECASE)
+        for pat, subj in _SUBJECT_PATTERNS:
+            if pat.search(subject_text):
+                lead.subject = subj
+                newly_found.append(subj)
+                break
 
     # 4. Preferred Time
     for pat in _TIME_PATTERNS:
@@ -223,22 +248,31 @@ def extract_lead_fields(text: str, current: Optional[DemoLead] = None) -> Tuple[
         m = pat.search(text)
         if m:
             name_val = m.group(1).strip().title()
-            if name_val.lower() not in _NAME_BLACKLIST:
+            name_words = set(name_val.lower().split())
+            if name_val.lower() not in _NAME_BLACKLIST and not (name_words & _NAME_BLACKLIST):
                 lead.name = name_val
                 newly_found.append(f"name: {name_val}")
                 break
 
-    # Heuristic for single-line name when asked for a name
-    if not lead.name and current and current.stage == "collecting" and not current.name:
+    # Heuristic for single-line name when asked for a name:
+    # 1. MUST NOT run if any other field (email, phone, grade, subject, time) was already extracted from this message.
+    # 2. MUST NOT match if any word in the message matches a subject pattern, grade pattern, time pattern, or blacklist.
+    # 3. MUST NOT match questions, general inquiries, or conversational commands.
+    if not lead.name and not newly_found and current and current.stage == "collecting" and not current.name:
         stripped = text.strip()
         words = stripped.split()
         lowered_words = set(stripped.lower().split())
-        if 1 <= len(words) <= 3 and re.match(r"^[A-Za-z\s]+$", stripped):
-            if (
-                not is_pure_acknowledgement(stripped)
-                and stripped.lower() not in _NAME_BLACKLIST
-                and not (lowered_words & _NAME_BLACKLIST)
-            ):
+        is_question_or_inquiry = bool(re.search(r"[?]|^(what|how|why|who|where|when|tell me|explain|can you|do you|which|i want|i would|book|sign|is)\b", stripped, re.I))
+        if not is_question_or_inquiry and 1 <= len(words) <= 3 and re.match(r"^[A-Za-z\s]+$", stripped):
+            is_blacklisted = (
+                is_pure_acknowledgement(stripped)
+                or stripped.lower() in _NAME_BLACKLIST
+                or bool(lowered_words & _NAME_BLACKLIST)
+                or any(pat.search(stripped) for pat, _ in _SUBJECT_PATTERNS)
+                or any(pat.search(stripped) for pat in _GRADE_PATTERNS)
+                or any(pat.search(stripped) for pat in _TIME_PATTERNS)
+            )
+            if not is_blacklisted:
                 lead.name = stripped.title()
                 newly_found.append(f"name: {lead.name}")
 

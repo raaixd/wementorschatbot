@@ -1643,10 +1643,44 @@ document.querySelectorAll('[data-counter]').forEach(el=>counterIO.observe(el));
     });
   }
 
+  function renderSuggestion(text) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'chatbot-suggestion';
+    btn.textContent = text;
+    return btn;
+  }
+
+  function onSuggestionClick(text) {
+    if (isProcessing) return;
+    if (chatbotSuggestions) {
+      chatbotSuggestions.style.display = 'none';
+    }
+    submitUserMessage(text, 'explicit_suggestion_click');
+  }
+
+  function submitUserMessage(text, source = 'text_input') {
+    handleUserMessage(text, source);
+  }
+
+  function displaySuggestions(suggestions) {
+    if (!chatbotSuggestions) return;
+    chatbotSuggestions.innerHTML = '';
+    if (Array.isArray(suggestions) && suggestions.length > 0) {
+      suggestions.forEach(sug => {
+        const btn = renderSuggestion(sug);
+        chatbotSuggestions.appendChild(btn);
+      });
+      chatbotSuggestions.style.display = '';
+    } else {
+      chatbotSuggestions.style.display = 'none';
+    }
+  }
+
   let activeAbortController = null;
   let currentTypingEl = null;
 
-  async function sendToBackend(message) {
+  async function sendToBackend(message, source = 'text_input', requestId = null) {
     const controller = new AbortController();
     activeAbortController = controller;
     const timeout = setTimeout(() => controller.abort(), 15000);
@@ -1654,7 +1688,13 @@ document.querySelectorAll('[data-counter]').forEach(el=>counterIO.observe(el));
       const response = await fetch(`${API_BASE}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Session-Id': sessionId },
-        body: JSON.stringify({ message, session_id: sessionId }),
+        body: JSON.stringify({
+          message,
+          session_id: sessionId,
+          role: 'user',
+          source: source,
+          request_id: requestId || ((window.crypto && crypto.randomUUID) ? crypto.randomUUID() : `req-${Date.now()}-${Math.random().toString(16).slice(2)}`)
+        }),
         signal: controller.signal,
       });
       if (!response.ok) {
@@ -1681,11 +1721,22 @@ document.querySelectorAll('[data-counter]').forEach(el=>counterIO.observe(el));
   }
 
   let isProcessing = false;
+  let lastSubmittedMessage = null;
+  let lastSubmittedTime = 0;
 
-  async function handleUserMessage(message) {
+  async function handleUserMessage(message, source = 'text_input') {
     if (isProcessing) return;
     const text = (message || '').trim();
     if (!text) return;
+
+    const now = Date.now();
+    if (lastSubmittedMessage === text && (now - lastSubmittedTime) < 500) {
+      return;
+    }
+    lastSubmittedMessage = text;
+    lastSubmittedTime = now;
+
+    const reqId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : `req-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
     isProcessing = true;
     addChatbotMessage(text, 'user');
@@ -1703,27 +1754,13 @@ document.querySelectorAll('[data-counter]').forEach(el=>counterIO.observe(el));
     scrollToLatest({ behavior: 'smooth', force: true });
 
     try {
-      const responseData = await sendToBackend(text);
+      const responseData = await sendToBackend(text, source, reqId);
       const userWasNear = isNearBottom(140);
       await removeTypingSmoothly(typing);
       currentTypingEl = null;
       addChatbotMessage(responseData.reply, 'assistant');
 
-      if (chatbotSuggestions) {
-        if (responseData.suggestions && responseData.suggestions.length > 0) {
-          chatbotSuggestions.innerHTML = '';
-          responseData.suggestions.forEach(sug => {
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'chatbot-suggestion';
-            btn.textContent = sug;
-            chatbotSuggestions.appendChild(btn);
-          });
-          chatbotSuggestions.style.display = '';
-        } else {
-          chatbotSuggestions.style.display = 'none';
-        }
-      }
+      displaySuggestions(responseData.suggestions);
 
       if (userWasNear) {
         scrollToLatest({ behavior: 'smooth', force: true });
@@ -1793,9 +1830,13 @@ document.querySelectorAll('[data-counter]').forEach(el=>counterIO.observe(el));
     if (chatbotScrollAnchor) {
       chatbotMessages.appendChild(chatbotScrollAnchor);
     }
-    if (chatbotSuggestions) {
-      chatbotSuggestions.style.display = '';
-    }
+    displaySuggestions([
+      "Tell me about WeMentors",
+      "What programs do you offer?",
+      "How does the free demo work?",
+      "Do you support Grades 9–10?",
+      "Tell me about Confident Speaker"
+    ]);
     chatbotMessages.scrollTop = 0;
     try {
       await fetch(`${API_BASE}/chat/clear`, {
@@ -1853,8 +1894,7 @@ document.querySelectorAll('[data-counter]').forEach(el=>counterIO.observe(el));
     chatbotSuggestions.addEventListener('click', (event) => {
       const button = event.target.closest('.chatbot-suggestion');
       if (!button || isProcessing) return;
-      chatbotSuggestions.style.display = 'none';
-      handleUserMessage(button.textContent.trim());
+      onSuggestionClick(button.textContent.trim());
     });
   }
 
@@ -1864,7 +1904,7 @@ document.querySelectorAll('[data-counter]').forEach(el=>counterIO.observe(el));
     const message = chatbotInput.value.trim();
     if (!message) return;
     if (chatbotSuggestions) chatbotSuggestions.style.display = 'none';
-    handleUserMessage(message);
+    submitUserMessage(message, 'text_input');
   });
 })();
 

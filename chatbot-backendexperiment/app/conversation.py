@@ -15,14 +15,15 @@ database rather than kept in a process-wide dict, so behavior is correct
 across backend restarts and multiple workers.
 """
 
-from __future__ import annotations
-
+import logging
 import re
 from dataclasses import dataclass
 from typing import List, Optional
 
 from . import config, database, leads, llm, personality
 from .knowledge import KBEntry
+
+logger = logging.getLogger(__name__)
 from .retrieval import Retriever, ScoredEntry, tokenize, _FEE_TRIGGER_WORDS
 
 _ORDINAL_WORDS = {
@@ -163,6 +164,92 @@ _CONFIRMATION_RE = re.compile(
     re.IGNORECASE,
 )
 
+_ENROLLMENT_ACTION_RE = re.compile(
+    r"\b("
+    r"how\s+(?:can|do)\s+i\s+(?:sign\s+up|enroll|join|register|apply)|"
+    r"how\s+to\s+(?:sign\s+up|enroll|join|register|apply)|"
+    r"i\s+want\s+to\s+(?:join|enroll|sign\s+up|register|apply)|"
+    r"how\s+do\s+i\s+register\s+my\s+child|"
+    r"how\s+can\s+my\s+child\s+(?:start|join|enroll)|"
+    r"what\s+is\s+the\s+(?:enrollment|admission|registration)\s+process|"
+    r"where\s+do\s+i\s+apply|"
+    r"can\s+i\s+register(?:\s+for\s+(?:this|the)\s+program)?|"
+    r"i\s+want\s+to\s+book\s+a\s+place|"
+    r"how\s+do\s+i\s+get\s+started"
+    r")\b",
+    re.IGNORECASE,
+)
+
+_AFFIRMATION_RE = re.compile(
+    r"^\s*(yes|yeah|yep|correct|exactly|that\s+one|this\s+one|right|definitely)\s*[!.]*$",
+    re.IGNORECASE,
+)
+
+_NEGATION_RE = re.compile(
+    r"^\s*(no|nope|not\s+that(?:\s+one)?|neither|wrong)\s*[!.]*$",
+    re.IGNORECASE,
+)
+
+_THE_OTHER_ONE_RE = re.compile(
+    r"^\s*(?:what\s+about\s+)?the\s+other(?:\s+one)?\s*[?!.]*$",
+    re.IGNORECASE,
+)
+
+_ACKNOWLEDGEMENT_RE = re.compile(
+    r"^\s*(okay|ok|got\s+it|understood|alright|all\s+right|sure)\s*[!.]*$",
+    re.IGNORECASE,
+)
+
+_MENTORING_APPROACH_RE = re.compile(
+    r"\b(tell\s+me\s+about\s+(?:the\s+)?mentoring\s+approach|"
+    r"what\s+is\s+(?:the\s+)?mentoring\s+approach|"
+    r"how\s+does\s+mentoring\s+work|"
+    r"how\s+does\s+personalized\s+mentoring\s+work|"
+    r"mentoring\s+approach)\b",
+    re.IGNORECASE,
+)
+
+_MENTORING_ONE_ON_ONE_RE = re.compile(
+    r"\b(is\s+mentoring\s+(?:one[- ]on[- ]one|1[- ]on[- ]1|1:1)|"
+    r"is\s+it\s+(?:one[- ]on[- ]one|1[- ]on[- ]1|1:1)|"
+    r"do\s+students\s+get\s+individual\s+attention|"
+    r"individual\s+attention(?:\s+for\s+students)?|"
+    r"is\s+it\s+(?:one[- ]to[- ]one|1[- ]to[- ]1))\b",
+    re.IGNORECASE,
+)
+
+_FOUNDATION_SUBJECTS_RE = re.compile(
+    r"\b(what\s+subjects\s+(?:are\s+included|do\s+you\s+teach|are\s+taught|are\s+there)|"
+    r"subjects?\s+(?:included|offered|taught)|"
+    r"what\s+are\s+the\s+subjects)\b",
+    re.IGNORECASE,
+)
+
+_FOUNDATION_APPROACH_RE = re.compile(
+    r"\b(how\s+does\s+it\s+work|teaching\s+approach|how\s+is\s+it\s+taught|how\s+do\s+you\s+teach\s+them|learning\s+activities)\b",
+    re.IGNORECASE,
+)
+
+_FOUNDATION_PROGRESS_RE = re.compile(
+    r"\b(progress\s+tracking|weekly\s+progress\s+notes|how\s+do\s+parents\s+track\s+progress|parent\s+notes)\b",
+    re.IGNORECASE,
+)
+
+ACTION_INTENTS = {
+    "enrollment",
+    "sign_up",
+    "registration",
+    "demo_booking",
+    "contact",
+    "fees",
+    "duration",
+    "foundation_enrollment",
+    "middle_enrollment",
+    "senior_enrollment",
+    "confident_speaker_enrollment",
+}
+
+
 
 def normalize_query(text: str) -> str:
     cleaned = text.strip().lower()
@@ -212,8 +299,8 @@ _GENERAL_INFO_RE = re.compile(
     r"who\s+(?:is|are)\s+wementors|"
     r"about\s+wementors|"
     r"tell\s+me\s+about\s+wementors|"
-    r"tell\s+me\s+about\s+(?:your\s+)?(?:academy|organization|organisation|institution|company|school)|"
-    r"what\s+is\s+(?:your\s+)?(?:academy|organization|organisation|institution|company|school)\s+about|"
+    r"tell\s+me\s+about\s+(?:this\s+|your\s+|the\s+)?(?:academy|organization|organisation|institution|company|school)|"
+    r"what\s+is\s+(?:this\s+|your\s+|the\s+)?(?:academy|organization|organisation|institution|company|school)\s+about|"
     r"what\s+do\s+you\s+(?:guys\s+)?do|"
     r"what\s+does\s+wementors\s+do|"
     r"tell\s+me\s+what\s+you\s+(?:guys\s+)?do|"
@@ -319,9 +406,81 @@ _DEMO_BOOKING_RE = re.compile(
     r"|\bhow (can|do) i (book|get|attend|schedule) a (demo|trial)\b"
     r"|\b(can|could) i (get|have|book|attend) a (free\s+)?(demo|trial)\b"
     r"|\b(how to join|how do i join|want to join|i want to join|i wanna join|enquire about joining|interested in joining)\b"
-    r"|\b(how do i enroll|how to enroll|admissions? process|admission enquiry|enquire about classes|what'?s the process|how can my child attend|can you book it for me)\b",
+    r"|\b(how do i enroll|how to enroll|admissions? process|admission enquiry|enquire about classes|what'?s the process|how can my child attend)\b",
     re.IGNORECASE,
 )
+
+_DEMO_TRANSACTION_RE = re.compile(
+    r"\b("
+    r"book\s+(?:a\s+)?(?:free\s+)?demo\s+for\s+me|"
+    r"book\s+it\s+for\s+me|"
+    r"book\s+for\s+me|"
+    r"can\s+you\s+book\s+it(?:\s+for\s+me)?|"
+    r"can\s+you\s+book\s+(?:a\s+)?(?:free\s+)?demo(?:\s+for\s+me)?|"
+    r"can\s+you\s+book\??|"
+    r"can\s+you\s+register\s+me(?:\s+for\s+(?:a\s+)?(?:free\s+)?demo)?|"
+    r"register\s+me\s+for\s+(?:a\s+)?(?:free\s+)?demo|"
+    r"register\s+me\s+for\s+demo|"
+    r"register\s+me(?:\s+please)?|"
+    r"submit\s+my\s+demo(?:\s+request)?|"
+    r"submit\s+(?:a\s+)?demo(?:\s+request)?\s+for\s+me|"
+    r"i\s+want\s+you\s+to\s+book\s+it|"
+    r"i\s+want\s+you\s+to\s+book\s+(?:a\s+)?(?:free\s+)?demo|"
+    r"can\s+you\s+sign\s+me\s+up(?:\s+for\s+(?:a\s+)?(?:free\s+)?demo)?|"
+    r"sign\s+me\s+up\s+for\s+(?:a\s+)?(?:free\s+)?demo"
+    r")\b",
+    re.IGNORECASE,
+)
+
+_DEMO_INFORMATION_RE = re.compile(
+    r"\b("
+    r"what\s+is\s+(?:the\s+)?(?:free\s+)?demo(?:\s+class)?|"
+    r"is\s+(?:the\s+)?(?:free\s+)?demo(?:\s+class)?\s+free|"
+    r"tell\s+me\s+about\s+(?:the\s+)?(?:free\s+)?demo(?:\s+class)?|"
+    r"what\s+happens\s+(?:in|during)\s+(?:the\s+)?(?:free\s+)?demo(?:\s+class)?|"
+    r"how\s+long\s+is\s+(?:the\s+)?(?:free\s+)?demo(?:\s+class)?|"
+    r"what\s+does\s+the\s+demo\s+include|"
+    r"does\s+the\s+demo\s+cost\s+anything|"
+    r"is\s+there\s+any\s+cost\s+for\s+(?:the\s+)?demo"
+    r")\b",
+    re.IGNORECASE,
+)
+
+_DEMO_WHERE_TO_BOOK_RE = re.compile(
+    r"\b(where\s+(?:do|can)\s+i\s+book(?:\s+(?:a\s+)?(?:free\s+)?demo)?|"
+    r"where\s+to\s+book(?:\s+(?:a\s+)?(?:free\s+)?demo)?|"
+    r"where\s+can\s+i\s+sign\s+up(?:\s+for\s+(?:a\s+)?demo)?|"
+    r"where\s+is\s+the\s+book\s+free\s+demo\s+button|"
+    r"how\s+can\s+i\s+sign\s+up\s+for\s+a\s+demo)\b",
+    re.IGNORECASE,
+)
+
+_DEMO_FIELD_QUERY_RE = re.compile(
+    r"^\s*(name|student\s+name|parent\s+name|student's\s+name|parent's\s+name|"
+    r"email|phone|phone\s+number|mobile|contact|grade|subject|time|preferred\s+time)\s*[?!.]*$",
+    re.IGNORECASE,
+)
+
+_FOUNDATION_GRADES_NARROW_RE = re.compile(
+    r"^\s*(?:what\s+grades?\s+(?:is|are)\s+(?:it|foundation(?:\s+years?)?)\s+for\??|"
+    r"what\s+grades?\s+does\s+foundation(?:\s+years?)?\s+cover\??|"
+    r"what\s+grades?\s+for\s+foundation(?:\s+years?)?\??|"
+    r"which\s+grades?\s+(?:is|are)\s+(?:it|foundation(?:\s+years?)?)\s+for\??)\s*$",
+    re.IGNORECASE,
+)
+
+_MIDDLE_SCHOOL_GRADES_NARROW_RE = re.compile(
+    r"^\s*(?:what\s+grades?\s+(?:is|are)\s+(?:it|middle(?:\s+school)?)\s+for\??|"
+    r"what\s+grades?\s+does\s+middle(?:\s+school)?\s+cover\??|"
+    r"which\s+grades?\s+(?:is|are)\s+(?:it|middle(?:\s+school)?)\s+for\??)\s*$",
+    re.IGNORECASE,
+)
+
+_IS_ONE_TO_ONE_RE = re.compile(
+    r"^\s*(?:is\s+it\s+one[- ]to[- ]one\??|is\s+it\s+1[- ]to[- ]1\??|is\s+it\s+1:1\??|is\s+it\s+one[- ]on[- ]one\??|is\s+it\s+1[- ]on[- ]1\??)\s*$",
+    re.IGNORECASE,
+)
+
 _WHERE_DETAILS_RE = re.compile(
     r"\b(where\s+(?:do|can)\s+i\s+(?:enter|fill|put|submit|register|type)\s+(?:my\s+)?(?:details|info|information|name|form)|where\s+to\s+(?:enter|fill|put|submit|register)\s+(?:my\s+)?(?:details|info|information)|where\s+can\s+i\s+register(?:\s+for\s+(?:a\s+)?demo)?|where\s+do\s+i\s+register(?:\s+for\s+(?:a\s+)?demo)?|where\s+is\s+the\s+(?:book\s+free\s+demo\s+)?(?:form|button|link|option))\b",
     re.IGNORECASE,
@@ -473,6 +632,14 @@ class ReplyResult:
     suggestions: Optional[List[str]] = None
 
 
+VALID_USER_ROLES = {"user"}
+VALID_USER_SOURCES = {
+    "text_input",
+    "explicit_suggestion_click",
+    "form_submission",
+}
+
+
 class ConversationEngine:
     def __init__(self, entries: List[KBEntry]):
         self.entries = entries
@@ -527,6 +694,19 @@ class ConversationEngine:
         if "confident" in prog_id:
             return "confident_speaker"
         return "general"
+
+    def _extract_program_from_text(self, text: str) -> Optional[str]:
+        t = text.lower()
+        if re.search(r"\b(foundation(?:\s+years?)?|primary|grades?\s*3\s*[-–to]\s*5|class\s*[345])\b", t):
+            return "foundation"
+        if re.search(r"\b(middle(?:\s+school)?|grades?\s*6\s*[-–to]\s*8|class\s*[678])\b", t):
+            return "middle"
+        if re.search(r"\b(senior(?:\s+school)?|board(?:\s+exam)?s?|grades?\s*9\s*[-–to]\s*10|class\s*(?:9|10)|10th|9th)\b", t):
+            return "senior"
+        if re.search(r"\b(confident\s+speaker|speaking|spoken|interview|public\s+speaking)\b", t):
+            return "confident_speaker"
+        return None
+
 
     def _reply_for_program_id(self, prog_id: str, session_id: str) -> ReplyResult:
         if prog_id == "program-foundation-years":
@@ -639,7 +819,11 @@ class ConversationEngine:
         return None
 
     def _finalize_result(
-        self, session_id: Optional[str], result: ReplyResult, memory: database.ConversationMemory
+        self,
+        session_id: Optional[str],
+        result: ReplyResult,
+        memory: database.ConversationMemory,
+        user_message: str = "",
     ) -> ReplyResult:
         prog_id = next((m for m in result.matched_entry_ids if m in _PROGRAM_NAME_HINTS), None)
         if prog_id:
@@ -661,6 +845,13 @@ class ConversationEngine:
             ]
             memory.last_expanded_index = None
 
+        if memory.active_program:
+            if memory.active_program not in memory.recent_programs_in_order:
+                memory.recent_programs_in_order.append(memory.active_program)
+            elif memory.recent_programs_in_order[-1] != memory.active_program:
+                memory.recent_programs_in_order.remove(memory.active_program)
+                memory.recent_programs_in_order.append(memory.active_program)
+
         suggestions = personality.get_varied_follow_up_suggestions(
             memory.active_program,
             result.intent,
@@ -676,6 +867,12 @@ class ConversationEngine:
         if len(memory.last_intents) > 6:
             memory.last_intents = memory.last_intents[-6:]
 
+        memory.last_user_message = user_message
+        memory.last_assistant_message = result.reply
+        memory.last_user_intent = result.intent
+        memory.last_assistant_intent = result.intent
+        memory.turn_count += 1
+
         if session_id:
             try:
                 database.save_conversation_memory(session_id, memory)
@@ -689,6 +886,7 @@ class ConversationEngine:
         stripped = text.strip()
         normalized = normalize_query(stripped)
         word_count = len(stripped.split())
+        memory = database.get_conversation_memory(session_id) if session_id else database.ConversationMemory(session_id="")
 
         if _SHORT_CONFUSION_RE.match(stripped):
             return "confused"
@@ -699,9 +897,61 @@ class ConversationEngine:
         if _GENERAL_INFO_RE.match(stripped) or _GENERAL_INFO_RE.match(normalized):
             return "general_info"
 
-        # PRIORITY 1: Personalized mentoring general concept check
-        if _PERSONALIZED_MENTORING_CONCEPT_RE.search(stripped) or _PERSONALIZED_MENTORING_CONCEPT_RE.search(normalized):
-            if not re.search(r"\b(confident|speaker|spoken)\b", stripped, re.I):
+        # Multi-intent check: if user asks a compound question with multiple topics (e.g. subjects + joining)
+        has_multi_intent = bool(
+            re.search(r"\b(and|also)\b", stripped, re.I)
+            and re.search(r"\b(subject|subjects|teach|course|courses|program|programs|curriculum)\b", stripped, re.I)
+            and re.search(r"\b(join|apply|enroll|sign\s+up|register)\b", stripped, re.I)
+        )
+
+        # Standalone generic apply check (How do I apply?) when no program is active
+        is_generic_apply = bool(
+            re.search(r"^\s*how\s+(?:can|do)\s+i\s+apply\??\s*$", stripped, re.I)
+            and not (self._extract_program_from_text(stripped) or memory.active_program)
+        )
+
+        # PRIORITY 1: Explicit Action in current user message
+        if (
+            not has_multi_intent
+            and not is_generic_apply
+            and (_ENROLLMENT_ACTION_RE.search(stripped) or _ENROLLMENT_ACTION_RE.search(normalized))
+            and not re.search(r"\b(demo|trial)\b", stripped, re.I)
+        ):
+            explicit_prog = self._extract_program_from_text(stripped) or memory.active_program
+            if explicit_prog == "foundation":
+                return "foundation_enrollment"
+            if explicit_prog == "middle":
+                return "middle_enrollment"
+            if explicit_prog == "senior":
+                return "senior_enrollment"
+            if explicit_prog == "confident_speaker":
+                return "confident_speaker_enrollment"
+            return "general_enrollment_clarification"
+
+        if _DEMO_TRANSACTION_RE.search(stripped) or _DEMO_TRANSACTION_RE.search(normalized):
+            return "demo_transaction_request"
+        if _DEMO_INFORMATION_RE.search(stripped) or _DEMO_INFORMATION_RE.search(normalized):
+            return "demo_information"
+        if _DEMO_WHERE_TO_BOOK_RE.search(stripped) or _DEMO_WHERE_TO_BOOK_RE.search(normalized):
+            return "demo_booking"
+        if _HOW_TO_BOOK_RE.match(stripped):
+            return "demo_booking"
+        if _DEMO_CLASS_EXACT_RE.match(stripped):
+            return "demo_inquiry"
+        if _FOUNDATION_GRADES_NARROW_RE.match(stripped) or _FOUNDATION_GRADES_NARROW_RE.match(normalized):
+            return "foundation_grades"
+        if _MIDDLE_SCHOOL_GRADES_NARROW_RE.match(stripped) or _MIDDLE_SCHOOL_GRADES_NARROW_RE.match(normalized):
+            return "middle_school_grades"
+        if _IS_ONE_TO_ONE_RE.match(stripped) or _IS_ONE_TO_ONE_RE.match(normalized):
+            return "one_on_one_general"
+
+        # Mentoring questions (unless a specific program is explicitly asked, e.g. "in confident speaker")
+        if not re.search(r"\b(confident|speaker|spoken)\b", stripped, re.I):
+            if _MENTORING_APPROACH_RE.search(stripped) or _MENTORING_APPROACH_RE.search(normalized):
+                return "mentoring_approach"
+            if _MENTORING_ONE_ON_ONE_RE.search(stripped) or _MENTORING_ONE_ON_ONE_RE.search(normalized):
+                return "one_on_one_general"
+            if _PERSONALIZED_MENTORING_CONCEPT_RE.search(stripped) or _PERSONALIZED_MENTORING_CONCEPT_RE.search(normalized):
                 return "personalized_mentoring_general"
 
         # PRIORITY 2: Relative references and corrections
@@ -716,11 +966,17 @@ class ConversationEngine:
         if _COMPARISON_RE.search(stripped) or _COMPARISON_RE.search(normalized):
             return "comparison"
 
-        # PRIORITY 3: Explicit Program Mentions (Strongest evidence in current message)
-        # Foundation Years typos or standalone
+        # PRIORITY 3: Explicit Program Mentions (Current message)
+        # Foundation Years explicit mentions
         if _FOUNDATION_TYPO_EXACT_RE.match(stripped):
             return "foundation_years_clarification"
         if _FOUNDATION_QUERY_RE.search(stripped) or _FOUNDATION_QUERY_RE.search(normalized):
+            if _FOUNDATION_SUBJECTS_RE.search(stripped) or _FOUNDATION_SUBJECTS_RE.search(normalized):
+                return "foundation_subjects"
+            if _FOUNDATION_APPROACH_RE.search(stripped) or _FOUNDATION_APPROACH_RE.search(normalized):
+                return "foundation_approach"
+            if _FOUNDATION_PROGRESS_RE.search(stripped) or _FOUNDATION_PROGRESS_RE.search(normalized):
+                return "foundation_progress"
             return "foundation_years_overview"
 
         # Middle School explicit mentions
@@ -739,12 +995,55 @@ class ConversationEngine:
         if _PROGRESS_DASHBOARD_RE.search(stripped) or _PROGRESS_DASHBOARD_RE.search(normalized):
             return "middle_school_progress_dashboard"
 
-        # Check for field-level requests on Confident Speaker
-        has_cs_mention = bool(_CONFIDENT_SPEAKER_RE.search(stripped) or _CONFIDENT_SPEAKER_RE.search(normalized))
-        current_subject = self._get_current_subject(session_id)
-        is_cs_context = has_cs_mention or (current_subject == "confident_speaker")
+        # PRIORITY 4: Genuine Confirmations / Clarifications
+        if _AFFIRMATION_RE.match(stripped):
+            if memory.pending_clarification:
+                return "clarification_affirmation"
+            return "confirmation_without_clarification"
 
+        if _NEGATION_RE.match(stripped):
+            if memory.pending_clarification:
+                return "clarification_negation"
+            return "negation_general"
+
+        if _THE_OTHER_ONE_RE.match(stripped) and memory.pending_clarification:
+            return "clarification_other_option"
+
+        if _ACKNOWLEDGEMENT_RE.match(stripped):
+            return "acknowledgement"
+
+        # PRIORITY 5 & 6: Active Program & Active Topic Context
+        active_prog = memory.active_program or self._get_current_subject(session_id)
+
+        if active_prog == "foundation":
+            if _FOUNDATION_GRADES_NARROW_RE.match(stripped) or re.search(r"^\s*(what\s+grades?\??|grades?\??)\s*$", stripped, re.I):
+                return "foundation_grades"
+            if _FOUNDATION_SUBJECTS_RE.search(stripped) or _FOUNDATION_SUBJECTS_RE.search(normalized):
+                return "foundation_subjects"
+            if _FOUNDATION_APPROACH_RE.search(stripped) or _FOUNDATION_APPROACH_RE.search(normalized):
+                return "foundation_approach"
+            if _FOUNDATION_PROGRESS_RE.search(stripped) or _FOUNDATION_PROGRESS_RE.search(normalized):
+                return "foundation_progress"
+
+        if active_prog == "middle":
+            if _MIDDLE_SCHOOL_GRADES_RE.search(stripped) or _MIDDLE_SCHOOL_GRADES_NARROW_RE.match(stripped) or re.search(r"^\s*(what\s+grades?\??|grades?\??)\s*$", stripped, re.I):
+                return "middle_school_grades"
+            if _MIDDLE_SCHOOL_SUBJECTS_RE.search(stripped) or _MIDDLE_SCHOOL_SUBJECTS_RE.search(normalized) or re.search(r"^\s*(what\s+subjects?\??|subjects?\??)\s*$", stripped, re.I):
+                return "middle_school_subjects"
+            if _DOUBT_CLINICS_RE.search(stripped) or _DOUBT_CLINICS_RE.search(normalized) or re.search(r"\b(doubt|doubts)\b", stripped, re.I):
+                return "middle_school_doubt_clinics"
+            if _PRACTICAL_LABS_RE.search(stripped) or _PRACTICAL_LABS_RE.search(normalized) or re.search(r"\b(labs?|practical)\b", stripped, re.I):
+                return "middle_school_practical_labs"
+            if _PROGRESS_DASHBOARD_RE.search(stripped) or _PROGRESS_DASHBOARD_RE.search(normalized):
+                return "middle_school_progress_dashboard"
+            if re.search(r"^\s*(how\s+does\s+(?:it|the\s+program)\s+work\??|how\s+does\s+it\s+work\??)\s*$", stripped, re.I):
+                return "middle_school_overview"
+
+        has_cs_mention = bool(_CONFIDENT_SPEAKER_RE.search(stripped) or _CONFIDENT_SPEAKER_RE.search(normalized))
+        is_cs_context = has_cs_mention or (active_prog == "confident_speaker")
         if is_cs_context:
+            if re.search(r"^\s*(how\s+does\s+(?:it|the\s+program)\s+work\??|how\s+does\s+it\s+work\??)\s*$", stripped, re.I):
+                return "confident_speaker_format"
             if _FORMAT_RE.search(stripped) or _FORMAT_RE.search(normalized):
                 return "confident_speaker_format"
             if _AUDIENCE_RE.search(stripped) or _AUDIENCE_RE.search(normalized):
@@ -760,10 +1059,8 @@ class ConversationEngine:
             if has_cs_mention:
                 return "confident_speaker"
 
-        # Check for Board Exam questions and contextual follow-ups
         has_board_mention = bool(_BOARD_EXAM_RE.search(stripped) or _BOARD_EXAM_RE.search(normalized))
-        is_board_context = has_board_mention or (current_subject == "board_exam")
-
+        is_board_context = has_board_mention or (active_prog in ("senior", "board_exam"))
         if is_board_context:
             if _MARKS_GUARANTEE_RE.search(stripped) or _MARKS_GUARANTEE_RE.search(normalized):
                 return "marks_guarantee"
@@ -786,10 +1083,6 @@ class ConversationEngine:
 
         if _VAGUE_INFO_RE.match(stripped):
             return "vague_info"
-        if _HOW_TO_BOOK_RE.match(stripped):
-            return "demo_booking"
-        if _DEMO_CLASS_EXACT_RE.match(stripped):
-            return "demo_inquiry"
         if _BEGINNER_RE.search(stripped):
             return "beginner_recommendation"
         if _PYTHON_COURSE_RE.search(stripped):
@@ -827,6 +1120,7 @@ class ConversationEngine:
         if _CONFUSED_RE.search(stripped):
             return "confused"
         return "faq"
+
 
     def _extract_ordinal_index(self, text: str) -> Optional[int]:
         lowered = text.lower()
@@ -1027,7 +1321,7 @@ class ConversationEngine:
         return personality.VAGUE_MENU_RESPONSE
 
     def _run_response_quality_checks(
-        self, query: str, reply: str, intent: str, matched_entries: List[KBEntry]
+        self, query: str, reply: str, intent: str, matched_entries: List[KBEntry], last_assistant_reply: Optional[str] = None
     ) -> str:
         """Verify and sanitize response quality before returning it to the user.
         Ensures fee isolation, strips unsupported claims/hallucinations, and enforces
@@ -1058,14 +1352,55 @@ class ConversationEngine:
         for pat in unsupported_phrases:
             reply = re.sub(pat, "individual progress and guided development", reply, flags=re.IGNORECASE)
 
+        # Action claim validation: prevent claiming persistent external actions unless actually in confirmed lead flow
+        if intent not in ("demo_submitted", "demo_confirming"):
+            unsupported_action_claims = [
+                (r"\b(?:i've\s+noted|i\s+noted|i\s+have\s+noted)\s+(?:your\s+)?([A-Za-z0-9\s:–-]+)\b", r"You can provide your \1 in the Book Free Demo form on the website"),
+                (r"\b(?:i've\s+saved|i\s+saved|i\s+have\s+saved)\s+(?:your\s+)?([A-Za-z0-9\s:–-]+)\b", r"You can enter your \1 in the Book Free Demo form on the website"),
+                (r"\b(?:your\s+demo(?:\s+request)?\s+has\s+been\s+(?:submitted|booked|registered|confirmed))\b", r"To submit a demo request, use the Book Free Demo form at the top-right of the website"),
+            ]
+            for pat, repl in unsupported_action_claims:
+                reply = re.sub(pat, repl, reply, flags=re.IGNORECASE)
+
+        # Remove accidental leading "Yes." if it wasn't an affirmative confirmation
+        if intent not in ("confirmation", "foundation_confirmation", "middle_school_confirmation", "senior_school_confirmation", "confident_speaker_confirmation", "clarification_affirmation", "demo_offer_affirm"):
+            reply = re.sub(r"^\s*Yes\.\s*", "", reply)
+
+        # Action intent check: If intent is an action intent (enrollment, booking, etc.), ensure action guidance exists
+        if intent in ACTION_INTENTS:
+            if not re.search(r"\b(book free demo|free demo|website|register|apply)\b", reply, re.IGNORECASE):
+                reply += "\n\nYou can click **Book Free Demo** at the top-right of the website to get started."
+
         # For program/course/general questions, ensure a practical next step exists
         if intent in ("general_info", "board_exam", "confident_speaker") and not re.search(r"\b(book free demo|free demo)\b", reply, re.IGNORECASE):
             reply += "\n\nYou can click **Book Free Demo** at the top-right of the website to explore our mentoring."
 
+        # Detect near-duplicate responses
+        if last_assistant_reply and reply.strip().lower() == last_assistant_reply.strip().lower():
+            logger.info("Near-duplicate reply detected. Validating context alignment.")
+
         return reply
 
     # ---- main entry point ---------------------------------------------------
-    def handle_message(self, session_id: str, message: str) -> ReplyResult:
+    def handle_message(
+        self,
+        session_id: str,
+        message: str,
+        source: str = "text_input",
+        role: str = "user",
+    ) -> ReplyResult:
+        VALID_USER_SOURCES = {
+            "text_input",
+            "explicit_suggestion_click",
+            "form_submission",
+        }
+        if role != "user":
+            raise ValueError(f"Invalid message role '{role}'. Only 'user' messages can be submitted.")
+        if source not in VALID_USER_SOURCES:
+            raise ValueError(
+                f"Invalid message source '{source}'. Must be one of {sorted(list(VALID_USER_SOURCES))}."
+            )
+
         message = message.strip()
         memory = database.get_conversation_memory(session_id) if session_id else database.ConversationMemory(session_id="")
 
@@ -1092,9 +1427,101 @@ class ConversationEngine:
         if _VAGUE_INFO_RE.match(message):
             return ReplyResult(personality.VAGUE_INFO_CLARIFICATION, "vague_info", ["programs-overview", "how-to-book-demo"], 1.0)
 
+        # Transactional demo requests ("book a demo for me", "can you book it", "register me")
+        # The chatbot is a booking GUIDE, not a transactional booking agent.
+        if _DEMO_TRANSACTION_RE.search(message):
+            res = ReplyResult(
+                personality.DEMO_TRANSACTION_REQUEST_RESPONSE,
+                "demo_transaction_request",
+                ["how-to-book-demo", "contact-info"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        # Ambiguous form field words (e.g. "name", "email", "phone", "time")
+        # Must never start a fake form or treat "name" as a person's name!
+        m_field = _DEMO_FIELD_QUERY_RE.match(message)
+        if m_field:
+            field_word = m_field.group(1).lower()
+            last_intent = self._last_assistant_intent(session_id)
+            last_msg = self._last_assistant_message(session_id) or ""
+            is_demo_context = (
+                last_intent in ("demo_booking", "demo_inquiry", "demo_information", "demo_transaction_request")
+                or bool(re.search(r"\b(demo|trial|book free demo)\b", last_msg, re.I))
+            )
+            if is_demo_context:
+                if "name" in field_word:
+                    res = ReplyResult(personality.DEMO_NAME_CLARIFICATION_RESPONSE, "name_clarification", ["how-to-book-demo"], 1.0)
+                else:
+                    res = ReplyResult(personality.DEMO_FIELD_CLARIFICATION_RESPONSE, "demo_field_clarification", ["how-to-book-demo"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+            else:
+                res = ReplyResult("Could you clarify what you'd like to know about our programs or mentoring?", "clarify", [], None)
+                return self._finalize_result(session_id, res, memory, message)
+
+        # Standalone person name without explicit field introduction (e.g. "Raaid")
+        # Recognition is NOT permission to create a transactional state or fake lead.
+        words = message.split()
+        is_known_non_name = bool(
+            _GREETING_START_RE.match(message)
+            or _GOODBYE_RE.match(message)
+            or _THANKS_RE.match(message)
+            or _HELP_RE.match(message)
+            or _SHORT_CONFUSION_RE.match(message)
+            or _OUT_OF_SCOPE_RE.search(message)
+            or _PLAYFUL_RE.search(message)
+            or _CAPABILITY_RE.match(message)
+            or _GENERAL_INFO_RE.match(message)
+            or _BOOK_ENROLL_RE.match(message)
+            or re.search(r"\b(foundation|found|foundating|doundation|foudation|foundaton|middle|senior|confident|speaker|program|programs|course|courses|curriculum|subject|subjects|grade|grades|class|standard|fee|fees|cost|costs|pricing|price|demo|trial|enroll|enrollment|apply|admissions?|clinic|clinics|dashboard|mentor|mentors|mentoring)\b", message, re.I)
+        )
+        if (
+            len(words) <= 3
+            and re.match(r"^[A-Za-z\s]+$", message)
+            and not is_known_non_name
+            and message.lower() not in leads._NAME_BLACKLIST
+            and not (set(message.lower().split()) & leads._NAME_BLACKLIST)
+            and not any(p.search(message) for p, _ in leads._SUBJECT_PATTERNS)
+            and not any(p.search(message) for p in leads._GRADE_PATTERNS)
+            and not any(p.search(message) for p in leads._TIME_PATTERNS)
+            and not re.search(r"[?]|^(what|how|why|who|where|when|tell me|explain|can you|do you|which|i want|book)\b", message, re.I)
+        ):
+            last_intent = self._last_assistant_intent(session_id)
+            last_msg = self._last_assistant_message(session_id) or ""
+            is_demo_context = (
+                last_intent in ("demo_booking", "demo_inquiry", "demo_information", "demo_transaction_request")
+                or bool(re.search(r"\b(demo|trial|book free demo)\b", last_msg, re.I))
+            )
+            if is_demo_context:
+                formatted_name = message.strip().title()
+                reply = personality.STANDALONE_NAME_DEMO_RESPONSE.format(name=formatted_name)
+                res = ReplyResult(reply, "standalone_name", ["how-to-book-demo"], 1.0)
+            else:
+                res = ReplyResult(personality.STANDALONE_NAME_GENERAL_RESPONSE, "standalone_name", ["programs-overview", "how-to-book-demo"], 1.0)
+            return self._finalize_result(session_id, res, memory, message)
+
+        # Narrow grade questions: direct and concise without full program dump
+        if _FOUNDATION_GRADES_NARROW_RE.match(message):
+            res = ReplyResult(personality.FOUNDATION_YEARS_GRADES_RESPONSE, "foundation_grades", ["program-foundation-years"], 1.0)
+            return self._finalize_result(session_id, res, memory, message)
+        if _MIDDLE_SCHOOL_GRADES_NARROW_RE.match(message):
+            res = ReplyResult(personality.MIDDLE_SCHOOL_GRADES_NARROW_RESPONSE, "middle_school_grades", ["program-middle-school"], 1.0)
+            return self._finalize_result(session_id, res, memory, message)
+        if _IS_ONE_TO_ONE_RE.match(message):
+            res = ReplyResult(personality.IS_ONE_TO_ONE_RESPONSE, "one_on_one_general", ["program-senior-school", "program-confident-speaker"], 1.0)
+            return self._finalize_result(session_id, res, memory, message)
+
+        # Where to book
+        if _DEMO_WHERE_TO_BOOK_RE.search(message):
+            database.save_demo_lead(session_id, stage="collecting")
+            res = ReplyResult(personality.DEMO_BOOKING_RESPONSE, "demo_booking", ["how-to-book-demo"], 1.0)
+            return self._finalize_result(session_id, res, memory, message)
+
         # How to book a demo ("how do i book", "how to book a demo")
         if _HOW_TO_BOOK_RE.match(message):
-            return ReplyResult(personality.HOW_TO_BOOK_RESPONSE, "demo_booking", ["how-to-book-demo"], 1.0)
+            database.save_demo_lead(session_id, stage="collecting")
+            res = ReplyResult(personality.HOW_TO_BOOK_RESPONSE, "demo_booking", ["how-to-book-demo"], 1.0)
+            return self._finalize_result(session_id, res, memory, message)
 
         # Exact "Demo class"
         if _DEMO_CLASS_EXACT_RE.match(message):
@@ -1180,10 +1607,12 @@ class ConversationEngine:
                 reply, resolved_intent, updated_lead = leads.process_demo_flow(session_id, message, current_lead)
                 return ReplyResult(reply, resolved_intent, [], None)
 
-            extracted_lead, found_fields = leads.extract_lead_fields(message, current_lead)
-            if found_fields or current_lead.stage == "confirming":
-                reply, resolved_intent, updated_lead = leads.process_demo_flow(session_id, message, current_lead)
-                return ReplyResult(reply, resolved_intent, ["contact-info", "how-to-book-demo"], None)
+            is_explicit_query = bool(re.search(r"[?]|^(what|how|why|who|where|when|tell me|explain|can you|do you|which|is)\b", message, re.I))
+            if not is_explicit_query or (current_lead.stage == "confirming" and leads.is_confirmation(message)):
+                extracted_lead, found_fields = leads.extract_lead_fields(message, current_lead)
+                if found_fields or current_lead.stage == "confirming":
+                    reply, resolved_intent, updated_lead = leads.process_demo_flow(session_id, message, current_lead)
+                    return ReplyResult(reply, resolved_intent, ["contact-info", "how-to-book-demo"], None)
 
         intent = self.detect_intent(message, session_id)
 
@@ -1191,7 +1620,7 @@ class ConversationEngine:
         if intent == "reference_resolution" or self._extract_ordinal_index(message) is not None:
             ref_res = self._resolve_relative_or_correction(message, memory, session_id)
             if ref_res:
-                return self._finalize_result(session_id, ref_res, memory)
+                return self._finalize_result(session_id, ref_res, memory, message)
 
         if intent == "personalized_mentoring_general":
             res = ReplyResult(
@@ -1200,25 +1629,223 @@ class ConversationEngine:
                 ["personalized-mentoring-concept"],
                 1.0,
             )
-            return self._finalize_result(session_id, res, memory)
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "mentoring_approach":
+            res = ReplyResult(
+                personality.MENTORING_APPROACH_RESPONSE,
+                "mentoring_approach",
+                ["personalized-mentoring-concept"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "foundation_enrollment":
+            memory.active_program = "foundation"
+            res = ReplyResult(
+                personality.FOUNDATION_YEARS_ENROLLMENT_RESPONSE,
+                "foundation_enrollment",
+                ["how-to-book-demo", "program-foundation-years"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "middle_enrollment":
+            memory.active_program = "middle"
+            res = ReplyResult(
+                personality.MIDDLE_SCHOOL_ENROLLMENT_RESPONSE,
+                "middle_enrollment",
+                ["how-to-book-demo", "program-middle-school"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "senior_enrollment":
+            memory.active_program = "senior"
+            res = ReplyResult(
+                personality.SENIOR_SCHOOL_ENROLLMENT_RESPONSE,
+                "senior_enrollment",
+                ["how-to-book-demo", "program-senior-school"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "confident_speaker_enrollment":
+            memory.active_program = "confident_speaker"
+            res = ReplyResult(
+                personality.CONFIDENT_SPEAKER_ENROLLMENT_RESPONSE,
+                "confident_speaker_enrollment",
+                ["how-to-book-demo", "program-confident-speaker"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "general_enrollment_clarification":
+            memory.pending_clarification = {
+                "question": "Which program would you like to enroll in?",
+                "expected_entity": None,
+                "options": ["Foundation Years", "Middle School", "Grades 9–10", "Confident Speaker"],
+                "created_at_turn": memory.turn_count,
+            }
+            res = ReplyResult(
+                personality.GENERAL_ENROLLMENT_CLARIFICATION,
+                "general_enrollment_clarification",
+                ["programs-overview", "how-to-book-demo"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "clarification_affirmation":
+            pending = memory.pending_clarification
+            memory.pending_clarification = None
+            expected = pending.get("expected_entity") if pending else None
+            exp_str = str(expected).lower() if expected else ""
+            q_str = str(pending.get("question", "")).lower() if pending else ""
+
+            if "foundation" in exp_str or "foundation" in q_str:
+                memory.active_program = "foundation"
+                memory.confirmed_context = "Foundation Years"
+                res = ReplyResult(
+                    personality.FOUNDATION_CONFIRMATION_RESPONSE,
+                    "foundation_confirmation",
+                    ["program-foundation-years"],
+                    1.0,
+                )
+                return self._finalize_result(session_id, res, memory, message)
+            elif "middle" in exp_str or "middle" in q_str:
+                memory.active_program = "middle"
+                memory.confirmed_context = "Middle School"
+                res = ReplyResult(
+                    "Great — I'll use Middle School (Grades 6–8) as the program we're discussing. You can ask about its subjects, doubt clinics, practical labs, or how to enroll.",
+                    "middle_school_confirmation",
+                    ["program-middle-school"],
+                    1.0,
+                )
+                return self._finalize_result(session_id, res, memory, message)
+            elif "senior" in exp_str or "9" in exp_str or "10" in exp_str or "senior" in q_str:
+                memory.active_program = "senior"
+                memory.confirmed_context = "Grades 9–10"
+                res = ReplyResult(
+                    "Great — I'll use Grades 9–10 board exam preparation as the program we're discussing. You can ask about its subjects, mentoring, parent updates, or how to enroll.",
+                    "senior_school_confirmation",
+                    ["program-senior-school"],
+                    1.0,
+                )
+                return self._finalize_result(session_id, res, memory, message)
+            elif "confident" in exp_str or "speaker" in exp_str or "confident" in q_str:
+                memory.active_program = "confident_speaker"
+                memory.confirmed_context = "Confident Speaker"
+                res = ReplyResult(
+                    personality.CONFIDENT_SPEAKER_CONFIRMATION_RESPONSE,
+                    "confident_speaker_confirmation",
+                    ["program-confident-speaker"],
+                    1.0,
+                )
+                return self._finalize_result(session_id, res, memory, message)
+            res = ReplyResult(
+                personality.CONFIRMATION_WITHOUT_CLARIFICATION_RESPONSE,
+                "confirmation_without_clarification",
+                [],
+                None,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "confirmation_without_clarification":
+            res = ReplyResult(
+                personality.CONFIRMATION_WITHOUT_CLARIFICATION_RESPONSE,
+                "confirmation_without_clarification",
+                [],
+                None,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent in ("clarification_negation", "negation_general"):
+            if intent == "clarification_negation":
+                pending = memory.pending_clarification
+                memory.pending_clarification = None
+                options = pending.get("options", []) if pending else []
+                remaining = [opt for opt in options if opt != (pending.get("expected_entity") if pending else None)]
+                if remaining:
+                    reply = f"Understood. What would you like to explore instead — {', '.join(remaining)}?"
+                else:
+                    reply = personality.CONFIRMATION_NEGATIVE_RESPONSE
+            else:
+                reply = personality.CONFIRMATION_NEGATIVE_RESPONSE
+            res = ReplyResult(reply, intent, [], None)
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "clarification_other_option":
+            pending = memory.pending_clarification
+            memory.pending_clarification = None
+            options = pending.get("options", []) if pending else []
+            remaining = [opt for opt in options if opt != (pending.get("expected_entity") if pending else None)]
+            if remaining:
+                next_choice = remaining[0]
+                prog_id = self._program_name_to_id(next_choice)
+                if prog_id:
+                    memory.active_program = self._program_id_to_key(prog_id)
+                    return self._finalize_result(session_id, self._reply_for_program_id(prog_id, session_id), memory, message)
+            res = ReplyResult(personality.VAGUE_MENU_RESPONSE, "clarification_other_option", [], None)
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "acknowledgement":
+            res = ReplyResult(personality.OKAY_CONFIRMATION_RESPONSE, "acknowledgement", [], None)
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "foundation_subjects":
+            memory.active_program = "foundation"
+            res = ReplyResult(
+                personality.FOUNDATION_YEARS_SUBJECTS_RESPONSE,
+                "foundation_subjects",
+                ["program-foundation-years"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "foundation_approach":
+            memory.active_program = "foundation"
+            res = ReplyResult(
+                personality.FOUNDATION_YEARS_TEACHING_APPROACH_RESPONSE,
+                "foundation_approach",
+                ["program-foundation-years"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "foundation_progress":
+            memory.active_program = "foundation"
+            res = ReplyResult(
+                personality.FOUNDATION_YEARS_PROGRESS_RESPONSE,
+                "foundation_progress",
+                ["program-foundation-years"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
 
         if intent == "foundation_years_clarification":
+            memory.pending_clarification = {
+                "question": "foundation_years_clarification",
+                "expected_entity": "Foundation Years",
+                "options": ["Foundation Years", "Middle School", "Grades 9–10", "Confident Speaker"],
+                "created_at_turn": memory.turn_count,
+            }
             res = ReplyResult(
                 personality.FOUNDATION_YEARS_CLARIFICATION,
                 "foundation_years_clarification",
                 ["program-foundation-years"],
                 1.0,
             )
-            return self._finalize_result(session_id, res, memory)
+            return self._finalize_result(session_id, res, memory, message)
 
         if intent == "foundation_years_overview":
+            memory.active_program = "foundation"
             res = ReplyResult(
                 personality.FOUNDATION_YEARS_DIRECT_RESPONSE,
                 "foundation_years_overview",
                 ["program-foundation-years"],
                 1.0,
             )
-            return self._finalize_result(session_id, res, memory)
+            return self._finalize_result(session_id, res, memory, message)
 
         if intent == "middle_school_overview":
             res = ReplyResult(
@@ -1227,7 +1854,7 @@ class ConversationEngine:
                 ["program-middle-school"],
                 1.0,
             )
-            return self._finalize_result(session_id, res, memory)
+            return self._finalize_result(session_id, res, memory, message)
 
         if intent == "middle_school_grades":
             res = ReplyResult(
@@ -1236,7 +1863,7 @@ class ConversationEngine:
                 ["program-middle-school"],
                 1.0,
             )
-            return self._finalize_result(session_id, res, memory)
+            return self._finalize_result(session_id, res, memory, message)
 
         if intent == "middle_school_subjects":
             res = ReplyResult(
@@ -1245,7 +1872,7 @@ class ConversationEngine:
                 ["middle-school-subjects", "program-middle-school"],
                 1.0,
             )
-            return self._finalize_result(session_id, res, memory)
+            return self._finalize_result(session_id, res, memory, message)
 
         if intent == "middle_school_doubt_clinics":
             res = ReplyResult(
@@ -1254,7 +1881,7 @@ class ConversationEngine:
                 ["middle-school-doubt-clinics", "program-middle-school"],
                 1.0,
             )
-            return self._finalize_result(session_id, res, memory)
+            return self._finalize_result(session_id, res, memory, message)
 
         if intent == "middle_school_practical_labs":
             res = ReplyResult(
@@ -1263,7 +1890,7 @@ class ConversationEngine:
                 ["middle-school-practical-labs", "program-middle-school"],
                 1.0,
             )
-            return self._finalize_result(session_id, res, memory)
+            return self._finalize_result(session_id, res, memory, message)
 
         if intent == "middle_school_progress_dashboard":
             res = ReplyResult(
@@ -1272,7 +1899,7 @@ class ConversationEngine:
                 ["middle-school-progress-dashboard", "program-middle-school"],
                 1.0,
             )
-            return self._finalize_result(session_id, res, memory)
+            return self._finalize_result(session_id, res, memory, message)
 
         if intent == "general_info":
             return ReplyResult(
@@ -1295,18 +1922,18 @@ class ConversationEngine:
             if entry:
                 scored = [ScoredEntry(entry=entry, score=1.0)]
                 answer = self._generate_answer(message, scored, session_id)
-                answer = self._run_response_quality_checks(message, answer, "board_exam", [entry])
+                answer = self._run_response_quality_checks(message, answer, "board_exam", [entry], memory.last_assistant_message)
                 res = ReplyResult(answer, "board_exam", ["program-senior-school"], 1.0)
-                return self._finalize_result(session_id, res, memory)
+                return self._finalize_result(session_id, res, memory, message)
 
         if intent == "confident_speaker":
             entry = self.entries_by_id.get("program-confident-speaker")
             if entry:
                 scored = [ScoredEntry(entry=entry, score=1.0)]
                 answer = self._generate_answer(message, scored, session_id)
-                answer = self._run_response_quality_checks(message, answer, "confident_speaker", [entry])
+                answer = self._run_response_quality_checks(message, answer, "confident_speaker", [entry], memory.last_assistant_message)
                 res = ReplyResult(answer, "confident_speaker", ["program-confident-speaker"], 1.0)
-                return self._finalize_result(session_id, res, memory)
+                return self._finalize_result(session_id, res, memory, message)
 
         if intent == "confident_speaker_format":
             last_intent = self._last_assistant_intent(session_id)
@@ -1324,7 +1951,7 @@ class ConversationEngine:
                     ["confident-speaker-format"],
                     1.0,
                 )
-            return self._finalize_result(session_id, res, memory)
+            return self._finalize_result(session_id, res, memory, message)
 
         if intent == "confident_speaker_audience":
             res = ReplyResult(
@@ -1333,7 +1960,7 @@ class ConversationEngine:
                 ["confident-speaker-audience"],
                 1.0,
             )
-            return self._finalize_result(session_id, res, memory)
+            return self._finalize_result(session_id, res, memory, message)
 
         if intent == "confident_speaker_scope":
             res = ReplyResult(
@@ -1342,7 +1969,7 @@ class ConversationEngine:
                 ["confident-speaker-scope"],
                 1.0,
             )
-            return self._finalize_result(session_id, res, memory)
+            return self._finalize_result(session_id, res, memory, message)
 
         if intent == "confident_speaker_mentoring":
             res = ReplyResult(
@@ -1351,7 +1978,7 @@ class ConversationEngine:
                 ["confident-speaker-mentoring"],
                 1.0,
             )
-            return self._finalize_result(session_id, res, memory)
+            return self._finalize_result(session_id, res, memory, message)
 
         if intent == "confident_speaker_activities":
             res = ReplyResult(
@@ -1360,47 +1987,52 @@ class ConversationEngine:
                 ["confident-speaker-activities"],
                 1.0,
             )
-            return self._finalize_result(session_id, res, memory)
+            return self._finalize_result(session_id, res, memory, message)
 
         if intent == "parent_updates":
-            return ReplyResult(
+            res = ReplyResult(
                 personality.PARENT_UPDATES_RESPONSE,
                 "parent_updates",
                 ["program-senior-school"],
                 1.0,
             )
+            return self._finalize_result(session_id, res, memory, message)
 
         if intent in ("board_mentoring", "one_on_one_general"):
-            return ReplyResult(
+            res = ReplyResult(
                 personality.ONE_ON_ONE_GENERAL_RESPONSE,
                 intent,
                 ["program-senior-school", "program-confident-speaker"],
                 1.0,
             )
+            return self._finalize_result(session_id, res, memory, message)
 
         if intent == "marks_guarantee":
-            return ReplyResult(
+            res = ReplyResult(
                 personality.GUARANTEE_MARKS_RESPONSE,
                 "marks_guarantee",
                 ["program-senior-school"],
                 1.0,
             )
+            return self._finalize_result(session_id, res, memory, message)
 
         if intent == "confirmation":
-            return ReplyResult(
+            res = ReplyResult(
                 personality.OKAY_CONFIRMATION_RESPONSE,
                 "confirmation",
                 [],
                 None,
             )
+            return self._finalize_result(session_id, res, memory, message)
 
         if intent == "unclear_format":
-            return ReplyResult(
+            res = ReplyResult(
                 "Which program would you like to know the format for — our Grades 9–10 learning support or the Confident Speaker program?",
                 "unclear_format",
                 ["programs-overview"],
                 1.0,
             )
+            return self._finalize_result(session_id, res, memory, message)
 
         last_intent = self._last_assistant_intent(session_id)
 
@@ -1447,18 +2079,50 @@ class ConversationEngine:
                 ["contact-info", "how-to-book-demo"],
                 1.0,
             )
-        if intent == "demo_booking":
+        if intent == "demo_transaction_request":
+            return ReplyResult(
+                personality.DEMO_TRANSACTION_REQUEST_RESPONSE,
+                "demo_transaction_request",
+                ["how-to-book-demo", "contact-info"],
+                1.0,
+            )
+        if intent == "demo_information":
+            if re.search(r"\b(happen|happens|during|experience|include|diagnostic)\b", message, re.I):
+                entry = self.entries_by_id.get("demo-class-what-happens")
+            elif re.search(r"\b(long|duration|length|minutes?|30\s*mins?)\b", message, re.I):
+                entry = self.entries_by_id.get("demo-class-length")
+            else:
+                entry = self.entries_by_id.get("demo-class-available")
+            if entry:
+                return ReplyResult(entry.answer, "demo_information", [entry.id, "how-to-book-demo"], 1.0)
+            return ReplyResult(personality.DEMO_BOOKING_RESPONSE, "demo_information", ["how-to-book-demo"], 1.0)
+        if intent in ("demo_booking", "demo_booking_instructions"):
             extracted_lead, found_fields = leads.extract_lead_fields(message)
             if found_fields:
                 reply, resolved_intent, updated_lead = leads.process_demo_flow(session_id, message, extracted_lead)
-                return ReplyResult(reply, resolved_intent, ["contact-info", "how-to-book-demo"], 1.0)
+                res = ReplyResult(reply, resolved_intent, ["contact-info", "how-to-book-demo"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
 
-            # Start collecting stage in database and provide official contact details
             database.save_demo_lead(session_id, stage="collecting")
-            return ReplyResult(
+            res = ReplyResult(
                 personality.DEMO_BOOKING_RESPONSE,
                 "demo_booking",
                 ["contact-info", "how-to-book-demo"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+        if intent == "foundation_grades":
+            return ReplyResult(
+                personality.FOUNDATION_YEARS_GRADES_RESPONSE,
+                "foundation_grades",
+                ["program-foundation-years"],
+                1.0,
+            )
+        if intent == "middle_school_grades":
+            return ReplyResult(
+                personality.MIDDLE_SCHOOL_GRADES_NARROW_RESPONSE,
+                "middle_school_grades",
+                ["program-middle-school"],
                 1.0,
             )
 
@@ -1539,4 +2203,5 @@ class ConversationEngine:
             session_id,
             ReplyResult(answer, resolved_intent, matched_ids, top_score),
             memory,
+            message,
         )

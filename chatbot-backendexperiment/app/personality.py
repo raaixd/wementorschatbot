@@ -117,9 +117,12 @@ UNSUPPORTED_DETAILS_FALLBACK = UNCONFIRMED_DETAILS_FALLBACK
 FALLBACK_RESPONSE = UNCONFIRMED_DETAILS_FALLBACK
 
 GENERAL_INFO_DIRECT_RESPONSE = (
-    "WeMentors provides personalized learning support with individual mentor attention from a personal mentor. "
-    "Learner progress is tracked and shared with parents every week. Students can explore programs such as Grades 9–10 learning support "
-    "and the Confident Speaker program. You can also book a free demo through the ‘Book Free Demo’ option at the top-right of the website."
+    "WeMentors provides personalized learning support with individual mentor attention from a personal mentor.\n\n"
+    "Key highlights of our approach:\n"
+    "- **Dedicated Personal Mentor**: Each learner receives individual mentor attention rather than studying in crowded batches.\n"
+    "- **Weekly Progress Tracking**: Learner progress is tracked and shared with parents every week.\n"
+    "- **Programs Offered**: Academic learning support (Foundation Years Grades 3-5, Middle School Grades 6-8, and Grades 9-10) as well as the Confident Speaker program.\n\n"
+    "You can also book a free demo through the **Book Free Demo** option at the top-right of the website."
 )
 
 BEGINNER_RECOMMENDATION_RESPONSE = (
@@ -155,7 +158,7 @@ CONFIDENT_SPEAKER_SCOPE_DIRECT = (
 )
 
 CONFIDENT_SPEAKER_MENTORING_DIRECT = (
-    "Yes. Every learner receives individual attention from a personal mentor rather than being passed between "
+    "Every learner receives individual attention from a personal mentor rather than being passed between "
     "a rotating group of mentors or taught in large batches, supporting skill development through guided practice and regular feedback.\n\n"
     "You can click **Book Free Demo** at the top-right of the website to experience a trial session."
 )
@@ -168,11 +171,12 @@ CONFIDENT_SPEAKER_ACTIVITIES_DIRECT = (
 )
 
 PARENT_UPDATES_RESPONSE = (
-    "Yes. Learner progress is tracked and shared with parents every week so parents stay informed about the student's development."
+    "Learner progress is tracked and shared with parents every week so parents stay informed about the student's development."
 )
 
 ONE_ON_ONE_GENERAL_RESPONSE = (
-    "Yes. Each learner receives individual attention from a personal mentor rather than being passed between a rotating group of mentors."
+    "Each learner receives individual attention from a personal mentor rather than being passed between a rotating group of mentors. "
+    "The approach focuses on individual guidance, practical support, and regular feedback."
 )
 
 GUARANTEE_MARKS_RESPONSE = (
@@ -196,12 +200,12 @@ MIDDLE_SCHOOL_DOUBT_CLINICS_RESPONSE = (
 )
 
 MIDDLE_SCHOOL_PRACTICAL_LABS_RESPONSE = (
-    "Yes. The Middle School program includes practical labs and practical problem sets to help learners apply "
+    "The Middle School program includes practical labs and practical problem sets to help learners apply "
     "theoretical concepts through hands-on learning."
 )
 
 MIDDLE_SCHOOL_PROGRESS_DASHBOARD_RESPONSE = (
-    "Yes. Parents and learners have access to a progress dashboard to track academic development, concept mastery, "
+    "Parents and learners have access to a progress dashboard to track academic development, concept mastery, "
     "and regular learning milestones."
 )
 
@@ -222,9 +226,87 @@ FOUNDATION_YEARS_CLARIFICATION = (
     "and weekly progress notes for parents."
 )
 
+FOUNDATION_YEARS_SUBJECTS_RESPONSE = (
+    "The Foundation Years program for Grades 3–5 covers Mathematics, Science, English, Environmental Studies, and other core subjects, "
+    "emphasizing fundamental concept clarity and active learning."
+)
+
+FOUNDATION_YEARS_TEACHING_APPROACH_RESPONSE = (
+    "In Foundation Years (Grades 3–5), the teaching approach focuses on strong fundamentals through curiosity-first teaching, "
+    "concept games, visual learning, and personal mentor guidance without rote memorization."
+)
+
+FOUNDATION_YEARS_PROGRESS_RESPONSE = (
+    "For Foundation Years (Grades 3–5), learner progress is tracked continuously, and parents receive weekly progress notes "
+    "from the dedicated mentor highlighting achievements and development areas."
+)
+
+FOUNDATION_YEARS_MENTORING_RESPONSE = (
+    "In Foundation Years (Grades 3–5), each young learner receives individual attention from a dedicated personal mentor "
+    "who adapts the pace and explanation style to the child's needs."
+)
+
+FOUNDATION_YEARS_ENROLLMENT_RESPONSE = (
+    "To get started with Foundation Years for Grades 3–5, click the **Book Free Demo** button at the top-right of the website "
+    "and submit the required details. The team can then guide you through the next steps for enrollment."
+)
+
+MIDDLE_SCHOOL_ENROLLMENT_RESPONSE = (
+    "To get started with Middle School for Grades 6–8, click the **Book Free Demo** button at the top-right of the website "
+    "and submit the required details. The team can then guide you through the next steps for enrollment."
+)
+
+SENIOR_SCHOOL_ENROLLMENT_RESPONSE = (
+    "To get started with Senior School (Grades 9–10), click the **Book Free Demo** button at the top-right of the website "
+    "and submit the required details. The team can then guide you through the next steps for enrollment."
+)
+
+CONFIDENT_SPEAKER_ENROLLMENT_RESPONSE = (
+    "To get started with the Confident Speaker program, click the **Book Free Demo** button at the top-right of the website "
+    "and submit the required details. The team can then guide you through the next steps for enrollment."
+)
+
+GENERAL_ENROLLMENT_CLARIFICATION = (
+    "Which program would you like to enroll in: Foundation Years (Grades 3–5), Middle School (Grades 6–8), "
+    "Grades 9–10, or Confident Speaker? You can also click the **Book Free Demo** button at the top-right of the website to get started."
+)
+
+CONFIRMATION_WITHOUT_CLARIFICATION_RESPONSE = (
+    "What would you like to confirm?"
+)
+
+FOUNDATION_CONFIRMATION_RESPONSE = (
+    "Great — I’ll use Foundation Years as the program we’re discussing. You can ask about its subjects, "
+    "teaching approach, progress tracking, or how to enroll."
+)
+
+MIDDLE_SCHOOL_CONFIRMATION_RESPONSE = (
+    "Great — I’ll use Middle School as the program we’re discussing. You can ask about its subjects, "
+    "doubt clinics, practical labs, or how to enroll."
+)
+
+SENIOR_SCHOOL_CONFIRMATION_RESPONSE = (
+    "Great — I’ll use Grades 9–10 (Senior School) as the program we’re discussing. You can ask about board exam preparation, "
+    "subjects, mock tests, or how to enroll."
+)
+
+CONFIDENT_SPEAKER_CONFIRMATION_RESPONSE = (
+    "Great — I’ll use Confident Speaker as the program we’re discussing. You can ask about its format, scope, "
+    "practice sessions, or booking a free trial."
+)
+
+CONFIRMATION_NEGATIVE_RESPONSE = (
+    "Understood. What would you like to explore instead — Foundation Years, Middle School, Grades 9–10, or Confident Speaker?"
+)
+
 PERSONALIZED_MENTORING_GENERAL_RESPONSE = (
     "Personalized mentoring means each learner receives individual attention and guidance from a personal mentor. "
-    "The mentor supports the learner according to their needs through practical guidance and regular feedback."
+    "The mentor supports the learner according to their needs through guidance, practical support, and regular feedback."
+)
+
+MENTORING_APPROACH_RESPONSE = (
+    "Each learner receives individual attention from a personal mentor rather than being passed between a rotating group of mentors. "
+    "The approach focuses on individual guidance, practical support, and regular feedback."
 )
 
 OKAY_CONFIRMATION_RESPONSE = (
@@ -236,6 +318,44 @@ DEMO_BOOKING_RESPONSE = (
     "You can book a free demo in either of these ways:\n\n"
     "- Use the **Book Free Demo** option at the top-right of the website and enter your details directly.\n"
     "- Contact the WeMentors team directly through phone/WhatsApp at **+91 76111 92227** (alternate: +91 90398 03526, +91 88719 34995) or email at **admin@wementors.co** (Monday to Saturday, 9:00 AM to 8:00 PM IST)."
+)
+
+DEMO_TRANSACTION_REQUEST_RESPONSE = (
+    "I can't submit the demo booking directly from the chat right now. "
+    "You can use the **Book Free Demo** button at the top-right of the website to enter your details directly, "
+    "or reach out to our team at **admin@wementors.co** or **+91 76111 92227**."
+)
+
+DEMO_NAME_CLARIFICATION_RESPONSE = (
+    "If you're asking what name to provide when booking a demo, enter the student's or parent's name "
+    "in the **Book Free Demo** form at the top-right of the website."
+)
+
+DEMO_FIELD_CLARIFICATION_RESPONSE = (
+    "If you're asking about the demo booking form, you can enter the student's grade, subject, and contact details "
+    "directly in the **Book Free Demo** form at the top-right of the website."
+)
+
+STANDALONE_NAME_DEMO_RESPONSE = (
+    "If you'd like to book a demo for {name}, you can enter their name and details in the **Book Free Demo** form "
+    "at the top-right of the website, or contact our team directly at **+91 76111 92227**."
+)
+
+STANDALONE_NAME_GENERAL_RESPONSE = (
+    "Hello! How can I help you today? I can answer questions about WeMentors' academic programs (Grades 3–10), "
+    "our Confident Speaker program, or how to book a free demo."
+)
+
+FOUNDATION_YEARS_GRADES_RESPONSE = (
+    "The Foundation Years program is for Grades 3–5."
+)
+
+MIDDLE_SCHOOL_GRADES_NARROW_RESPONSE = (
+    "The Middle School program supports Grades 6–8."
+)
+
+IS_ONE_TO_ONE_RESPONSE = (
+    "Yes. WeMentors offers personalized one-to-one mentoring where each student works individually with a dedicated personal mentor, along with small focused batches."
 )
 
 THANKS_RESPONSES = [
@@ -250,14 +370,15 @@ GOODBYE_RESPONSES = [
 ]
 
 FRUSTRATED_RESPONSES = [
-    "Sorry that's been frustrating. Let me try to get you a straight answer — what were you trying to find out?",
-    "I understand — let's reset. Which program, subject, or grade are you trying to get details on?",
+    "I hear your frustration, and I apologize for the difficulty. Let's start fresh — how can I best assist you with WeMentors' programs or booking a demo?",
+    "I'm sorry for any inconvenience caused. Please tell me what information you are looking for, and I'll do my best to provide a clear answer.",
+    "I understand this can be frustrating. You can ask me any specific question about our classes, or reach our team directly at +91 76111 92227.",
 ]
 
 CONFUSED_RESPONSES = [
-    "Let me put that another way — could you tell me which part wasn't clear, or what you're trying to decide?",
-    "Happy to explain differently. What specifically would you like me to clarify?",
-    "No problem — could you rephrase what you're looking for, or pick a topic: grades, subjects, programs, fees, or contacting our team?",
+    "Let me clarify: WeMentors offers personalized 1-on-1 mentoring for school students (Grades 3–10) and a Confident Speaker program for all ages. Let me know which grade or program you are interested in exploring.",
+    "Sorry if that was confusing! WeMentors provides individual online classes with personal mentors. What specific detail can I help you with?",
+    "Let's simplify: I can help you learn about our programs, teaching format, or how to book a free demo. Which of those sounds most helpful?",
 ]
 
 OFF_TOPIC_RESPONSE = (
@@ -291,11 +412,23 @@ DEMO_CLASS_RESPONSE = (
 )
 
 BOOK_ENROLL_RESPONSE = (
-    "Would you like to book a free demo class or ask about enrollment after the demo? "
-    "To request a demo, click **Book Free Demo** at the top-right of the website and submit your details."
+    "Would you like to book a free demo class or enroll in a course? You can book a free demo and get started with enrollment by clicking the **Book Free Demo** button at the top-right of the website.\n\n"
+    "Alternatively, you can reach out directly to the WeMentors team via phone/WhatsApp at **+91 76111 92227** (alternate: +91 90398 03526, +91 88719 34995) "
+    "or email at **admin@wementors.co**."
 )
 
 CONFUSION_CLARIFICATION_RESPONSE = VAGUE_INFO_CLARIFICATION
+
+UNVERIFIED_COURSE_RESPONSE = (
+    "I don’t have confirmed details for that course in our verified records. "
+    "WeMentors specializes in school academics (Grades 3–10 in Maths, Science, English, and other core subjects) and the Confident Speaker program.\n\n"
+    "You can click **Book Free Demo** at the top-right of the website or contact our team directly at **+91 76111 92227** to enquire about specialized subjects."
+)
+
+UNVERIFIED_FEES_RESPONSE = (
+    "I don’t have the confirmed fee details for that course yet. "
+    "Please contact our team directly via phone/WhatsApp at **+91 76111 92227** or click **Book Free Demo** at the top-right of the website to discuss customized course pricing."
+)
 
 UNVERIFIED_PYTHON_COURSE_RESPONSE = (
     "I don’t have the confirmed details for a Python course yet. "
@@ -303,7 +436,7 @@ UNVERIFIED_PYTHON_COURSE_RESPONSE = (
 )
 
 UNVERIFIED_PYTHON_FEES_RESPONSE = (
-    "I don’t have the confirmed fee details for that yet. "
+    "I don’t have the confirmed fee details for that course yet. "
     "You can click **Book Free Demo** at the top-right of the website or contact our team to ask about availability and fees."
 )
 
@@ -373,34 +506,34 @@ def pick(responses: list[str]) -> str:
 
 FOLLOW_UP_POOLS: dict[str, list[str]] = {
     "foundation": [
-        "Would you like to know how progress is shared with parents?",
-        "Would you like to explore the subjects covered?",
-        "Would you like to learn about the teaching approach?",
-        "Would you like to book a free demo?",
+        "What subjects are included in Foundation Years?",
+        "How does the teaching approach work?",
+        "How are progress updates shared with parents?",
+        "How can I enroll in Foundation Years?",
     ],
     "middle": [
-        "Would you like to know more about the doubt clinics?",
-        "Would you like to explore the practical labs?",
-        "Would you like to understand the progress dashboard?",
-        "Would you like to book a free demo?",
+        "What subjects are covered in Middle School?",
+        "How do doubt clinics work?",
+        "Tell me about practical labs.",
+        "How do I enroll in Middle School?",
     ],
     "senior": [
-        "Would you like to know how mentors support board-exam preparation?",
-        "Would you like to explore mock tests and doubt-clearing sessions?",
-        "Would you like to know how weekly progress is tracked with parents?",
-        "Would you like to book a free demo?",
+        "How do mentors support board-exam preparation?",
+        "Is mentoring one-to-one?",
+        "How do parents track progress?",
+        "How do I book a demo for Class 10?",
     ],
     "confident_speaker": [
-        "Would you like to know how the mentoring works?",
-        "Would you like to explore the skills covered?",
-        "Would you like to know what happens during practice sessions?",
-        "Would you like to experience a trial session?",
+        "How does personalized mentoring work?",
+        "What skills are covered in Confident Speaker?",
+        "What happens during practice sessions?",
+        "How can I book a free trial?",
     ],
     "general": [
-        "Would you like to explore the programs by grade?",
-        "Would you like to understand the mentoring approach?",
-        "Would you like to know how the free demo works?",
-        "Are you exploring this for yourself or for a child?",
+        "How does personalized mentoring work?",
+        "Tell me about the mentoring approach.",
+        "What programs do you offer?",
+        "How does the free demo work?",
     ],
 }
 

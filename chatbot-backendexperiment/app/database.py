@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS messages (
     session_id TEXT NOT NULL,
     role TEXT NOT NULL CHECK (role IN ('user', 'assistant')),
     content TEXT NOT NULL,
+    source TEXT NOT NULL DEFAULT 'text_input',
     intent TEXT,
     matched_entry_ids TEXT,
     confidence REAL,
@@ -114,6 +115,10 @@ def init_db() -> None:
     config.DATABASE_PATH.parent.mkdir(parents=True, exist_ok=True)
     with get_connection() as conn:
         conn.executescript(_SCHEMA)
+        try:
+            conn.execute("ALTER TABLE messages ADD COLUMN source TEXT NOT NULL DEFAULT 'text_input'")
+        except Exception:
+            pass
         conn.commit()
 
 
@@ -149,6 +154,7 @@ def log_message(
     session_id: str,
     role: str,
     content: str,
+    source: str = "text_input",
     intent: Optional[str] = None,
     matched_entry_ids: Optional[str] = None,
     confidence: Optional[float] = None,
@@ -157,10 +163,10 @@ def log_message(
     with get_connection() as conn:
         cursor = conn.execute(
             """
-            INSERT INTO messages (session_id, role, content, intent, matched_entry_ids, confidence, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO messages (session_id, role, content, source, intent, matched_entry_ids, confidence, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            (session_id, role, safe_content, intent, matched_entry_ids, confidence, _now()),
+            (session_id, role, safe_content, source, intent, matched_entry_ids, confidence, _now()),
         )
         conn.commit()
         return int(cursor.lastrowid)
@@ -170,7 +176,7 @@ def get_recent_messages(session_id: str, limit: int) -> list[sqlite3.Row]:
     with get_connection() as conn:
         rows = conn.execute(
             """
-            SELECT role, content, intent, matched_entry_ids, confidence, created_at
+            SELECT role, content, source, intent, matched_entry_ids, confidence, created_at
             FROM messages
             WHERE session_id = ?
             ORDER BY id DESC
@@ -194,13 +200,27 @@ def clear_session(session_id: str) -> None:
 class ConversationMemory:
     session_id: str
     active_program: Optional[str] = None
+    active_entity: Optional[str] = None
+    active_topic: Optional[str] = None
+    last_user_intent: Optional[str] = None
+    last_assistant_intent: Optional[str] = None
+    last_user_message: Optional[str] = None
+    last_assistant_message: Optional[str] = None
+    last_assistant_question: Optional[str] = None
+    pending_clarification: Optional[dict] = None
+    confirmed_context: Optional[str] = None
+    recent_topics: list[str] = field(default_factory=list)
+    recent_programs_in_order: list[str] = field(default_factory=list)
+    last_answered_topic: Optional[str] = None
+    last_requested_action: Optional[str] = None
+    last_user_correction: Optional[str] = None
     ordered_programs: list[str] = field(default_factory=list)
     last_expanded_index: Optional[int] = None
     last_intents: list[str] = field(default_factory=list)
     last_assistant_summary: Optional[str] = None
-    pending_clarification: Optional[str] = None
     previously_shown_suggestions: list[str] = field(default_factory=list)
     learner_type_or_grade: Optional[str] = None
+    turn_count: int = 0
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -209,16 +229,43 @@ class ConversationMemory:
     def from_dict(cls, data: dict, session_id: str = "") -> "ConversationMemory":
         if not isinstance(data, dict):
             return cls(session_id=session_id)
+        
+        clarification = data.get("pending_clarification")
+        if isinstance(clarification, str):
+            clarification = {
+                "question": clarification,
+                "expected_entity": clarification,
+                "options": [],
+                "active": True,
+            }
+
+        ordered_programs = list(data.get("ordered_programs") or [])
+        recent_programs = list(data.get("recent_programs_in_order") or [])
+
         return cls(
             session_id=data.get("session_id", session_id),
             active_program=data.get("active_program"),
-            ordered_programs=data.get("ordered_programs") or [],
+            active_entity=data.get("active_entity"),
+            active_topic=data.get("active_topic"),
+            last_user_intent=data.get("last_user_intent"),
+            last_assistant_intent=data.get("last_assistant_intent"),
+            last_user_message=data.get("last_user_message"),
+            last_assistant_message=data.get("last_assistant_message"),
+            last_assistant_question=data.get("last_assistant_question"),
+            pending_clarification=clarification,
+            confirmed_context=data.get("confirmed_context"),
+            recent_topics=data.get("recent_topics") or [],
+            recent_programs_in_order=recent_programs,
+            last_answered_topic=data.get("last_answered_topic"),
+            last_requested_action=data.get("last_requested_action"),
+            last_user_correction=data.get("last_user_correction"),
+            ordered_programs=ordered_programs,
             last_expanded_index=data.get("last_expanded_index"),
             last_intents=data.get("last_intents") or [],
             last_assistant_summary=data.get("last_assistant_summary"),
-            pending_clarification=data.get("pending_clarification"),
             previously_shown_suggestions=data.get("previously_shown_suggestions") or [],
             learner_type_or_grade=data.get("learner_type_or_grade"),
+            turn_count=data.get("turn_count", 0),
         )
 
 

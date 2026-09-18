@@ -108,6 +108,33 @@ def on_startup() -> None:
 
 
 # --- schemas ---------------------------------------------------------------
+VALID_USER_SOURCES = {
+    "text_input",
+    "explicit_suggestion_click",
+    "form_submission",
+}
+
+_recent_request_cache: Dict[str, tuple[float, ChatResponse]] = {}
+
+
+def _check_and_cache_request(request_id: Optional[str], response: Optional[ChatResponse] = None) -> Optional[ChatResponse]:
+    if not request_id:
+        return None
+    now = time.time()
+    # Prune old cache entries (> 60 seconds)
+    expired = [k for k, (t, _) in _recent_request_cache.items() if now - t > 60]
+    for k in expired:
+        _recent_request_cache.pop(k, None)
+
+    if response is not None:
+        _recent_request_cache[request_id] = (now, response)
+        return None
+    if request_id in _recent_request_cache:
+        _, cached_resp = _recent_request_cache[request_id]
+        return cached_resp
+    return None
+
+
 class ChatMessage(BaseModel):
     role: str
     content: str = Field(..., min_length=1, max_length=2000)
@@ -116,6 +143,9 @@ class ChatMessage(BaseModel):
 class ChatRequest(BaseModel):
     message: str = Field(..., min_length=1, max_length=2000)
     session_id: Optional[str] = Field(default=None, max_length=100)
+    role: str = Field(default="user")
+    source: str = Field(default="text_input")
+    request_id: Optional[str] = Field(default=None, max_length=100)
     # Kept for backwards compatibility with the previous API shape; the
     # server is now the source of truth for history via the database, so
     # this is accepted but not required.
@@ -264,6 +294,24 @@ def chat(
 ) -> ChatResponse:
     _check_rate_limit(request)
 
+    if body.role != "user":
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid message role '{body.role}'. Only genuine user messages are accepted.",
+        )
+    if body.source not in VALID_USER_SOURCES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid message source '{body.source}'. Valid sources are: {sorted(list(VALID_USER_SOURCES))}",
+        )
+
+    # Check deduplication cache
+    if body.request_id:
+        cached_response = _check_and_cache_request(body.request_id)
+        if cached_response:
+            logger.info("Serving deduplicated response for request_id=%s", body.request_id)
+            return cached_response
+
     session_id = _resolve_session_id(body.session_id, x_session_id)
     database.ensure_session(session_id)
 
@@ -280,11 +328,11 @@ def chat(
             intent="system_error",
         )
 
-    database.log_message(session_id, "user", message)
+    database.log_message(session_id, "user", message, source=body.source)
 
     t_start = time.perf_counter()
     try:
-        result = engine.handle_message(session_id, message)
+        result = engine.handle_message(session_id, message, source=body.source, role=body.role)
     except Exception as exc:  # noqa: BLE001 - must never leak internals to the visitor
         logger.exception("Unhandled error while generating a reply")
         database.log_error("chat.handle_message", repr(exc))
@@ -310,14 +358,20 @@ def chat(
         intent=result.intent,
         matched_entry_ids=",".join(result.matched_entry_ids) if result.matched_entry_ids else None,
         confidence=result.confidence,
+        source="assistant_response",
     )
 
-    return ChatResponse(
+    resp = ChatResponse(
         reply=result.reply,
         session_id=session_id,
         intent=result.intent,
         suggestions=result.suggestions,
     )
+
+    if body.request_id:
+        _check_and_cache_request(body.request_id, resp)
+
+    return resp
 
 
 @app.post("/chat/clear")
