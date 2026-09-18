@@ -135,12 +135,14 @@ fully functional with no API key and makes no external request.
 | Provider | Env vars required | Package | Default model |
 |---|---|---|---|
 | `none` (default) | *(none)* | *(none)* | n/a — deterministic templates |
-| `groq` | `GROQ_API_KEY` | `pip install openai` | `openai/gpt-oss-120b` |
+| `gemini` | `GEMINI_API_KEY` | `pip install openai` | `gemini-3.5-flash-lite` |
+| `groq` | `GROQ_API_KEY` | `pip install openai` | `llama-3.3-70b-versatile` |
 | `anthropic` | `ANTHROPIC_API_KEY` | `pip install anthropic` | `claude-3-5-haiku-latest` |
 
-Groq is reached through its **OpenAI-compatible** endpoint
-(`GROQ_BASE_URL`, default `https://api.groq.com/openai/v1`), which is why
-the `openai` package — not a Groq-specific SDK — is what you install.
+Gemini and Groq are reached through their **OpenAI-compatible** endpoints
+(`GEMINI_BASE_URL`, default `https://generativelanguage.googleapis.com/v1beta/openai/`;
+`GROQ_BASE_URL`, default `https://api.groq.com/openai/v1`), which is why
+the `openai` package is what you install.
 
 **How selection works**
 
@@ -150,8 +152,8 @@ the `openai` package — not a Groq-specific SDK — is what you install.
    `none`, and `/health` reports `llm_enabled: false` with an
    `llm_config_warning`. It never claims an LLM is active when it isn't.
 2. If `LLM_PROVIDER` is unset, the provider is auto-detected:
-   `GROQ_API_KEY` first, then `ANTHROPIC_API_KEY`.
-3. If neither key is set, the provider is `none`.
+   `GEMINI_API_KEY` first, then `GROQ_API_KEY`, then `ANTHROPIC_API_KEY`.
+3. If no key is set, the provider is `none`.
 4. An unrecognised `LLM_PROVIDER` value fails safe to `none` with a
    warning naming the valid options.
 
@@ -388,9 +390,12 @@ See `chatbot-backend/.env.example` for the full, commented list. Key ones:
 | `KNOWLEDGE_FILE` | Path to the JSON knowledge base | `knowledge/wementors_kb.json` |
 | `RATE_LIMIT_MAX_REQUESTS` / `RATE_LIMIT_WINDOW_SECONDS` | Per-IP request limit | 20 requests / 60s |
 | `RETRIEVAL_CONFIDENCE_THRESHOLD` | Minimum score before the bot admits it doesn't know | `0.12` |
-| `LLM_PROVIDER` | Force a provider: `none`, `groq`, `anthropic`. Unset = auto-detect from whichever key is present | *(unset)* |
+| `LLM_PROVIDER` | Force a provider: `none`, `gemini`, `groq`, `anthropic`. Unset = auto-detect from whichever key is present | *(unset)* |
+| `GEMINI_API_KEY` | Enables Google Gemini (needs `pip install openai`). Blank = provider not selectable | *(blank)* |
+| `GEMINI_MODEL` | Gemini model id | `gemini-3.5-flash-lite` |
+| `GEMINI_BASE_URL` | Gemini's OpenAI-compatible endpoint | `https://generativelanguage.googleapis.com/v1beta/openai/` |
 | `GROQ_API_KEY` | Enables Groq (needs `pip install openai`). Blank = provider not selectable | *(blank)* |
-| `GROQ_MODEL` | Groq model id | `openai/gpt-oss-120b` |
+| `GROQ_MODEL` | Groq model id | `llama-3.3-70b-versatile` |
 | `GROQ_BASE_URL` | Groq's OpenAI-compatible endpoint | `https://api.groq.com/openai/v1` |
 | `ANTHROPIC_API_KEY` | Enables Anthropic (needs `pip install anthropic`) | *(blank)* |
 | `ANTHROPIC_MODEL` | Anthropic model id | `claude-3-5-haiku-latest` |

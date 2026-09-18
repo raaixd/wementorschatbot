@@ -2,6 +2,7 @@
 Optional LLM answer generation, behind a provider abstraction.
 
     LLMProvider (interface)
+        |- GeminiProvider      (Google Gemini OpenAI-compatible API, GEMINI_API_KEY)
         |- GroqProvider        (OpenAI-compatible API, GROQ_API_KEY)
         |- AnthropicProvider   (ANTHROPIC_API_KEY)
         |- NullProvider        (no key configured -> always declines, so the
@@ -199,6 +200,61 @@ class NullProvider(LLMProvider):
         return None
 
 
+class GeminiProvider(LLMProvider):
+    """Google Gemini via its OpenAI-compatible endpoint. Requires `openai`."""
+
+    name = "gemini"
+
+    def __init__(self, api_key: str, model: str, timeout_seconds: int, client_factory=None):
+        """`client_factory` exists so tests can inject a stub and run
+        deterministically whether or not `openai` is installed."""
+        if not api_key:
+            raise ValueError("GeminiProvider requires a non-empty API key")
+        if client_factory is None:
+            from openai import OpenAI  # optional dependency, imported lazily
+
+            client_factory = OpenAI
+        self._client = client_factory(
+            api_key=api_key,
+            base_url=config.GEMINI_BASE_URL,
+            timeout=timeout_seconds,
+            max_retries=0,
+        )
+        self._model = model
+
+    def generate(self, system_prompt: str, messages: Sequence[Dict[str, str]]) -> Optional[str]:
+        candidate_models = [self._model]
+        for fast_m in ("gemini-3.5-flash-lite", "gemini-3.6-flash"):
+            if fast_m not in candidate_models:
+                candidate_models.append(fast_m)
+
+        last_error = None
+        for m in candidate_models:
+            try:
+                response = self._client.chat.completions.create(
+                    model=m,
+                    max_tokens=config.LLM_MAX_TOKENS,
+                    temperature=config.LLM_TEMPERATURE,
+                    messages=[{"role": "system", "content": system_prompt}, *messages],
+                )
+                if not response.choices:
+                    continue
+                content = (response.choices[0].message.content or "").strip()
+                if content:
+                    return content
+            except Exception as exc:
+                last_error = exc
+                err_str = str(exc).lower()
+                if any(x in err_str for x in ("rate_limit", "429", "not_found", "404", "503", "unavailable", "decommissioned")):
+                    logger.warning("Gemini model %s unavailable (%s); falling back to alternative model", m, type(exc).__name__)
+                    continue
+                raise
+
+        if last_error:
+            raise last_error
+        return None
+
+
 class GroqProvider(LLMProvider):
     """Groq via its OpenAI-compatible endpoint. Requires `openai`."""
 
@@ -284,6 +340,10 @@ def build_provider(provider_name: str, client_factory=None) -> LLMProvider:
     """Construct a provider by name. Pure and side-effect free apart from
     building a client object; makes no network call. Raises on bad input
     so get_active_provider() can log it and degrade to NullProvider."""
+    if provider_name == "gemini":
+        return GeminiProvider(
+            config.GEMINI_API_KEY, config.GEMINI_MODEL, config.LLM_TIMEOUT_SECONDS, client_factory
+        )
     if provider_name == "groq":
         return GroqProvider(
             config.GROQ_API_KEY, config.GROQ_MODEL, config.LLM_TIMEOUT_SECONDS, client_factory

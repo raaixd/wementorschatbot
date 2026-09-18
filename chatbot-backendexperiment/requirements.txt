@@ -3,12 +3,13 @@ uvicorn[standard]
 python-dotenv
 pydantic>=2
 
-# Optional LLM providers. The app runs fully without either -- with no key
+# Optional LLM providers. The app runs fully without any key -- with no key
 # configured it answers from the knowledge base deterministically.
 # Install the one matching the key you set in .env:
-#   Groq (GROQ_API_KEY):        openai
+#   Gemini (GEMINI_API_KEY):      openai
+#   Groq (GROQ_API_KEY):          openai
 #   Anthropic (ANTHROPIC_API_KEY): anthropic
-# openai
+openai
 # anthropic
 
 # Dev/test only:

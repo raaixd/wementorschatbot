@@ -136,7 +136,11 @@ RETRIEVAL_CONFIDENCE_THRESHOLD = float(os.getenv("RETRIEVAL_CONFIDENCE_THRESHOLD
 # --- Optional LLM answer generation ---------------------------------------
 # When no provider key is set, the chatbot falls back to deterministic
 # template answers built from the knowledge base (no external call, works
-# fully offline). Groq is checked first, then Anthropic.
+# fully offline). Gemini is checked first, then Groq, then Anthropic.
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", os.getenv("GOOGLE_API_KEY", "")).strip()
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
+GEMINI_BASE_URL = os.getenv("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/")
+
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "").strip()
 GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
 GROQ_BASE_URL = os.getenv("GROQ_BASE_URL", "https://api.groq.com/openai/v1")
@@ -145,9 +149,9 @@ ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "").strip()
 ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-3-5-haiku-latest")
 
 
-_VALID_PROVIDERS = ("none", "groq", "anthropic")
+_VALID_PROVIDERS = ("none", "gemini", "groq", "anthropic")
 
-_PROVIDER_KEYS = {"groq": GROQ_API_KEY, "anthropic": ANTHROPIC_API_KEY}
+_PROVIDER_KEYS = {"gemini": GEMINI_API_KEY, "groq": GROQ_API_KEY, "anthropic": ANTHROPIC_API_KEY}
 
 
 def _select_provider() -> tuple[str, str]:
@@ -178,6 +182,8 @@ def _select_provider() -> tuple[str, str]:
             )
         return explicit, ""
 
+    if GEMINI_API_KEY:
+        return "gemini", ""
     if GROQ_API_KEY:
         return "groq", ""
     if ANTHROPIC_API_KEY:

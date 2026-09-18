@@ -268,6 +268,23 @@ def health_check() -> Dict[str, object]:
     engine = _ensure_engine()
     active = llm.get_active_provider()
     is_llm_active = not isinstance(active, llm.NullProvider)
+
+    api_key_present = False
+    if config.LLM_PROVIDER == "gemini":
+        api_key_present = bool(config.GEMINI_API_KEY)
+    elif config.LLM_PROVIDER == "groq":
+        api_key_present = bool(config.GROQ_API_KEY)
+    elif config.LLM_PROVIDER == "anthropic":
+        api_key_present = bool(config.ANTHROPIC_API_KEY)
+
+    model_name = None
+    if active.name == "gemini":
+        model_name = config.GEMINI_MODEL
+    elif active.name == "groq":
+        model_name = config.GROQ_MODEL
+    elif active.name == "anthropic":
+        model_name = config.ANTHROPIC_MODEL
+
     payload: Dict[str, object] = {
         "status": "healthy" if engine is not None else "degraded",
         "service": "wementors-chatbot",
@@ -277,8 +294,8 @@ def health_check() -> Dict[str, object]:
         "llm_enabled": is_llm_active,
         "llm_provider": active.name,
         "llm_provider_configured": config.LLM_PROVIDER,
-        "llm_api_key_present": bool(config.GROQ_API_KEY if config.LLM_PROVIDER == "groq" else (config.ANTHROPIC_API_KEY if config.LLM_PROVIDER == "anthropic" else False)),
-        "llm_model": (config.GROQ_MODEL if active.name == "groq" else (config.ANTHROPIC_MODEL if active.name == "anthropic" else None)),
+        "llm_api_key_present": api_key_present,
+        "llm_model": model_name,
         "response_mode": "ai" if is_llm_active else "deterministic_knowledge_base",
     }
     if config.LLM_PROVIDER_CONFIG_ERROR:

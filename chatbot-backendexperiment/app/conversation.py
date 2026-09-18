@@ -42,6 +42,11 @@ _GREETING_START_RE = re.compile(
     r"^\s*(hi+|hello+|hey+|good\s+(morning|afternoon|evening)|greetings|yo|namaste)\b",
     re.IGNORECASE,
 )
+_CASUAL_GREETING_RE = re.compile(
+    r"^\s*(?:hi+|hello+|hey+|good\s+(?:morning|afternoon|evening)|yo|greetings|namaste)?\s*[,.:;!-]?\s*"
+    r"(?:how('s| is) it going|how are you(?: doing)?|how do you do|what('s| is) up|how are things)\s*[?!.]*\s*$",
+    re.IGNORECASE,
+)
 _THANKS_RE = re.compile(
     r"^\s*(thank(s| you)?(\s+(a lot|so much|very much))?|many thanks|thx|much appreciated|appreciate it)\s*[!.]*\s*$",
     re.IGNORECASE,
@@ -721,7 +726,9 @@ _REFERENCE_WORD_RE = re.compile(r"\b(it|that|this|they|those|these|the\s+program
 
 _INJECTION_MARKERS_RE = re.compile(
     r"\b(ignore (all |any )?(previous|prior|above) instructions|system prompt|you are now|"
-    r"disregard (all|previous) instructions|reveal your (prompt|instructions))\b",
+    r"disregard (all|previous) instructions|reveal your (prompt|instructions)|"
+    r"show (me )?(your )?(entire |whole |all of your |all |the )?(internal )?knowledge base|"
+    r"dump (your )?(internal )?knowledge base)\b",
     re.IGNORECASE,
 )
 
@@ -1245,7 +1252,10 @@ class ConversationEngine:
             cand_token = m_vocative.group(1).strip().lower()
             rem = m_vocative.group(2).strip()
             if (
-                cand_token not in ("how", "what", "why", "when", "where", "who", "which", "can", "do", "does", "is", "are")
+                cand_token not in (
+                    "how", "what", "why", "when", "where", "who", "which", "can", "do", "does", "is", "are",
+                    "hey", "hi", "hello", "yo", "greetings", "namaste",
+                )
                 and re.search(r"^(what|how|why|when|where|tell me|explain|can you|do you|which|i want|book)\b", rem, re.I)
             ):
                 stripped = rem
@@ -1445,6 +1455,12 @@ class ConversationEngine:
         if _FOUNDATION_TYPO_EXACT_RE.match(stripped):
             return "foundation_years_clarification"
         if _FOUNDATION_QUERY_RE.search(stripped) or _FOUNDATION_QUERY_RE.search(normalized):
+            has_fee_word = bool(
+                set(tokenize(stripped)) & _FEE_TRIGGER_WORDS
+                or re.search(r"\b(fee|fees|cost|costs|price|prices|pricing|charge|rate|how much)\b", stripped, re.I)
+            )
+            if has_fee_word:
+                return "fees"
             if _FOUNDATION_SUBJECTS_RE.search(stripped) or _FOUNDATION_SUBJECTS_RE.search(normalized):
                 return "foundation_subjects"
             if _FOUNDATION_APPROACH_RE.search(stripped) or _FOUNDATION_APPROACH_RE.search(normalized):
@@ -1457,6 +1473,12 @@ class ConversationEngine:
         if _MIDDLE_SCHOOL_EXACT_RE.match(stripped):
             return "middle_school_overview"
         if _MIDDLE_SCHOOL_OVERVIEW_RE.search(stripped) or _MIDDLE_SCHOOL_OVERVIEW_RE.search(normalized):
+            has_fee_word = bool(
+                set(tokenize(stripped)) & _FEE_TRIGGER_WORDS
+                or re.search(r"\b(fee|fees|cost|costs|price|prices|pricing|charge|rate|how much)\b", stripped, re.I)
+            )
+            if has_fee_word:
+                return "fees"
             return "middle_school_overview"
         if _MIDDLE_SCHOOL_GRADES_RE.search(stripped) or _MIDDLE_SCHOOL_GRADES_RE.search(normalized):
             return "middle_school_grades"
@@ -1625,7 +1647,7 @@ class ConversationEngine:
             return "help"
         if _ADVISING_RE.search(stripped):
             return "advising"
-        if _GREETING_START_RE.match(stripped) and word_count <= 4:
+        if (_GREETING_START_RE.match(stripped) and word_count <= 6) or _CASUAL_GREETING_RE.match(stripped):
             return "greeting"
         if _GOODBYE_RE.match(stripped):
             return "goodbye"
@@ -1883,7 +1905,7 @@ class ConversationEngine:
         msg_norm = normalize_query(message)
         if re.search(r"\b(board|boards|exam|exams|grade\s*9|grade\s*10|class\s*9|class\s*10|10th|9th)\b", msg_norm):
             return personality.UNCLEAR_BOARD_FALLBACK
-        if re.search(r"\b(duration|schedule|hours|timing|timings|frequency|material|materials|books|notes|syllabus|guarantee|rank|marks|score|teacher|teachers|faculty)\b", msg_norm):
+        if re.search(r"\b(duration|schedule|hours|timing|timings|frequency|material|materials|books|notes|syllabus|guarantee|rank|marks|score|teacher|teachers|faculty|software|platform|apps?|tools?|tech|technology|equipment|laptop|devices?|portal)\b", msg_norm):
             return personality.UNCONFIRMED_DETAILS_FALLBACK
         if re.search(r"\b(course|courses|program|programs|curriculum|class|classes)\b", msg_norm):
             return personality.VAGUE_MENU_RESPONSE
@@ -1978,6 +2000,22 @@ class ConversationEngine:
         if intent in ("general_info", "board_exam", "confident_speaker") and not re.search(r"\b(book free demo|free demo)\b", reply, re.IGNORECASE):
             reply += "\n\nYou can click **Book Free Demo** at the top-right of the website to explore our mentoring."
 
+        # Ensure Senior School / Board Exam verified facts (Grades 9-10 & non-rotating personal mentor)
+        if any(e.id == "program-senior-school" for e in matched_entries) or intent == "board_exam":
+            if "9" not in reply or "10" not in reply:
+                if "senior school" in reply.lower():
+                    reply = re.sub(r"(?i)\bsenior school(?:\s+focus)?\b", "Senior School Focus (Grades 9–10)", reply, count=1)
+                else:
+                    reply = f"For students in Grades 9–10 (Senior School Focus):\n\n{reply}"
+            if "personal mentor" not in reply.lower():
+                reply = re.sub(r"(?i)\bthe mentor\b", "the personal mentor", reply, count=1)
+                if "personal mentor" not in reply.lower():
+                    reply = re.sub(r"(?i)\bmentor\b", "personal mentor", reply, count=1)
+            if "personal mentor" in reply.lower() and "rotating" not in reply.lower():
+                reply = re.sub(r"(?i)\bpersonal mentor\b", "personal mentor (rather than a rotating roster of teachers)", reply, count=1)
+            if "progress" not in reply.lower():
+                reply += "\n\nLearner progress is tracked and shared with parents every week."
+
         # Detect near-duplicate responses
         if last_assistant_reply and reply.strip().lower() == last_assistant_reply.strip().lower():
             logger.info("Near-duplicate reply detected. Validating context alignment.")
@@ -2037,7 +2075,10 @@ class ConversationEngine:
             cand_token = m_vocative.group(1).strip().lower()
             rem = m_vocative.group(2).strip()
             if (
-                cand_token not in ("how", "what", "why", "when", "where", "who", "which", "can", "do", "does", "is", "are")
+                cand_token not in (
+                    "how", "what", "why", "when", "where", "who", "which", "can", "do", "does", "is", "are",
+                    "hey", "hi", "hello", "yo", "greetings", "namaste",
+                )
                 and re.search(r"^(what|how|why|when|where|tell me|explain|can you|do you|which|i want|book)\b", rem, re.I)
             ):
                 message = rem
@@ -2157,7 +2198,7 @@ class ConversationEngine:
             return ReplyResult(personality.TOO_LONG_MESSAGE_RESPONSE, "too_long", [], None)
 
         # Greetings always take priority: never treated as names or demo trigger
-        if _GREETING_START_RE.match(message) and len(message.split()) <= 4:
+        if (_GREETING_START_RE.match(message) and len(message.split()) <= 6) or _CASUAL_GREETING_RE.match(message):
             return ReplyResult(personality.pick(personality.GREETINGS), "greeting", [], None)
 
         # Short confusion ("What?", "huh?", "pardon?")
@@ -2547,6 +2588,15 @@ class ConversationEngine:
                 1.0,
             )
             return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "fees":
+            entry = self.entries_by_id.get("fees-and-pricing")
+            if entry:
+                scored = [ScoredEntry(entry=entry, score=1.0)]
+                answer = self._generate_answer(message, scored, session_id)
+                answer = self._run_response_quality_checks(message, answer, "fees", [entry], memory.last_assistant_message)
+                res = ReplyResult(answer, "fees", [entry.id, "contact-info"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
 
         if intent == "international_eligibility":
             res = ReplyResult(

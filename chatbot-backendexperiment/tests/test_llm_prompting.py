@@ -165,7 +165,7 @@ check("NullProvider always declines so the KB template answer is used", llm.gene
 def provider_for(env):
     """Reload config under a controlled environment and report
     (provider, enabled, config_error)."""
-    saved = {k: os.environ.get(k) for k in ["GROQ_API_KEY", "ANTHROPIC_API_KEY", "LLM_PROVIDER", "SKIP_DOTENV", "GROQ_MODEL"]}
+    saved = {k: os.environ.get(k) for k in ["GEMINI_API_KEY", "GROQ_API_KEY", "ANTHROPIC_API_KEY", "LLM_PROVIDER", "SKIP_DOTENV", "GROQ_MODEL", "GEMINI_MODEL"]}
     try:
         for k in saved:
             os.environ.pop(k, None)
@@ -184,15 +184,20 @@ def provider_for(env):
 
 
 check("no keys -> provider 'none', LLM disabled", provider_for({})[:2] == ("none", False))
+check("GEMINI_API_KEY -> provider 'gemini'", provider_for({"GEMINI_API_KEY": "test-key"})[:2] == ("gemini", True))
 check("GROQ_API_KEY -> provider 'groq'", provider_for({"GROQ_API_KEY": "test-key"})[:2] == ("groq", True))
 check("ANTHROPIC_API_KEY -> provider 'anthropic'", provider_for({"ANTHROPIC_API_KEY": "test-key"})[:2] == ("anthropic", True))
-check("Groq wins when both keys are set", provider_for({"GROQ_API_KEY": "a", "ANTHROPIC_API_KEY": "b"})[0] == "groq")
+check("Gemini wins when all keys are set", provider_for({"GEMINI_API_KEY": "g", "GROQ_API_KEY": "a", "ANTHROPIC_API_KEY": "b"})[0] == "gemini")
 check(
     "LLM_PROVIDER overrides auto-detection when its key is present",
-    provider_for({"GROQ_API_KEY": "a", "ANTHROPIC_API_KEY": "b", "LLM_PROVIDER": "anthropic"})[0] == "anthropic",
+    provider_for({"GEMINI_API_KEY": "g", "GROQ_API_KEY": "a", "ANTHROPIC_API_KEY": "b", "LLM_PROVIDER": "anthropic"})[0] == "anthropic",
 )
 
 # Misconfiguration must disable the LLM and say why, never claim it is on.
+gemini_no_key = provider_for({"LLM_PROVIDER": "gemini"})
+check("LLM_PROVIDER=gemini with no key disables the LLM", gemini_no_key[:2] == ("none", False), gemini_no_key)
+check("...and explains the misconfiguration", "GEMINI_API_KEY" in gemini_no_key[2], gemini_no_key[2])
+
 groq_no_key = provider_for({"LLM_PROVIDER": "groq"})
 check("LLM_PROVIDER=groq with no key disables the LLM", groq_no_key[:2] == ("none", False), groq_no_key)
 check("...and explains the misconfiguration", "GROQ_API_KEY" in groq_no_key[2], groq_no_key[2])
@@ -202,7 +207,7 @@ check("LLM_PROVIDER=anthropic with no key disables the LLM", anth_no_key[:2] == 
 
 bogus = provider_for({"LLM_PROVIDER": "bogus", "GROQ_API_KEY": "a"})
 check("an unrecognised LLM_PROVIDER fails safe to 'none'", bogus[:2] == ("none", False), bogus)
-check("...and names the valid options", "groq" in bogus[2] and "anthropic" in bogus[2], bogus[2])
+check("...and names the valid options", "gemini" in bogus[2] and "groq" in bogus[2] and "anthropic" in bogus[2], bogus[2])
 
 forced_off = provider_for({"LLM_PROVIDER": "none", "GROQ_API_KEY": "a", "ANTHROPIC_API_KEY": "b"})
 check("LLM_PROVIDER=none disables the LLM even when keys exist", forced_off[:2] == ("none", False), forced_off)
@@ -212,6 +217,7 @@ blank_key = provider_for({"GROQ_API_KEY": "   "})
 check("a whitespace-only API key counts as absent", blank_key[:2] == ("none", False), blank_key)
 check("default Groq model is the one confirmed available on Groq", config.GROQ_MODEL in ["llama-3.3-70b-versatile", "openai/gpt-oss-120b"], config.GROQ_MODEL)
 check("Groq base URL is the OpenAI-compatible endpoint", config.GROQ_BASE_URL == "https://api.groq.com/openai/v1", config.GROQ_BASE_URL)
+check("Gemini base URL is the OpenAI-compatible endpoint", config.GEMINI_BASE_URL == "https://generativelanguage.googleapis.com/v1beta/openai/", config.GEMINI_BASE_URL)
 
 # --- provider construction: deterministic, no dependency on what's installed ---
 # These inject a fake client factory, so the result never depends on whether
@@ -240,6 +246,12 @@ def with_config(**overrides):
 
 
 # successful initialisation
+with with_config(GEMINI_API_KEY="test-key", GEMINI_MODEL="gemini-3.5-flash-lite"):
+    provider = llm.build_provider("gemini", client_factory=StubClient)
+    check("Gemini provider builds successfully with an injected client", isinstance(provider, llm.GeminiProvider))
+    check("Gemini client receives the OpenAI-compatible base URL", provider._client.kwargs.get("base_url") == config.GEMINI_BASE_URL, provider._client.kwargs)
+    check("Gemini client receives the configured timeout", provider._client.kwargs.get("timeout") == config.LLM_TIMEOUT_SECONDS)
+
 with with_config(GROQ_API_KEY="test-key", GROQ_MODEL="llama-3.3-70b-versatile"):
     provider = llm.build_provider("groq", client_factory=StubClient)
     check("Groq provider builds successfully with an injected client", isinstance(provider, llm.GroqProvider))
@@ -251,7 +263,7 @@ with with_config(ANTHROPIC_API_KEY="test-key"):
     check("Anthropic provider builds successfully with an injected client", isinstance(provider, llm.AnthropicProvider))
 
 # missing API key must be refused, not silently accepted
-for name, key_field in [("groq", "GROQ_API_KEY"), ("anthropic", "ANTHROPIC_API_KEY")]:
+for name, key_field in [("gemini", "GEMINI_API_KEY"), ("groq", "GROQ_API_KEY"), ("anthropic", "ANTHROPIC_API_KEY")]:
     with with_config(**{key_field: ""}):
         try:
             llm.build_provider(name, client_factory=StubClient)
