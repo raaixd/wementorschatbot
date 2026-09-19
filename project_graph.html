@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WeMentors Chatbot — Visual Architecture & System Graph</title>
+  <style>
+    :root {
+      --bg-primary: #080c15;
+      --bg-secondary: #0f172a;
+      --bg-glass: rgba(15, 23, 42, 0.82);
+      --border-glass: rgba(255, 255, 255, 0.08);
+      --border-highlight: rgba(99, 102, 241, 0.45);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      
+      --accent-cyan: #06b6d4;
+      --accent-purple: #8b5cf6;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-blue: #3b82f6;
+
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      background-image: 
+        radial-gradient(at 15% 15%, rgba(99, 102, 241, 0.18) 0px, transparent 45%),
+        radial-gradient(at 85% 85%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(6, 182, 212, 0.08) 0px, transparent 65%);
+      color: var(--text-primary);
+      font-family: var(--font-family);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    header {
+      height: 64px;
+      background: var(--bg-glass);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-glass);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 50;
+      flex-shrink: 0;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+      color: #fff;
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+    }
+
+    .brand-title {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(to right, #ffffff, #cbd5e1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-left: 8px;
+      padding-left: 8px;
+      border-left: 1px solid var(--border-glass);
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 6px;
+      background: rgba(15, 23, 42, 0.7);
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid var(--border-glass);
+    }
+
+    .tab-btn {
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 8px;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .tab-btn.active {
+      color: #fff;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.8), rgba(139, 92, 246, 0.8));
+      box-shadow: 0 2px 10px rgba(99, 102, 241, 0.35);
+    }
+
+    /* Simulation Play Control Button */
+    .btn-sim {
+      padding: 8px 18px;
+      background: linear-gradient(135deg, #06b6d4, #3b82f6);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 0 16px rgba(6, 182, 212, 0.4);
+    }
+
+    .btn-sim:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 24px rgba(6, 182, 212, 0.65);
+    }
+
+    .btn-sim.running {
+      background: linear-gradient(135deg, #e11d48, #f43f5e);
+      box-shadow: 0 0 16px rgba(244, 63, 94, 0.4);
+    }
+
+    /* Main Workspace */
+    .main-workspace {
+      position: relative;
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    #graph-canvas-container {
+      flex: 1;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+      cursor: grab;
+    }
+
+    #graph-canvas-container:active {
+      cursor: grabbing;
+    }
+
+    #graph-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Interactive Simulation Control HUD */
+    .sim-hud {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.94);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--accent-cyan);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), 0 0 25px rgba(6, 182, 212, 0.35);
+      border-radius: 14px;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      z-index: 40;
+      min-width: 580px;
+      max-width: 90vw;
+    }
+
+    .sim-hud-status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .sim-pulse-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      box-shadow: 0 0 12px var(--accent-cyan);
+      animation: pulseDot 1s infinite alternate;
+    }
+
+    @keyframes pulseDot {
+      from { transform: scale(0.85); opacity: 0.6; }
+      to { transform: scale(1.25); opacity: 1; }
+    }
+
+    .sim-info-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .sim-step-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .sim-step-detail {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .sim-controls-mini {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-left: 1px solid var(--border-glass);
+      padding-left: 14px;
+    }
+
+    .hud-btn {
+      width: 32px;
+      height: 32px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: #e2e8f0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      transition: all 0.15s ease;
+    }
+
+    .hud-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+
+    /* Floating Legend */
+    .floating-legend {
+      position: absolute;
+      bottom: 24px;
+      left: 24px;
+      background: var(--bg-glass);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glass);
+      border-radius: 12px;
+      padding: 12px 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      z-index: 20;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    /* Camera controls */
+    .controls-pill {
+      position: absolute;
+      bottom: 24px;
+      right: 440px;
+      background: var(--bg-glass);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glass);
+      border-radius: 10px;
+      padding: 4px;
+      display: flex;
+      gap: 4px;
+      z-index: 20;
+    }
+
+    .ctrl-btn {
+      width: 34px;
+      height: 34px;
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      color: var(--text-secondary);
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .ctrl-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    /* Inspector Sidebar */
+    .inspector-sidebar {
+      width: 420px;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(20px);
+      border-left: 1px solid var(--border-glass);
+      display: flex;
+      flex-direction: column;
+      z-index: 30;
+      overflow-y: auto;
+      box-shadow: -8px 0 32px rgba(0, 0, 0, 0.45);
+    }
+
+    .inspector-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-glass);
+    }
+
+    .badge-category {
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 3px 8px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+
+    .inspector-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.25;
+    }
+
+    .inspector-file {
+      font-family: monospace;
+      font-size: 12px;
+      color: var(--accent-cyan);
+      margin-top: 5px;
+      word-break: break-all;
+    }
+
+    .inspector-body {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .section-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .section-content {
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    .pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .pill {
+      font-size: 11.5px;
+      font-family: monospace;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .code-block {
+      background: #060a12;
+      border-radius: 8px;
+      padding: 12px;
+      font-family: "SF Mono", Consolas, Menlo, monospace;
+      font-size: 12px;
+      color: #38bdf8;
+      overflow-x: auto;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      white-space: pre-wrap;
+    }
+
+    /* Active Payload Simulation Box */
+    .payload-box {
+      background: rgba(6, 182, 212, 0.08);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .payload-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+
+    .payload-content {
+      font-family: monospace;
+      font-size: 12px;
+      color: #e0f2fe;
+      white-space: pre-wrap;
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="brand-group">
+      <div class="brand-logo-badge">WM</div>
+      <div>
+        <div style="display: flex; align-items: baseline;">
+          <span class="brand-title">WeMentors Chatbot</span>
+          <span class="brand-subtitle">Interactive Architecture & System Graph</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- View Mode Tabs -->
+    <div class="nav-tabs">
+      <button class="tab-btn active" id="tab-full" onclick="handleSwitchView('full', this)">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/><path d="M9 6h6M6 9v6M9 18h6M18 9v6"/></svg>
+        Full Topology
+      </button>
+      <button class="tab-btn" id="tab-rag" onclick="handleSwitchView('rag', this)">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4v16h16"/><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+        RAG Retrieval Flow
+      </button>
+      <button class="tab-btn" id="tab-leads" onclick="handleSwitchView('leads', this)">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Lead Qualification State
+      </button>
+    </div>
+
+    <!-- Top Action -->
+    <div>
+      <button class="btn-sim" id="main-sim-btn" onclick="toggleSimulation()">
+        <span id="main-sim-icon">▶</span>
+        <span id="main-sim-text">Simulate Turn</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Canvas & Inspector -->
+  <div class="main-workspace">
+    
+    <!-- Active Simulation HUD (Always Accessible) -->
+    <div class="sim-hud" id="sim-hud" style="display: flex;">
+      <div class="sim-pulse-indicator" id="hud-pulse"></div>
+      <div class="sim-hud-status">
+        <div class="sim-info-block">
+          <div class="sim-step-title" id="hud-step-title">Query Trace: "What programs do you have?"</div>
+          <div class="sim-step-detail" id="hud-step-detail">Click ▶ Play or Next to step through the RAG pipeline</div>
+        </div>
+      </div>
+      <div class="sim-controls-mini">
+        <button class="hud-btn" title="Previous Step" onclick="stepSim(-1)">⏮</button>
+        <button class="hud-btn" id="hud-play-btn" title="Play/Pause" onclick="toggleSimulation()" style="font-weight: bold; color: var(--accent-cyan);">▶</button>
+        <button class="hud-btn" title="Next Step" onclick="stepSim(1)">⏭</button>
+        <button class="hud-btn" title="Reset Trace" onclick="resetSim()">↺</button>
+      </div>
+    </div>
+
+    <!-- Canvas Container -->
+    <div id="graph-canvas-container">
+      <canvas id="graph-canvas"></canvas>
+
+      <!-- Legend -->
+      <div class="floating-legend">
+        <div class="legend-item"><div class="legend-dot" style="background: var(--accent-cyan)"></div> Client Layer</div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--accent-purple)"></div> API & Gateway</div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--accent-indigo)"></div> Dialog Manager</div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--accent-emerald)"></div> RAG & Knowledge</div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--accent-amber)"></div> LLM & Rewriter</div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--accent-rose)"></div> Database & Storage</div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls-pill">
+        <button class="ctrl-btn" title="Zoom In" onclick="zoom(1.2)">+</button>
+        <button class="ctrl-btn" title="Zoom Out" onclick="zoom(0.8)">−</button>
+        <button class="ctrl-btn" title="Fit to Screen" onclick="fitToScreen()">⛶</button>
+      </div>
+    </div>
+
+    <!-- Inspector Sidebar -->
+    <div class="inspector-sidebar" id="inspector">
+      <div class="inspector-header">
+        <div>
+          <div class="badge-category" id="node-badge" style="background: rgba(99, 102, 241, 0.2); color: #818cf8;">Dialog Manager</div>
+          <div class="inspector-title" id="node-title">Conversation Manager</div>
+          <div class="inspector-file" id="node-file">chatbot-backend/app/conversation.py</div>
+        </div>
+      </div>
+
+      <div class="inspector-body">
+        <!-- Live Payload Card during simulation -->
+        <div class="payload-box" id="payload-container">
+          <div class="payload-title">Live Pipeline Stage</div>
+          <div class="payload-content" id="payload-content">Query: "What programs do you offer?"
+Session: 550e8400-e29b-41d4-a716-446655440000
+Status: Ready for simulation</div>
+        </div>
+
+        <div class="section-box">
+          <div class="section-title">Core Role & Function</div>
+          <div class="section-content" id="node-desc">
+            Orchestrates the entire multi-turn conversation lifecycle. Classifies intent, resolves contextual references against SQLite session history, invokes the hybrid retrieval engine, and applies tone/persona policies.
+          </div>
+        </div>
+
+        <div class="section-box">
+          <div class="section-title">Key Symbols & Functions</div>
+          <div class="pill-list" id="node-symbols">
+            <div class="pill">handle_turn()</div>
+            <div class="pill">classify_intent()</div>
+            <div class="pill">resolve_references()</div>
+            <div class="pill">format_comparison()</div>
+          </div>
+        </div>
+
+        <div class="section-box">
+          <div class="section-title">Input & Output Contracts</div>
+          <div class="code-block" id="node-contract">Input: (session_id: str, message: str)
+Output: ChatResponse {
+  answer: str,
+  suggestions: List[str],
+  intent: str,
+  matched_category: Optional[str]
+}</div>
+        </div>
+
+        <div class="section-box">
+          <div class="section-title">Safety & Fallback Guarantees</div>
+          <div class="section-content" id="node-guarantee">
+            Enforces strict zero-hallucination guardrails: if retrieval confidence is below 0.52 or tokens do not cover the user query, returns an honest advisor referral instead of guessing.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- GRAPH NODE DEFINITIONS ---
+    const NODES = [
+      {
+        id: "ui_widget",
+        label: "Chat Widget UI",
+        file: "index.html",
+        category: "Client Layer",
+        color: "#06b6d4",
+        x: 140,
+        y: 180,
+        symbols: ["#wm-chat-launcher", "#wm-chat-panel", "renderMessage()", "addTypingIndicator()"],
+        desc: "Dark glassmorphic embedded interface with floating launcher, frosted-glass panel, suggestion chips, and responsive mobile-first layout.",
+        contract: "Events: Click launcher, Send button, Enter key\nPayload: { message: string, session_id: string }",
+        guarantee: "Strict reduced-motion compliance, zero layout thrashing on host site, sanitizes markdown before rendering."
+      },
+      {
+        id: "ui_state",
+        label: "Widget Controller",
+        file: "index.html (inline JS)",
+        category: "Client Layer",
+        color: "#06b6d4",
+        x: 140,
+        y: 360,
+        symbols: ["sessionStorage.getItem('wm_sid')", "fetchChatResponse()", "handleChipClick()"],
+        desc: "Maintains visitor session persistence across page navigations, handles optimistic UI updates, typing simulation, and feedback submission.",
+        contract: "State: { sessionId: UUID, isWaiting: bool, historyLength: int }",
+        guarantee: "Auto-reconnects with existing session UUID without reloading page."
+      },
+      {
+        id: "api_gateway",
+        label: "Vercel Serverless Mount",
+        file: "api/index.py",
+        category: "API & Gateway",
+        color: "#8b5cf6",
+        x: 390,
+        y: 180,
+        symbols: ["app = get_app()", "Mangum handler", "CORS Middleware"],
+        desc: "Vercel edge/serverless entry adapter wrapping FastAPI application for scalable cloud serverless deployment.",
+        contract: "Mounts FastAPI app ASGI instance to Vercel Python runtime.",
+        guarantee: "Stateless dispatch; gracefully falls back to local data store paths."
+      },
+      {
+        id: "fastapi_app",
+        label: "FastAPI REST Server",
+        file: "chatbot-backend/app/main.py",
+        category: "API & Gateway",
+        color: "#8b5cf6",
+        x: 390,
+        y: 360,
+        symbols: ["POST /chat", "POST /feedback", "GET /health", "GET /admin/analytics"],
+        desc: "Core HTTP application with request validation (Pydantic models), client IP rate limiting, structured error handling, and CORS configuration.",
+        contract: "POST /chat -> Body: { message, session_id } -> 200 OK ChatResponse",
+        guarantee: "Zero leaked internal stack traces or database paths in client-facing HTTP responses."
+      },
+      {
+        id: "ratelimiter",
+        label: "Client Rate Limiter",
+        file: "chatbot-backend/app/ratelimit.py",
+        category: "API & Gateway",
+        color: "#8b5cf6",
+        x: 390,
+        y: 520,
+        symbols: ["TokenBucketLimiter", "check_rate_limit()", "cleanup_expired()"],
+        desc: "In-memory per-client token-bucket limiter preventing flooding and denial-of-service attempts without heavy external Redis dependency.",
+        contract: "Input: client_ip -> Output: (allowed: bool, retry_after: int)",
+        guarantee: "Returns 429 Too Many Requests with user-friendly retry timing."
+      },
+      {
+        id: "conversation_mgr",
+        label: "Conversation Orchestrator",
+        file: "chatbot-backend/app/conversation.py",
+        category: "Dialog Manager",
+        color: "#6366f1",
+        x: 680,
+        y: 280,
+        symbols: ["ConversationManager", "handle_turn()", "classify_intent()", "resolve_references()"],
+        desc: "The central brain. Manages dialog flow, parses intent (greetings, thanks, complaints, bookings, injection attacks), resolves multi-turn references ('tell me more', 'the first one'), and routes to appropriate handlers.",
+        contract: "Input: (session_id, query) -> Output: ChatResponse",
+        guarantee: "Guarantees deterministic answers when LLM is off, enforcing zero hallucination policies."
+      },
+      {
+        id: "lead_mgr",
+        label: "Lead Capture Machine",
+        file: "chatbot-backend/app/leads.py",
+        category: "Dialog Manager",
+        color: "#6366f1",
+        x: 680,
+        y: 470,
+        symbols: ["LeadStateMachine", "process_lead_step()", "validate_phone()", "validate_email()"],
+        desc: "Multi-turn state machine handling demo bookings and advisor consultation requests, gathering name, phone/email, and preferred schedule.",
+        contract: "States: IDLE -> AWAIT_NAME -> AWAIT_CONTACT -> AWAIT_TIME -> COMPLETED",
+        guarantee: "Stores leads directly in SQLite; allows user to cancel or switch back to general Q&A anytime."
+      },
+      {
+        id: "personality",
+        label: "Persona & Fallbacks",
+        file: "chatbot-backend/app/personality.py",
+        category: "Dialog Manager",
+        color: "#6366f1",
+        x: 680,
+        y: 110,
+        symbols: ["FALLBACK_RESPONSES", "INJECTION_DEFLECTIONS", "GREETING_TEMPLATES", "get_persona()"],
+        desc: "Defines the warm, encouraging WeMentors educational advisor voice, polite prompt injection deflections, and friendly fallback responses.",
+        contract: "Input: intent_type -> Output: formatted canned markdown message",
+        guarantee: "Maintains consistent, honest tone without sounding robotic."
+      },
+      {
+        id: "retriever",
+        label: "Hybrid Retriever",
+        file: "chatbot-backend/app/retrieval.py",
+        category: "RAG & Knowledge",
+        color: "#10b981",
+        x: 960,
+        y: 220,
+        symbols: ["HybridRetriever", "retrieve()", "compute_tfidf()", "keyword_overlap()", "token_coverage()"],
+        desc: "Zero-dependency hybrid search engine. Combines TF-IDF scores with exact keyword boosts and a token-coverage gate to find the most accurate knowledge entry.",
+        contract: "Input: (query: str, top_k=3) -> Output: List[KnowledgeMatch]",
+        guarantee: "Rejects partial matches if key query nouns are missing, eliminating false positives."
+      },
+      {
+        id: "knowledge_loader",
+        label: "Knowledge Base Loader",
+        file: "chatbot-backend/app/knowledge.py",
+        category: "RAG & Knowledge",
+        color: "#10b981",
+        x: 960,
+        y: 380,
+        symbols: ["load_knowledge_base()", "KnowledgeEntry", "build_index()"],
+        desc: "Loads and parses the structured JSON knowledge base into indexed dataclasses with normalized tokens, synonyms, and categories.",
+        contract: "Input: filepath -> Output: Dict[category, List[KnowledgeEntry]]",
+        guarantee: "Cached in memory on boot; validated against JSON schema."
+      },
+      {
+        id: "kb_json",
+        label: "Verified Knowledge (JSON)",
+        file: "knowledge/wementors_kb.json",
+        category: "RAG & Knowledge",
+        color: "#10b981",
+        x: 1220,
+        y: 380,
+        symbols: ["faqs", "courses", "pricing", "mentors", "application_steps"],
+        desc: "The single source of truth containing verified FAQs, programs, policies, keywords, alternative phrasings, and follow-up suggestion chips.",
+        contract: "Structure: { id, title, content, keywords, alternatives, suggestions }",
+        guarantee: "Pure static data: no unverified AI hallucinations can bypass this source."
+      },
+      {
+        id: "llm_bridge",
+        label: "LLM Bridge & Guardrails",
+        file: "chatbot-backend/app/llm.py",
+        category: "LLM & Rewriter",
+        color: "#f59e0b",
+        x: 960,
+        y: 70,
+        symbols: ["rewrite_answer()", "validate_groundedness()", "GroqClient", "AnthropicClient"],
+        desc: "Optional natural-language rewriting layer. Injects strict system prompt forbidding any claim not found in the retrieved context, and validates output before returning.",
+        contract: "Input: (context: str, user_q: str) -> Output: rewritten_markdown",
+        guarantee: "If model outputs facts absent from context or API fails, cleanly rolls back to deterministic template."
+      },
+      {
+        id: "external_llm",
+        label: "External AI Provider",
+        file: "Groq (Llama-3) / Anthropic (Claude)",
+        category: "LLM & Rewriter",
+        color: "#f59e0b",
+        x: 1220,
+        y: 70,
+        symbols: ["groq.chat.completions", "anthropic.messages.create"],
+        desc: "Cloud inference engine used solely for stylistic rewrite of retrieved answers. Default is completely OFF (zero outbound network calls).",
+        contract: "HTTPS REST API call",
+        guarantee: "Optional dependency. Offline mode runs 100% locally with deterministic templates."
+      },
+      {
+        id: "database",
+        label: "SQLite DB Manager",
+        file: "chatbot-backend/app/database.py",
+        category: "Database & Storage",
+        color: "#f43f5e",
+        x: 960,
+        y: 540,
+        symbols: ["create_session()", "save_message()", "get_history()", "save_lead()", "record_feedback()"],
+        desc: "Manages thread-safe SQLite operations for multi-turn conversational history, lead storage, user thumbs-up/down feedback, and error logs.",
+        contract: "Methods for CRUD on sessions, messages, leads, and analytics.",
+        guarantee: "Persists conversation context across page refreshes and server restarts."
+      },
+      {
+        id: "sqlite_file",
+        label: "data/chatbot.db",
+        file: "chatbot-backend/data/chatbot.db",
+        category: "Database & Storage",
+        color: "#f43f5e",
+        x: 1220,
+        y: 540,
+        symbols: ["table: sessions", "table: messages", "table: leads", "table: feedback"],
+        desc: "On-disk SQLite database file with WAL mode enabled for fast concurrent read/write transactions.",
+        contract: "Relational tables with foreign key constraints.",
+        guarantee: "Auto-migrated schema on initial boot."
+      }
+    ];
+
+    const EDGES = [
+      { from: "ui_widget", to: "ui_state", label: "DOM events" },
+      { from: "ui_state", to: "api_gateway", label: "POST /chat" },
+      { from: "api_gateway", to: "fastapi_app", label: "ASGI Route" },
+      { from: "fastapi_app", to: "ratelimiter", label: "IP Token Check" },
+      { from: "fastapi_app", to: "conversation_mgr", label: "handle_turn()" },
+      { from: "conversation_mgr", to: "personality", label: "Tone & Fallbacks" },
+      { from: "conversation_mgr", to: "lead_mgr", label: "Lead Qualification" },
+      { from: "lead_mgr", to: "database", label: "Save Lead Details" },
+      { from: "conversation_mgr", to: "retriever", label: "Hybrid Search" },
+      { from: "retriever", to: "knowledge_loader", label: "Query Token Index" },
+      { from: "knowledge_loader", to: "kb_json", label: "Read wementors_kb.json" },
+      { from: "conversation_mgr", to: "llm_bridge", label: "Optional Rewrite" },
+      { from: "llm_bridge", to: "external_llm", label: "Inference API" },
+      { from: "conversation_mgr", to: "database", label: "Log Turns" },
+      { from: "database", to: "sqlite_file", label: "WAL Commit" },
+      { from: "conversation_mgr", to: "fastapi_app", label: "ChatResponse JSON" },
+      { from: "fastapi_app", to: "ui_state", label: "200 OK" },
+      { from: "ui_state", to: "ui_widget", label: "Render Answer + Chips" }
+    ];
+
+    // --- PIPELINE SIMULATION STAGES ---
+    const SIM_SEQUENCE = [
+      {
+        activeNode: "ui_widget",
+        edgeFrom: null,
+        edgeTo: null,
+        title: "Step 1: Visitor Enters Question",
+        detail: "User clicks suggestion chip or types: 'What programs do you have?'",
+        payload: "EVENT: input.submit\nMESSAGE: 'What programs do you have?'\nWIDGET: Displaying typing indicator..."
+      },
+      {
+        activeNode: "ui_state",
+        edgeFrom: "ui_widget",
+        edgeTo: "ui_state",
+        title: "Step 2: Client State Packaging",
+        detail: "Session UUID retrieved from browser sessionStorage & attached to payload",
+        payload: "POST /chat\n{\n  'message': 'What programs do you have?',\n  'session_id': '550e8400-e29b-41d4-a716-446655440000'\n}"
+      },
+      {
+        activeNode: "fastapi_app",
+        edgeFrom: "ui_state",
+        edgeTo: "api_gateway",
+        title: "Step 3: Gateway & Rate Limiting",
+        detail: "Vercel routes to FastAPI. TokenBucketLimiter verifies IP has remaining quota",
+        payload: "HTTP 200 INCOMING\nIP: 192.168.1.42\nRATE_LIMIT: 28/30 remaining\nSTATUS: Allowed"
+      },
+      {
+        activeNode: "conversation_mgr",
+        edgeFrom: "fastapi_app",
+        edgeTo: "conversation_mgr",
+        title: "Step 4: Intent & Reference Resolution",
+        detail: "Classifies intent: FAQ_QUESTION. Checks previous turn for anaphora ('it', 'the first one')",
+        payload: "INTENT: 'programs_query'\nANAPHORA_RESOLVED: False (explicit standalone query)\nTARGET: Knowledge Base Search"
+      },
+      {
+        activeNode: "retriever",
+        edgeFrom: "conversation_mgr",
+        edgeTo: "retriever",
+        title: "Step 5: Hybrid TF-IDF & Keyword Search",
+        detail: "Calculates TF-IDF vector similarity + exact keyword matches with coverage gate",
+        payload: "SEARCH_QUERY: 'programs offerings subjects'\nTOP_MATCH: id='programs_offered'\nTFIDF_SCORE: 0.89\nKEYWORD_BOOST: +0.08\nCONFIDENCE: 0.97 (>= 0.52 THRESHOLD)"
+      },
+      {
+        activeNode: "kb_json",
+        edgeFrom: "retriever",
+        edgeTo: "knowledge_loader",
+        title: "Step 6: Verified Fact Retrieval",
+        detail: "Extracts strictly grounded entry from wementors_kb.json without inventing claims",
+        payload: "ENTRY_ID: 'programs_offered'\nTITLE: 'WeMentors Educational Programs'\nBULLETS: [\n  '1-on-1 Academic Tutoring',\n  'SAT / ACT Test Prep Mastery',\n  'College Admissions Mentorship'\n]"
+      },
+      {
+        activeNode: "conversation_mgr",
+        edgeFrom: "knowledge_loader",
+        edgeTo: "conversation_mgr",
+        title: "Step 7: Deterministic Template Synthesis",
+        detail: "Composes bulleted list and attaches verified follow-up suggestion chips",
+        payload: "RENDER_STYLE: 'bullets'\nANSWER: 'WeMentors offers personalized educational programs including:...'\nSUGGESTIONS: [\n  'How much does it cost?',\n  'Book a free demo class'\n]"
+      },
+      {
+        activeNode: "database",
+        edgeFrom: "conversation_mgr",
+        edgeTo: "database",
+        title: "Step 8: SQLite History & Turn Logging",
+        detail: "Persists user question and synthesized assistant response to data/chatbot.db",
+        payload: "INSERT INTO messages (session_id, role, content, intent, timestamp)\nVALUES ('550e8400...', 'assistant', 'WeMentors offers...', 'programs', datetime('now'))"
+      },
+      {
+        activeNode: "ui_widget",
+        edgeFrom: "fastapi_app",
+        edgeTo: "ui_state",
+        title: "Step 9: Answer Rendered in Glass Widget",
+        detail: "Client widget animates bubble fade-in and displays interactive suggestion chips",
+        payload: "HTTP 200 OK\nUI_ACTION: removeTypingIndicator()\nUI_ACTION: renderMessage(html, chips)\nSTATUS: Turn Completed in 64ms"
+      }
+    ];
+
+    // --- CANVAS ENGINE & ANIMATION LOOP ---
+    const canvas = document.getElementById("graph-canvas");
+    const ctx = canvas.getContext("2d");
+    const container = document.getElementById("graph-canvas-container");
+
+    let width = 0, height = 0;
+    let camera = { x: -680, y: -300, zoom: 0.88 };
+    let isDragging = false;
+    let dragStart = { x: 0, y: 0 };
+    let selectedNode = NODES.find(n => n.id === "conversation_mgr");
+    let hoveredNode = null;
+    let draggedNode = null;
+
+    // Simulation Engine Variables
+    let isSimulating = false;
+    let simIndex = 0;
+    let simTimer = null;
+    let simParticleProgress = 0; // 0 to 1 for animated traveling packet
+
+    function resize() {
+      width = container.clientWidth;
+      height = container.clientHeight;
+      canvas.width = width * window.devicePixelRatio;
+      canvas.height = height * window.devicePixelRatio;
+      canvas.style.width = width + "px";
+      canvas.style.height = height + "px";
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    }
+
+    window.addEventListener("resize", () => {
+      resize();
+      fitToScreen();
+    });
+
+    function worldToScreen(x, y) {
+      return {
+        x: (x + camera.x) * camera.zoom + width / 2,
+        y: (y + camera.y) * camera.zoom + height / 2
+      };
+    }
+
+    function screenToWorld(sx, sy) {
+      return {
+        x: (sx - width / 2) / camera.zoom - camera.x,
+        y: (sy - height / 2) / camera.zoom - camera.y
+      };
+    }
+
+    // Auto-fit function that guarantees every node is centered and fully visible
+    function fitToScreen() {
+      if (NODES.length === 0 || width === 0) return;
+      
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      NODES.forEach(n => {
+        if (n.x < minX) minX = n.x;
+        if (n.x > maxX) maxX = n.x;
+        if (n.y < minY) minY = n.y;
+        if (n.y > maxY) maxY = n.y;
+      });
+
+      const centerX = (minX + maxX) / 2;
+      const centerY = (minY + maxY) / 2;
+      const graphWidth = maxX - minX + 160;
+      const graphHeight = maxY - minY + 160;
+
+      const scaleX = (width - 80) / graphWidth;
+      const scaleY = (height - 80) / graphHeight;
+      const autoZoom = Math.max(0.45, Math.min(1.1, Math.min(scaleX, scaleY)));
+
+      camera.x = -centerX;
+      camera.y = -centerY;
+      camera.zoom = autoZoom;
+    }
+
+    // 60 FPS Continuous Render Loop
+    function renderLoop(time) {
+      ctx.clearRect(0, 0, width, height);
+
+      // 1. Draw Subtle Grid
+      const gridSize = 36 * camera.zoom;
+      const offsetX = (camera.x * camera.zoom + width / 2) % gridSize;
+      const offsetY = (camera.y * camera.zoom + height / 2) % gridSize;
+
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.035)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let x = offsetX; x < width; x += gridSize) {
+        ctx.moveTo(x, 0); ctx.lineTo(x, height);
+      }
+      for (let y = offsetY; y < height; y += gridSize) {
+        ctx.moveTo(0, y); ctx.lineTo(width, y);
+      }
+      ctx.stroke();
+
+      const currentStage = SIM_SEQUENCE[simIndex];
+
+      // 2. Draw Edges
+      EDGES.forEach(edge => {
+        const fromNode = NODES.find(n => n.id === edge.from);
+        const toNode = NODES.find(n => n.id === edge.to);
+        if (!fromNode || !toNode) return;
+
+        const p1 = worldToScreen(fromNode.x, fromNode.y);
+        const p2 = worldToScreen(toNode.x, toNode.y);
+
+        const isCurrentActiveEdge = currentStage && 
+          ((currentStage.edgeFrom === edge.from && currentStage.edgeTo === edge.to) ||
+           (currentStage.edgeFrom === edge.to && currentStage.edgeTo === edge.from));
+
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        const midX = (p1.x + p2.x) / 2;
+        const midY = (p1.y + p2.y) / 2 - 16 * camera.zoom;
+        ctx.quadraticCurveTo(midX, midY, p2.x, p2.y);
+
+        if (isCurrentActiveEdge) {
+          ctx.strokeStyle = "#06b6d4";
+          ctx.lineWidth = 3.5 * camera.zoom;
+          ctx.shadowColor = "#06b6d4";
+          ctx.shadowBlur = 14;
+        } else {
+          ctx.strokeStyle = "rgba(148, 163, 184, 0.22)";
+          ctx.lineWidth = 1.6 * camera.zoom;
+          ctx.shadowBlur = 0;
+        }
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        // Draw animated traveling packet along the active edge
+        if (isCurrentActiveEdge) {
+          const t = simParticleProgress;
+          // Quadratic Bezier interpolation point
+          const qx = (1 - t) * (1 - t) * p1.x + 2 * (1 - t) * t * midX + t * t * p2.x;
+          const qy = (1 - t) * (1 - t) * p1.y + 2 * (1 - t) * t * midY + t * t * p2.y;
+
+          ctx.beginPath();
+          ctx.arc(qx, qy, 6 * camera.zoom, 0, Math.PI * 2);
+          ctx.fillStyle = "#ffffff";
+          ctx.shadowColor = "#06b6d4";
+          ctx.shadowBlur = 18;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+
+        // Edge labels
+        if (camera.zoom > 0.68) {
+          ctx.font = `${10.5 * camera.zoom}px sans-serif`;
+          ctx.fillStyle = isCurrentActiveEdge ? "#38bdf8" : "rgba(148, 163, 184, 0.55)";
+          ctx.textAlign = "center";
+          ctx.fillText(edge.label, midX, midY - 6 * camera.zoom);
+        }
+      });
+
+      // 3. Draw Nodes
+      const pulseVal = Math.sin(Date.now() / 180);
+
+      NODES.forEach(node => {
+        const p = worldToScreen(node.x, node.y);
+        const radius = 32 * camera.zoom;
+        const isSelected = selectedNode && selectedNode.id === node.id;
+        const isHovered = hoveredNode && hoveredNode.id === node.id;
+        const isStageActive = currentStage && currentStage.activeNode === node.id;
+
+        // Pulsating aura for stage active node
+        if (isStageActive) {
+          const glowRadius = radius + (10 + pulseVal * 4) * camera.zoom;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, glowRadius, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(6, 182, 212, 0.28)";
+          ctx.fill();
+        } else if (isSelected) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, radius + 8 * camera.zoom, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(99, 102, 241, 0.22)";
+          ctx.fill();
+        }
+
+        // Node circle body
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+        const grad = ctx.createRadialGradient(p.x - radius/3, p.y - radius/3, 2, p.x, p.y, radius);
+        grad.addColorStop(0, node.color);
+        grad.addColorStop(1, "#0d1527");
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        ctx.strokeStyle = isStageActive ? "#06b6d4" : (isSelected ? "#ffffff" : "rgba(255, 255, 255, 0.28)");
+        ctx.lineWidth = (isStageActive || isSelected ? 3.2 : 1.5) * camera.zoom;
+        if (isStageActive) {
+          ctx.shadowColor = "#06b6d4";
+          ctx.shadowBlur = 16;
+        }
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        // Node Letter
+        ctx.fillStyle = "#ffffff";
+        ctx.font = `bold ${14 * camera.zoom}px sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(node.label.charAt(0), p.x, p.y);
+
+        // Node Title
+        ctx.font = `600 ${12 * camera.zoom}px -apple-system, sans-serif`;
+        ctx.fillStyle = isStageActive ? "#38bdf8" : (isSelected ? "#ffffff" : "#e2e8f0");
+        ctx.fillText(node.label, p.x, p.y + radius + 15 * camera.zoom);
+
+        // Node File
+        if (camera.zoom > 0.72) {
+          ctx.font = `${9.5 * camera.zoom}px monospace`;
+          ctx.fillStyle = "rgba(148, 163, 184, 0.75)";
+          ctx.fillText(node.file.split("/").pop(), p.x, p.y + radius + 29 * camera.zoom);
+        }
+      });
+
+      // Update particle progress
+      if (isSimulating) {
+        simParticleProgress += 0.025;
+        if (simParticleProgress > 1) {
+          simParticleProgress = 0;
+        }
+      }
+
+      requestAnimationFrame(renderLoop);
+    }
+
+    // --- INTERACTION EVENT LISTENERS ---
+    container.addEventListener("mousedown", e => {
+      const rect = container.getBoundingClientRect();
+      const sx = e.clientX - rect.left;
+      const sy = e.clientY - rect.top;
+      const worldPos = screenToWorld(sx, sy);
+
+      const clicked = NODES.find(n => {
+        const dx = n.x - worldPos.x;
+        const dy = n.y - worldPos.y;
+        return Math.sqrt(dx * dx + dy * dy) < 38;
+      });
+
+      if (clicked) {
+        selectedNode = clicked;
+        draggedNode = clicked;
+        updateInspector(clicked);
+      } else {
+        isDragging = true;
+        dragStart = { x: e.clientX, y: e.clientY };
+      }
+    });
+
+    window.addEventListener("mousemove", e => {
+      if (draggedNode) {
+        const rect = container.getBoundingClientRect();
+        const sx = e.clientX - rect.left;
+        const sy = e.clientY - rect.top;
+        const worldPos = screenToWorld(sx, sy);
+        draggedNode.x = worldPos.x;
+        draggedNode.y = worldPos.y;
+        return;
+      }
+
+      if (isDragging) {
+        const dx = (e.clientX - dragStart.x) / camera.zoom;
+        const dy = (e.clientY - dragStart.y) / camera.zoom;
+        camera.x += dx;
+        camera.y += dy;
+        dragStart = { x: e.clientX, y: e.clientY };
+        return;
+      }
+
+      const rect = container.getBoundingClientRect();
+      const sx = e.clientX - rect.left;
+      const sy = e.clientY - rect.top;
+      const worldPos = screenToWorld(sx, sy);
+
+      const hovered = NODES.find(n => {
+        const dx = n.x - worldPos.x;
+        const dy = n.y - worldPos.y;
+        return Math.sqrt(dx * dx + dy * dy) < 38;
+      });
+
+      if (hovered !== hoveredNode) {
+        hoveredNode = hovered;
+        container.style.cursor = hovered ? "pointer" : "grab";
+      }
+    });
+
+    window.addEventListener("mouseup", () => {
+      isDragging = false;
+      draggedNode = null;
+    });
+
+    container.addEventListener("wheel", e => {
+      e.preventDefault();
+      const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
+      zoom(zoomFactor);
+    }, { passive: false });
+
+    function zoom(factor) {
+      camera.zoom = Math.max(0.35, Math.min(2.6, camera.zoom * factor));
+    }
+
+    // --- INSPECTOR UPDATE ---
+    function updateInspector(node) {
+      if (!node) return;
+      document.getElementById("node-badge").textContent = node.category;
+      document.getElementById("node-badge").style.color = node.color;
+      document.getElementById("node-badge").style.background = node.color + "22";
+      document.getElementById("node-title").textContent = node.label;
+      document.getElementById("node-file").textContent = node.file;
+      document.getElementById("node-desc").textContent = node.desc;
+      document.getElementById("node-contract").textContent = node.contract;
+      document.getElementById("node-guarantee").textContent = node.guarantee;
+
+      const symbolList = document.getElementById("node-symbols");
+      symbolList.innerHTML = "";
+      node.symbols.forEach(sym => {
+        const pill = document.createElement("div");
+        pill.className = "pill";
+        pill.textContent = sym;
+        symbolList.appendChild(pill);
+      });
+    }
+
+    // --- VIEW SWITCHER ---
+    function handleSwitchView(view, btnElement) {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      if (btnElement) btnElement.classList.add("active");
+
+      if (view === "full") {
+        fitToScreen();
+      } else if (view === "rag") {
+        const target = NODES.find(n => n.id === "retriever");
+        selectedNode = target;
+        updateInspector(target);
+        camera.x = -1050;
+        camera.y = -280;
+        camera.zoom = 1.15;
+      } else if (view === "leads") {
+        const target = NODES.find(n => n.id === "lead_mgr");
+        selectedNode = target;
+        updateInspector(target);
+        camera.x = -700;
+        camera.y = -470;
+        camera.zoom = 1.25;
+      }
+    }
+
+    // --- SIMULATION CONTROL ENGINE ---
+    function applySimulationStage(index) {
+      simIndex = (index + SIM_SEQUENCE.length) % SIM_SEQUENCE.length;
+      simParticleProgress = 0;
+      const stage = SIM_SEQUENCE[simIndex];
+
+      // Update HUD
+      document.getElementById("hud-step-title").textContent = stage.title;
+      document.getElementById("hud-step-detail").textContent = stage.detail;
+
+      // Update Live Payload Card
+      document.getElementById("payload-content").textContent = stage.payload;
+
+      // Highlight active node in inspector
+      const node = NODES.find(n => n.id === stage.activeNode);
+      if (node) {
+        selectedNode = node;
+        updateInspector(node);
+      }
+    }
+
+    function toggleSimulation() {
+      if (isSimulating) {
+        pauseSimulation();
+      } else {
+        startSimulation();
+      }
+    }
+
+    function startSimulation() {
+      isSimulating = true;
+      document.getElementById("main-sim-text").textContent = "Pause Sim";
+      document.getElementById("main-sim-icon").textContent = "⏸";
+      document.getElementById("main-sim-btn").classList.add("running");
+      document.getElementById("hud-play-btn").textContent = "⏸";
+
+      runNextSimTimer();
+    }
+
+    function runNextSimTimer() {
+      if (!isSimulating) return;
+      applySimulationStage(simIndex);
+
+      simTimer = setTimeout(() => {
+        simIndex = (simIndex + 1) % SIM_SEQUENCE.length;
+        runNextSimTimer();
+      }, 2600);
+    }
+
+    function pauseSimulation() {
+      isSimulating = false;
+      clearTimeout(simTimer);
+      document.getElementById("main-sim-text").textContent = "Resume Sim";
+      document.getElementById("main-sim-icon").textContent = "▶";
+      document.getElementById("main-sim-btn").classList.remove("running");
+      document.getElementById("hud-play-btn").textContent = "▶";
+    }
+
+    function stepSim(direction) {
+      pauseSimulation();
+      applySimulationStage(simIndex + direction);
+    }
+
+    function resetSim() {
+      pauseSimulation();
+      simIndex = 0;
+      applySimulationStage(0);
+    }
+
+    // --- INITIALIZATION ---
+    resize();
+    fitToScreen();
+    updateInspector(selectedNode);
+    applySimulationStage(0);
+    requestAnimationFrame(renderLoop);
+  </script>
+</body>
+</html>
