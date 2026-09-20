@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>WeMentors AI Assistant Launch</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html, body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #090814;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        color: #f3f1fb;
+      }
+
+      /* Root composition */
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: radial-gradient(circle at 50% 20%, #1e1338 0%, #0c0a18 60%, #06050c 100%);
+      }
+
+      /* Background glowing ambient orbs */
+      .bg-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(90px);
+        pointer-events: none;
+      }
+      .bg-orb-1 {
+        top: -100px;
+        left: 200px;
+        width: 600px;
+        height: 600px;
+        background: rgba(139, 107, 255, 0.18);
+      }
+      .bg-orb-2 {
+        bottom: -150px;
+        right: 150px;
+        width: 700px;
+        height: 700px;
+        background: rgba(201, 151, 28, 0.14);
+      }
+
+      /* Starry grid overlay */
+      .star-overlay {
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.15) 1px, transparent 0);
+        background-size: 36px 36px;
+        opacity: 0.6;
+      }
+
+      /* Common scene styles */
+      .scene {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .scene-inner {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* Typography */
+      .font-display {
+        font-family: 'Fraunces', Georgia, serif;
+      }
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 18px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.22em;
+        color: #f6d43f;
+        margin-bottom: 24px;
+      }
+      .eyebrow-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #f6d43f;
+        box-shadow: 0 0 12px #f6d43f;
+      }
+      .hero-title {
+        font-size: 76px;
+        font-weight: 600;
+        line-height: 1.1;
+        text-align: center;
+        color: #ffffff;
+        max-width: 1400px;
+        letter-spacing: -0.02em;
+        text-shadow: 0 4px 24px rgba(0,0,0,0.5);
+      }
+      .hero-title em {
+        font-style: italic;
+        background: linear-gradient(135deg, #f6d43f 0%, #dbac2e 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .hero-subtitle {
+        font-size: 28px;
+        color: #b7a2dc;
+        margin-top: 28px;
+        text-align: center;
+        max-width: 1000px;
+        line-height: 1.5;
+      }
+
+      /* Logo lockup */
+      .logo-box {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 32px;
+        padding: 12px 28px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 999px;
+        backdrop-filter: blur(12px);
+      }
+      .logo-img {
+        height: 64px;
+        object-fit: contain;
+      }
+      .logo-name {
+        font-family: 'Fraunces', Georgia, serif;
+        font-size: 32px;
+        font-weight: 700;
+        color: #ffffff;
+      }
+      .logo-tag {
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0.2em;
+        color: #f6d43f;
+        text-transform: uppercase;
+      }
+
+      /* Scene 2 & 3: Chatbot Container */
+      .chat-stage {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 60px;
+        width: 100%;
+        max-width: 1600px;
+        height: 860px;
+      }
+
+      .chat-window {
+        width: 620px;
+        height: 820px;
+        background: #110f22;
+        border: 1px solid rgba(139, 107, 255, 0.35);
+        border-radius: 28px;
+        box-shadow: 0 28px 80px -15px rgba(0, 0, 0, 0.8), 0 0 40px rgba(139, 107, 255, 0.18);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .chat-header {
+        padding: 22px 26px;
+        background: linear-gradient(180deg, #181530 0%, #110f22 100%);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .chat-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #8b6bff, #5b7fff);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 16px rgba(139, 107, 255, 0.5);
+        font-weight: 700;
+        font-size: 20px;
+        color: #ffffff;
+      }
+      .chat-header-info {
+        flex: 1;
+      }
+      .chat-header-title {
+        font-family: 'Fraunces', serif;
+        font-size: 22px;
+        font-weight: 600;
+        color: #ffffff;
+      }
+      .chat-header-status {
+        font-size: 14px;
+        color: #a9a3c4;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 2px;
+      }
+      .status-dot-green {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #4ade80;
+        box-shadow: 0 0 10px #4ade80;
+      }
+
+      .chat-body {
+        flex: 1;
+        padding: 26px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        background: radial-gradient(circle at 20% 10%, rgba(139, 107, 255, 0.08), transparent 50%), #110f22;
+      }
+
+      .chat-bubble {
+        max-width: 88%;
+        padding: 18px 22px;
+        border-radius: 20px;
+        font-size: 18px;
+        line-height: 1.55;
+      }
+      .bubble-assistant {
+        align-self: flex-start;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: #f3f1fb;
+        border-bottom-left-radius: 6px;
+      }
+      .bubble-user {
+        align-self: flex-end;
+        background: linear-gradient(135deg, #5b37cc, #3f2ca8);
+        color: #ffffff;
+        font-weight: 500;
+        border-bottom-right-radius: 6px;
+        box-shadow: 0 8px 24px -6px rgba(45, 25, 150, 0.6);
+      }
+
+      .chat-suggestions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 8px;
+      }
+      .suggestion-pill {
+        padding: 12px 18px;
+        border-radius: 999px;
+        background: rgba(139, 107, 255, 0.12);
+        border: 1px solid rgba(139, 107, 255, 0.3);
+        color: #d3c4ec;
+        font-size: 15px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      /* Typing indicator */
+      .typing-indicator {
+        align-self: flex-start;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 14px 20px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .typing-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #8b6bff;
+      }
+
+      /* Side tech cards (Scene 3) */
+      .tech-sidebar {
+        width: 600px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      .tech-card {
+        padding: 26px 30px;
+        border-radius: 22px;
+        background: rgba(20, 18, 37, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(16px);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+      }
+      .tech-card-header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 12px;
+      }
+      .tech-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: rgba(139, 107, 255, 0.2);
+        border: 1px solid rgba(139, 107, 255, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #c79bff;
+        font-weight: 700;
+      }
+      .tech-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #ffffff;
+      }
+      .tech-desc {
+        font-size: 16px;
+        color: #a9a3c4;
+        line-height: 1.5;
+      }
+
+      /* Scene 4: Outro Grid & CTA */
+      .outro-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        max-width: 1400px;
+      }
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 32px;
+        margin: 48px 0;
+        width: 100%;
+      }
+      .stat-card {
+        padding: 32px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        backdrop-filter: blur(12px);
+      }
+      .stat-num {
+        font-family: 'Fraunces', serif;
+        font-size: 52px;
+        font-weight: 700;
+        color: #f6d43f;
+        margin-bottom: 8px;
+      }
+      .stat-label {
+        font-size: 18px;
+        color: #d3c4ec;
+        font-weight: 500;
+      }
+
+      .cta-card {
+        display: inline-flex;
+        align-items: center;
+        gap: 24px;
+        padding: 20px 48px;
+        background: linear-gradient(135deg, rgba(139, 107, 255, 0.35), rgba(91, 127, 255, 0.25));
+        border: 2px solid #8b6bff;
+        border-radius: 999px;
+        box-shadow: 0 16px 60px rgba(91, 63, 255, 0.4);
+      }
+      .cta-url {
+        font-family: 'Fraunces', serif;
+        font-size: 36px;
+        font-weight: 700;
+        color: #ffffff;
+        letter-spacing: 0.02em;
+      }
+      .cta-badge {
+        padding: 8px 18px;
+        border-radius: 999px;
+        background: #f6d43f;
+        color: #1a103c;
+        font-weight: 700;
+        font-size: 15px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="20"
+      data-width="1920"
+      data-height="1080"
+    >
+      <!-- Background elements -->
+      <div class="bg-orb bg-orb-1" data-layout-allow-overflow="true"></div>
+      <div class="bg-orb bg-orb-2" data-layout-allow-overflow="true"></div>
+      <div class="star-overlay"></div>
+
+      <!-- Audio Track -->
+      <audio
+        id="bgm"
+        class="clip"
+        data-start="0"
+        data-duration="20"
+        data-volume="0.65"
+        src="assets/music/bgm.mp3"
+      ></audio>
+
+      <!-- SFX Clips with exact media durations -->
+      <audio
+        id="sfx-pop"
+        class="clip"
+        data-start="3.6"
+        data-duration="0.37"
+        data-volume="0.5"
+        src="assets/sfx/pop.ogg"
+      ></audio>
+      <audio
+        id="sfx-send"
+        class="clip"
+        data-start="8.7"
+        data-duration="0.06"
+        data-volume="0.5"
+        src="assets/sfx/send.ogg"
+      ></audio>
+      <audio
+        id="sfx-chime"
+        class="clip"
+        data-start="10.1"
+        data-duration="0.54"
+        data-volume="0.55"
+        src="assets/sfx/chime.ogg"
+      ></audio>
+      <audio
+        id="sfx-click"
+        class="clip"
+        data-start="14.8"
+        data-duration="0.09"
+        data-volume="0.5"
+        src="assets/sfx/click.ogg"
+      ></audio>
+
+      <!-- SCENE 1: Brand Hook (0.0s - 3.5s) -->
+      <div id="scene1" class="scene clip" data-start="0" data-duration="3.5">
+        <div class="scene-inner" id="s1-inner">
+          <div class="logo-box" id="s1-logo">
+            <img src="assets/wm_brand_logo.png" alt="WeMentors Logo" class="logo-img" />
+            <div>
+              <div class="logo-name">WeMentors</div>
+              <div class="logo-tag">Academy</div>
+            </div>
+          </div>
+          <div class="eyebrow" id="s1-eyebrow">
+            <span class="eyebrow-dot"></span>
+            <span>Next-Gen Academic Advisory</span>
+            <span class="eyebrow-dot"></span>
+          </div>
+          <h1 class="hero-title font-display" id="s1-title">
+            Personalized Learning.<br />
+            <em>Proven Results.</em>
+          </h1>
+          <p class="hero-subtitle" id="s1-sub">
+            Live 1:1 online mentoring across Grades 3–10 in core subjects & Confident Speaker worldwide.
+          </p>
+        </div>
+      </div>
+
+      <!-- SCENE 2: The AI Assistant Reveal (3.5s - 8.5s) -->
+      <div id="scene2" class="scene clip" data-start="3.5" data-duration="5.0">
+        <div class="scene-inner" id="s2-inner">
+          <div class="chat-stage">
+            <div class="chat-window" id="s2-chatwindow">
+              <div class="chat-header">
+                <div class="chat-avatar">WM</div>
+                <div class="chat-header-info">
+                  <div class="chat-header-title">WeMentors Assistant</div>
+                  <div class="chat-header-status">
+                    <span class="status-dot-green"></span>
+                    <span>AI Academic Mentor · Online</span>
+                  </div>
+                </div>
+              </div>
+              <div class="chat-body">
+                <div class="chat-bubble bubble-assistant" id="s2-welcome">
+                  Hi! I'm the WeMentors Assistant. I can help you explore our programs, understand our 1:1 methodology, and book a free personalized demo.
+                </div>
+                <div class="chat-suggestions" id="s2-suggestions">
+                  <div class="suggestion-pill" id="s2-sug-1">
+                    <span>✦</span> What programs do you offer?
+                  </div>
+                  <div class="suggestion-pill" id="s2-sug-2">
+                    <span>✦</span> Tell me about Confident Speaker
+                  </div>
+                  <div class="suggestion-pill" id="s2-sug-3">
+                    <span>✦</span> How does the free demo work?
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="tech-sidebar" id="s2-sidebar">
+              <div class="eyebrow">
+                <span class="eyebrow-dot"></span>
+                <span>Intelligent Chat Interface</span>
+              </div>
+              <h2 class="font-display" style="font-size: 48px; line-height: 1.15; color: #ffffff; margin-bottom: 20px;">
+                Direct Academic Answers. Zero Friction.
+              </h2>
+              <p style="font-size: 22px; color: #b7a2dc; line-height: 1.6;">
+                Deeply integrated with the WeMentors curriculum knowledge base to guide students and parents instantly.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 3: Query & Dual-Model Failover (8.5s - 14.5s) -->
+      <div id="scene3" class="scene clip" data-start="8.5" data-duration="6.0">
+        <div class="scene-inner" id="s3-inner">
+          <div class="chat-stage">
+            <div class="chat-window" id="s3-chatwindow">
+              <div class="chat-header">
+                <div class="chat-avatar">WM</div>
+                <div class="chat-header-info">
+                  <div class="chat-header-title">WeMentors Assistant</div>
+                  <div class="chat-header-status">
+                    <span class="status-dot-green"></span>
+                    <span>AI Academic Mentor · Active</span>
+                  </div>
+                </div>
+              </div>
+              <div class="chat-body">
+                <div class="chat-bubble bubble-user" id="s3-userbubble">
+                  Tell me about Confident Speaker for Grade 5.
+                </div>
+                <div class="typing-indicator" id="s3-typing">
+                  <span class="typing-dot" id="td-1"></span>
+                  <span class="typing-dot" id="td-2"></span>
+                  <span class="typing-dot" id="td-3"></span>
+                </div>
+                <div class="chat-bubble bubble-assistant" id="s3-asstbubble">
+                  <strong>Confident Speaker</strong> builds speech delivery, debate, and social confidence with dedicated 1:1 mentoring.<br/><br/>
+                  Sessions are customized to Grade 5 students. Would you like to schedule your free demo class?
+                </div>
+              </div>
+            </div>
+            <div class="tech-sidebar" id="s3-sidebar">
+              <div class="tech-card" id="s3-card-1">
+                <div class="tech-card-header">
+                  <div class="tech-icon">⚡</div>
+                  <div class="tech-title">Dual-Model Failover Architecture</div>
+                </div>
+                <div class="tech-desc">
+                  Gemini 2.5 Flash-Lite primary with automatic bounded fallback to Groq Llama 3.3 70B & curated RAG.
+                </div>
+              </div>
+              <div class="tech-card" id="s3-card-2">
+                <div class="tech-card-header">
+                  <div class="tech-icon">🛡️</div>
+                  <div class="tech-title">Deterministic Intent & Guardrails</div>
+                </div>
+                <div class="tech-desc">
+                  Zero hallucination guarantee, capability gating, and strict PII / prompt injection protection.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 4: Production Ready & Live URL (14.5s - 20.0s) -->
+      <div id="scene4" class="scene clip" data-start="14.5" data-duration="5.5">
+        <div class="scene-inner" id="s4-inner">
+          <div class="outro-box">
+            <div class="eyebrow" id="s4-eyebrow">
+              <span class="eyebrow-dot"></span>
+              <span>Production Verified</span>
+              <span class="eyebrow-dot"></span>
+            </div>
+            <h1 class="hero-title font-display" id="s4-title">
+              Production-Ready. Defensible.<br />
+              <em>Live Worldwide.</em>
+            </h1>
+            <div class="stats-grid" id="s4-grid">
+              <div class="stat-card" id="s4-stat-1">
+                <div class="stat-num">20 / 20</div>
+                <div class="stat-label">Production Test Suites Passed</div>
+              </div>
+              <div class="stat-card" id="s4-stat-2">
+                <div class="stat-num">&lt; 800ms</div>
+                <div class="stat-label">Fast Edge Failover Latency</div>
+              </div>
+              <div class="stat-card" id="s4-stat-3">
+                <div class="stat-num">100%</div>
+                <div class="stat-label">Curriculum Verified Accuracy</div>
+              </div>
+            </div>
+            <div class="cta-card" id="s4-cta">
+              <div class="cta-url">wementors.vercel.app</div>
+              <div class="cta-badge">Experience It Live</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GSAP Animation Driver -->
+    <script>
+      const tl = gsap.timeline({ paused: true });
+
+      // ==========================================
+      // SCENE 1 (0.0s - 3.5s)
+      // ==========================================
+      tl.fromTo("#s1-logo", { y: -30, opacity: 0, scale: 0.9 }, { y: 0, opacity: 1, scale: 1, duration: 0.8, ease: "power3.out" }, 0.2);
+      tl.fromTo("#s1-eyebrow", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.5);
+      tl.fromTo("#s1-title", { opacity: 0, scale: 0.94, y: 25 }, { opacity: 1, scale: 1, y: 0, duration: 0.9, ease: "power3.out" }, 0.8);
+      tl.fromTo("#s1-sub", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, 1.3);
+      tl.to("#s1-inner", { opacity: 0, scale: 1.04, duration: 0.4, ease: "power2.in" }, 3.1);
+
+      // ==========================================
+      // SCENE 2 (3.5s - 8.5s)
+      // ==========================================
+      tl.fromTo("#s2-chatwindow", { y: 60, opacity: 0, scale: 0.94 }, { y: 0, opacity: 1, scale: 1, duration: 0.8, ease: "back.out(1.4)" }, 3.6);
+      tl.fromTo("#s2-sidebar", { x: 50, opacity: 0 }, { x: 0, opacity: 1, duration: 0.8, ease: "power3.out" }, 3.8);
+      tl.fromTo("#s2-welcome", { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 4.4);
+      tl.fromTo("#s2-sug-1", { opacity: 0, x: -15 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 5.2);
+      tl.fromTo("#s2-sug-2", { opacity: 0, x: -15 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 5.6);
+      tl.fromTo("#s2-sug-3", { opacity: 0, x: -15 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 6.0);
+      tl.to("#s2-inner", { opacity: 0, y: -20, duration: 0.4, ease: "power2.in" }, 8.1);
+
+      // ==========================================
+      // SCENE 3 (8.5s - 14.5s)
+      // ==========================================
+      tl.fromTo("#s3-chatwindow", { opacity: 0, scale: 0.96 }, { opacity: 1, scale: 1, duration: 0.6, ease: "power3.out" }, 8.5);
+      tl.fromTo("#s3-userbubble", { opacity: 0, y: 20, scale: 0.92 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.3)" }, 8.7);
+      // Typing indicator
+      tl.fromTo("#s3-typing", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 9.3);
+      tl.to("#td-1", { y: -6, repeat: 3, yoyo: true, duration: 0.25 }, 9.4);
+      tl.to("#td-2", { y: -6, repeat: 3, yoyo: true, duration: 0.25 }, 9.5);
+      tl.to("#td-3", { y: -6, repeat: 3, yoyo: true, duration: 0.25 }, 9.6);
+      tl.to("#s3-typing", { opacity: 0, duration: 0.2 }, 10.1);
+      // Assistant response
+      tl.fromTo("#s3-asstbubble", { opacity: 0, y: 20, scale: 0.95 }, { opacity: 1, y: 0, scale: 1, duration: 0.7, ease: "power3.out" }, 10.2);
+      // Architecture cards
+      tl.fromTo("#s3-card-1", { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: 0.7, ease: "power2.out" }, 10.6);
+      tl.fromTo("#s3-card-2", { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: 0.7, ease: "power2.out" }, 11.2);
+      tl.to("#s3-inner", { opacity: 0, scale: 1.03, duration: 0.4, ease: "power2.in" }, 14.1);
+
+      // ==========================================
+      // SCENE 4 (14.5s - 20.0s)
+      // ==========================================
+      tl.fromTo("#s4-eyebrow", { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 14.7);
+      tl.fromTo("#s4-title", { opacity: 0, y: 25, scale: 0.95 }, { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "power3.out" }, 14.9);
+      tl.fromTo("#s4-stat-1", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.2)" }, 15.4);
+      tl.fromTo("#s4-stat-2", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.2)" }, 15.7);
+      tl.fromTo("#s4-stat-3", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.2)" }, 16.0);
+      tl.fromTo("#s4-cta", { opacity: 0, scale: 0.9, y: 20 }, { opacity: 1, scale: 1, y: 0, duration: 0.8, ease: "back.out(1.5)" }, 16.5);
+      tl.to("#s4-cta", { boxShadow: "0 20px 80px rgba(139, 107, 255, 0.75)", duration: 1.2, yoyo: true, repeat: 2 }, 17.3);
+
+      // Connect to Hyperframes runtime
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

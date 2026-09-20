@@ -1,0 +1,1 @@
+Introducing WeMentors Academy: 1:1 live academic mentoring and speech mastery powered by a dual-model failover AI assistant with zero hallucinations. Live in production at https://wementors.vercel.app
