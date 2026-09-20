@@ -17,8 +17,8 @@
 - Animations: Working
 
 ## Git
-- Git repository: Not configured
-- Development branch: Not created
+- Git repository: Configured (`origin/main`)
+- Tracking: Active
 
 ## Problems Found
 - None
