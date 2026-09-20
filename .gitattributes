@@ -1,0 +1,8 @@
+# GitHub Linguist overrides
+# Treat internal agent tooling and scripts as vendored code so they do not skew language statistics
+.agent/** linguist-vendored
+*.cjs linguist-vendored
+*.js linguist-vendored
+
+# Treat standalone HTML and graphs as documentation/undetected so Python is the primary language
+*.html linguist-detectable=false
