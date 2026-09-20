@@ -110,8 +110,9 @@ UNCLEAR_BOARD_FALLBACK = (
 )
 
 UNCONFIRMED_DETAILS_FALLBACK = (
-    "I don’t have the confirmed details for that yet. I can help you explore the available programs "
-    "or guide you to book a free demo."
+    "I don't have confirmed details about that yet. I can't confirm or invent details about specific policies, "
+    "exact fees, schedules, discounts, or unlisted offerings. Please contact the WeMentors team directly at "
+    "admin@wementors.co or +91 76111 92227, or book a free demo on our website to discuss with an advisor."
 )
 UNSUPPORTED_DETAILS_FALLBACK = UNCONFIRMED_DETAILS_FALLBACK
 FALLBACK_RESPONSE = UNCONFIRMED_DETAILS_FALLBACK
@@ -347,9 +348,9 @@ DEMO_BOOKING_RESPONSE = (
 )
 
 DEMO_TRANSACTION_REQUEST_RESPONSE = (
-    "I can't submit the demo booking directly from the chat right now. "
-    "You can use the **Book Free Demo** button at the top-right of the website to enter your details directly, "
-    "or reach out to our team at **admin@wementors.co** or **+91 76111 92227**."
+    "I cannot directly book or submit bookings directly from the chat. "
+    "You can use the **Book Free Demo** form at the top-right of the website, "
+    "or reach out directly to our team at **admin@wementors.co** or **+91 76111 92227**."
 )
 
 DEMO_NAME_CLARIFICATION_RESPONSE = (
@@ -391,8 +392,8 @@ THANKS_RESPONSES = [
 ]
 
 GOODBYE_RESPONSES = [
-    "Take care! Feel free to come back anytime you have questions about WeMentors.",
-    "Goodbye! You can reach the WeMentors team any time during working hours if you need more help.",
+    "Goodbye! Have a great day and feel free to reach out anytime you have questions about WeMentors.",
+    "Goodbye! Have a wonderful day, and you can reach the WeMentors team any time during working hours if you need more help.",
 ]
 
 FRUSTRATED_RESPONSES = [

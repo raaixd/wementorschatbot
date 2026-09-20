@@ -14,10 +14,12 @@ See README.md for setup and chatbot-backend/.env.example for configuration.
 
 from __future__ import annotations
 
+import json
 import logging
 import re
 import time
 import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -360,12 +362,29 @@ def chat(
         )
 
     duration_ms = round((time.perf_counter() - t_start) * 1000, 2)
+    meta = llm.get_last_generation_meta()
+    obs_event = {
+        "event": "chat_request_completed",
+        "request_id": body.request_id or "unspecified",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "intent": result.intent,
+        "provider": meta.get("provider", "none"),
+        "fallback_used": meta.get("fallback_used", False),
+        "retrieval_ms": getattr(result, "retrieval_ms", 0.0),
+        "llm_ms": meta.get("llm_ms", 0.0),
+        "total_ms": duration_ms,
+        "validation_result": meta.get("validation_result", "passed"),
+        "status": "success",
+    }
+    logger.info("METRIC %s", json.dumps(obs_event))
     logger.info(
-        "[TIMING] duration_ms=%.1f intent=%s matched_ids=%s chars=%d",
+        "[TIMING] duration_ms=%.1f intent=%s matched_ids=%s chars=%d provider=%s fallback=%s",
         duration_ms,
         result.intent,
         result.matched_entry_ids,
         len(result.reply),
+        meta.get("provider", "none"),
+        meta.get("fallback_used", False),
     )
 
     database.log_message(

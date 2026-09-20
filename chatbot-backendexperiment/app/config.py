@@ -142,7 +142,7 @@ GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
 GEMINI_BASE_URL = os.getenv("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/")
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "").strip()
-GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
 GROQ_BASE_URL = os.getenv("GROQ_BASE_URL", "https://api.groq.com/openai/v1")
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "").strip()
@@ -192,6 +192,10 @@ def _select_provider() -> tuple[str, str]:
 
 
 LLM_PROVIDER, LLM_PROVIDER_CONFIG_ERROR = _select_provider()
+LLM_FALLBACK_PROVIDER = os.getenv(
+    "LLM_FALLBACK_PROVIDER",
+    "groq" if (GROQ_API_KEY and LLM_PROVIDER != "groq") else "none"
+).strip().lower()
 LLM_ENABLED = LLM_PROVIDER != "none"
 LLM_TIMEOUT_SECONDS = _get_int("LLM_TIMEOUT_SECONDS", 4)
 LLM_MAX_TOKENS = _get_int("LLM_MAX_TOKENS", 1000)
@@ -205,3 +209,4 @@ ADMIN_API_KEY = os.getenv("ADMIN_API_KEY", "").strip()
 
 # --- Logging ---------------------------------------------------------------
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+

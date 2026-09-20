@@ -27,8 +27,9 @@ from __future__ import annotations
 
 import logging
 import re
+import time
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Optional, Sequence
 
 from . import config, personality
 from .knowledge import KBEntry
@@ -224,7 +225,7 @@ class GeminiProvider(LLMProvider):
 
     def generate(self, system_prompt: str, messages: Sequence[Dict[str, str]]) -> Optional[str]:
         candidate_models = [self._model]
-        for fast_m in ("gemini-3.5-flash-lite", "gemini-3.6-flash"):
+        for fast_m in ("gemini-3.5-flash-lite", "gemini-3.6-flash", "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-flash-latest"):
             if fast_m not in candidate_models:
                 candidate_models.append(fast_m)
 
@@ -276,8 +277,11 @@ class GroqProvider(LLMProvider):
         self._model = model
 
     def generate(self, system_prompt: str, messages: Sequence[Dict[str, str]]) -> Optional[str]:
-        candidate_models = [self._model]
-        for fast_m in ("llama-3.3-70b-versatile", "llama-3.1-8b-instant"):
+        if self._model and self._model != "llama-3.3-70b-versatile":
+            candidate_models = [self._model]
+        else:
+            candidate_models = ["openai/gpt-oss-120b", "qwen/qwen3.8-27b"]
+        for fast_m in ("openai/gpt-oss-120b", "qwen/qwen3.8-27b", "openai/gpt-oss-20b", "llama-3.3-70b-versatile"):
             if fast_m not in candidate_models:
                 candidate_models.append(fast_m)
 
@@ -359,13 +363,36 @@ def build_provider(provider_name: str, client_factory=None) -> LLMProvider:
 
 _provider: Optional[LLMProvider] = None
 _provider_load_attempted = False
+_fallback_provider: Optional[LLMProvider] = None
+_fallback_load_attempted = False
+
+_last_meta: Dict[str, Any] = {
+    "provider": "none",
+    "fallback_used": False,
+    "llm_ms": 0.0,
+    "validation_result": "none",
+}
+
+
+def get_last_generation_meta() -> Dict[str, Any]:
+    return dict(_last_meta)
 
 
 def set_provider_for_testing(provider: Optional[LLMProvider]) -> None:
     """Install a provider (or None to clear) without going through config."""
-    global _provider, _provider_load_attempted
+    global _provider, _provider_load_attempted, _fallback_provider, _fallback_load_attempted
     _provider = provider
     _provider_load_attempted = provider is not None
+    if provider is not None and not _fallback_load_attempted:
+        _fallback_provider = NullProvider()
+        _fallback_load_attempted = True
+
+
+def set_fallback_provider_for_testing(provider: Optional[LLMProvider]) -> None:
+    """Install a fallback provider (or None to clear) without going through config."""
+    global _fallback_provider, _fallback_load_attempted
+    _fallback_provider = provider
+    _fallback_load_attempted = provider is not None
 
 
 def get_active_provider() -> LLMProvider:
@@ -392,11 +419,40 @@ def get_active_provider() -> LLMProvider:
     return _provider
 
 
+def get_fallback_provider() -> LLMProvider:
+    """Build the secondary fallback provider once and cache it."""
+    global _fallback_provider, _fallback_load_attempted
+    if _fallback_load_attempted:
+        return _fallback_provider or NullProvider()
+    _fallback_load_attempted = True
+
+    fallback_name = getattr(config, "LLM_FALLBACK_PROVIDER", "none")
+    if not fallback_name or fallback_name == "none" or fallback_name == config.LLM_PROVIDER:
+        _fallback_provider = NullProvider()
+        return _fallback_provider
+
+    try:
+        _fallback_provider = build_provider(fallback_name)
+    except Exception as exc:
+        logger.warning(
+            "Fallback LLM provider %r unavailable (%s); fallback disabled",
+            fallback_name,
+            type(exc).__name__,
+        )
+        _fallback_provider = NullProvider()
+
+    if not isinstance(_fallback_provider, NullProvider):
+        logger.info("LLM fallback provider configured: %s", _fallback_provider.name)
+    return _fallback_provider
+
+
 def reset_provider_cache() -> None:
-    """Rebuild the provider on next use. Used by tests."""
-    global _provider, _provider_load_attempted
+    """Rebuild the providers on next use. Used by tests."""
+    global _provider, _provider_load_attempted, _fallback_provider, _fallback_load_attempted
     _provider = None
     _provider_load_attempted = False
+    _fallback_provider = None
+    _fallback_load_attempted = False
 
 
 def generate_answer(
@@ -404,26 +460,123 @@ def generate_answer(
     scored: Sequence[ScoredEntry],
     history: Optional[Sequence[Dict[str, str]]] = None,
 ) -> Optional[str]:
+    """Generate an answer using the bounded primary -> fallback chain.
+
+    USER REQUEST
+         |
+         v
+    PRIMARY PROVIDER (Gemini)
+         |
+      success?
+       /     \
+     YES      NO
+     |         |
+     v         v
+    answer   bounded fallback (Groq)
+               |
+            success?
+            /     \
+          YES      NO
+           |        |
+           v        v
+         answer   safe deterministic KB answer (None)
+    """
+    global _last_meta
+    _last_meta = {
+        "provider": "none",
+        "fallback_used": False,
+        "llm_ms": 0.0,
+        "validation_result": "none",
+    }
+
     provider = get_active_provider()
     if isinstance(provider, NullProvider):
         return None
 
     messages = build_messages(user_message, scored, history)
 
+    # 1. Primary Provider Attempt
+    t0 = time.perf_counter()
+    raw = None
+    primary_failed = False
     try:
         raw = provider.generate(personality.PERSONA_SYSTEM_PROMPT, messages)
-    except Exception as exc:  # network/provider/timeout failures
+        if raw is None:
+            primary_failed = True
+            logger.warning("Primary LLM (%s) returned no content", provider.name)
+    except Exception as exc:
+        primary_failed = True
         logger.warning(
-            "LLM generation failed (%s); falling back to knowledge-base answer",
+            "Primary LLM generation failed (%s) on provider %s",
             type(exc).__name__,
+            provider.name,
         )
-        return None
 
-    if raw is None:
-        logger.warning("LLM returned no content; falling back to knowledge-base answer")
-        return None
+    primary_ms = round((time.perf_counter() - t0) * 1000, 2)
 
-    cleaned = sanitize_llm_output(raw)
-    if cleaned is None:
-        logger.warning("LLM output rejected by validation; falling back to knowledge-base answer")
-    return cleaned
+    cleaned = None
+    if raw and not primary_failed:
+        cleaned = sanitize_llm_output(raw)
+        if cleaned is None:
+            primary_failed = True
+            logger.warning("Primary LLM output rejected by validation")
+
+    if cleaned and not primary_failed:
+        _last_meta = {
+            "provider": provider.name,
+            "fallback_used": False,
+            "llm_ms": primary_ms,
+            "validation_result": "passed",
+        }
+        return cleaned
+
+    # 2. Bounded Secondary Fallback Attempt (Groq)
+    fallback = get_fallback_provider()
+    if not isinstance(fallback, NullProvider) and fallback.name != provider.name and provider.name in ("gemini", "groq", "anthropic"):
+        logger.info(
+            "Primary LLM (%s) unavailable/failed. Initiating bounded fallback to %s",
+            provider.name,
+            fallback.name,
+        )
+        t_fb = time.perf_counter()
+        fb_raw = None
+        fb_failed = False
+        try:
+            fb_raw = fallback.generate(personality.PERSONA_SYSTEM_PROMPT, messages)
+            if fb_raw is None:
+                fb_failed = True
+                logger.warning("Fallback LLM (%s) returned no content", fallback.name)
+        except Exception as exc:
+            fb_failed = True
+            logger.warning(
+                "Fallback LLM generation failed (%s) on provider %s",
+                type(exc).__name__,
+                fallback.name,
+            )
+
+        fb_ms = round((time.perf_counter() - t_fb) * 1000, 2)
+        total_llm_ms = round(primary_ms + fb_ms, 2)
+
+        if fb_raw and not fb_failed:
+            fb_cleaned = sanitize_llm_output(fb_raw)
+            if fb_cleaned is not None:
+                logger.info("Bounded fallback to %s succeeded in %.1fms", fallback.name, fb_ms)
+                _last_meta = {
+                    "provider": fallback.name,
+                    "fallback_used": True,
+                    "llm_ms": total_llm_ms,
+                    "validation_result": "passed",
+                }
+                return fb_cleaned
+            else:
+                logger.warning("Fallback LLM output rejected by validation")
+
+    # 3. Safe Deterministic Fallback
+    _last_meta = {
+        "provider": provider.name,
+        "fallback_used": not isinstance(fallback, NullProvider),
+        "llm_ms": primary_ms,
+        "validation_result": "rejected" if raw else "failed",
+    }
+    logger.warning("All active LLM providers failed or declined; falling back to knowledge-base answer")
+    return None

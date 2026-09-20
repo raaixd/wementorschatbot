@@ -136,9 +136,26 @@
         "icse",
         "igcse",
         "ib board",
-        "which board"
+        "which board",
+        "what board",
+        "boards",
+        "what boards do you cover",
+        "which boards do you support",
+        "what boards",
+        "which boards",
+        "boards supported",
+        "school boards"
       ],
-      "keywords": [],
+      "keywords": [
+        "board",
+        "boards",
+        "curriculum",
+        "curricula",
+        "cbse",
+        "icse",
+        "igcse",
+        "ib"
+      ],
       "answer": "WeMentors supports CBSE, ICSE, IGCSE, and IB curricula.",
       "follow_ups": [
         "Which grades are supported?"
@@ -155,13 +172,20 @@
         "what do you teach",
         "what classes do you teach",
         "what do you guys teach",
-        "what subjects do you teach"
+        "what subjects do you teach",
+        "do you teach foreign languages",
+        "do you teach french or german",
+        "french",
+        "german"
       ],
       "keywords": [
         "mathematics",
         "science",
         "english",
-        "environmental studies"
+        "environmental studies",
+        "languages",
+        "french",
+        "german"
       ],
       "answer": "Academic subjects and the Confident Speaker program cover:",
       "follow_ups": [
@@ -185,13 +209,29 @@
         "online classes",
         "live classes",
         "virtual classes",
-        "in person or online"
+        "in person or online",
+        "offline",
+        "offline classes",
+        "physical centers",
+        "offline coaching",
+        "offline coaching center",
+        "in person classes",
+        "in-person",
+        "do you have offline centers",
+        "offline physical centers"
       ],
       "keywords": [
         "video call",
-        "digital whiteboard"
+        "digital whiteboard",
+        "online",
+        "offline",
+        "physical",
+        "centers",
+        "center",
+        "worldwide",
+        "remote"
       ],
-      "answer": "Classes are conducted live and online through video calls with digital whiteboard support, allowing mentors to teach and solve problems in real time.",
+      "answer": "All WeMentors classes and mentoring sessions are conducted 100% live and online worldwide through video calls. We do not have offline physical centers; students learn remotely from anywhere.",
       "follow_ups": [
         "What is the batch size?",
         "Are one-on-one classes available?"
@@ -523,9 +563,13 @@
       "keywords": [
         "all subjects",
         "subjects",
-        "middle school subjects"
+        "middle school subjects",
+        "maths",
+        "science",
+        "mathematics",
+        "english"
       ],
-      "answer": "The Middle School program covers all core subjects, along with doubt-solving and practical labs designed for Grades 6–8.",
+      "answer": "The Middle School program covers all core subjects including Mathematics, Science, and English, along with doubt-solving and practical labs designed for Grades 6–8.",
       "confidence": "verified"
     },
     {
@@ -710,10 +754,9 @@
         "is confident speaker for professionals",
         "is confident speaker for homemakers",
         "target audience for confident speaker",
-        "who is it for"
+        "who is confident speaker suitable for"
       ],
       "keywords": [
-        "who",
         "audience",
         "students",
         "professionals",
@@ -734,14 +777,15 @@
         "scope of confident speaker",
         "what will my child learn in confident speaker",
         "what do we learn in confident speaker",
-        "what does it cover"
+        "what skills will my child build in confident speaker",
+        "what skills will my child build",
+        "what skills does confident speaker teach"
       ],
       "keywords": [
-        "scope",
-        "cover",
         "spoken english",
         "public speaking",
-        "interview skills"
+        "interview skills",
+        "speaking skills"
       ],
       "answer": "The Confident Speaker program covers Spoken English, Public Speaking, and Interview Skills. The program focuses on practical development rather than rote grammar drills.\n\nYou can click **Book Free Demo** at the top-right of the website to experience a trial session.",
       "confidence": "verified"
@@ -754,9 +798,8 @@
         "is confident speaker one-on-one",
         "is confident speaker 1 on 1",
         "does confident speaker have a personal mentor",
-        "is it one-on-one",
-        "is it 1 on 1",
-        "does every student get a personal mentor"
+        "is confident speaker individual",
+        "does every student get a personal mentor in confident speaker"
       ],
       "keywords": [
         "one-on-one",
@@ -1009,14 +1052,32 @@
       "phrasings": [
         "what details can you not confirm",
         "can you guarantee results",
-        "can you promise admission"
+        "can you promise admission",
+        "can you guarantee 95 marks",
+        "guarantee 98 percent",
+        "can you guarantee my admission to oxford or mit",
+        "admission guarantee",
+        "who are the teachers",
+        "names of teachers",
+        "mentor names",
+        "teacher names",
+        "faculty names",
+        "full names of your middle school science teachers",
+        "cancellation policy",
+        "sibling discount",
+        "scholarships"
       ],
       "keywords": [
         "guarantee",
         "refund",
-        "discount"
+        "discount",
+        "marks",
+        "admission",
+        "teachers",
+        "names",
+        "policy"
       ],
-      "answer": "I can't confirm or invent details about fees, discounts, exact class schedules, seat availability, admission policies, specific teacher assignments, refunds, or guarantees of results. Those need to be confirmed directly with the WeMentors team.",
+      "answer": "I can't confirm or invent details about fees, discounts, exact class schedules, seat availability, admission policies, specific teacher assignments or names, refunds, or guarantees of marks or college admissions. WeMentors focuses on personalized mentoring, concept clarity, and building foundational skills; please contact the WeMentors team or book a free demo to confirm specific policies.",
       "follow_ups": [
         "How can I contact WeMentors?"
       ],
@@ -1036,15 +1097,23 @@
         "im a college student",
         "do you accept college students",
         "can grad students apply",
-        "is this open to college students"
+        "is this open to college students",
+        "tutoring for btech",
+        "tutoring for b.tech engineering students",
+        "btech engineering students",
+        "engineering students",
+        "do you have tutoring for b.tech"
       ],
       "keywords": [
         "college",
         "university",
         "undergraduate",
-        "grad student"
+        "grad student",
+        "btech",
+        "b.tech",
+        "engineering"
       ],
-      "answer": "College students aren't eligible for the academic programs, since those are grade-banded for Grades 3-10. The Confident Speaker program (Spoken English, Public Speaking, Interview Skills) is open to everyone, including college students.",
+      "answer": "College students aren't eligible for the academic programs, since those are grade-banded for Grades 3-10. Engineering and college students can join the Confident Speaker program (Spoken English, Public Speaking, Interview Skills), which is open to everyone.",
       "follow_ups": [
         "What is the Confident Speaker program?",
         "Which grades are supported?"
@@ -1131,6 +1200,35 @@
       "follow_ups": [
         "Are the classes online?",
         "How do 1-on-1 sessions work?",
+        "How can I book a free demo?"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "id": "class-timings-flexibility",
+      "category": "scheduling",
+      "question": "Are class timings flexible?",
+      "phrasings": [
+        "class timings flexible",
+        "flexible timings",
+        "flexible schedule",
+        "can i choose class timing",
+        "class schedule flexibility",
+        "are timings flexible",
+        "are class timings flexible",
+        "is schedule flexible",
+        "flexible class timings"
+      ],
+      "keywords": [
+        "flexible",
+        "timing",
+        "schedule",
+        "mentor",
+        "timings"
+      ],
+      "answer": "Yes, class timings are scheduled flexibly between the learner, parent, and personal mentor to accommodate school hours and local time zones.",
+      "follow_ups": [
+        "Are classes online or offline?",
         "How can I book a free demo?"
       ],
       "confidence": "verified"

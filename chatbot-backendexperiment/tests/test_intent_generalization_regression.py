@@ -37,7 +37,8 @@ def check(name: str, condition: bool, detail: str = ""):
         print(f"[PASS] {name}")
     else:
         failures.append(f"{name}: {detail}")
-        print(f"[FAIL] {name} -> {detail}")
+        safe_detail = detail.encode("ascii", errors="replace").decode("ascii")
+        print(f"[FAIL] {name} -> {safe_detail}")
 
 
 def run_tests():
@@ -269,7 +270,8 @@ def run_tests():
     if failures:
         print(f"FAILED ({len(failures)} checks failed):")
         for f in failures:
-            print(f"  - {f}")
+            safe_f = f.encode("ascii", errors="replace").decode("ascii")
+            print(f"  - {safe_f}")
         sys.exit(1)
     else:
         print(f"ALL {passed_count} REGRESSION CHECKS PASSED PERFECTLY (100% SUCCESS)!")
