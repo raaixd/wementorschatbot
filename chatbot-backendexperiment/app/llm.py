@@ -233,6 +233,13 @@ class GeminiProvider(LLMProvider):
 
     name = "gemini"
 
+    # Cooldown constants
+    _TRANSIENT_COOLDOWN_SECONDS = 60.0       # For transient RPM/TPM rate limits
+    _DAILY_QUOTA_COOLDOWN_SECONDS = 3600.0   # Conservative 1-hour window for confirmed daily RPD exhaustion
+    _UNAVAILABLE_COOLDOWN_SECONDS = 300.0    # 5-minute cooldown for 404/503 service issues
+
+    _model_cooldowns: Dict[str, float] = {}
+
     def __init__(self, api_key: str, model: str, timeout_seconds: int, client_factory=None):
         """`client_factory` exists so tests can inject a stub and run
         deterministically whether or not `openai` is installed."""
@@ -249,15 +256,34 @@ class GeminiProvider(LLMProvider):
             max_retries=0,
         )
         self._model = model
+        self.last_model_used: Optional[str] = None
 
     def generate(self, system_prompt: str, messages: Sequence[Dict[str, str]]) -> Optional[str]:
-        candidate_models = [self._model]
-        for fast_m in ("gemini-3.5-flash-lite", "gemini-3.6-flash", "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-flash-latest"):
-            if fast_m not in candidate_models:
-                candidate_models.append(fast_m)
+        # Production routing order across verified capacity tiers:
+        # Default production cascade: 3.5-flash-lite -> 3.1-flash-lite -> 3.1-flash-lite-preview
+        production_candidates = [
+            "gemini-3.5-flash-lite",
+            "gemini-3.1-flash-lite",
+            "gemini-3.1-flash-lite-preview",
+        ]
+        candidate_models = []
+        if self._model:
+            candidate_models.append(self._model)
+            for m in production_candidates:
+                if m not in candidate_models:
+                    candidate_models.append(m)
+        else:
+            candidate_models = list(production_candidates)
+
+        now = time.time()
+        # Bypass models currently in cooldown to prevent latency penalties;
+        # if all models are in cooldown, attempt them anyway as a fail-open measure.
+        active_candidates = [m for m in candidate_models if now >= self._model_cooldowns.get(m, 0.0)]
+        if not active_candidates:
+            active_candidates = candidate_models
 
         last_error = None
-        for m in candidate_models:
+        for m in active_candidates:
             try:
                 response = self._client.chat.completions.create(
                     model=m,
@@ -269,13 +295,56 @@ class GeminiProvider(LLMProvider):
                     continue
                 content = (response.choices[0].message.content or "").strip()
                 if content:
+                    self._model_cooldowns.pop(m, None)
+                    self.last_model_used = m
                     return content
             except Exception as exc:
                 last_error = exc
                 err_str = str(exc).lower()
-                if any(x in err_str for x in ("rate_limit", "429", "not_found", "404", "503", "unavailable", "decommissioned")):
-                    logger.warning("Gemini model %s unavailable (%s); falling back to alternative model", m, type(exc).__name__)
+
+                # Detect daily quota exhaustion vs transient rate limit
+                # Google API indicates daily quota exhaustion via 'requestsperday', 'perday', or 'perprojectpermodel'
+                # in the QuotaFailure RPC violation / error details.
+                is_daily_quota = any(
+                    marker in err_str
+                    for marker in ("requestsperday", "perday", "perprojectpermodel", "generaterequestsperday")
+                )
+                is_transient_rate_limit = any(
+                    marker in err_str
+                    for marker in ("rate_limit", "429", "quota", "resource_exhausted")
+                )
+
+                if is_daily_quota:
+                    cooldown = self._DAILY_QUOTA_COOLDOWN_SECONDS
+                    self._model_cooldowns[m] = time.time() + cooldown
+                    logger.warning(
+                        "Gemini model %s daily RequestsPerDay quota exhausted (cooling down for %ds); falling back to alternative model",
+                        m,
+                        int(cooldown),
+                    )
                     continue
+
+                if is_transient_rate_limit:
+                    cooldown = self._TRANSIENT_COOLDOWN_SECONDS
+                    self._model_cooldowns[m] = time.time() + cooldown
+                    logger.warning(
+                        "Gemini model %s transient rate-limited (cooling down for %ds); falling back to alternative model",
+                        m,
+                        int(cooldown),
+                    )
+                    continue
+
+                if any(marker in err_str for marker in ("not_found", "404", "503", "unavailable", "decommissioned")):
+                    cooldown = self._UNAVAILABLE_COOLDOWN_SECONDS
+                    self._model_cooldowns[m] = time.time() + cooldown
+                    logger.warning(
+                        "Gemini model %s unavailable (%s); cooling down for %ds; falling back to alternative model",
+                        m,
+                        type(exc).__name__,
+                        int(cooldown),
+                    )
+                    continue
+
                 raise
 
         if last_error:
@@ -307,6 +376,7 @@ class GroqProvider(LLMProvider):
             max_retries=0,
         )
         self._model = model
+        self.last_model_used: Optional[str] = None
 
     def generate(self, system_prompt: str, messages: Sequence[Dict[str, str]]) -> Optional[str]:
         if self._model and self._model != "llama-3.3-70b-versatile":
@@ -330,6 +400,7 @@ class GroqProvider(LLMProvider):
                     continue
                 content = (response.choices[0].message.content or "").strip()
                 if content:
+                    self.last_model_used = m
                     return content
             except Exception as exc:
                 last_error = exc
@@ -485,6 +556,7 @@ def reset_provider_cache() -> None:
     _provider_load_attempted = False
     _fallback_provider = None
     _fallback_load_attempted = False
+    GeminiProvider._model_cooldowns.clear()
 
 
 def generate_answer(
@@ -556,6 +628,7 @@ def generate_answer(
     if cleaned and not primary_failed:
         _last_meta = {
             "provider": provider.name,
+            "model": getattr(provider, "last_model_used", None) or getattr(provider, "_model", None),
             "fallback_used": False,
             "llm_ms": primary_ms,
             "validation_result": "passed",
@@ -595,6 +668,7 @@ def generate_answer(
                 logger.info("Bounded fallback to %s succeeded in %.1fms", fallback.name, fb_ms)
                 _last_meta = {
                     "provider": fallback.name,
+                    "model": getattr(fallback, "last_model_used", None) or getattr(fallback, "_model", None),
                     "fallback_used": True,
                     "llm_ms": total_llm_ms,
                     "validation_result": "passed",
