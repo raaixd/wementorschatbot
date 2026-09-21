@@ -1028,17 +1028,78 @@ class ConversationEngine:
 
     def _extract_program_from_text(self, text: str) -> Optional[str]:
         t = text.lower()
-        if re.search(r"\b(foundation(?:\s+years?)?|primary|grades?\s*3\s*[-–to]\s*5|class\s*[345])\b", t):
+        if re.search(r"\b(foundation(?:\s+years?)?|primary|grades?\s*3\s*[-–to]\s*5|grades?\s*[345]\b|class\s*[345]\b|[345](?:th|rd|st)?\s*(?:grade|class|standard)\b)\b", t):
             return "foundation"
-        if re.search(r"\b(middle(?:\s+school)?|grades?\s*6\s*[-–to]\s*8|class\s*[678])\b", t):
+        if re.search(r"\b(middle(?:\s+school)?|grades?\s*6\s*[-–to]\s*8|grades?\s*[678]\b|class\s*[678]\b|[678]th\s*(?:grade|class|standard)\b)\b", t):
             return "middle"
-        if re.search(r"\b(senior(?:\s+school)?|board(?:\s+exam)?s?|grades?\s*9\s*[-–to]\s*10|class\s*(?:9|10)|10th|9th)\b", t):
+        if re.search(r"\b(senior(?:\s+school)?|board(?:\s+exam)?s?|grades?\s*9\s*[-–to]\s*10|grades?\s*(?:9|10)\b|class\s*(?:9|10)\b|(?:9|10)th\s*(?:grade|class|standard)\b)\b", t):
             return "senior"
         if re.search(r"\b(confident\s+speaker|public\s+speaking|spoken\s+english|interview\s+skills?|speaking\s+practice)\b", t):
             return "confident_speaker"
         if re.search(r"\b(academic\s+(?:courses?|classes|sessions?|programs?|subjects?|mentoring|learning)|classes\s+for\s+school\s+students|courses\s+for\s+school\s+students|school\s+students|school\s+courses|academics?)\b", t):
             return "academic"
         return None
+
+    def _match_mentor_inquiry_entries(self, text: str) -> List[ScoredEntry]:
+        """Detect multi-facet mentor, grade, curriculum, and subject inquiries,
+        and assemble the full set of relevant verified KB entries to ensure high
+        confidence and complete, accurate RAG responses without tripping fallback."""
+        t = text.lower()
+        is_mentor_inq = bool(re.search(r"\b(mentors?|tutoring|tutors?|classes|coaching|teaching|guidance|learn(?:ing)?|support)\b", t))
+        has_action = bool(re.search(r"\b(find|get|need|want|have|provide|assign|match|allocate|book|look(?:ing)?\s+for|can\s+(?:you|i)|could\s+(?:you|i)|do\s+you|available)\b", t))
+
+        if not (is_mentor_inq and has_action):
+            return []
+
+        # Program / Stage detection
+        is_foundation = bool(re.search(r"\b(grades?\s*[345]\b|class\s*[345]\b|[345](?:th|rd|st)?\s*(?:grade|class|standard)\b|foundation(?:\s+years?)?|primary)\b", t))
+        is_middle = bool(re.search(r"\b(grades?\s*[678]\b|class\s*[678]\b|[678]th\s*(?:grade|class|standard)\b|middle(?:\s+school)?)\b", t))
+        is_senior = bool(re.search(r"\b(grades?\s*(?:9|10)\b|class\s*(?:9|10)\b|(?:9|10)th\s*(?:grade|class|standard)\b|senior(?:\s+school)?|boards?|board\s+exams?)\b", t))
+        is_cs = bool(re.search(r"\b(confident\s+speaker|public\s+speaking|spoken\s+english|interview\s+skills?|speaking\s+practice)\b", t))
+
+        # Curriculum / Board detection
+        is_curriculum = bool(re.search(r"\b(cbse|icse|igcse|cambridge|ib|boards?|curriculum|curricula|syllabus)\b", t))
+
+        # Subject detection
+        is_math = bool(re.search(r"\b(math|maths|mathematics|algebra|geometry)\b", t))
+        is_science = bool(re.search(r"\b(science|physics|chemistry|biology)\b", t))
+        is_english = bool(re.search(r"\b(english|grammar|literature)\b", t))
+        is_social = bool(re.search(r"\b(social\s+studies|social\s+science|history|geography|civics)\b", t))
+
+        has_subject = is_math or is_science or is_english or is_social
+
+        if not any([is_foundation, is_middle, is_senior, is_cs, is_curriculum, has_subject]):
+            return []
+
+        scored: List[ScoredEntry] = []
+        seen = set()
+
+        def add_entry(entry_id: str, score: float):
+            if entry_id in self.entries_by_id and entry_id not in seen:
+                seen.add(entry_id)
+                scored.append(ScoredEntry(entry=self.entries_by_id[entry_id], score=score))
+
+        if is_middle:
+            add_entry("program-middle-school", 1.0)
+        elif is_foundation:
+            add_entry("program-foundation-years", 1.0)
+        elif is_senior:
+            add_entry("program-senior-school", 1.0)
+        elif is_cs:
+            add_entry("program-confident-speaker", 1.0)
+        elif is_curriculum or has_subject:
+            add_entry("programs-overview", 1.0)
+
+        if is_curriculum:
+            add_entry("curricula-supported", 0.95)
+
+        if is_middle and has_subject:
+            add_entry("middle-school-subjects", 0.90)
+        elif has_subject:
+            add_entry("what-subjects-offered", 0.90)
+
+        add_entry("personalized-mentoring-concept", 0.85)
+        return scored
 
 
     def _reply_for_program_id(self, prog_id: str, session_id: str) -> ReplyResult:
@@ -1916,7 +1977,10 @@ class ConversationEngine:
                         answer += " Students receive individual attention and dedicated mentor feedback."
                 return answer
             # LLM failed or timed out -> fall through to the safe template path.
-        return self._format_template_answer(scored)
+        template_ans = self._format_template_answer(scored)
+        if any(e.entry.id == "personalized-mentoring-concept" for e in scored) and not re.search(r"^\s*yes\b", template_ans, re.I):
+            template_ans = "Yes, WeMentors provides dedicated 1-on-1 personal mentors for students across school boards and subjects.\n\n" + template_ans
+        return template_ans
 
     def _match_programs_mentioned(self, text: str) -> List[KBEntry]:
         lowered = text.lower()
@@ -2029,6 +2093,7 @@ class ConversationEngine:
             "eligibility_mixed_fees",
             "international_eligibility",
             "online_classes",
+            "mentor_matching",
         )
         if intent not in allowed_yes_intents:
             reply = re.sub(r"^\s*Yes\.\s*", "", reply)
@@ -2054,7 +2119,7 @@ class ConversationEngine:
                 reply += "\n\nYou can click **Book Free Demo** at the top-right of the website to get started."
 
         # For program/course/general questions, ensure a practical next step exists
-        if intent in ("general_info", "board_exam", "confident_speaker") and not re.search(r"\b(book free demo|free demo)\b", reply, re.IGNORECASE):
+        if intent in ("general_info", "board_exam", "confident_speaker", "mentor_matching") and not re.search(r"\b(book free demo|free demo)\b", reply, re.IGNORECASE):
             reply += "\n\nYou can click **Book Free Demo** at the top-right of the website to explore our mentoring."
 
         # Ensure Senior School / Board Exam verified facts (Grades 9-10 & non-rotating personal mentor)
@@ -3222,8 +3287,12 @@ class ConversationEngine:
                         seen_ids.add(item.entry.id)
                         multi_scored.append(item)
 
+        mentor_scored = self._match_mentor_inquiry_entries(message)
+
         if referenced_entry is not None:
             scored = [ScoredEntry(entry=referenced_entry, score=1.0)]
+        elif mentor_scored:
+            scored = mentor_scored
         elif len(multi_scored) >= 2:
             scored = multi_scored[:3]
         else:
@@ -3243,13 +3312,15 @@ class ConversationEngine:
             return ReplyResult(personality.OFF_TOPIC_RESPONSE, "off_topic", [], None)
 
         top_score = scored[0].score
-        if referenced_entry is None and top_score < config.RETRIEVAL_CONFIDENCE_THRESHOLD:
+        if referenced_entry is None and not mentor_scored and top_score < config.RETRIEVAL_CONFIDENCE_THRESHOLD:
             # Low-confidence match: do not force-feed weak matches into the LLM as facts.
             fallback_text = self._get_fallback_reply(message)
             return ReplyResult(fallback_text, "low_confidence", [], top_score)
 
-        # For multi-clause questions, keep the multiple matched entries; otherwise keep the best single match.
+        # For multi-clause or mentor questions, keep the multiple matched entries; otherwise keep the best single match.
         if referenced_entry is not None:
+            best = scored
+        elif mentor_scored:
             best = scored
         elif len(multi_scored) >= 2:
             best = scored
@@ -3258,9 +3329,16 @@ class ConversationEngine:
 
         answer = self._generate_answer(message, best, session_id)
         matched_entries = [item.entry for item in best]
-        answer = self._run_response_quality_checks(message, answer, intent, matched_entries)
+        answer = self._run_response_quality_checks(message, answer, "mentor_matching" if mentor_scored else intent, matched_entries)
         matched_ids = [item.entry.id for item in best]
-        resolved_intent = "multi_intent" if len(multi_scored) >= 2 else ("faq" if intent == "faq" else intent)
+        if mentor_scored and intent == "faq":
+            resolved_intent = "mentor_matching"
+        elif len(multi_scored) >= 2:
+            resolved_intent = "multi_intent"
+        elif intent == "faq":
+            resolved_intent = "faq"
+        else:
+            resolved_intent = intent
         return self._finalize_result(
             session_id,
             ReplyResult(answer, resolved_intent, matched_ids, top_score),

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=1920, height=1080" />
-    <title>WeMentors AI Assistant Launch</title>
+    <title>WeMentors AI Assistant Showcase</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -44,21 +44,21 @@
         left: 200px;
         width: 600px;
         height: 600px;
-        background: rgba(139, 107, 255, 0.18);
+        background: rgba(139, 107, 255, 0.20);
       }
       .bg-orb-2 {
         bottom: -150px;
         right: 150px;
         width: 700px;
         height: 700px;
-        background: rgba(201, 151, 28, 0.14);
+        background: rgba(201, 151, 28, 0.16);
       }
 
       /* Starry grid overlay */
       .star-overlay {
         position: absolute;
         inset: 0;
-        background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.15) 1px, transparent 0);
+        background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.16) 1px, transparent 0);
         background-size: 36px 36px;
         opacity: 0.6;
       }
@@ -124,7 +124,7 @@
         color: #b7a2dc;
         margin-top: 28px;
         text-align: center;
-        max-width: 1000px;
+        max-width: 1050px;
         line-height: 1.5;
       }
 
@@ -170,8 +170,8 @@
       }
 
       .chat-window {
-        width: 620px;
-        height: 820px;
+        width: 630px;
+        height: 830px;
         background: #110f22;
         border: 1px solid rgba(139, 107, 255, 0.35);
         border-radius: 28px;
@@ -233,15 +233,15 @@
         padding: 26px;
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        gap: 18px;
         background: radial-gradient(circle at 20% 10%, rgba(139, 107, 255, 0.08), transparent 50%), #110f22;
       }
 
       .chat-bubble {
-        max-width: 88%;
+        max-width: 90%;
         padding: 18px 22px;
         border-radius: 20px;
-        font-size: 18px;
+        font-size: 17.5px;
         line-height: 1.55;
       }
       .bubble-assistant {
@@ -264,7 +264,7 @@
         display: flex;
         flex-direction: column;
         gap: 10px;
-        margin-top: 8px;
+        margin-top: 6px;
       }
       .suggestion-pill {
         padding: 12px 18px;
@@ -297,14 +297,14 @@
         background: #8b6bff;
       }
 
-      /* Side tech cards (Scene 3) */
-      .tech-sidebar {
-        width: 600px;
+      /* Side Showcase Cards (Scene 2 & Scene 3) */
+      .showcase-sidebar {
+        width: 610px;
         display: flex;
         flex-direction: column;
         gap: 24px;
       }
-      .tech-card {
+      .showcase-card {
         padding: 26px 30px;
         border-radius: 22px;
         background: rgba(20, 18, 37, 0.85);
@@ -312,33 +312,55 @@
         backdrop-filter: blur(16px);
         box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
       }
-      .tech-card-header {
+      .showcase-card-header {
         display: flex;
         align-items: center;
         gap: 14px;
         margin-bottom: 12px;
       }
-      .tech-icon {
-        width: 40px;
-        height: 40px;
+      .showcase-icon {
+        width: 44px;
+        height: 44px;
         border-radius: 12px;
         background: rgba(139, 107, 255, 0.2);
         border: 1px solid rgba(139, 107, 255, 0.4);
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #c79bff;
-        font-weight: 700;
+        font-size: 22px;
       }
-      .tech-title {
-        font-size: 20px;
+      .showcase-title {
+        font-size: 21px;
         font-weight: 700;
         color: #ffffff;
       }
-      .tech-desc {
-        font-size: 16px;
-        color: #a9a3c4;
-        line-height: 1.5;
+      .showcase-desc {
+        font-size: 16.5px;
+        color: #b7a2dc;
+        line-height: 1.55;
+      }
+
+      .benefit-tags {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 18px;
+      }
+      .benefit-tag-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 16px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 500;
+        color: #e2d9f3;
+      }
+      .tag-check {
+        color: #4ade80;
+        font-weight: 700;
       }
 
       /* Scene 4: Outro Grid & CTA */
@@ -349,37 +371,43 @@
         text-align: center;
         max-width: 1400px;
       }
-      .stats-grid {
+      .values-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 32px;
-        margin: 48px 0;
+        margin: 44px 0;
         width: 100%;
       }
-      .stat-card {
-        padding: 32px;
+      .value-card {
+        padding: 32px 28px;
         background: rgba(255, 255, 255, 0.04);
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 24px;
         backdrop-filter: blur(12px);
       }
-      .stat-num {
+      .value-num {
         font-family: 'Fraunces', serif;
         font-size: 52px;
         font-weight: 700;
         color: #f6d43f;
+        margin-bottom: 6px;
+      }
+      .value-title {
+        font-size: 20px;
+        color: #ffffff;
+        font-weight: 600;
         margin-bottom: 8px;
       }
-      .stat-label {
-        font-size: 18px;
-        color: #d3c4ec;
-        font-weight: 500;
+      .value-desc {
+        font-size: 15px;
+        color: #b7a2dc;
+        line-height: 1.45;
       }
 
       .cta-card {
         display: inline-flex;
         align-items: center;
-        gap: 24px;
+        gap: 26px;
         padding: 20px 48px;
         background: linear-gradient(135deg, rgba(139, 107, 255, 0.35), rgba(91, 127, 255, 0.25));
         border: 2px solid #8b6bff;
@@ -394,7 +422,7 @@
         letter-spacing: 0.02em;
       }
       .cta-badge {
-        padding: 8px 18px;
+        padding: 9px 20px;
         border-radius: 999px;
         background: #f6d43f;
         color: #1a103c;
@@ -429,7 +457,7 @@
         src="assets/music/bgm.mp3"
       ></audio>
 
-      <!-- SFX Clips with exact media durations -->
+      <!-- SFX Clips -->
       <audio
         id="sfx-pop"
         class="clip"
@@ -475,20 +503,20 @@
           </div>
           <div class="eyebrow" id="s1-eyebrow">
             <span class="eyebrow-dot"></span>
-            <span>Next-Gen Academic Advisory</span>
+            <span>24/7 Academic Guidance</span>
             <span class="eyebrow-dot"></span>
           </div>
           <h1 class="hero-title font-display" id="s1-title">
-            Personalized Learning.<br />
-            <em>Proven Results.</em>
+            Meet Your 24/7<br />
+            <em>Learning Advisor.</em>
           </h1>
           <p class="hero-subtitle" id="s1-sub">
-            Live 1:1 online mentoring across Grades 3–10 in core subjects & Confident Speaker worldwide.
+            Instant guidance on personalized 1:1 mentoring for Grades 3–10 & Confident Speaker worldwide.
           </p>
         </div>
       </div>
 
-      <!-- SCENE 2: The AI Assistant Reveal (3.5s - 8.5s) -->
+      <!-- SCENE 2: The Assistant Reveal & Parent Support (3.5s - 8.5s) -->
       <div id="scene2" class="scene clip" data-start="3.5" data-duration="5.0">
         <div class="scene-inner" id="s2-inner">
           <div class="chat-stage">
@@ -499,44 +527,58 @@
                   <div class="chat-header-title">WeMentors Assistant</div>
                   <div class="chat-header-status">
                     <span class="status-dot-green"></span>
-                    <span>AI Academic Mentor · Online</span>
+                    <span>AI Academic Advisor · Always Online</span>
                   </div>
                 </div>
               </div>
               <div class="chat-body">
                 <div class="chat-bubble bubble-assistant" id="s2-welcome">
-                  Hi! I'm the WeMentors Assistant. I can help you explore our programs, understand our 1:1 methodology, and book a free personalized demo.
+                  Hello! Welcome to WeMentors Academy. I can help you explore our 1:1 mentoring programs, find the right curriculum, or book a free trial class.
                 </div>
                 <div class="chat-suggestions" id="s2-suggestions">
                   <div class="suggestion-pill" id="s2-sug-1">
-                    <span>✦</span> What programs do you offer?
+                    <span>✦</span> How does 1:1 mentorship work?
                   </div>
                   <div class="suggestion-pill" id="s2-sug-2">
-                    <span>✦</span> Tell me about Confident Speaker
+                    <span>✦</span> Programs for Grades 3–10
                   </div>
                   <div class="suggestion-pill" id="s2-sug-3">
-                    <span>✦</span> How does the free demo work?
+                    <span>✦</span> Confident Speaker & Public Speaking
                   </div>
                 </div>
               </div>
             </div>
-            <div class="tech-sidebar" id="s2-sidebar">
+            <div class="showcase-sidebar" id="s2-sidebar">
               <div class="eyebrow">
                 <span class="eyebrow-dot"></span>
-                <span>Intelligent Chat Interface</span>
+                <span>Personalized Support</span>
               </div>
-              <h2 class="font-display" style="font-size: 48px; line-height: 1.15; color: #ffffff; margin-bottom: 20px;">
-                Direct Academic Answers. Zero Friction.
+              <h2 class="font-display" style="font-size: 46px; line-height: 1.18; color: #ffffff; margin-bottom: 16px;">
+                Instant Guidance for Parents & Students.
               </h2>
-              <p style="font-size: 22px; color: #b7a2dc; line-height: 1.6;">
-                Deeply integrated with the WeMentors curriculum knowledge base to guide students and parents instantly.
+              <p style="font-size: 20px; color: #b7a2dc; line-height: 1.6;">
+                Ask about subjects, schedules, mentors, and trial classes anytime. No waiting, no guesswork.
               </p>
+              <div class="benefit-tags">
+                <div class="benefit-tag-item" id="s2-tag-1">
+                  <span class="tag-check">✓</span>
+                  <span>Personalized 1:1 Academic Mentoring</span>
+                </div>
+                <div class="benefit-tag-item" id="s2-tag-2">
+                  <span class="tag-check">✓</span>
+                  <span>CBSE, ICSE, Cambridge & IB Curricula</span>
+                </div>
+                <div class="benefit-tag-item" id="s2-tag-3">
+                  <span class="tag-check">✓</span>
+                  <span>Free 30-Minute Diagnostic Demo Class</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- SCENE 3: Query & Dual-Model Failover (8.5s - 14.5s) -->
+      <!-- SCENE 3: Live Interactive Conversation & Mentorship (8.5s - 14.5s) -->
       <div id="scene3" class="scene clip" data-start="8.5" data-duration="6.0">
         <div class="scene-inner" id="s3-inner">
           <div class="chat-stage">
@@ -547,13 +589,13 @@
                   <div class="chat-header-title">WeMentors Assistant</div>
                   <div class="chat-header-status">
                     <span class="status-dot-green"></span>
-                    <span>AI Academic Mentor · Active</span>
+                    <span>AI Academic Advisor · Active</span>
                   </div>
                 </div>
               </div>
               <div class="chat-body">
                 <div class="chat-bubble bubble-user" id="s3-userbubble">
-                  Tell me about Confident Speaker for Grade 5.
+                  Can you find a mentor for Grade 7 ICSE Math & Science?
                 </div>
                 <div class="typing-indicator" id="s3-typing">
                   <span class="typing-dot" id="td-1"></span>
@@ -561,28 +603,28 @@
                   <span class="typing-dot" id="td-3"></span>
                 </div>
                 <div class="chat-bubble bubble-assistant" id="s3-asstbubble">
-                  <strong>Confident Speaker</strong> builds speech delivery, debate, and social confidence with dedicated 1:1 mentoring.<br/><br/>
-                  Sessions are customized to Grade 5 students. Would you like to schedule your free demo class?
+                  <strong>Yes!</strong> We match your child with a dedicated 1:1 mentor specialized in the ICSE curriculum. Each session includes personalized concept mastery, doubt clearing, and weekly progress updates.<br/><br/>
+                  Ready to experience a session? You can book a free 30-minute demo class today!
                 </div>
               </div>
             </div>
-            <div class="tech-sidebar" id="s3-sidebar">
-              <div class="tech-card" id="s3-card-1">
-                <div class="tech-card-header">
-                  <div class="tech-icon">⚡</div>
-                  <div class="tech-title">Dual-Model Failover Architecture</div>
+            <div class="showcase-sidebar" id="s3-sidebar">
+              <div class="showcase-card" id="s3-card-1">
+                <div class="showcase-card-header">
+                  <div class="showcase-icon">📚</div>
+                  <div class="showcase-title">Tailored to Your Board</div>
                 </div>
-                <div class="tech-desc">
-                  Gemini 2.5 Flash-Lite primary with automatic bounded fallback to Groq Llama 3.3 70B & curated RAG.
+                <div class="showcase-desc">
+                  Curriculum-aligned mentorship across CBSE, ICSE, Cambridge (IGCSE), and IB with custom pace.
                 </div>
               </div>
-              <div class="tech-card" id="s3-card-2">
-                <div class="tech-card-header">
-                  <div class="tech-icon">🛡️</div>
-                  <div class="tech-title">Deterministic Intent & Guardrails</div>
+              <div class="showcase-card" id="s3-card-2">
+                <div class="showcase-card-header">
+                  <div class="showcase-icon">🎯</div>
+                  <div class="showcase-title">Free 1:1 Diagnostic Demo</div>
                 </div>
-                <div class="tech-desc">
-                  Zero hallucination guarantee, capability gating, and strict PII / prompt injection protection.
+                <div class="showcase-desc">
+                  Experience a live 30-minute interactive session with a dedicated mentor before enrolling.
                 </div>
               </div>
             </div>
@@ -590,36 +632,39 @@
         </div>
       </div>
 
-      <!-- SCENE 4: Production Ready & Live URL (14.5s - 20.0s) -->
+      <!-- SCENE 4: Outro & Call to Action (14.5s - 20.0s) -->
       <div id="scene4" class="scene clip" data-start="14.5" data-duration="5.5">
         <div class="scene-inner" id="s4-inner">
           <div class="outro-box">
             <div class="eyebrow" id="s4-eyebrow">
               <span class="eyebrow-dot"></span>
-              <span>Production Verified</span>
+              <span>Start Your Learning Journey</span>
               <span class="eyebrow-dot"></span>
             </div>
             <h1 class="hero-title font-display" id="s4-title">
-              Production-Ready. Defensible.<br />
-              <em>Live Worldwide.</em>
+              Personalized Mentoring.<br />
+              <em>Guaranteed Attention.</em>
             </h1>
-            <div class="stats-grid" id="s4-grid">
-              <div class="stat-card" id="s4-stat-1">
-                <div class="stat-num">20 / 20</div>
-                <div class="stat-label">Production Test Suites Passed</div>
+            <div class="values-grid" id="s4-grid">
+              <div class="value-card" id="s4-val-1">
+                <div class="value-num">1-on-1</div>
+                <div class="value-title">Dedicated Mentors</div>
+                <div class="value-desc">No rotating teachers. Consistent, personalized academic guidance.</div>
               </div>
-              <div class="stat-card" id="s4-stat-2">
-                <div class="stat-num">&lt; 800ms</div>
-                <div class="stat-label">Fast Edge Failover Latency</div>
+              <div class="value-card" id="s4-val-2">
+                <div class="value-num">3 to 10</div>
+                <div class="value-title">Grades & Curricula</div>
+                <div class="value-desc">CBSE, ICSE, Cambridge & IB plus Confident Speaker training.</div>
               </div>
-              <div class="stat-card" id="s4-stat-3">
-                <div class="stat-num">100%</div>
-                <div class="stat-label">Curriculum Verified Accuracy</div>
+              <div class="value-card" id="s4-val-3">
+                <div class="value-num">Free</div>
+                <div class="value-title">30-Min Demo Class</div>
+                <div class="value-desc">Diagnostic assessment session with zero commitment.</div>
               </div>
             </div>
             <div class="cta-card" id="s4-cta">
               <div class="cta-url">wementors.vercel.app</div>
-              <div class="cta-badge">Experience It Live</div>
+              <div class="cta-badge">Chat With The Assistant • Book Demo</div>
             </div>
           </div>
         </div>
@@ -648,6 +693,9 @@
       tl.fromTo("#s2-sug-1", { opacity: 0, x: -15 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 5.2);
       tl.fromTo("#s2-sug-2", { opacity: 0, x: -15 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 5.6);
       tl.fromTo("#s2-sug-3", { opacity: 0, x: -15 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 6.0);
+      tl.fromTo("#s2-tag-1", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 6.4);
+      tl.fromTo("#s2-tag-2", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 6.7);
+      tl.fromTo("#s2-tag-3", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 7.0);
       tl.to("#s2-inner", { opacity: 0, y: -20, duration: 0.4, ease: "power2.in" }, 8.1);
 
       // ==========================================
@@ -663,7 +711,7 @@
       tl.to("#s3-typing", { opacity: 0, duration: 0.2 }, 10.1);
       // Assistant response
       tl.fromTo("#s3-asstbubble", { opacity: 0, y: 20, scale: 0.95 }, { opacity: 1, y: 0, scale: 1, duration: 0.7, ease: "power3.out" }, 10.2);
-      // Architecture cards
+      // Feature cards
       tl.fromTo("#s3-card-1", { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: 0.7, ease: "power2.out" }, 10.6);
       tl.fromTo("#s3-card-2", { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: 0.7, ease: "power2.out" }, 11.2);
       tl.to("#s3-inner", { opacity: 0, scale: 1.03, duration: 0.4, ease: "power2.in" }, 14.1);
@@ -673,9 +721,9 @@
       // ==========================================
       tl.fromTo("#s4-eyebrow", { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 14.7);
       tl.fromTo("#s4-title", { opacity: 0, y: 25, scale: 0.95 }, { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "power3.out" }, 14.9);
-      tl.fromTo("#s4-stat-1", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.2)" }, 15.4);
-      tl.fromTo("#s4-stat-2", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.2)" }, 15.7);
-      tl.fromTo("#s4-stat-3", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.2)" }, 16.0);
+      tl.fromTo("#s4-val-1", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.2)" }, 15.4);
+      tl.fromTo("#s4-val-2", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.2)" }, 15.7);
+      tl.fromTo("#s4-val-3", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.2)" }, 16.0);
       tl.fromTo("#s4-cta", { opacity: 0, scale: 0.9, y: 20 }, { opacity: 1, scale: 1, y: 0, duration: 0.8, ease: "back.out(1.5)" }, 16.5);
       tl.to("#s4-cta", { boxShadow: "0 20px 80px rgba(139, 107, 255, 0.75)", duration: 1.2, yoyo: true, repeat: 2 }, 17.3);
 

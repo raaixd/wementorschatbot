@@ -46,6 +46,9 @@ _STOPWORDS = {
     # reference-resolution tests).
     "its", "their", "his", "her", "them", "theirs", "ours", "yours",
     "there", "here", "any", "some", "please", "tell",
+    # Query framing verbs that carry no domain content and would wrongly
+    # penalize multi-facet question coverage:
+    "find", "need", "want", "looking", "look", "get", "give", "provide", "assign",
 }
 
 _TARGET_STEMS = {
@@ -53,6 +56,9 @@ _TARGET_STEMS = {
     "exams": "exam",
     "prepping": "prepare",
     "preparation": "prepare",
+    "math": "maths",
+    "mathematics": "maths",
+    "mentors": "mentor",
 }
 
 

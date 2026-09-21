@@ -1,106 +1,103 @@
-# Brag Plan: WeMentors Academy AI Assistant
+# Brag Plan: WeMentors Academy AI Assistant Showcase
 
 ## What is this app?
-WeMentors Academy is an AI-powered academic mentoring platform and advisory chatbot offering personalized 1:1 online learning for Grades 3–10 across core subjects and Confident Speaker / Public Speaking.
+The WeMentors AI Assistant is an intelligent, 24/7 academic advisor designed for parents and students. It provides instant guidance on 1:1 online mentoring programs (Grades 3–10 across CBSE, ICSE, Cambridge, and IB curricula) and Confident Speaker / Public Speaking training, helping families explore subjects, understand the mentoring methodology, and schedule free diagnostic trial classes.
 
 ## The angle
-A sleek, high-energy product launch for a production-grade AI system. Rather than just another static landing page, this showcases an intelligent, 100% test-verified dual-model failover chatbot (Gemini 2.5 Flash-Lite + Groq Llama 3.3 70B + Knowledge Base) built with beautiful dark glassmorphism, responsive micro-interactions, and instant demo booking.
+A sleek, elegant, consumer-facing product showcase. Rather than a technical project overview, this video celebrates the assistant as a warm, responsive, and indispensable learning companion that makes discovering personalized academic mentoring effortless.
 
 ## Hook (first 2-3 seconds)
-Deep violet backdrop with starry gold glow and crisp Fraunces serif typography: "Personalized Learning. Proven Results." The WeMentors gold badge flares in as the audio beat drops.
+Deep violet backdrop with starry gold glow and Fraunces serif typography:
+"Meet Your 24/7 Learning Advisor."
+The golden WeMentors Academy brand emblem settles into view with a warm melodic intro.
 
 ## Key moments (the middle)
-- **The Glassmorphic AI Assistant**: The actual `#chatbotPanel` rises with glowing gradients (`linear-gradient(135deg, #8b6bff, #5b7fff)`), pulsing online status badge, and authentic welcome greeting.
-- **Interactive Query Flow**: A parent/student asks "Tell me about Confident Speaker", and the assistant instantly responds with tailored curriculum details and direct demo booking.
-- **Engineered for Production**: Highlight the dual-model failover architecture, 20/20 test suites passing, deterministic validation, and zero hallucinations.
+- **The Glassmorphic Assistant**: The chat interface ascends with glowing violet/indigo borders, a live pulsing online status dot, and an authentic welcome invitation.
+- **Interactive Multi-Turn Query**: A parent asks: *"Can you find a mentor for Grade 7 ICSE Math & Science?"* The assistant smoothly streams a helpful, reassuring answer explaining the dedicated 1:1 mentor matching and offering a free 30-minute trial session.
+- **Core Educational Superpowers**: Flanking feature cards highlight tailored curriculum guidance across major school boards, dedicated 1:1 mentor allocation, and instant demo scheduling without friction.
 
 ## Outro / punchline
-"Production-Ready. Defensible. Live."
-Hero CTA card flaring with the live production URL: `https://wementors.vercel.app` and booking badge.
-
-## User flow worth showing
-Entry (landing on WeMentors hero) → Action (launching the AI Assistant and querying Confident Speaker) → Result (instant verified academic curriculum response + free demo booking).
+"Personalized Mentoring. Guaranteed Attention."
+A high-converting hero CTA card flaring with the live production URL: `wementors.vercel.app` and an inviting badge: "Chat with the Assistant • Book Free Demo".
 
 ## Tone
 - Preset: `polished`
-- Creative direction: "Sleek, high-energy modern AI product launch"
-- Interpretation: Confident, elegant, fast transitions with adequate reading hold times, crisp UI sound effects, and zero generic fluff.
+- Creative direction: "Sleek, elegant, student- and parent-friendly assistant showcase"
+- Interpretation: Friendly, approachable, visually stunning, readable hold times, crisp UI sound effects, zero developer jargon or technical architecture buzzwords.
 
 ## Format: landscape — 1920x1080
 ## Duration: 20 seconds
 
 ## Visual identity (from the project)
-- Background: `#0f0e1a` / `#141225` (Dark Glass 900)
-- Accent: `#8b6bff` / `#5b7fff` (Glass Accent Gradient) & `#c9971c` / `#f6d43f` (Gold Brand Accents)
-- Text: `#f3f1fb` (Glass Text Hi) & `#a9a3c4` (Glass Text Dim)
-- Display font: `Fraunces`, Georgia, serif
-- Body font: `Inter`, system-ui, sans-serif
-- Strongest visual element: The dark glassmorphic chatbot panel `#chatbotPanel` with glowing borders, green pulse indicator, and purple gradient chat bubbles.
-
-## Share copy (draft)
-Introducing the WeMentors AI Assistant: 1:1 personalized academic mentoring with dual-model failover, zero hallucinations, and instant demo booking. Live at wementors.vercel.app.
+- Background: `#090814` / `#110f22` / `#1e1338` (Deep Dark Violet Glass)
+- Accent Gradients: `linear-gradient(135deg, #8b6bff, #5b7fff)` (Glass Accent Gradient) & `#f6d43f` / `#c9971c` (Warm Gold Brand Accents)
+- Text Colors: `#f3f1fb` (High-contrast soft white) & `#b7a2dc` / `#a9a3c4` (Muted violet-slate)
+- Display Font: `Fraunces`, Georgia, serif
+- Body Font: `Inter`, system-ui, sans-serif
+- Key Visual: The authentic dark glassmorphic chat widget `#chatbotPanel` with glowing borders, green online pulse, and purple gradient user message bubble.
 
 ## Audio direction
-- Role: Warm, high-energy modern electronic groove with crisp UI sound effects.
-- Music: `happy-beats-business-moves-vol-1-by-ende-dot-app.mp3` (120.19 BPM)
-- Music treatment: Fade in at 0s, steady drive during scenes 2-3, subtle swell into scene 4, clean fade-out under final logo.
+- Role: Warm, uplifting modern electronic groove with crisp, delightful UI feedback.
+- Music: `assets/music/bgm.mp3` (120.19 BPM)
+- Music treatment: Smooth 0.5s fade-in, rhythmic drive throughout the interaction, clean 1.5s fade-out at the final CTA.
 - Music cue guidance: 120.19 BPM beat grid (~0.5s beat interval); major scene cuts at 3.5s, 8.5s, 14.5s.
-- Audio-reactive treatment: Subtle glow and border pulse on the chatbot panel and badges aligned to rhythm.
-- SFX posture: Moderate, motion-matched UI clicks, message pops, and chime on final card reveal.
-- Audio-coupled moments:
-  - 3.5s: Panel slide-in pop
-  - 8.8s: Message send click
-  - 10.2s: AI response reveal chime
-  - 14.8s: Production metric badges pop
-- Restraint rule: No loud abrasive whooshes or uncalibrated high-frequency clicks.
+- Audio-reactive treatment: Soft border and avatar glow pulsing in sync with the beat.
+- SFX cues:
+  - 3.6s: UI panel entrance pop (`assets/sfx/pop.ogg`)
+  - 8.7s: User message send click (`assets/sfx/send.ogg`)
+  - 10.1s: Assistant reply chime (`assets/sfx/chime.ogg`)
+  - 14.8s: Value card lock click (`assets/sfx/click.ogg`)
 
 ## Storyboard
 
 ### Scene 1 — Brand Hook — 3.5s (0.0s – 3.5s)
-Deep ink violet starry background with gold dust particles. WeMentors brand mark scales up smoothly.
-Headline (Fraunces): "Personalized Learning. Proven Results."
-Subheadline: "WeMentors Academy — Live 1:1 Mentoring Worldwide."
-Sequential/interaction: Logo appears, followed by headline fade-in and gold star badge shine.
-Audio intent: Intro beat build-up.
-Audio-coupled idea: Subtle chime at 0.8s on logo lock.
-Transition mood: Fast zoom forward → Scene 2.
+Deep ink violet starry background with ambient gold dust. WeMentors brand mark scales up smoothly.
+- Eyebrow: "✦ AI-POWERED ACADEMIC ADVISORY ✦"
+- Headline (Fraunces): "Meet Your 24/7 Learning Advisor."
+- Subtitle: "Instant answers, curriculum guidance & trial class bookings for Grades 3–10."
+- Audio intent: Uplifting beat builds up, subtle chime on logo lock.
+- Transition: Fast forward push into Scene 2.
 
-### Scene 2 — Meet The AI Assistant — 5.0s (3.5s – 8.5s)
-The authentic WeMentors glassmorphic chat widget slides up into center view.
-Header displays: "WeMentors Assistant" with green pulsing online dot.
-Welcome bubble enters: "Hi! I'm the WeMentors Assistant. I can help you explore our programs and book a free demo."
-Suggestion pills pop in sequentially: "What programs do you offer?", "Tell me about Confident Speaker", "How does the free demo work?"
-Sequential/interaction: Panel ascends, welcome text settles, suggestion pills appear one by one.
-Audio intent: Upbeat groove settles in.
-Audio-coupled idea: UI pop on panel rise (3.6s), quick click on suggestions (5.5s, 6.2s).
-Transition mood: Dynamic focus shift → Scene 3.
+### Scene 2 — Meet The Assistant — 5.0s (3.5s – 8.5s)
+The authentic WeMentors glassmorphic chat interface ascends smoothly into view.
+- Header: "WeMentors Assistant" with green pulsing online dot ("AI Academic Advisor • Always Online").
+- Welcome bubble: "Hello! Welcome to WeMentors Academy. I can help you explore our 1:1 mentoring programs, find the right curriculum, or book a free trial class."
+- Suggestion pills pop in sequentially:
+  - "✦ How does 1:1 mentorship work?"
+  - "✦ Programs for Grades 3–10"
+  - "✦ Confident Speaker & Debate"
+- Right sidebar features:
+  - Eyebrow: "Personalized Support"
+  - Headline: "Instant Guidance for Parents & Students."
+  - Description: "Ask about subjects, schedules, mentors, and pricing anytime. No waiting, no guesswork."
+  - 3 benefit bullet tags:
+    - "✓ Grades 3–10 Core Subjects"
+    - "✓ Confident Speaker & Public Speaking"
+    - "✓ 1:1 Dedicated Mentor Allocation"
+- Audio intent: Upbeat groove settles in, pop on panel entrance, soft clicks on pills.
+- Transition: Smooth focus transition into Scene 3.
 
-### Scene 3 — Live Intelligence & Dual-Model Failover — 6.0s (8.5s – 14.5s)
-User query typed into chat: "Tell me about Confident Speaker for Grade 5."
-Typing indicator dots animate smoothly with purple glow.
-Assistant response streams in:
-"Confident Speaker builds speech mastery, debate, and interview skills with personalized 1:1 guidance. Ready to book your free demo?"
-Floating architecture callout cards slide in:
-- "Dual-Model Failover: Gemini 2.5 Flash-Lite + Groq Llama 3.3 70B"
-- "100% Deterministic Intent & Retrieval Gate"
-Sequential/interaction: User bubble sends, typing indicator pulses, assistant response lands, architecture tags flank the panel.
-Audio intent: Peak rhythm and engagement.
-Audio-coupled idea: Send click at 8.7s, message receive pop at 10.0s, tech badge chimes at 12.0s.
-Transition mood: Camera dolly out → Scene 4.
+### Scene 3 — Live Interactive Conversation — 6.0s (8.5s – 14.5s)
+Live conversational experience demonstrating authentic parent-student inquiry.
+- User bubble: "Can you find a mentor for Grade 7 ICSE Math & Science?"
+- Smooth typing dots pulse with violet glow.
+- Assistant bubble appears:
+  "Yes! We match your child with a dedicated 1:1 mentor specialized in the ICSE curriculum. Each session includes personalized concept mastery, doubt clearing, and weekly progress updates.<br><br>Ready to experience a session? You can book a free 30-minute demo class today!"
+- Right sidebar highlights 2 student-focused cards:
+  - Card 1: 📚 "Tailored to Your Board" — Expert coverage across CBSE, ICSE, Cambridge (IGCSE), and IB curricula.
+  - Card 2: 🎯 "Free 1:1 Diagnostic Demo" — Live 30-minute academic assessment with a dedicated personal mentor.
+- Audio intent: Send click at 8.7s, assistant reply chime at 10.1s.
+- Transition: Camera pull back into widescreen finale in Scene 4.
 
-### Scene 4 — Production Ready & Live CTA — 5.5s (14.5s – 20.0s)
-Full widescreen view showcasing the complete WeMentors platform.
-Headline: "Production-Ready. Defensible. Live."
-Grid of 3 verification badges:
-- "20 / 20 Test Suites Passing"
-- "Sub-800ms Bounded Fallback"
-- "Live on Vercel Edge"
-Hero CTA Card with glowing purple border:
-"wementors.vercel.app"
-"Book Your Free 1:1 Demo Today"
-Sequential/interaction: Badges lock in, hero URL pulses with gold accent, music fades smoothly.
-Audio intent: Resolving final chord, triumphant finish.
-Audio-coupled idea: Triple badge lock sound at 15.2s, 15.8s, 16.4s, final swell.
-
-**Music mood for this video:** Upbeat, modern electronic business-moves groove.
-**Audio summary:** Energetic beat starting on the brand hook, driving through the live AI conversation, and resolving cleanly on the live production URL.
+### Scene 4 — Outro & Call to Action — 5.5s (14.5s – 20.0s)
+Full widescreen celebration of the WeMentors learning experience.
+- Eyebrow: "✦ START YOUR LEARNING JOURNEY ✦"
+- Headline (Fraunces): "Personalized Mentoring.<br><em>Guaranteed Attention.</em>"
+- 3 value cards:
+  - "1-on-1" — Dedicated Personal Mentors (Consistent guidance, no rotating teachers)
+  - "3 to 10" — Grades & Curricula (CBSE, ICSE, Cambridge & IB)
+  - "Free" — 30-Min Demo Session (Diagnostic trial class with zero commitment)
+- Hero CTA Card with glowing violet pulse:
+  "wementors.vercel.app"
+  "Chat With The Assistant • Book Free Demo"
+- Audio intent: High energy crescendo, smooth fade-out over final logo hold.

@@ -1,17 +1,27 @@
-# Share Copy Variants: WeMentors AI Assistant Launch
+# Share Copy Variants: WeMentors AI Assistant Showcase
 
-### 1. Twitter / X (Punchy & Direct)
-We built an AI advisor for @WeMentors with dual-model failover (Gemini 2.5 Flash-Lite + Groq Llama 3.3 70B), 100% test-verified guardrails, and instant 1:1 demo scheduling.
+### Twitter / X (Fast, direct, link included)
+Meet your 24/7 learning advisor. 🎓
+
+The WeMentors AI Assistant answers academic questions across CBSE, ICSE, Cambridge & IB, guides parents through 1:1 mentoring, and helps you book a free trial class in seconds.
+
 Try it live: https://wementors.vercel.app
 
-### 2. LinkedIn (Professional / Engineering Focus)
-Excited to share the production launch of the WeMentors Academy AI Assistant.
-Designed for 1:1 academic mentoring and public speaking mastery across Grades 3–10, the platform features:
-- Dual-model failover architecture with bounded latency (<800ms)
-- Deterministic capability gating & PII protection
-- 20/20 production test suites passing
-- Real-time demo scheduling & curriculum exploration
-Live in production: https://wementors.vercel.app
+---
 
-### 3. Discord / Community (Casual & Engaging)
-Just shipped the launch video for WeMentors! Built with 1:1 personalized curriculum discovery, zero-hallucination guardrails, and smooth dark glassmorphism. Check out the live bot at https://wementors.vercel.app
+### LinkedIn (Educational & parent-focused)
+Finding the right mentor shouldn't involve endless phone tags or guesswork.
+
+Introducing the WeMentors AI Assistant — an interactive academic guide designed to help parents and students explore 1:1 mentoring programs (Grades 3–10) and Confident Speaker training anytime.
+
+✨ What you can ask:
+• Dedicated 1:1 subject mentor matching
+• Curriculum alignment (CBSE, ICSE, Cambridge, IB)
+• Schedule a free 30-minute diagnostic demo session
+
+Explore the assistant live at: https://wementors.vercel.app
+
+---
+
+### Discord / Communities (Casual & inviting)
+Just launched a clean showcase for our WeMentors AI Assistant! It's an online academic advisor that helps students & parents find personal 1:1 mentors for Grades 3-10, explore speech & debate tracks, and book free trial classes. Check out the demo at https://wementors.vercel.app ✨

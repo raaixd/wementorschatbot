@@ -1,7 +1,7 @@
-# Hyperframes Composition Brief: WeMentors Academy AI Assistant
+# Hyperframes Composition Brief: WeMentors Academy AI Assistant Showcase
 
 ## Objective
-Create a short, polished, high-energy launch-style brag video for WeMentors Academy AI Assistant.
+Create a short, polished, high-energy product showcase video for the WeMentors Academy AI Assistant, designed to engage parents and prospective students without developer-focused technical jargon.
 
 ## Output
 - Composition directory: `brag-output/composition/`
@@ -11,62 +11,32 @@ Create a short, polished, high-energy launch-style brag video for WeMentors Acad
 
 ## Source Material
 - Project root: `c:\Users\Raaid\Downloads\wementorsexperiment\wementorschatbotexperiment`
-- Primary files read: `index.html`, `README.md`, `wm_brand_logo.png`, `PROJECT_NOTES.md`
 - Product name: WeMentors Academy
-- Tagline / strongest claim: "Personalized Learning, Proven Results. 1:1 Live Online Academic Mentoring & Confident Speaker."
-- Key UI or visual moment to recreate: The authentic dark glassmorphic `#chatbotPanel` with glowing gradient accents, green pulse status dot, user/assistant chat bubbles, and suggestion pills.
-- Copy that must appear verbatim:
-  - "Personalized Learning, Proven Results."
-  - "Hi! I'm the WeMentors Assistant. I can help you explore our programs, understand how mentoring works, and guide you toward booking a free demo."
-  - "Tell me about Confident Speaker"
-  - "Dual-Model Failover: Gemini 2.5 Flash-Lite + Groq Llama 3.3 70B"
-  - "https://wementors.vercel.app"
+- Tagline: "Meet Your 24/7 Learning Advisor. Personalized 1:1 Mentoring for Grades 3–10."
+- Key UI to recreate: The authentic dark glassmorphic `#chatbotPanel` with glowing gradient accents, green pulse status dot, user/assistant chat bubbles, and suggestion pills.
 
 ## Creative Direction
 - Tone preset: `polished`
-- Creative direction: "Sleek, high-energy modern AI product launch"
-- Interpretation: Fast-moving but highly legible; every critical claim holds for >= 1.2s; sharp glassmorphism and subtle lighting glows.
-- Angle: Showcase a production-hardened AI assistant that powers academic mentoring with deterministic safeguards and dual-model redundancy.
-- Hook: The golden brand promise "Personalized Learning. Proven Results." bursting into life with clean typography.
-- Outro / punchline: "Production-Ready. Defensible. Live at wementors.vercel.app."
+- Creative direction: "Sleek, approachable, learner- and parent-friendly assistant showcase"
+- Narrative:
+  1. Hook: Introduce the 24/7 learning advisor.
+  2. Reveal: The glassmorphic chat widget welcomes the user with interactive options.
+  3. Interactive Demo: A realistic curriculum question ("Grade 7 ICSE Math & Science") receives a warm, informative reply highlighting dedicated 1:1 mentors.
+  4. Outro: Clear call-to-action inviting users to chat with the assistant and book a free demo at `wementors.vercel.app`.
 - Avoid:
-  - Generic SaaS language
-  - Abstract filler visuals
-  - Unrelated visual redesign
+  - Technical architecture claims ("dual-model failover", "Groq Llama 3.3", "RAG pipeline", "test suites")
+  - Generic SaaS buzzwords
 
 ## Visual Identity
-- Background: `#0f0e1a` / `#141225` (Dark Glass 900)
-- Text: `#f3f1fb` (Hi contrast) / `#a9a3c4` (Dim)
-- Accent: `linear-gradient(135deg, #8b6bff, #5b7fff)` (Glass Accent Gradient) & `#f6d43f` / `#c9971c` (Gold)
-- Display font: `Fraunces`, Georgia, serif
-- Body font: `Inter`, system-ui, -apple-system, sans-serif
-- Visual references from the project: `#chatbotPanel`, `.chatbot-message`, `.chatbot-user`, `.chatbot-assistant`, `.chatbot-suggestion`, `wm_brand_logo.png`
+- Background: `#090814` / `#110f22` / `#1e1338` (Deep Dark Violet Glass)
+- Accents: `linear-gradient(135deg, #8b6bff, #5b7fff)` & `#f6d43f` / `#c9971c` (Warm Gold)
+- Text: `#f3f1fb` (Hi contrast soft white) & `#b7a2dc` / `#a9a3c4` (Muted violet-slate)
+- Typography: `Fraunces` (serif display) & `Inter` (clean sans-serif body)
 
-## Storyboard
-Use the storyboard in `brag-output/brag-plan.md` as the creative contract.
-
-Scene summary:
-1. Brand Hook — 3.5s — Golden brand headline & logo reveal.
-2. Meet The AI Assistant — 5.0s — Dark glassmorphic chat widget slides up, welcome message & suggestion pills.
-3. Live Intelligence & Dual-Model Failover — 6.0s — User query, typing animation, assistant response, and architecture badges.
-4. Production Ready & Live CTA — 5.5s — 20/20 test suite validation, high-speed edge deployment, and live URL card.
-
-## Audio
-- Audio role: Warm, driving electronic groove with clean UI feedback.
-- Audio arc: Building intro, sustained rhythmic drive through the conversation, triumphant resolution on the live link.
-- Music: `assets/music/bgm.mp3`
-- Music treatment: Volume at 0.65, soft fade-in over 0.5s, clean fade-out over 1.5s at end.
-- Music cue guidance: 120.19 BPM (~0.5s beat interval); scene transitions lock cleanly to beat grid at 3.5s, 8.5s, 14.5s.
-- Audio-reactive treatment: Subtle rhythmic glow on the chat panel border and status badge.
-- Audio-coupled moments:
-  - 3.6s: Panel slide-in pop (`assets/sfx/pop.ogg`)
-  - 8.7s: User message send click (`assets/sfx/send.ogg`)
-  - 10.1s: Assistant response chime (`assets/sfx/chime.ogg`)
-  - 14.8s: Outro badge lock pop (`assets/sfx/click.ogg`)
-- SFX files: Copied into `brag-output/composition/assets/sfx/`.
-
-## Hyperframes Instructions
-- Composition directory: `brag-output/composition/`
-- Render target: `brag-output/brag.mp4`
-- Resolution: 1920x1080 (16:9)
-- Run `npx hyperframes check` before rendering.
+## Audio Plan
+- Track: `assets/music/bgm.mp3` (120.19 BPM)
+- SFX:
+  - 3.6s: Pop (`assets/sfx/pop.ogg`)
+  - 8.7s: Send (`assets/sfx/send.ogg`)
+  - 10.1s: Chime (`assets/sfx/chime.ogg`)
+  - 14.8s: Click (`assets/sfx/click.ogg`)
