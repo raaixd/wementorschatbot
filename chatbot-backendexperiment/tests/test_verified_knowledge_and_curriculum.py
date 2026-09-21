@@ -414,10 +414,10 @@ class TestVerifiedKnowledgeAndCurriculum:
         res = engine.handle_message("sess_44_skills", "What skills are covered in Confident Speaker?")
         assert res.intent == "confident_speaker_scope"
         assert "The program covers four curriculum areas:" in res.reply
-        assert "Public Speaking — build confidence and speaking skills for school and college." in res.reply
-        assert "Business English — improve professional and workplace communication." in res.reply
-        assert "General Communicative Skills — develop practical English for everyday conversations." in res.reply
-        assert "IELTS Preparation — prepare for IELTS with guided practice and mentoring." in res.reply
+        assert "- Public Speaking — build confidence and speaking skills for school and college." in res.reply
+        assert "- Business English — improve professional and workplace communication." in res.reply
+        assert "- General Communicative Skills — develop practical English for everyday conversations." in res.reply
+        assert "- IELTS Preparation — prepare for IELTS with guided practice and mentoring." in res.reply
         assert "rote grammar drills" in res.reply
         assert "Book Free Demo" in res.reply
 
