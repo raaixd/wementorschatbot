@@ -170,6 +170,17 @@ CONFIDENT_SPEAKER_SCOPE_DIRECT = (
     "You can click **Book Free Demo** at the top-right of the website to experience a trial session."
 )
 
+CONFIDENT_SPEAKER_SKILLS_RESPONSE = (
+    "Confident Speaker\n\n"
+    "The program covers four curriculum areas:\n\n"
+    "Public Speaking — build confidence and speaking skills for school and college.\n"
+    "Business English — improve professional and workplace communication.\n"
+    "General Communicative Skills — develop practical English for everyday conversations.\n"
+    "IELTS Preparation — prepare for IELTS with guided practice and mentoring.\n\n"
+    "Across the program, learners receive personalized mentoring, individual attention, guided speaking practice, and regular feedback focused on practical communication rather than rote grammar drills.\n\n"
+    "Ready to explore the program? You can book a free 30-minute demo using the Book Free Demo button."
+)
+
 CONFIDENT_SPEAKER_MENTORING_DIRECT = (
     "Every learner receives individual attention from a personal mentor rather than being passed between "
     "a rotating group of mentors or taught in large batches, supporting skill development through guided practice and regular feedback.\n\n"

@@ -141,7 +141,7 @@ _MENTORING_RE = re.compile(
 )
 
 _IELTS_RE = re.compile(
-    r"\b(ielts|ielts\s+preparation|ielts\s+prep|ielts\s+course)\b",
+    r"\b(ielts|ietls|ielts\s+prep(?:aration)?|ietls\s+prep(?:aration)?|ielts\s+coaching|ielts\s+classes?|ielts\s+course|prepare\s+for\s+ielts)\b",
     re.IGNORECASE,
 )
 
@@ -152,7 +152,6 @@ _BUSINESS_ENGLISH_RE = re.compile(
 
 _PUBLIC_SPEAKING_RE = re.compile(
     r"\b(public\s+speaking|presentation\s+skills?|speech\s+giving|speaking\s+in\s+public|"
-    r"improve\s+(?:my\s+)?communication(?:\s+skills)?|"
     r"college\s+student.*communication|"
     r"school\s+student.*public\s+speaking|"
     r"confident\s+speaker\s+help\s+(?:students\s+)?improve\s+communication)\b",
@@ -160,10 +159,23 @@ _PUBLIC_SPEAKING_RE = re.compile(
 )
 
 _GENERAL_COMMUNICATIVE_RE = re.compile(
-    r"\b(everyday\s+english|daily\s+(?:life\s+)?english|general\s+communicative(?:\s+skills)?|"
-    r"communicat(?:e|ing)\s+better\s+in\s+english\s+in\s+daily\s+life|"
+    r"\b("
+    r"everyday\s+english|"
+    r"daily\s+(?:life\s+)?english|"
+    r"better\s+everyday\s+english|"
+    r"general\s+communicative(?:\s+skills?)?|"
+    r"communicative\s+skills?|"
+    r"general\s+communication(?:\s+skills?)?|"
+    r"communication\s+skills?|"
+    r"communicat(?:e|ing)\s+better\s+in\s+english(?:\s+in\s+daily\s+life)?|"
     r"comfortable\s+speaking\s+english\s+every\s+day|"
-    r"general\s+communication(?:\s+skills)?)\b",
+    r"improve\s+(?:my\s+)?(?:english\s+)?communication(?:\s+skills?)?|"
+    r"improve\s+(?:my\s+)?communicative\s+skills?|"
+    r"improve\s+(?:my\s+)?everyday\s+english|"
+    r"better\s+english\s+communication|"
+    r"english\s+communication\s+skills?|"
+    r"conversational\s+english\s+skills?"
+    r")\b",
     re.IGNORECASE,
 )
 
@@ -2921,6 +2933,11 @@ class ConversationEngine:
             and not _ELIGIBILITY_GENERAL_RE.match(message)
             and not _LOCATION_RE.search(message)
             and not _ONLINE_CLASSES_RE.search(message)
+            and not _IELTS_RE.search(message)
+            and not _BUSINESS_ENGLISH_RE.search(message)
+            and not _PUBLIC_SPEAKING_RE.search(message)
+            and not _GENERAL_COMMUNICATIVE_RE.search(message)
+            and not _CS_CURRICULUM_RE.search(message)
         ):
             m_intro = _EXPLICIT_NAME_RE.match(message) or _NAME_IS_MY_NAME_RE.match(message)
             if m_intro:
@@ -2928,10 +2945,14 @@ class ConversationEngine:
                 cand_words = cand.split()
                 if (
                     cand_words
-                    and cand_words[0].lower() not in ("a", "an", "the")
+                    and cand_words[0].lower() not in ("a", "an", "the", "looking", "interested", "inquiring", "asking", "preparing", "here", "ready", "trying")
                     and not any(w.lower() in leads._NAME_BLACKLIST for w in cand_words)
                     and not any(p.search(cand) for p, _ in leads._SUBJECT_PATTERNS)
                     and not any(p.search(cand) for p in leads._GRADE_PATTERNS)
+                    and not _IELTS_RE.search(cand)
+                    and not _BUSINESS_ENGLISH_RE.search(cand)
+                    and not _PUBLIC_SPEAKING_RE.search(cand)
+                    and not _GENERAL_COMMUNICATIVE_RE.search(cand)
                 ):
                     extracted_name = cand_words[0].capitalize() if len(cand_words) == 1 else " ".join(w.capitalize() for w in cand_words)
                     is_explicit_intro = True
@@ -2961,12 +2982,22 @@ class ConversationEngine:
                     or _GENERAL_INFO_RE.match(message)
                     or _BOOK_ENROLL_RE.match(message)
                     or _FRUSTRATED_RE.search(message)
-                    or re.search(r"\b(foundation|found|foundating|doundation|foudation|foundaton|middle|senior|confident|speaker|program|programs|course|courses|curriculum|subject|subjects|grade|grades|class|standard|fee|fees|cost|costs|pricing|price|demo|trial|enroll|enrollment|apply|admissions?|clinic|clinics|dashboard|mentor|mentors|mentoring)\b", message, re.I)
+                    or _IELTS_RE.search(message)
+                    or _BUSINESS_ENGLISH_RE.search(message)
+                    or _PUBLIC_SPEAKING_RE.search(message)
+                    or _GENERAL_COMMUNICATIVE_RE.search(message)
+                    or _CS_CURRICULUM_RE.search(message)
+                    or re.search(r"\b(foundation|found|foundating|doundation|foudation|foundaton|middle|senior|confident|speaker|program|programs|course|courses|curriculum|subject|subjects|grade|grades|class|standard|fee|fees|cost|costs|pricing|price|demo|trial|enroll|enrollment|apply|admissions?|clinic|clinics|dashboard|mentor|mentors|mentoring|ielts|prep|preparation|coaching|communicative|communication)\b", message, re.I)
                 )
                 if (
                     len(words) <= 3
                     and re.match(r"^[A-Za-z\s]+$", message)
                     and not is_known_non_name
+                    and not _IELTS_RE.search(message)
+                    and not _BUSINESS_ENGLISH_RE.search(message)
+                    and not _PUBLIC_SPEAKING_RE.search(message)
+                    and not _GENERAL_COMMUNICATIVE_RE.search(message)
+                    and not _CS_CURRICULUM_RE.search(message)
                     and message.lower() not in leads._NAME_BLACKLIST
                     and not (set(message.lower().split()) & leads._NAME_BLACKLIST)
                     and not any(p.search(message) for p, _ in leads._SUBJECT_PATTERNS)
@@ -3821,8 +3852,12 @@ class ConversationEngine:
             return self._finalize_result(session_id, res, memory, message)
 
         if intent == "confident_speaker_scope":
+            if re.search(r"\b(what\s+skills\s+(?:are\s+)?covered|skills\s+covered|skills\s+taught)\b", message, re.I):
+                reply_text = personality.CONFIDENT_SPEAKER_SKILLS_RESPONSE
+            else:
+                reply_text = personality.CONFIDENT_SPEAKER_SCOPE_DIRECT
             res = ReplyResult(
-                personality.CONFIDENT_SPEAKER_SCOPE_DIRECT,
+                reply_text,
                 "confident_speaker_scope",
                 ["confident-speaker-scope"],
                 1.0,

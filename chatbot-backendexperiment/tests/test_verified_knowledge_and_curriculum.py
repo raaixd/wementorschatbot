@@ -323,3 +323,101 @@ class TestVerifiedKnowledgeAndCurriculum:
         assert r2.intent == "parent_updates"
         assert "weekly" in r2.reply.lower()
         assert "reports" in r2.reply.lower() or "progress" in r2.reply.lower()
+
+    # 38. IELTS queries route to confident_speaker_ielts
+    def test_38_ielts_routing_variants(self, engine):
+        queries = [
+            "ielts prep",
+            "IELTS prep",
+            "ielts preparation",
+            "I want IELTS prep",
+            "Do you offer IELTS prep?",
+            "I need IELTS preparation",
+            "Can you help with IELTS prep?",
+            "I'm looking for IELTS prep",
+            "Do you provide IELTS coaching?",
+            "I want to prepare for IELTS",
+        ]
+        for q in queries:
+            res = engine.handle_message(f"sess_ielts_{hash(q)}", q)
+            assert res.intent == "confident_speaker_ielts", f"Failed for {q}: intent was {res.intent}"
+            assert "IELTS" in res.reply
+            assert "senior-school" not in str(res.matched_entry_ids).lower()
+            assert "Senior School" not in res.reply
+            assert "Thanks, Ielts Prep" not in res.reply
+            assert "demo_booking" != res.intent
+            assert "standalone_name" != res.intent
+
+    # 39. IELTS does not route to demo or name even after previous message ends with demo offer
+    def test_39_ielts_multiturn_after_demo_offer(self, engine):
+        sess = "sess_39_ielts_after_demo"
+        # Turn 1: bot response ends with Book Free Demo CTA
+        engine.handle_message(sess, "Tell me about Confident Speaker")
+        # Turn 2: "ielts prep" must NOT be treated as user name or demo lead
+        res = engine.handle_message(sess, "ielts prep")
+        assert res.intent == "confident_speaker_ielts"
+        assert "IELTS" in res.reply
+        assert "Thanks, Ielts Prep" not in res.reply
+        assert "standalone_name" != res.intent
+
+    # 40. Communication and communicative skills queries route to confident_speaker_general_communicative
+    def test_40_general_communicative_routing(self, engine):
+        queries = [
+            "communication skills",
+            "communicative skills",
+            "general communicative skills",
+            "I want to improve my communication skills",
+            "I want to improve my communicative skills",
+            "I want better everyday English",
+            "I want to improve my English communication",
+        ]
+        for q in queries:
+            res = engine.handle_message(f"sess_comm_{hash(q)}", q)
+            assert res.intent == "confident_speaker_general_communicative", f"Failed for {q}: intent was {res.intent}"
+            assert "General Communicative Skills" in res.reply or "everyday English" in res.reply
+            assert "rote grammar drills" in res.reply
+            assert "**Confident Speaker**" not in res.reply  # concise track response, not full card dump
+
+    # 41. Avoid overmatching: general queries preserve their respective intents
+    def test_41_avoid_overmatching_communication(self, engine):
+        # Explicit overview asks continue to return full overview
+        res_cs = engine.handle_message("sess_41_cs", "Tell me about Confident Speaker")
+        assert res_cs.intent == "confident_speaker"
+        assert "**Confident Speaker**" in res_cs.reply
+
+        res_mentor = engine.handle_message("sess_41_mentor", "How does mentoring work?")
+        assert res_mentor.intent == "mentoring_approach"
+
+        res_attn = engine.handle_message("sess_41_attn", "Do you provide individual attention?")
+        assert res_attn.intent == "one_on_one_general"
+
+        res_progs = engine.handle_message("sess_41_progs", "What are the programs?")
+        assert res_progs.intent == "faq"
+
+    # 42. Genuine demo/booking queries continue to work
+    def test_42_genuine_demo_booking_intents(self, engine):
+        for q in ["I want to book a demo", "Can I book a demo?", "I want to schedule a demo", "How do I book a demo?"]:
+            res = engine.handle_message(f"sess_demo_{hash(q)}", q)
+            assert res.intent == "demo_booking", f"Failed for {q}: intent was {res.intent}"
+            assert "Book Free Demo" in res.reply
+
+    # 43. Academic board exam preparation preserved
+    def test_43_board_exam_prep_preserved(self, engine):
+        res = engine.handle_message("sess_43_board", "How do you prepare students for board exams?")
+        assert res.intent in ("board_exam", "senior_school_overview")
+        assert "confident_speaker_ielts" != res.intent
+        assert "IELTS" not in res.reply
+        assert "dedicated personal mentor" in res.reply.lower() or "board" in res.reply.lower()
+
+    # 44. Specific Confident Speaker skills query response
+    def test_44_confident_speaker_skills_covered_response(self, engine):
+        res = engine.handle_message("sess_44_skills", "What skills are covered in Confident Speaker?")
+        assert res.intent == "confident_speaker_scope"
+        assert "The program covers four curriculum areas:" in res.reply
+        assert "Public Speaking — build confidence and speaking skills for school and college." in res.reply
+        assert "Business English — improve professional and workplace communication." in res.reply
+        assert "General Communicative Skills — develop practical English for everyday conversations." in res.reply
+        assert "IELTS Preparation — prepare for IELTS with guided practice and mentoring." in res.reply
+        assert "rote grammar drills" in res.reply
+        assert "Book Free Demo" in res.reply
+

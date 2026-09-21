@@ -161,7 +161,10 @@ class TestCourseSpecificPrograms:
         res_cs_scope = engine.handle_message("test_aspect_cs", "What skills are covered in Confident Speaker?")
         assert res_cs_scope.intent == "confident_speaker_scope"
         assert "**Confident Speaker**" not in res_cs_scope.reply
-        assert "Spoken English, Public Speaking, and Interview Skills" in res_cs_scope.reply
+        assert "Public Speaking" in res_cs_scope.reply
+        assert "Business English" in res_cs_scope.reply
+        assert "General Communicative Skills" in res_cs_scope.reply
+        assert "IELTS Preparation" in res_cs_scope.reply
 
     def test_11_multiturn_pronoun_it_resolution(self, engine):
         # Foundation Years -> What grades is it for?

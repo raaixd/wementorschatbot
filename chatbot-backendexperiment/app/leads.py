@@ -64,7 +64,7 @@ _GRADE_PATTERNS = [
 _SUBJECT_PATTERNS = [
     (re.compile(r"\b(math|maths|mathematics)\b", re.IGNORECASE), "Maths"),
     (re.compile(r"\b(science|physics|chemistry|biology)\b", re.IGNORECASE), "Science"),
-    (re.compile(r"\b(confident speaker|spoken english|public speaking|english|speaking)\b", re.IGNORECASE), "Confident Speaker"),
+    (re.compile(r"\b(confident speaker|spoken english|public speaking|business english|general communicative|communicative skills?|communication skills?|ielts|english|speaking)\b", re.IGNORECASE), "Confident Speaker"),
     (re.compile(r"\b(foundation years?)\b", re.IGNORECASE), "Foundation Years"),
     (re.compile(r"\b(middle school)\b", re.IGNORECASE), "Middle School"),
     (re.compile(r"\b(senior school)\b", re.IGNORECASE), "Senior School Focus"),
@@ -186,6 +186,8 @@ _NAME_BLACKLIST = {
     # Programs & Scope
     "foundation", "years", "middle", "school", "senior", "confident", "speaker", "academy", "platform",
     "spoken", "public", "speaking", "interview", "skills", "focus",
+    "ielts", "ietls", "prep", "preparation", "coaching", "communicative", "communication", "conversations", "conversation", "communicating",
+    "looking", "preparing", "interested", "inquiring", "asking",
     # Academic & Subjects
     "math", "maths", "mathematics", "science", "physics", "chemistry", "biology", "english", "evs",
     "environmental", "studies", "history", "geography", "social", "board", "cbse", "icse", "curriculum", "syllabus", "exam", "exams",
