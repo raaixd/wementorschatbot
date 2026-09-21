@@ -435,35 +435,15 @@
 
 .chatbot-typing{align-self:flex-start;display:inline-flex;align-items:center;justify-content:center;padding:12px 18px;min-height:38px;min-width:54px;background:var(--glass-surface);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--glass-border);border-radius:16px;border-bottom-left-radius:5px;animation:chatbot-assistant-in .22s cubic-bezier(.16,1,.3,1) both;transition:opacity .14s ease-out,transform .14s ease-out;will-change:opacity,transform}
 .chatbot-typing.chatbot-typing-exiting{opacity:0;transform:scale(.92) translateY(2px);pointer-events:none}
-.chatbot-typing-track{position:relative;width:34px;height:16px;display:flex;align-items:center;justify-content:center}
-.chatbot-typing-track span{position:absolute;width:6px;height:6px;border-radius:999px;background:var(--glass-accent-3);box-shadow:0 0 6px rgba(199,155,255,.45);top:50%;left:50%;margin-top:-3px;margin-left:-3px;will-change:transform,opacity}
+.chatbot-typing-track{display:flex;align-items:center;justify-content:center;gap:6px;height:16px}
+.chatbot-typing-track span{width:6px;height:6px;border-radius:50%;background:var(--glass-accent-3);animation:chatbot-dot-wave 1.3s cubic-bezier(.45,.05,.55,.95) infinite;will-change:transform,opacity}
+.chatbot-typing-track span:nth-child(1){animation-delay:0s}
+.chatbot-typing-track span:nth-child(2){animation-delay:.18s}
+.chatbot-typing-track span:nth-child(3){animation-delay:.36s}
 
-.chatbot-typing-track span:nth-child(1){animation:chatbot-dot-orbit-1 1.9s cubic-bezier(.45,.05,.55,.95) infinite}
-.chatbot-typing-track span:nth-child(2){animation:chatbot-dot-orbit-2 1.9s cubic-bezier(.45,.05,.55,.95) infinite}
-.chatbot-typing-track span:nth-child(3){animation:chatbot-dot-orbit-3 1.9s cubic-bezier(.45,.05,.55,.95) infinite}
-
-@keyframes chatbot-dot-orbit-1{
-  0%,14%{transform:translate(-10px,0);opacity:.65}
-  32%{transform:translate(-5.6px,3.3px);opacity:.9}
-  50%{transform:translate(0,-6.5px);opacity:1}
-  68%{transform:translate(5.6px,3.3px);opacity:.9}
-  86%,100%{transform:translate(-10px,0);opacity:.65}
-}
-
-@keyframes chatbot-dot-orbit-2{
-  0%,14%{transform:translate(0,0);opacity:.9}
-  32%{transform:translate(0,-6.5px);opacity:1}
-  50%{transform:translate(5.6px,3.3px);opacity:.9}
-  68%{transform:translate(-5.6px,3.3px);opacity:.9}
-  86%,100%{transform:translate(0,0);opacity:.9}
-}
-
-@keyframes chatbot-dot-orbit-3{
-  0%,14%{transform:translate(10px,0);opacity:.65}
-  32%{transform:translate(5.6px,3.3px);opacity:.9}
-  50%{transform:translate(-5.6px,3.3px);opacity:.9}
-  68%{transform:translate(0,-6.5px);opacity:1}
-  86%,100%{transform:translate(10px,0);opacity:.65}
+@keyframes chatbot-dot-wave{
+  0%,100%{transform:translateY(0) scale(.92);opacity:.35}
+  50%{transform:translateY(-4px) scale(1.15);opacity:1}
 }
 
 .chatbot-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
@@ -502,9 +482,7 @@
 @media (prefers-reduced-motion:reduce){
   #chatbotPanel,#chatbotToggle,.chatbot-message,.chatbot-user,.chatbot-assistant,.chatbot-typing,.chatbot-typing span,.chatbot-typing-track span,.chatbot-logo-highlight,.chatbot-suggestion,.chatbot-badge,#chatbotSend,.chatbot-jump-latest{animation:none!important;transition:none!important}
   #chatbotPanel{transform:none!important}
-  .chatbot-typing-track span:nth-child(1){transform:translate(-10px,0)!important;opacity:.7!important}
-  .chatbot-typing-track span:nth-child(2){transform:translate(0,0)!important;opacity:.9!important}
-  .chatbot-typing-track span:nth-child(3){transform:translate(10px,0)!important;opacity:.7!important}
+  .chatbot-typing-track span{transform:none!important;opacity:.7!important}
   .chatbot-jump-latest.visible{transform:translateX(-50%)!important}
 }
 </style>
