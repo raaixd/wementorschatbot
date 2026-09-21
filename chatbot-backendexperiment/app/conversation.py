@@ -118,11 +118,12 @@ _AUDIENCE_RE = re.compile(
 )
 
 _SCOPE_RE = re.compile(
-    r"\b(what\s+does\s+(?:it|the\s+program|confident\s+speaker)\s+cover|"
+    r"\b(what\s+does\s+(?:it|the\s+program|this\s+program|confident\s+speaker)\s+cover|"
     r"what\s+do\s+(?:we|students|learners)\s+learn|"
-    r"what\s+is\s+covered(?:\s+in\s+the\s+program)?|"
+    r"what\s+(?:skills|topics|subjects|areas)?\s*(?:is|are)\s+covered(?:\s+in\s+(?:the\s+program|this\s+program|confident\s+speaker))?|"
     r"what\s+will\s+(?:my\s+child|i)\s+learn|"
-    r"scope\s+of\s+(?:the\s+program|confident\s+speaker))\b",
+    r"what\s+skills\s+(?:are\s+taught|do\s+you\s+teach)|"
+    r"scope\s+of\s+(?:the\s+program|this\s+program|confident\s+speaker))\b",
     re.IGNORECASE,
 )
 
@@ -280,6 +281,67 @@ _FOUNDATION_APPROACH_RE = re.compile(
 
 _FOUNDATION_PROGRESS_RE = re.compile(
     r"\b(progress\s+tracking|weekly\s+progress\s+notes|how\s+do\s+parents\s+track\s+progress|parent\s+notes)\b",
+    re.IGNORECASE,
+)
+
+_SENIOR_SCHOOL_OVERVIEW_RE = re.compile(
+    r"\b("
+    r"tell\s+me\s+about\s+(?:the\s+)?senior\s+school(?:\s+focus)?|"
+    r"what\s+is\s+(?:the\s+)?senior\s+school(?:\s+focus)?(?:\s+program)?|"
+    r"what\s+does\s+senior\s+school(?:\s+focus)?\s+(?:offer|provide|cover|have)|"
+    r"senior\s+school(?:\s+focus)?(?:\s+program|\s+course)?|"
+    r"senior\s+school\s+focus"
+    r")\b",
+    re.IGNORECASE,
+)
+
+_CONFIDENT_SPEAKER_OVERVIEW_RE = re.compile(
+    r"\b("
+    r"tell\s+me\s+about\s+(?:the\s+)?confident\s+speaker(?:\s+program)?|"
+    r"what\s+is\s+(?:the\s+)?confident\s+speaker(?:\s+program)?|"
+    r"what\s+does\s+confident\s+speaker\s+(?:offer|provide|cover|have)|"
+    r"confident\s+speaker(?:\s+program|\s+course)?"
+    r")\b",
+    re.IGNORECASE,
+)
+
+_GRADE_PROGRAM_ROUTING_RE = re.compile(
+    r"\b("
+    r"what\s+(?:program|course|class|classes|options?)\s+(?:is|are)?\s*(?:available|there|offered)?\s*for\s+(?:grade|class|standard)\s*(\d+)|"
+    r"(?:program|course|class|classes|options?)\s+for\s+(?:grade|class|standard)\s*(\d+)|"
+    r"which\s+(?:program|course|class)\s+is\s+for\s+(?:grade|class|standard)\s*(\d+)|"
+    r"what\s+can\s+(?:a\s+)?(?:grade|class|standard)\s*(\d+)\s+student\s+(?:join|take|study)"
+    r")\b"
+    r"|^\s*(?:what\s+about\s+)?(?:grade|class|standard)\s*(\d+)\s*[?!.]*$",
+    re.IGNORECASE,
+)
+
+_KEY_FEATURES_RE = re.compile(
+    r"\b("
+    r"key\s+features?|"
+    r"what\s+are\s+(?:the\s+)?(?:key\s+)?features?|"
+    r"features?\s+of\s+(?:this\s+program|the\s+program|it)"
+    r")\b",
+    re.IGNORECASE,
+)
+
+_SENIOR_SUBJECTS_RE = re.compile(
+    r"\b("
+    r"what\s+subjects\s+(?:are\s+included|do\s+you\s+teach|are\s+taught|are\s+there|in\s+senior\s+school)|"
+    r"subjects?\s+(?:included|offered|taught)\s+in\s+senior\s+school|"
+    r"what\s+are\s+the\s+subjects"
+    r")\b",
+    re.IGNORECASE,
+)
+
+_SUBJECTS_INQUIRY_RE = re.compile(
+    r"\b("
+    r"what\s+subjects\s+(?:are\s+included|are\s+covered|are\s+offered|are\s+taught|do\s+you\s+teach|are\s+there|are\s+in|in)|"
+    r"what\s+subjects\s+does\s+(?:it|this\s+program|the\s+program|the\s+course)\s+cover|"
+    r"subjects?\s+(?:included|offered|taught|covered)|"
+    r"what\s+are\s+the\s+subjects"
+    r")\b"
+    r"|^\s*what\s+subjects\s+(?:are\s+)?(?:in|covered\s+in)\s+it\??\s*$",
     re.IGNORECASE,
 )
 
@@ -520,17 +582,17 @@ _DEMO_FIELD_QUERY_RE = re.compile(
 )
 
 _FOUNDATION_GRADES_NARROW_RE = re.compile(
-    r"^\s*(?:what\s+grades?\s+(?:is|are)\s+(?:it|foundation(?:\s+years?)?)\s+for\??|"
+    r"^\s*(?:what\s+grades?\s+(?:is|are)\s+foundation(?:\s+years?)?\s+for\??|"
     r"what\s+grades?\s+does\s+foundation(?:\s+years?)?\s+cover\??|"
     r"what\s+grades?\s+for\s+foundation(?:\s+years?)?\??|"
-    r"which\s+grades?\s+(?:is|are)\s+(?:it|foundation(?:\s+years?)?)\s+for\??)\s*$",
+    r"which\s+grades?\s+(?:is|are)\s+foundation(?:\s+years?)?\s+for\??)\s*$",
     re.IGNORECASE,
 )
 
 _MIDDLE_SCHOOL_GRADES_NARROW_RE = re.compile(
-    r"^\s*(?:what\s+grades?\s+(?:is|are)\s+(?:it|middle(?:\s+school)?)\s+for\??|"
+    r"^\s*(?:what\s+grades?\s+(?:is|are)\s+middle(?:\s+school)?\s+for\??|"
     r"what\s+grades?\s+does\s+middle(?:\s+school)?\s+cover\??|"
-    r"which\s+grades?\s+(?:is|are)\s+(?:it|middle(?:\s+school)?)\s+for\??)\s*$",
+    r"which\s+grades?\s+(?:is|are)\s+middle(?:\s+school)?\s+for\??)\s*$",
     re.IGNORECASE,
 )
 
@@ -732,7 +794,10 @@ _MORE_RE = re.compile(
     r"\b(tell me more|more (details|info)|explain (that|more)|elaborate|go on|what are the options|what options|what kind of practice|what practice|what are the choices)\b",
     re.IGNORECASE,
 )
-_REFERENCE_WORD_RE = re.compile(r"\b(it|that|this|they|those|these|the\s+program|the\s+course|the\s+one)\b", re.IGNORECASE)
+_REFERENCE_WORD_RE = re.compile(
+    r"\b(it|that|this|this\s+program|this\s+course|they|those|these|the\s+program|the\s+course|the\s+one)\b",
+    re.IGNORECASE,
+)
 
 _INJECTION_MARKERS_RE = re.compile(
     r"\b(ignore (all |any )?(previous|prior|above) instructions|system prompt|you are now|"
@@ -940,18 +1005,18 @@ _WHAT_ABOUT_OTHER_ONE_RE = re.compile(
 
 _PROGRAM_NAME_HINTS = {
     "program-foundation-years": [
-        "foundation", "found", "foundating", "doundation",
-        "grades 3-5", "grades 3 to 5", "class 3", "class 4", "class 5", "primary school",
+        "foundation", "found", "foundating", "doundation", "foundation years",
+        "grades 3-5", "grades 3 to 5", "class 3", "class 4", "class 5", "grade 3", "grade 4", "grade 5", "primary school",
     ],
     "program-middle-school": [
-        "middle", "middel", "midle",
+        "middle", "middel", "midle", "middle school", "middle school — all subjects", "middle school - all subjects",
         "grades 6-8", "grades 6 to 8", "class 6", "class 7", "class 8", "grade 6", "grade 7", "grade 8",
     ],
     "program-senior-school": [
-        "senior", "board",
+        "senior", "board", "senior school", "senior school focus",
         "grades 9-10", "grades 9 to 10", "class 9", "class 10", "grade 9", "grade 10", "10th", "9th",
     ],
-    "program-confident-speaker": ["confident", "speaker", "spoken", "speaking", "interview", "public speaking"],
+    "program-confident-speaker": ["confident", "speaker", "confident speaker", "spoken", "speaking", "interview", "public speaking", "all ages"],
 }
 
 _PLAYFUL_RE = re.compile(
@@ -1013,13 +1078,13 @@ class ConversationEngine:
 
     def _program_name_to_id(self, name: str) -> Optional[str]:
         n = name.strip().lower()
-        if any(w in n for w in ["foundation", "found", "3-5", "grades 3", "primary"]):
+        if any(w in n for w in ["foundation", "found", "3-5", "grades 3", "primary", "grade 3", "grade 4", "grade 5", "class 3", "class 4", "class 5"]):
             return "program-foundation-years"
-        if any(w in n for w in ["middle", "6-8", "grades 6", "class 7", "grade 7"]):
+        if any(w in n for w in ["middle", "6-8", "grades 6", "class 7", "grade 7", "class 6", "grade 6", "class 8", "grade 8"]):
             return "program-middle-school"
-        if any(w in n for w in ["senior", "board", "9-10", "grades 9", "class 10", "grade 10", "10th", "9th"]):
+        if any(w in n for w in ["senior", "board", "9-10", "grades 9", "class 10", "grade 10", "class 9", "grade 9", "10th", "9th"]):
             return "program-senior-school"
-        if any(w in n for w in ["speaker", "confident", "spoken", "speaking"]):
+        if any(w in n for w in ["speaker", "confident", "spoken", "speaking", "all ages"]):
             return "program-confident-speaker"
         return None
 
@@ -1038,12 +1103,12 @@ class ConversationEngine:
 
     def _extract_program_from_text(self, text: str) -> Optional[str]:
         t = text.lower()
+        if re.search(r"\b(senior(?:\s+school)?(?:\s+focus)?|board(?:\s+exam)?s?|grades?\s*9\s*[-–to]\s*10|grades?\s*(?:9|10)\b|class\s*(?:9|10)\b|(?:9|10)th\s*(?:grade|class|standard)\b)\b", t):
+            return "senior"
         if re.search(r"\b(foundation(?:\s+years?)?|primary|grades?\s*3\s*[-–to]\s*5|grades?\s*[345]\b|class\s*[345]\b|[345](?:th|rd|st)?\s*(?:grade|class|standard)\b)\b", t):
             return "foundation"
-        if re.search(r"\b(middle(?:\s+school)?|grades?\s*6\s*[-–to]\s*8|grades?\s*[678]\b|class\s*[678]\b|[678]th\s*(?:grade|class|standard)\b)\b", t):
+        if re.search(r"\b(middle(?:\s+school)?(?:\s*[-—–]\s*all\s+subjects)?|grades?\s*6\s*[-–to]\s*8|grades?\s*[678]\b|class\s*[678]\b|[678]th\s*(?:grade|class|standard)\b)\b", t):
             return "middle"
-        if re.search(r"\b(senior(?:\s+school)?|board(?:\s+exam)?s?|grades?\s*9\s*[-–to]\s*10|grades?\s*(?:9|10)\b|class\s*(?:9|10)\b|(?:9|10)th\s*(?:grade|class|standard)\b)\b", t):
-            return "senior"
         if re.search(r"\b(confident\s+speaker|public\s+speaking|spoken\s+english|interview\s+skills?|speaking\s+practice)\b", t):
             return "confident_speaker"
         if re.search(r"\b(academic\s+(?:courses?|classes|sessions?|programs?|subjects?|mentoring|learning)|classes\s+for\s+school\s+students|courses\s+for\s+school\s+students|school\s+students|school\s+courses|academics?)\b", t):
@@ -1158,17 +1223,19 @@ class ConversationEngine:
                 1.0,
             )
         if prog_id == "program-senior-school":
-            entry = self.entries_by_id.get("program-senior-school")
-            scored = [ScoredEntry(entry=entry, score=1.0)] if entry else []
-            answer = self._generate_answer("Grades 9-10 program", scored, session_id)
-            answer = self._run_response_quality_checks("Grades 9-10 program", answer, "board_exam", [entry] if entry else [])
-            return ReplyResult(answer, "board_exam", ["program-senior-school"], 1.0)
+            return ReplyResult(
+                personality.SENIOR_SCHOOL_OVERVIEW_RESPONSE,
+                "senior_school_overview",
+                ["program-senior-school"],
+                1.0,
+            )
         if prog_id == "program-confident-speaker":
-            entry = self.entries_by_id.get("program-confident-speaker")
-            scored = [ScoredEntry(entry=entry, score=1.0)] if entry else []
-            answer = self._generate_answer("Confident Speaker program", scored, session_id)
-            answer = self._run_response_quality_checks("Confident Speaker program", answer, "confident_speaker", [entry] if entry else [])
-            return ReplyResult(answer, "confident_speaker", ["program-confident-speaker"], 1.0)
+            return ReplyResult(
+                personality.CONFIDENT_SPEAKER_OVERVIEW_RESPONSE,
+                "confident_speaker",
+                ["program-confident-speaker"],
+                1.0,
+            )
         return ReplyResult(personality.pick(personality.GREETINGS), "general", [], None)
 
     def _resolve_relative_or_correction(
@@ -1577,8 +1644,10 @@ class ConversationEngine:
             )
             if has_fee_word:
                 return "fees"
-            if _FOUNDATION_SUBJECTS_RE.search(stripped) or _FOUNDATION_SUBJECTS_RE.search(normalized):
+            if _FOUNDATION_SUBJECTS_RE.search(stripped) or _FOUNDATION_SUBJECTS_RE.search(normalized) or _SUBJECTS_INQUIRY_RE.search(stripped) or _SUBJECTS_INQUIRY_RE.search(normalized):
                 return "foundation_subjects"
+            if _KEY_FEATURES_RE.search(stripped) or _KEY_FEATURES_RE.search(normalized):
+                return "foundation_features"
             if _FOUNDATION_APPROACH_RE.search(stripped) or _FOUNDATION_APPROACH_RE.search(normalized):
                 return "foundation_approach"
             if _FOUNDATION_PROGRESS_RE.search(stripped) or _FOUNDATION_PROGRESS_RE.search(normalized):
@@ -1595,6 +1664,10 @@ class ConversationEngine:
             )
             if has_fee_word:
                 return "fees"
+            if _MIDDLE_SCHOOL_SUBJECTS_RE.search(stripped) or _MIDDLE_SCHOOL_SUBJECTS_RE.search(normalized) or _SUBJECTS_INQUIRY_RE.search(stripped) or _SUBJECTS_INQUIRY_RE.search(normalized):
+                return "middle_school_subjects"
+            if _KEY_FEATURES_RE.search(stripped) or _KEY_FEATURES_RE.search(normalized):
+                return "middle_school_features"
             return "middle_school_overview"
         if _MIDDLE_SCHOOL_GRADES_RE.search(stripped) or _MIDDLE_SCHOOL_GRADES_RE.search(normalized):
             return "middle_school_grades"
@@ -1614,6 +1687,35 @@ class ConversationEngine:
             return "practical_labs"
         if _PROGRESS_DASHBOARD_RE.search(stripped) or _PROGRESS_DASHBOARD_RE.search(normalized):
             return "middle_school_progress_dashboard"
+
+        # Senior School explicit mentions
+        if _SENIOR_SCHOOL_OVERVIEW_RE.search(stripped) or _SENIOR_SCHOOL_OVERVIEW_RE.search(normalized):
+            has_fee_word = bool(
+                set(tokenize(stripped)) & _FEE_TRIGGER_WORDS
+                or re.search(r"\b(fee|fees|cost|costs|price|prices|pricing|charge|rate|how much)\b", stripped, re.I)
+            )
+            if has_fee_word:
+                return "fees"
+            if _SENIOR_SUBJECTS_RE.search(stripped) or _SENIOR_SUBJECTS_RE.search(normalized) or _SUBJECTS_INQUIRY_RE.search(stripped) or _SUBJECTS_INQUIRY_RE.search(normalized):
+                return "senior_school_subjects"
+            if _KEY_FEATURES_RE.search(stripped) or _KEY_FEATURES_RE.search(normalized):
+                return "senior_school_features"
+            return "senior_school_overview"
+
+        # Grade-to-program routing
+        grade_match = _GRADE_PROGRAM_ROUTING_RE.search(stripped) or _GRADE_PROGRAM_ROUTING_RE.search(normalized)
+        if grade_match:
+            g_str = next((g for g in grade_match.groups() if g is not None and g.isdigit()), None)
+            if g_str:
+                g_num = int(g_str)
+                if g_num in (1, 2):
+                    return "grade_1_2_unavailable"
+                elif 3 <= g_num <= 5:
+                    return "foundation_years_overview"
+                elif 6 <= g_num <= 8:
+                    return "middle_school_overview"
+                elif 9 <= g_num <= 10:
+                    return "senior_school_overview"
 
         # PRIORITY 4: Genuine Confirmations / Clarifications
         if _AFFIRMATION_RE.match(stripped):
@@ -1689,8 +1791,12 @@ class ConversationEngine:
                 return "confident_speaker_audience"
             if _SCOPE_RE.search(stripped) or _SCOPE_RE.search(normalized):
                 return "confident_speaker_scope"
+            if _KEY_FEATURES_RE.search(stripped) or _KEY_FEATURES_RE.search(normalized):
+                return "confident_speaker_features"
             if _MENTORING_RE.search(stripped) or _MENTORING_RE.search(normalized):
                 return "confident_speaker_mentoring"
+            if _ACTIVITIES_RE.search(stripped) or _ACTIVITIES_RE.search(normalized):
+                return "confident_speaker_activities"
             if _DEMO_BOOKING_RE.search(stripped):
                 return "demo_booking"
             return "confident_speaker"
@@ -1698,20 +1804,26 @@ class ConversationEngine:
         active_prog = effective_prog
 
         if active_prog == "foundation":
-            if _FOUNDATION_GRADES_NARROW_RE.match(stripped) or re.search(r"^\s*(what\s+grades?\??|grades?\??)\s*$", stripped, re.I):
+            if _FOUNDATION_GRADES_NARROW_RE.match(stripped) or re.search(r"^\s*(what\s+grades?\s+(?:is|are)\s+(?:it|this\s+program|the\s+program|this\s+course|the\s+course)\s+for\??|what\s+grades?\s+does\s+(?:it|this\s+program|the\s+program|this\s+course|the\s+course)\s+cover\??|what\s+grades?\??|grades?\??|who\s+is\s+(?:it|this\s+program|the\s+program|this\s+course|the\s+course)\s+for\??)\s*$", stripped, re.I):
                 return "foundation_grades"
-            if _FOUNDATION_SUBJECTS_RE.search(stripped) or _FOUNDATION_SUBJECTS_RE.search(normalized):
+            if _FOUNDATION_SUBJECTS_RE.search(stripped) or _SUBJECTS_INQUIRY_RE.search(stripped) or _SUBJECTS_INQUIRY_RE.search(normalized) or re.search(r"^\s*what\s+subjects?\??\s*$", stripped, re.I):
                 return "foundation_subjects"
+            if _KEY_FEATURES_RE.search(stripped) or _KEY_FEATURES_RE.search(normalized):
+                return "foundation_features"
             if _FOUNDATION_APPROACH_RE.search(stripped) or _FOUNDATION_APPROACH_RE.search(normalized):
                 return "foundation_approach"
             if _FOUNDATION_PROGRESS_RE.search(stripped) or _FOUNDATION_PROGRESS_RE.search(normalized):
                 return "foundation_progress"
+            if re.search(r"^\s*(tell\s+me\s+(?:more\s+)?about\s+(?:it|this\s+program|the\s+course)|what\s+is\s+(?:it|this\s+program|the\s+course)|what\s+does\s+(?:it|this\s+program|the\s+course)\s+offer)\s*[?!.]*$", stripped, re.I):
+                return "foundation_years_overview"
 
         if active_prog == "middle":
-            if _MIDDLE_SCHOOL_GRADES_RE.search(stripped) or _MIDDLE_SCHOOL_GRADES_NARROW_RE.match(stripped) or re.search(r"^\s*(what\s+grades?\??|grades?\??)\s*$", stripped, re.I):
+            if _MIDDLE_SCHOOL_GRADES_RE.search(stripped) or _MIDDLE_SCHOOL_GRADES_NARROW_RE.match(stripped) or re.search(r"^\s*(what\s+grades?\s+(?:is|are)\s+(?:it|this\s+program|the\s+program|this\s+course|the\s+course)\s+for\??|what\s+grades?\s+does\s+(?:it|this\s+program|the\s+program|this\s+course|the\s+course)\s+cover\??|what\s+grades?\??|grades?\??|who\s+is\s+(?:it|this\s+program|the\s+program|this\s+course|the\s+course)\s+for\??)\s*$", stripped, re.I):
                 return "middle_school_grades"
-            if _MIDDLE_SCHOOL_SUBJECTS_RE.search(stripped) or _MIDDLE_SCHOOL_SUBJECTS_RE.search(normalized) or re.search(r"^\s*(what\s+subjects?\??|subjects?\??)\s*$", stripped, re.I):
+            if _MIDDLE_SCHOOL_SUBJECTS_RE.search(stripped) or _SUBJECTS_INQUIRY_RE.search(stripped) or _SUBJECTS_INQUIRY_RE.search(normalized) or re.search(r"^\s*what\s+subjects?\??\s*$", stripped, re.I):
                 return "middle_school_subjects"
+            if _KEY_FEATURES_RE.search(stripped) or _KEY_FEATURES_RE.search(normalized):
+                return "middle_school_features"
             if _DOUBT_CLINICS_RE.search(stripped) or _DOUBT_CLINICS_RE.search(normalized) or re.search(r"\b(doubt|doubts)\b", stripped, re.I):
                 if self._has_anaphoric_context(stripped) or self._has_anaphoric_context(normalized):
                     return "middle_school_doubt_clinics"
@@ -1724,34 +1836,54 @@ class ConversationEngine:
                 return "middle_school_progress_dashboard"
             if re.search(r"^\s*(how\s+does\s+(?:it|the\s+program)\s+work\??|how\s+does\s+it\s+work\??)\s*$", stripped, re.I):
                 return "middle_school_overview"
+            if re.search(r"^\s*(tell\s+me\s+(?:more\s+)?about\s+(?:it|this\s+program|the\s+course)|what\s+is\s+(?:it|this\s+program|the\s+course)|what\s+does\s+(?:it|this\s+program|the\s+course)\s+offer)\s*[?!.]*$", stripped, re.I):
+                return "middle_school_overview"
 
-        if active_prog == "confident_speaker":
-            if re.search(r"^\s*(how\s+does\s+(?:it|the\s+program)\s+work\??|how\s+does\s+it\s+work\??)\s*$", stripped, re.I):
-                return "confident_speaker_format"
-            if _FORMAT_RE.search(stripped) or _FORMAT_RE.search(normalized):
-                return "confident_speaker_format"
-            if _AUDIENCE_RE.search(stripped) or _AUDIENCE_RE.search(normalized):
-                return "confident_speaker_audience"
-            if _SCOPE_RE.search(stripped) or _SCOPE_RE.search(normalized):
-                return "confident_speaker_scope"
-            if _MENTORING_RE.search(stripped) or _MENTORING_RE.search(normalized):
-                return "confident_speaker_mentoring"
-            if _ACTIVITIES_RE.search(stripped) or _ACTIVITIES_RE.search(normalized):
-                return "confident_speaker_activities"
-            if _DEMO_BOOKING_RE.search(stripped):
-                return "demo_booking"
-
-        has_board_mention = bool(_BOARD_EXAM_RE.search(stripped) or _BOARD_EXAM_RE.search(normalized))
-        is_board_context = has_board_mention or (active_prog in ("senior", "board_exam"))
-        if is_board_context:
+        if active_prog == "senior":
+            if re.search(r"^\s*(what\s+grades?\s+(?:is|are)\s+(?:it|this\s+program|the\s+program|this\s+course|the\s+course)\s+for\??|what\s+grades?\s+does\s+(?:it|this\s+program|the\s+program|this\s+course|the\s+course)\s+cover\??|what\s+grades?\??|grades?\??|who\s+is\s+(?:it|this\s+program|the\s+program|this\s+course|the\s+course)\s+for\??)\s*$", stripped, re.I):
+                return "senior_school_grades"
+            if _SENIOR_SUBJECTS_RE.search(stripped) or _SUBJECTS_INQUIRY_RE.search(stripped) or _SUBJECTS_INQUIRY_RE.search(normalized) or re.search(r"^\s*what\s+subjects?\??\s*$", stripped, re.I):
+                return "senior_school_subjects"
+            if _KEY_FEATURES_RE.search(stripped) or _KEY_FEATURES_RE.search(normalized):
+                return "senior_school_features"
             if _MARKS_GUARANTEE_RE.search(stripped) or _MARKS_GUARANTEE_RE.search(normalized):
                 return "marks_guarantee"
             if _PARENT_UPDATES_RE.search(stripped) or _PARENT_UPDATES_RE.search(normalized):
                 return "parent_updates"
             if _MENTORING_RE.search(stripped) or _MENTORING_RE.search(normalized):
                 return "board_mentoring"
-            if has_board_mention:
-                return "board_exam"
+            if re.search(r"^\s*(tell\s+me\s+(?:more\s+)?about\s+(?:it|this\s+program|the\s+course)|what\s+is\s+(?:it|this\s+program|the\s+course)|what\s+does\s+(?:it|this\s+program|the\s+course)\s+offer|how\s+does\s+it\s+work\??)\s*[?!.]*$", stripped, re.I):
+                return "senior_school_overview"
+
+        if active_prog == "confident_speaker":
+            if re.search(r"^\s*(how\s+does\s+(?:it|the\s+program)\s+work\??|how\s+does\s+it\s+work\??)\s*$", stripped, re.I):
+                return "confident_speaker_format"
+            if _FORMAT_RE.search(stripped) or _FORMAT_RE.search(normalized):
+                return "confident_speaker_format"
+            if _AUDIENCE_RE.search(stripped) or _AUDIENCE_RE.search(normalized) or re.search(r"^\s*who\s+is\s+it\s+for\??\s*$", stripped, re.I):
+                return "confident_speaker_audience"
+            if _SCOPE_RE.search(stripped) or _SCOPE_RE.search(normalized) or _SUBJECTS_INQUIRY_RE.search(stripped) or re.search(r"^\s*what\s+subjects?\??\s*$", stripped, re.I):
+                return "confident_speaker_scope"
+            if _KEY_FEATURES_RE.search(stripped) or _KEY_FEATURES_RE.search(normalized):
+                return "confident_speaker_features"
+            if _MENTORING_RE.search(stripped) or _MENTORING_RE.search(normalized):
+                return "confident_speaker_mentoring"
+            if _ACTIVITIES_RE.search(stripped) or _ACTIVITIES_RE.search(normalized):
+                return "confident_speaker_activities"
+            if _DEMO_BOOKING_RE.search(stripped):
+                return "demo_booking"
+            if re.search(r"^\s*(tell\s+me\s+(?:more\s+)?about\s+(?:it|this\s+program|the\s+course)|what\s+is\s+(?:it|this\s+program|the\s+course)|what\s+does\s+(?:it|this\s+program|the\s+course)\s+offer)\s*[?!.]*$", stripped, re.I):
+                return "confident_speaker"
+
+        has_board_mention = bool(_BOARD_EXAM_RE.search(stripped) or _BOARD_EXAM_RE.search(normalized))
+        if has_board_mention:
+            if _MARKS_GUARANTEE_RE.search(stripped) or _MARKS_GUARANTEE_RE.search(normalized):
+                return "marks_guarantee"
+            if _PARENT_UPDATES_RE.search(stripped) or _PARENT_UPDATES_RE.search(normalized):
+                return "parent_updates"
+            if _MENTORING_RE.search(stripped) or _MENTORING_RE.search(normalized):
+                return "board_mentoring"
+            return "board_exam"
 
         # Independent checks for specific fields without explicit program mention
         if _MARKS_GUARANTEE_RE.search(stripped) or _MARKS_GUARANTEE_RE.search(normalized):
@@ -1823,7 +1955,7 @@ class ConversationEngine:
         """Classify user intent into high-level conversational categories for regression and routing matrix."""
         detected = self.detect_intent(text, session_id)
         if detected in (
-            "foundation_years_overview", "middle_school_overview", "senior_school",
+            "foundation_years_overview", "middle_school_overview", "senior_school", "senior_school_overview", "board_exam",
             "confident_speaker", "academic_courses_overview", "academic_sessions",
             "grade7_maths_sessions", "confident_speaker_activities",
         ):
@@ -2227,6 +2359,9 @@ class ConversationEngine:
             .replace("\u202f", " ")
             .replace("\u00a0", " ")
         )
+        reply = re.sub(r"(?i)\bgrades?\s*6\s*(?:through|to)\s*8\b", "Grades 6–8", reply)
+        reply = re.sub(r"(?i)\bgrades?\s*3\s*(?:through|to)\s*5\b", "Grades 3–5", reply)
+        reply = re.sub(r"(?i)\bgrades?\s*9\s*(?:through|to)\s*10\b", "Grades 9–10", reply)
 
         query_norm = normalize_query(query)
         has_fee_intent = bool(
@@ -2307,6 +2442,12 @@ class ConversationEngine:
             reply = re.sub(r"(?i)\bfor Middle School students\b", "for learners", reply)
             reply = re.sub(r"(?i)\bMiddle School (?:students|learners)\b", "learners", reply)
             reply = re.sub(r"(?i)\bMiddle School program\b", "academic programs", reply)
+
+        if intent in ("doubt_clinics", "middle_school_doubt_clinics") or re.search(r"\bdoubt\s+clinics?\b", query, re.IGNORECASE):
+            if "fortnightly" not in reply.lower():
+                reply = re.sub(r"(?i)\bdoubt\s+clinics\b", "fortnightly doubt clinics", reply, count=1)
+                if "fortnightly" not in reply.lower():
+                    reply = re.sub(r"(?i)\bdoubt\s+solving\b", "fortnightly doubt clinics and doubt solving", reply, count=1)
 
         # Action intent check: If intent is an action intent (enrollment, booking, etc.), ensure action guidance exists
         if intent in ACTION_INTENTS:
@@ -3282,6 +3423,16 @@ class ConversationEngine:
                 1.0,
             )
 
+        if intent == "senior_school_overview":
+            memory.active_program = "senior"
+            res = ReplyResult(
+                personality.SENIOR_SCHOOL_OVERVIEW_RESPONSE,
+                "senior_school_overview",
+                ["program-senior-school"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
         if intent == "board_exam":
             entry = self.entries_by_id.get("program-senior-school")
             if entry:
@@ -3291,14 +3442,75 @@ class ConversationEngine:
                 res = ReplyResult(answer, "board_exam", ["program-senior-school"], 1.0)
                 return self._finalize_result(session_id, res, memory, message)
 
+        if intent == "senior_school_subjects":
+            memory.active_program = "senior"
+            res = ReplyResult(
+                personality.SENIOR_SCHOOL_SUBJECTS_RESPONSE,
+                "senior_school_subjects",
+                ["program-senior-school"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "senior_school_grades":
+            memory.active_program = "senior"
+            res = ReplyResult(
+                personality.SENIOR_SCHOOL_GRADES_RESPONSE,
+                "senior_school_grades",
+                ["program-senior-school"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "senior_school_features":
+            memory.active_program = "senior"
+            res = ReplyResult(
+                personality.SENIOR_SCHOOL_FEATURES_RESPONSE,
+                "senior_school_features",
+                ["program-senior-school"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "foundation_features":
+            memory.active_program = "foundation"
+            res = ReplyResult(
+                personality.FOUNDATION_YEARS_FEATURES_RESPONSE,
+                "foundation_features",
+                ["program-foundation-years"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "middle_school_features":
+            memory.active_program = "middle"
+            res = ReplyResult(
+                personality.MIDDLE_SCHOOL_FEATURES_RESPONSE,
+                "middle_school_features",
+                ["program-middle-school"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "confident_speaker_features":
+            memory.active_program = "confident_speaker"
+            res = ReplyResult(
+                personality.CONFIDENT_SPEAKER_FEATURES_RESPONSE,
+                "confident_speaker_features",
+                ["program-confident-speaker"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
         if intent == "confident_speaker":
-            entry = self.entries_by_id.get("program-confident-speaker")
-            if entry:
-                scored = [ScoredEntry(entry=entry, score=1.0)]
-                answer = self._generate_answer(message, scored, session_id)
-                answer = self._run_response_quality_checks(message, answer, "confident_speaker", [entry], memory.last_assistant_message)
-                res = ReplyResult(answer, "confident_speaker", ["program-confident-speaker"], 1.0)
-                return self._finalize_result(session_id, res, memory, message)
+            memory.active_program = "confident_speaker"
+            res = ReplyResult(
+                personality.CONFIDENT_SPEAKER_OVERVIEW_RESPONSE,
+                "confident_speaker",
+                ["program-confident-speaker"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
 
         if intent == "confident_speaker_format":
             last_intent = self._last_assistant_intent(session_id)

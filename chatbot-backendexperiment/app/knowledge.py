@@ -42,11 +42,17 @@ class KBEntry:
     answer formatter."""
     items: List[str] = field(default_factory=list)
     """Bullet/step items used when format is 'bullets' or 'steps'."""
+    program: Optional[str] = None
+    grade_range: Optional[str] = None
+    subjects: List[str] = field(default_factory=list)
+    features: List[str] = field(default_factory=list)
 
     @property
     def searchable_text(self) -> str:
         """All text used to build the retrieval index for this entry."""
-        parts = [self.question, self.answer, *self.phrasings, *self.keywords, *self.items]
+        parts = [self.question, self.answer, *self.phrasings, *self.keywords, *self.items, *self.subjects, *self.features]
+        if self.grade_range:
+            parts.append(self.grade_range)
         return " ".join(parts)
 
 
@@ -123,6 +129,10 @@ def load_entries() -> List[KBEntry]:
                     list_ids=item.get("list_ids", []) or [],
                     format=item.get("format", "text"),
                     items=item.get("items", []) or [],
+                    program=item.get("program"),
+                    grade_range=item.get("grade_range"),
+                    subjects=item.get("subjects", []) or [],
+                    features=item.get("features", []) or [],
                 )
             )
         except KeyError as exc:

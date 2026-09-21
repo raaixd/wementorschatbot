@@ -207,6 +207,22 @@ class Retriever:
                 if has_academic_word and not has_speaker_word:
                     continue
 
+            # Grade 1-2 availability gate: must not match unless explicitly asking about 1st/2nd grade
+            if entry.id == "grade-1-and-2-availability":
+                has_g1_g2 = bool(
+                    re.search(
+                        r"\b((?:first|1st|second|2nd)\s+grades?|grades?\s*(?:1|2|one|two)\b(?!\s*[0-9])|"
+                        r"(?:first|1st|second|2nd)\s+class(?:es)?|class\s*(?:1|2|one|two)\b(?!\s*[0-9])|"
+                        r"(?:first|1st|second|2nd)\s+standards?|standards?\s*(?:1|2|one|two)\b(?!\s*[0-9])|"
+                        r"grades?\s*(?:1\s*(?:and|&|or|to|-|–)\s*2|1\s*,\s*2)|"
+                        r"classes\s*(?:1\s*(?:and|&|or|to|-|–)\s*2|1\s*,\s*2)|"
+                        r"(?:first|1st)\s*(?:and|&|or|to|-|–)\s*(?:second|2nd)\s+grades?|"
+                        r"(?:first|1st)\s+or\s+(?:second|2nd)\s+grade|(?:first|second)\s+grader)\b",
+                        lowered_query,
+                    )
+                )
+                if not has_g1_g2:
+                    continue
 
             cosine = self._cosine(query_vec, query_norm, index)
             overlap = len(query_token_set & self._question_tokens[index])
@@ -223,18 +239,38 @@ class Retriever:
                 else:
                     score += 0.5
 
-            # General doubt feature routing: ensure general doubt-solving-sessions ranks above
-            # program-specific entries when the visitor asks about doubt clinics generally.
             is_doubt_query = bool(re.search(r"\b(doubt\s+clinics?|doubt\s+solving|doubt[- ]clearing)\b", lowered_query))
-            if is_doubt_query and not has_ms_terms:
-                if entry.id == "doubt-solving-sessions":
-                    score += 0.6
-                elif entry.id == "middle-school-doubt-clinics":
-                    score *= 0.5
-
             is_lab_query = bool(re.search(r"\b(practical\s+labs?|practical\s+problem\s+sets?)\b", lowered_query))
-            if is_lab_query and has_ms_terms and entry.id == "middle-school-practical-labs":
-                score += 0.5
+
+            # Grade-based program routing boosts (for program inquiries, not specific feature inquiries)
+            if not is_doubt_query and not is_lab_query:
+                if entry.id == "program-foundation-years":
+                    if re.search(r"\b(grades?\s*[345]\b|class\s*[345]\b|[345](?:th|rd|st)?\s*(?:grade|class|standard)\b|foundation(?:\s+years?)?)\b", lowered_query):
+                        score += 0.5
+                elif entry.id == "program-middle-school":
+                    if re.search(r"\b(grades?\s*[678]\b|class\s*[678]\b|[678]th\s*(?:grade|class|standard)\b|middle(?:\s+school)?)\b", lowered_query):
+                        score += 0.5
+                elif entry.id == "program-senior-school":
+                    if re.search(r"\b(grades?\s*(?:9|10)\b|class\s*(?:9|10)\b|(?:9|10)th\s*(?:grade|class|standard)\b|senior(?:\s+school(?:\s+focus)?)?)\b", lowered_query):
+                        score += 0.5
+                elif entry.id == "program-confident-speaker":
+                    if re.search(r"\b(confident\s+speaker|confident\s+speaking|spoken\s+english|public\s+speaking|interview\s+skills?)\b", lowered_query):
+                        score += 0.5
+
+            # General vs Middle School feature routing
+            if is_doubt_query:
+                if not has_ms_terms:
+                    if entry.id == "doubt-solving-sessions":
+                        score += 0.6
+                    elif entry.id == "middle-school-doubt-clinics":
+                        score *= 0.5
+                else:
+                    if entry.id == "middle-school-doubt-clinics":
+                        score += 0.6
+
+            if is_lab_query:
+                if has_ms_terms and entry.id == "middle-school-practical-labs":
+                    score += 0.6
 
             # Coverage gate: a single rare shared word (high IDF weight)
             # can otherwise make an unrelated multi-word query look like a

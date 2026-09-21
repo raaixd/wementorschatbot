@@ -435,19 +435,60 @@
         "5th standard",
         "grade 3",
         "grade 4",
-        "grade 5"
+        "grade 5",
+        "foundation program",
+        "foundation course",
+        "grades 3 to 5",
+        "grades 3-5",
+        "foundation",
+        "primary school",
+        "what program is available for grade 4",
+        "what program is available for grade 3",
+        "what program is available for grade 5",
+        "program available for grade 4",
+        "program available for grade 3",
+        "program available for grade 5",
+        "course for grade 4",
+        "what subjects are in foundation years",
+        "what are the benefits of foundation years",
+        "tell me about foundation years",
+        "what is foundation years"
       ],
       "keywords": [
         "class",
         "foundation",
-        "standard"
+        "standard",
+        "mathematics",
+        "science",
+        "english",
+        "evs",
+        "all subjects",
+        "curiosity-first",
+        "concept games",
+        "visual learning",
+        "progress notes",
+        "demo"
       ],
-      "answer": "The Foundation Years program supports Grades 3-5 and includes Mathematics, Science, English, Environmental Studies, and all core subjects. It focuses on strong fundamentals, curiosity-first teaching, concept games, visual learning, and weekly progress notes for parents.",
+      "answer": "**Foundation Years**\n\nBuild strong fundamentals across all core subjects with a curiosity-first, gentle approach that makes learning joyful.\n\n**Grades:** 3–5\n\n**Focus:**\n- Mathematics\n- Science\n- English\n- EVS\n- All Subjects\n\n**Key features:**\n- Curiosity-first teaching style\n- Weekly progress notes for parents\n- Concept games & visual learning\n\nReady to explore the program? You can book a free 30-minute demo using the **Book Free Demo** button.",
       "follow_ups": [
         "What is the Middle School program?",
         "Is a demo class available?"
       ],
-      "confidence": "verified"
+      "confidence": "verified",
+      "program": "foundation_years",
+      "grade_range": "3-5",
+      "subjects": [
+        "Mathematics",
+        "Science",
+        "English",
+        "EVS",
+        "All Subjects"
+      ],
+      "features": [
+        "Curiosity-first teaching style",
+        "Weekly progress notes for parents",
+        "Concept games & visual learning"
+      ]
     },
     {
       "id": "program-middle-school",
@@ -474,21 +515,51 @@
         "8th standard",
         "grade 6",
         "grade 7",
-        "grade 8"
+        "grade 8",
+        "middle school all subjects",
+        "all subjects program",
+        "what program is available for grade 7",
+        "what program is available for grade 6",
+        "what program is available for grade 8",
+        "program available for grade 7",
+        "program available for grade 6",
+        "program available for grade 8",
+        "course for grade 7",
+        "what subjects are in middle school",
+        "what subjects are covered in middle school",
+        "what does middle school offer",
+        "what does middle school include"
       ],
       "keywords": [
         "class",
         "middle school",
         "standard",
         "doubt clinics",
-        "practical labs"
+        "practical labs",
+        "all subjects",
+        "doubt solving",
+        "practical problem sets",
+        "progress dashboard",
+        "demo"
       ],
-      "answer": "The Middle School program supports Grades 6–8 and includes all subjects, doubt-solving, and practical labs. It focuses on concept-based learning, practical problem sets, fortnightly doubt clinics, and progress dashboard access.\n\nYou can click **Book Free Demo** at the top-right of the website to experience a trial session.",
+      "answer": "**Middle School — All Subjects**\n\nDeepen understanding with practical, concept-based learning that prepares students confidently for the senior years.\n\n**Grades:** 6–8\n\n**Focus:**\n- All Subjects\n- Doubt Solving\n- Practical Labs\n\n**Key features:**\n- Concept-first, practical problem sets\n- Dedicated fortnightly doubt clinics\n- Progress dashboard access\n\nReady to explore the program? You can book a free 30-minute demo using the **Book Free Demo** button.",
       "follow_ups": [
         "What are doubt clinics?",
         "Do students get practical labs?"
       ],
-      "confidence": "verified"
+      "confidence": "verified",
+      "program": "middle_school",
+      "grade_range": "6-8",
+      "subjects": [
+        "All Subjects",
+        "Doubt Solving",
+        "Practical Labs"
+      ],
+      "features": [
+        "Concept-first, practical problem sets",
+        "Dedicated fortnightly doubt clinics",
+        "Progress dashboard access"
+      ]
     },
     {
       "id": "middle-school-doubt-clinics",
@@ -630,7 +701,23 @@
         "can your mentors support with board preparation",
         "i need academic support for my daughters board exams",
         "support for class 9",
-        "support for class 10"
+        "support for class 10",
+        "senior school",
+        "senior school focus",
+        "senior program",
+        "board prep",
+        "board preparation",
+        "grades 9 to 10",
+        "grades 9-10",
+        "what program is available for grade 10",
+        "what program is available for grade 9",
+        "program available for grade 10",
+        "program available for grade 9",
+        "course for grade 10",
+        "what does senior school focus offer",
+        "tell me about senior school focus",
+        "what is included in senior school focus",
+        "what is the senior school focus program"
       ],
       "keywords": [
         "board",
@@ -647,14 +734,31 @@
         "personal mentor",
         "individual attention",
         "weekly report",
-        "progress tracking"
+        "progress tracking",
+        "senior school focus",
+        "board prep",
+        "mathematics",
+        "science",
+        "demo"
       ],
-      "answer": "For students in Grades 9–10, WeMentors provides a dedicated Senior School Focus course covering Mathematics, Science, and board-exam preparation:\n\n- **Personal Mentor**: Every learner gets a personal mentor rather than being passed between a rotating roster of teachers.\n- **Individual Attention**: The mentor works individually with each child based on their specific concepts, preparation needs, and learning pace.\n- **Preparation & Doubt-Solving**: Focuses on concept clarity, board preparation, weekly mock tests with review, and priority doubt-clearing access.\n- **Weekly Progress Sharing**: Progress is tracked and shared with parents every week so parents stay informed about the learner’s development.\n\nYou can ask about our curriculum or click **Book Free Demo** at the top-right of the website to schedule a free trial.",
+      "answer": "**Senior School Focus**\n\nIntensive Maths & Science coaching with board-exam precision, concept clarity and real-world problem solving.\n\n**Grades:** 9–10\n\n**Focus:**\n- Mathematics\n- Science\n- Board Prep\n\n**Key features:**\n- Board-exam-precision coaching\n- Weekly mock tests with review\n- Priority doubt-clearing access\n\nReady to explore the program? You can book a free 30-minute demo using the **Book Free Demo** button.",
       "follow_ups": [
         "Is a demo class available?",
         "Which curricula are supported?"
       ],
-      "confidence": "verified"
+      "confidence": "verified",
+      "program": "senior_school_focus",
+      "grade_range": "9-10",
+      "subjects": [
+        "Mathematics",
+        "Science",
+        "Board Prep"
+      ],
+      "features": [
+        "Board-exam-precision coaching",
+        "Weekly mock tests with review",
+        "Priority doubt-clearing access"
+      ]
     },
     {
       "id": "program-confident-speaker",
@@ -686,7 +790,20 @@
         "learn to speak confidently",
         "speak confidently",
         "how to speak confidently",
-        "speak with confidence"
+        "speak with confidence",
+        "confident speaking",
+        "spoken english",
+        "public speaking",
+        "interview skills",
+        "english speaking",
+        "communication program",
+        "tell me about confident speaker",
+        "what is confident speaker",
+        "what does confident speaker teach",
+        "what is included in confident speaker",
+        "is confident speaker for adults",
+        "is confident speaker only for school students",
+        "confident speaker all ages"
       ],
       "keywords": [
         "communication",
@@ -697,14 +814,34 @@
         "personal mentor",
         "individual attention",
         "practice",
-        "feedback"
+        "feedback",
+        "all ages",
+        "conversation-first",
+        "no rote grammar",
+        "small batches",
+        "professionals",
+        "homemakers",
+        "students",
+        "demo"
       ],
-      "answer": "The Confident Speaker program is designed for students, professionals, and homemakers, and is supported through personalized mentoring:\n\n- **Program Scope**: Covers Spoken English, Public Speaking, and Interview Skills.\n- **Personalized Mentoring**: Every learner receives individual attention from a personal mentor rather than rote grammar drills.\n- **Skill Development**: The mentor works individually with the learner to develop confidence in speaking through guided practice, practical conversation, and regular feedback.\n\nYou can click **Book Free Demo** at the top-right of the website to experience a trial session.",
+      "answer": "**Confident Speaker**\n\nPractical, conversation-driven English coaching for school life, careers and everyday confidence.\n\n**Grades:** All Ages\n\n**Focus:**\n- Spoken English\n- Public Speaking\n- Interview Skills\n\n**Key features:**\n- Conversation-first method, no rote grammar drills\n- Small batches for maximum speaking time\n- Tracks for students, professionals & homemakers\n\nReady to explore the program? You can book a free 30-minute demo using the **Book Free Demo** button.",
       "follow_ups": [
         "Is a demo class available?",
         "How can I contact WeMentors?"
       ],
-      "confidence": "verified"
+      "confidence": "verified",
+      "program": "confident_speaker",
+      "grade_range": "all_ages",
+      "subjects": [
+        "Spoken English",
+        "Public Speaking",
+        "Interview Skills"
+      ],
+      "features": [
+        "Conversation-first method, no rote grammar drills",
+        "Small batches for maximum speaking time",
+        "Tracks for students, professionals & homemakers"
+      ]
     },
     {
       "id": "confident-speaker-format",

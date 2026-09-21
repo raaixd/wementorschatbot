@@ -213,13 +213,29 @@ GUARANTEE_MARKS_RESPONSE = (
 )
 
 MIDDLE_SCHOOL_OVERVIEW_RESPONSE = (
-    "The Middle School program supports Grades 6–8 and includes all subjects, doubt-solving, and practical labs. "
-    "It focuses on concept-based learning, practical problem sets, fortnightly doubt clinics, and progress dashboard access."
+    "**Middle School — All Subjects**\n\n"
+    "Designed for students in Grades 6–8, covering all core subjects with concept-based learning and hands-on practical applications.\n\n"
+    "**Grades:** Grades 6–8\n\n"
+    "**Focus:**\n"
+    "- All subjects\n"
+    "- Doubt-solving\n"
+    "- Practical labs\n\n"
+    "**Key features:**\n"
+    "- Concept-based learning\n"
+    "- Practical problem sets\n"
+    "- Fortnightly doubt clinics\n"
+    "- Progress dashboard access\n\n"
+    "Ready to explore the program? You can book a free 30-minute demo using the **Book Free Demo** button."
 )
 
 MIDDLE_SCHOOL_SUBJECTS_RESPONSE = (
     "The Middle School program (Grades 6–8) covers all core subjects — Mathematics, Science, English, "
     "and Social Studies — along with dedicated doubt-solving clinics and practical labs designed for Grades 6–8."
+)
+
+MIDDLE_SCHOOL_FEATURES_RESPONSE = (
+    "Key features of Middle School (Grades 6–8) include concept-based learning, practical problem sets, "
+    "fortnightly doubt clinics, and progress dashboard access."
 )
 
 MIDDLE_SCHOOL_DOUBT_CLINICS_RESPONSE = (
@@ -253,9 +269,73 @@ MIDDLE_SCHOOL_GRADES_RESPONSE = (
 )
 
 FOUNDATION_YEARS_DIRECT_RESPONSE = (
-    "The Foundation Years program supports Grades 3–5 and covers Mathematics, Science, English, Environmental Studies, "
-    "and other core subjects, with a focus on strong fundamentals, curiosity-first teaching, concept games, visual learning, "
+    "**Foundation Years**\n\n"
+    "Designed for students in Grades 3–5 to build strong fundamentals in Mathematics, Science, English, and core subjects through curiosity-first teaching.\n\n"
+    "**Grades:** Grades 3–5\n\n"
+    "**Focus:**\n"
+    "- Strong fundamentals\n"
+    "- Curiosity-first learning\n\n"
+    "**Key features:**\n"
+    "- Concept games\n"
+    "- Visual learning\n"
+    "- Weekly progress notes for parents\n\n"
+    "Ready to explore the program? You can book a free 30-minute demo using the **Book Free Demo** button."
+)
+
+FOUNDATION_YEARS_FEATURES_RESPONSE = (
+    "Key features of Foundation Years (Grades 3–5) include concept games, visual learning, curiosity-first teaching, "
     "and weekly progress notes for parents."
+)
+
+SENIOR_SCHOOL_OVERVIEW_RESPONSE = (
+    "**Senior School Focus**\n\n"
+    "Dedicated preparation for students in Grades 9–10 with an emphasis on Maths and Science, pairing learners with a personal mentor to build concept clarity and board-exam readiness.\n\n"
+    "**Grades:** Grades 9–10\n\n"
+    "**Focus:**\n"
+    "- Mathematics\n"
+    "- Science\n"
+    "- Board Prep\n\n"
+    "**Key features:**\n"
+    "- Board-exam-precision coaching\n"
+    "- Dedicated personal mentor with individual attention\n"
+    "- Weekly mock tests with review\n"
+    "- Priority doubt-clearing access\n\n"
+    "Ready to explore the program? You can book a free 30-minute demo using the **Book Free Demo** button."
+)
+
+SENIOR_SCHOOL_SUBJECTS_RESPONSE = (
+    "The Senior School Focus program (Grades 9–10) focuses primarily on Mathematics and Science, "
+    "along with dedicated board-exam preparation, mock tests, and revision."
+)
+
+SENIOR_SCHOOL_GRADES_RESPONSE = (
+    "The Senior School Focus program is dedicated for students in Grades 9–10."
+)
+
+SENIOR_SCHOOL_FEATURES_RESPONSE = (
+    "Key features of Senior School Focus (Grades 9–10) include concept clarity, structured board-exam readiness, "
+    "weekly mock tests with revision, and priority doubt resolution."
+)
+
+CONFIDENT_SPEAKER_OVERVIEW_RESPONSE = (
+    "**Confident Speaker**\n\n"
+    "Practical, conversation-driven English coaching for school life, careers and everyday confidence through personalized mentoring and individual attention.\n\n"
+    "**Grades:** All Ages (students, professionals, and homemakers)\n\n"
+    "**Focus:**\n"
+    "- Spoken English\n"
+    "- Public Speaking\n"
+    "- Interview Skills\n\n"
+    "**Key features:**\n"
+    "- Conversation-first method, no rote grammar drills\n"
+    "- Small batches with individual attention for maximum speaking time\n"
+    "- Guided speaking practice & practical conversation with regular feedback\n"
+    "- Dedicated tracks for students, professionals & homemakers\n\n"
+    "Ready to explore the program? You can book a free 30-minute demo using the **Book Free Demo** button."
+)
+
+CONFIDENT_SPEAKER_FEATURES_RESPONSE = (
+    "Key features of Confident Speaker include guided speaking practice, practical conversation, regular feedback, "
+    "and confidence-building activities with a dedicated personal mentor."
 )
 
 FOUNDATION_YEARS_CLARIFICATION = (
