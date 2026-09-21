@@ -1074,11 +1074,11 @@ class ConversationEngine:
 
     def _is_mentor_inquiry(self, text: str) -> bool:
         t = text.lower()
-        if not re.search(r"\b(mentors?|tutoring|tutors?)\b", t):
+        if not re.search(r"\b(mentors?|mentoring|tutoring|tutors?)\b", t):
             return False
-        if re.search(r"\b(who\s+are|qualification|background|approach|methodology|how\s+will\s+the\s+mentor|confident\s+speaker|public\s+speaking|board\s+exams?|board\s+prep)\b", t):
+        if re.search(r"\b(who\s+are|qualification|background|approach|methodology|how\s+will\s+the\s+mentor|confident\s+(?:speaker|speaking)|public\s+speaking|spoken\s+english|board\s+exams?|board\s+prep)\b", t):
             return False
-        has_action = bool(re.search(r"\b(find|get|need|want|have|provide|assign|match|allocate|book|look(?:ing)?\s+for|can\s+(?:you|i)|could\s+(?:you|i)|do\s+you|available)\b", t))
+        has_action = bool(re.search(r"\b(find|get|need|want|have|provide|assign|match|allocate|book|look(?:ing)?\s+for|can\s+(?:you|i)|could\s+(?:you|i)|do\s+you|is\s+there|available)\b", t))
         return has_action
 
     def _match_mentor_inquiry_entries(self, text: str) -> List[ScoredEntry]:
@@ -1106,9 +1106,6 @@ class ConversationEngine:
 
         has_subject = is_math or is_science or is_english or is_social
 
-        if not any([is_foundation, is_middle, is_senior, is_cs, is_curriculum, has_subject]):
-            return []
-
         scored: List[ScoredEntry] = []
         seen = set()
 
@@ -1116,6 +1113,11 @@ class ConversationEngine:
             if entry_id in self.entries_by_id and entry_id not in seen:
                 seen.add(entry_id)
                 scored.append(ScoredEntry(entry=self.entries_by_id[entry_id], score=score))
+
+        if not any([is_foundation, is_middle, is_senior, is_cs, is_curriculum, has_subject]):
+            add_entry("personalized-mentoring-concept", 1.0)
+            add_entry("programs-overview", 0.90)
+            return scored
 
         if is_middle:
             add_entry("program-middle-school", 1.0)
@@ -1534,6 +1536,11 @@ class ConversationEngine:
             return "middle_school_grades"
         if _IS_ONE_TO_ONE_RE.match(stripped) or _IS_ONE_TO_ONE_RE.match(normalized):
             return "one_on_one_general"
+
+        # Mentor inquiries (find/get/want/provide/available a mentor)
+        if not re.search(r"\b(confident|speaker|spoken)\b", stripped, re.I):
+            if self._is_mentor_inquiry(stripped) or self._is_mentor_inquiry(normalized):
+                return "mentor_matching"
 
         # Mentoring questions (unless a specific program is explicitly asked, e.g. "in confident speaker")
         if not re.search(r"\b(confident|speaker|spoken)\b", stripped, re.I):
@@ -2018,11 +2025,17 @@ class ConversationEngine:
             answer = llm.generate_answer(user_message, scored, turns)
             if answer:
                 if self._is_mentor_inquiry(user_message):
-                    if not re.search(r"^\s*(\*\*)?yes", answer, re.IGNORECASE):
-                        answer = "**Yes!** " + answer.lstrip()
-                    if "demo" not in answer.lower():
-                        answer = answer.strip() + "\n\nReady to experience a session? You can book a free 30-minute demo class today!"
-                if any("confident-speaker" in item.entry.id for item in scored):
+                    # Clean up opening affirmative to strictly "Yes, "
+                    answer = re.sub(r"^\s*(?:\*\*)?(?:yes!|yes\.|yes,|yes|absolutely!|definitely!|great!)(?:\*\*)?[,!\s]*", "Yes, ", answer, flags=re.IGNORECASE)
+                    if not answer.startswith("Yes,"):
+                        answer = "Yes, " + answer.lstrip()
+                    # Ensure demo CTA is concise
+                    demo_cta = "Ready to experience a session? You can book a free 30-minute demo using the Book Free Demo button."
+                    if re.search(r"ready to experience a session\?.*", answer, re.IGNORECASE):
+                        answer = re.sub(r"ready to experience a session\?.*", demo_cta, answer, flags=re.IGNORECASE | re.DOTALL).strip()
+                    elif "demo" not in answer.lower():
+                        answer = answer.strip() + f"\n\n{demo_cta}"
+                elif any("confident-speaker" in item.entry.id for item in scored):
                     answer = re.sub(r"personalized\s+1:1\s+mentoring", "personalized mentoring", answer, flags=re.IGNORECASE)
                     if "personal mentor" not in answer.lower() and "personalized mentoring" not in answer.lower():
                         answer = re.sub(r"\bdedicated mentor\b", "personal mentor", answer, count=1, flags=re.IGNORECASE)
@@ -2045,6 +2058,7 @@ class ConversationEngine:
 
     def _format_mentor_inquiry_answer(self, message: str) -> str:
         msg = message.lower()
+        # 1. Curriculum / Board detection
         if "icse" in msg:
             curriculum_str = "the ICSE curriculum"
         elif "cbse" in msg:
@@ -2056,13 +2070,95 @@ class ConversationEngine:
         elif "ib" in msg:
             curriculum_str = "the IB curriculum"
         else:
-            curriculum_str = "their curriculum"
+            curriculum_str = None
 
-        p1 = (
-            f"**Yes!** We match your child with a dedicated 1:1 mentor specialized in {curriculum_str}. "
-            "Each session includes personalized concept mastery, doubt clearing, and weekly progress updates."
+        # 2. Grade detection
+        m_gr = re.search(
+            r"\b(?:grades?|class(?:es)?|standards?)\s*([3-9]|10)\b|\b([3-9]|10)(?:th|rd|st|nd)?\s*(?:grade|class|standard)\b",
+            msg,
         )
-        p2 = "Ready to experience a session? You can book a free 30-minute demo class today!"
+        grade_str = None
+        if m_gr:
+            gr_num = m_gr.group(1) or m_gr.group(2)
+            grade_str = f"Grade {gr_num}"
+
+        # 3. Subject detection
+        has_math = bool(re.search(r"\b(math|maths|mathematics|algebra|geometry)\b", msg))
+        has_science = bool(re.search(r"\b(science|physics|chemistry|biology)\b", msg))
+        has_english = bool(re.search(r"\b(english|grammar|literature)\b", msg))
+        has_social = bool(re.search(r"\b(social\s+studies|social\s+science|history|geography|civics)\b", msg))
+
+        if has_math and has_science:
+            subject_str = "Math and Science"
+        elif has_math:
+            subject_str = "Math"
+        elif has_science:
+            subject_str = "Science"
+        elif has_english:
+            subject_str = "English"
+        elif has_social:
+            subject_str = "Social Studies"
+        else:
+            subject_str = None
+
+        # 4. Program detection
+        is_cs = bool(re.search(r"\b(confident\s+speaker|public\s+speaking|spoken\s+english)\b", msg))
+
+        # Build Paragraph 1
+        if is_cs:
+            p1 = (
+                "Yes, WeMentors provides dedicated 1:1 mentoring tailored to speaking confidence and communication skills. "
+                "Sessions focus on guided speaking practice, practical conversation, and regular mentor feedback."
+            )
+        elif curriculum_str and grade_str and subject_str:
+            p1 = (
+                f"Yes, WeMentors provides dedicated 1:1 mentoring tailored to {curriculum_str}. "
+                f"For {grade_str} {subject_str}, the sessions can focus on concept mastery, doubt clearing, and ongoing progress support."
+            )
+        elif curriculum_str and grade_str:
+            p1 = (
+                f"Yes, WeMentors provides dedicated 1:1 mentoring tailored to {curriculum_str}. "
+                f"For {grade_str}, the sessions can focus on concept mastery, doubt clearing, and ongoing progress support."
+            )
+        elif curriculum_str and subject_str:
+            p1 = (
+                f"Yes, WeMentors provides dedicated 1:1 mentoring tailored to {curriculum_str}. "
+                f"For {subject_str}, the sessions can focus on concept mastery, doubt clearing, and ongoing progress support."
+            )
+        elif curriculum_str:
+            p1 = (
+                f"Yes, WeMentors provides dedicated 1:1 mentoring tailored to {curriculum_str}. "
+                "Sessions focus on personalized concept mastery, doubt clearing, and ongoing progress support."
+            )
+        elif grade_str and subject_str:
+            p1 = (
+                "Yes, WeMentors provides dedicated 1:1 mentoring tailored to the learner's curriculum. "
+                f"For {grade_str} {subject_str}, the sessions can focus on concept mastery, doubt clearing, and ongoing progress support."
+            )
+        elif grade_str:
+            if grade_str in ("Grade 3", "Grade 4", "Grade 5"):
+                p1 = (
+                    "Yes, WeMentors provides dedicated 1:1 mentoring tailored to the learner's curriculum. "
+                    f"For {grade_str}, the mentoring can support core subjects such as Mathematics, Science, and English with personalized concept mastery and doubt clearing."
+                )
+            else:
+                p1 = (
+                    "Yes, WeMentors provides dedicated 1:1 mentoring tailored to the learner's curriculum. "
+                    f"For {grade_str}, the sessions can focus on concept mastery, doubt clearing, and ongoing progress support."
+                )
+        elif subject_str:
+            p1 = (
+                "Yes, WeMentors provides dedicated 1:1 mentoring tailored to the learner's curriculum. "
+                f"For {subject_str}, the sessions can focus on concept mastery, doubt clearing, and ongoing progress support."
+            )
+        else:
+            p1 = (
+                "Yes, WeMentors provides dedicated 1:1 mentoring tailored to the learner's curriculum and needs. "
+                "Sessions focus on personalized concept mastery, doubt clearing, and ongoing progress support."
+            )
+
+        # Build Paragraph 2
+        p2 = "Ready to experience a session? You can book a free 30-minute demo using the Book Free Demo button."
         return f"{p1}\n\n{p2}"
 
     def _match_programs_mentioned(self, text: str) -> List[KBEntry]:
@@ -2218,11 +2314,30 @@ class ConversationEngine:
                 reply += "\n\nYou can click **Book Free Demo** at the top-right of the website to get started."
 
         # For program/course/general questions, ensure a practical next step exists
-        if intent in ("general_info", "board_exam", "confident_speaker", "mentor_matching") and not re.search(r"\b(book\s+(?:a\s+)?(?:free\s+)?(?:30-minute\s+)?demo|free\s+demo|book\s+free\s+demo|demo\s+class)\b", reply, re.IGNORECASE):
+        if intent in ("general_info", "board_exam", "confident_speaker") and not re.search(r"\b(book\s+(?:a\s+)?(?:free\s+)?(?:30-minute\s+)?demo|free\s+demo|book\s+free\s+demo|demo\s+class)\b", reply, re.IGNORECASE):
             reply += "\n\nYou can click **Book Free Demo** at the top-right of the website to explore our mentoring."
 
+        # Dedicated quality checks and formatting for mentor inquiries
+        if intent == "mentor_matching" or self._is_mentor_inquiry(query):
+            # Normalize opening affirmative to strictly "Yes, "
+            reply = re.sub(r"^\s*(?:\*\*)?(?:yes!|yes\.|yes,|yes|absolutely!|definitely!|great!)(?:\*\*)?[,!\s]*", "Yes, ", reply, flags=re.IGNORECASE)
+            if not reply.startswith("Yes,"):
+                reply = "Yes, " + reply.lstrip()
+            # Strip any leaked Confident Speaker or Senior School boilerplate
+            reply = re.sub(r"Personalized mentoring with a personal mentor is provided\.\s*", "", reply, flags=re.IGNORECASE)
+            reply = re.sub(r"\s*Students receive individual attention and dedicated mentor feedback\.\s*", "", reply, flags=re.IGNORECASE)
+            reply = re.sub(r"\s*\(rather than a rotating roster of teachers\)", "", reply, flags=re.IGNORECASE)
+            reply = re.sub(r"\s*providing individual attention", "", reply, flags=re.IGNORECASE)
+            reply = re.sub(r"For students in Grades 9–10 \(Senior School Focus\):\s*", "", reply, flags=re.IGNORECASE)
+            # Ensure demo CTA is concise
+            demo_cta = "Ready to experience a session? You can book a free 30-minute demo using the Book Free Demo button."
+            if re.search(r"ready to experience a session\?.*", reply, re.IGNORECASE):
+                reply = re.sub(r"ready to experience a session\?.*", demo_cta, reply, flags=re.IGNORECASE | re.DOTALL).strip()
+            elif "demo" not in reply.lower():
+                reply = reply.strip() + f"\n\n{demo_cta}"
+
         # Ensure Senior School / Board Exam verified facts (Grades 9-10 & non-rotating personal mentor)
-        if intent != "mentor_matching" and (any(e.id == "program-senior-school" for e in matched_entries) or intent == "board_exam"):
+        if intent != "mentor_matching" and not self._is_mentor_inquiry(query) and (any(e.id == "program-senior-school" for e in matched_entries) or intent == "board_exam"):
             reply = reply.replace("\u2011", "-").replace("\u2010", "-").replace("\u202f", " ").replace("\u00a0", " ")
             reply = re.sub(r"(?i)\bgrades?\s*9\s*[\-\–\—~to]+\s*10\b", "Grades 9–10", reply)
             if "grades 9–10" not in reply.lower() and "grades 9-10" not in reply.lower():
@@ -2246,7 +2361,7 @@ class ConversationEngine:
                 reply += "\n\nLearner progress is tracked and shared with parents every week."
 
         # Ensure Confident Speaker verified facts (individual attention / personal mentor)
-        if intent != "mentor_matching" and (any(e.id == "program-confident-speaker" for e in matched_entries) or "confident_speaker" in intent):
+        if intent != "mentor_matching" and not self._is_mentor_inquiry(query) and (any(e.id == "program-confident-speaker" for e in matched_entries) or "confident_speaker" in intent):
             if "individual" not in reply.lower():
                 if "personal mentor" in reply.lower():
                     reply = re.sub(r"(?i)\bpersonal mentor\b", "personal mentor with individual attention", reply, count=1)
@@ -3474,9 +3589,9 @@ class ConversationEngine:
 
         answer = self._generate_answer(message, best, session_id)
         matched_entries = [item.entry for item in best]
-        answer = self._run_response_quality_checks(message, answer, "mentor_matching" if mentor_scored else intent, matched_entries)
+        answer = self._run_response_quality_checks(message, answer, "mentor_matching" if (mentor_scored or intent == "mentor_matching") else intent, matched_entries)
         matched_ids = [item.entry.id for item in best]
-        if mentor_scored:
+        if mentor_scored or intent == "mentor_matching":
             resolved_intent = "mentor_matching"
         elif len(multi_scored) >= 2:
             resolved_intent = "multi_intent"

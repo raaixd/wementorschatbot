@@ -402,6 +402,15 @@ check("with the LLM disabled, unmatched questions get the canned redirect, never
 r = engine.handle_message(sid, "What programs do you offer?")
 check("a real knowledge-base match is unaffected by the general-answer routing", r.intent == "faq" and r.matched_entry_ids == ["programs-overview"], r.matched_entry_ids)
 
+# --- Mentor matching prompt construction ---
+mentor_scored = retrieve("Can I get a mentor?")
+mentor_msgs = llm.build_messages("Can I get a mentor?", mentor_scored, None)
+mentor_prompt_content = mentor_msgs[-1]["content"]
+check("mentor prompt instructs affirmative to start directly with 'Yes, '", "Always start directly with 'Yes, '" in mentor_prompt_content, mentor_prompt_content)
+check("mentor prompt forbids 'Yes!' or exclamation marks", "NEVER use 'Yes!'" in mentor_prompt_content, mentor_prompt_content)
+check("mentor prompt includes concise demo CTA", "Ready to experience a session? You can book a free 30-minute demo using the Book Free Demo button." in mentor_prompt_content, mentor_prompt_content)
+check("mentor prompt forbids extra sales sentences", "Do NOT add extra sentences about individual attention" in mentor_prompt_content, mentor_prompt_content)
+
 llm.reset_provider_cache()
 
 print()
