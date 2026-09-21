@@ -216,7 +216,24 @@ class Retriever:
             # Phrasing / question match bonus: if query directly matches
             # an intended phrasing or question, grant a decisive boost.
             norm_q = lowered_query.strip("? .!").strip()
+            has_ms_terms = any(k in lowered_query for k in ("middle", "class 6", "class 7", "class 8", "grade 6", "grade 7", "grade 8"))
             if any(norm_q == p.lower().strip("? .!").strip() for p in [entry.question, *entry.phrasings]):
+                if entry.id == "middle-school-doubt-clinics" and not has_ms_terms:
+                    pass
+                else:
+                    score += 0.5
+
+            # General doubt feature routing: ensure general doubt-solving-sessions ranks above
+            # program-specific entries when the visitor asks about doubt clinics generally.
+            is_doubt_query = bool(re.search(r"\b(doubt\s+clinics?|doubt\s+solving|doubt[- ]clearing)\b", lowered_query))
+            if is_doubt_query and not has_ms_terms:
+                if entry.id == "doubt-solving-sessions":
+                    score += 0.6
+                elif entry.id == "middle-school-doubt-clinics":
+                    score *= 0.5
+
+            is_lab_query = bool(re.search(r"\b(practical\s+labs?|practical\s+problem\s+sets?)\b", lowered_query))
+            if is_lab_query and has_ms_terms and entry.id == "middle-school-practical-labs":
                 score += 0.5
 
             # Coverage gate: a single rare shared word (high IDF weight)

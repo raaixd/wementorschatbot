@@ -159,6 +159,19 @@ def build_messages(
                 "- Paragraph 2: 'Ready to experience a session? You can book a free 30-minute demo class today!'\n"
                 "- Keep it punchy, warm, and stop after the second paragraph."
             )
+
+        is_general_feature_query = bool(
+            re.search(r"\b(doubt\s+clinics?|practical\s+labs?|practical\s+problem\s+sets?)\b", user_message, re.IGNORECASE)
+            and not re.search(r"\b(middle\s+school|grades?\s*[3-9]|grade\s*10|class\s*[3-9]|class\s*10|[3-9]th\s*(?:grade|class)|10th\s*(?:grade|class)|in\s+that\s+(?:program|programme|course))\b", user_message, re.IGNORECASE)
+        )
+        if is_general_feature_query:
+            task_instruction += (
+                "\n\nIMPORTANT FEATURE SCOPE:\n"
+                "Doubt clinics, practical labs, and practical problem sets are general academic-program features across WeMentors programs, "
+                "not exclusive to Middle School or Grades 6–8. Because the visitor asked about this feature generally without specifying a program or grade, "
+                "describe how the feature works generally across WeMentors academic programs. "
+                "Do NOT inject or associate it with 'Middle School' or 'Grades 6–8'."
+            )
     else:
         context_text = "(no matching knowledge-base entry)"
         task_instruction = (

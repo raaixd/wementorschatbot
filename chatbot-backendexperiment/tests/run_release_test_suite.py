@@ -39,6 +39,7 @@ def run_all():
 
     env = os.environ.copy()
     env["PYTHONPATH"] = str(BACKEND_ROOT)
+    env["PYTHONIOENCODING"] = "utf-8"
 
     for idx, test_file in enumerate(TEST_FILES, start=1):
         rel_path = test_file.relative_to(PROJECT_ROOT)
@@ -51,6 +52,8 @@ def run_all():
             env=env,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
         )
         duration = round(time.perf_counter() - t0, 2)
 

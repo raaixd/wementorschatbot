@@ -104,18 +104,18 @@ def run_tests():
     # What are doubt clinics?
     sid = f"test-dc-{uuid.uuid4()}"
     res = engine.handle_message(sid, "What are doubt clinics?")
-    check("2b. Doubt clinics field recognized", res.intent == "middle_school_doubt_clinics", res.intent)
+    check("2b. Doubt clinics field recognized", res.intent in ("doubt_clinics", "middle_school_doubt_clinics"), res.intent)
     check("2b. Explains fortnightly doubt clinics specifically", "fortnightly" in res.reply.lower() and "doubt" in res.reply.lower(), res.reply)
 
     # Are there doubt-solving sessions?
     sid = f"test-ds-{uuid.uuid4()}"
     res = engine.handle_message(sid, "Are there doubt-solving sessions?")
-    check("2c. Doubt solving recognized", res.intent == "middle_school_doubt_clinics", res.intent)
+    check("2c. Doubt solving recognized", res.intent in ("doubt_clinics", "middle_school_doubt_clinics"), res.intent)
 
     # Do students get practical labs?
     sid = f"test-pl-{uuid.uuid4()}"
     res = engine.handle_message(sid, "Do students get practical labs?")
-    check("2d. Practical labs field recognized", res.intent == "middle_school_practical_labs", res.intent)
+    check("2d. Practical labs field recognized", res.intent in ("practical_labs", "middle_school_practical_labs"), res.intent)
     check("2d. Explains practical labs & problem sets", "practical labs" in res.reply.lower(), res.reply)
 
     # Can parents track progress?

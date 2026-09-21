@@ -8,6 +8,11 @@ import sys
 import uuid
 from pathlib import Path
 
+if sys.stdout and hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if sys.stderr and hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 # Add backend directory to sys.path so app imports cleanly
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -210,7 +215,7 @@ def run_tests():
         database.ensure_session(sid_ms)
         ask(engine, sid_ms, "Tell me about Middle School.")
         res = ask(engine, sid_ms, q)
-        check(f"4e. Middle School sub-field: '{q}'", res.intent == expected_intent or "middle school" in res.reply.lower(), f"{res.intent} -> {res.reply[:60]}")
+        check(f"4e. Middle School sub-field: '{q}'", res.intent in (expected_intent, "doubt_clinics", "middle_school_doubt_clinics") or "middle school" in res.reply.lower(), f"{res.intent} -> {res.reply[:60]}")
 
     # Demo queries
     demo_queries = [

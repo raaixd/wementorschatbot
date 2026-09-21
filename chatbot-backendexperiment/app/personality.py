@@ -41,6 +41,7 @@ Core Verified WeMentors Positioning
 - Mentors focus on conceptual understanding rather than rote memorization.
 - Learner progress is tracked and shared with parents every week.
 - Programs offered: Foundation Years (Grades 3–5), Middle School (Grades 6–8), Senior School Focus (Grades 9–10), and Confident Speaker.
+- Doubt clinics, practical labs, and practical problem sets are general academic-program features across WeMentors programs, not exclusive to Middle School (Grades 6–8). Describe them generally unless the user explicitly asks about a specific program or grade.
 
 Field-Level Program Knowledge
 - Grades 9–10 (Senior School Focus):
@@ -229,6 +230,16 @@ MIDDLE_SCHOOL_DOUBT_CLINICS_RESPONSE = (
 MIDDLE_SCHOOL_PRACTICAL_LABS_RESPONSE = (
     "The Middle School program includes practical labs and practical problem sets to help learners apply "
     "theoretical concepts through hands-on learning."
+)
+
+GENERAL_DOUBT_CLINICS_RESPONSE = (
+    "WeMentors provides dedicated doubt-solving sessions and fortnightly doubt clinics dedicated to "
+    "resolving student questions, reinforcing difficult concepts, and ensuring no learning gaps remain."
+)
+
+GENERAL_PRACTICAL_LABS_RESPONSE = (
+    "WeMentors includes practical labs and practical problem sets to help learners apply theoretical concepts "
+    "through hands-on problem solving, focusing on deep conceptual understanding rather than rote memorization."
 )
 
 MIDDLE_SCHOOL_PROGRESS_DASHBOARD_RESPONSE = (

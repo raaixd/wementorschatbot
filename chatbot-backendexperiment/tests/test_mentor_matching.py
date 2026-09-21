@@ -6,6 +6,11 @@ verifying the clean two-paragraph response style matching user specifications.
 import sys
 from pathlib import Path
 
+if sys.stdout and hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if sys.stderr and hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 # Add backend directory to sys.path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -45,7 +50,7 @@ def run_tests():
     check("1c. Mentions dedicated 1:1 mentor", "dedicated 1:1 mentor" in r1_text or "1:1 mentor" in r1_text, r1_text)
     check("1d. Mentions specialized in the ICSE curriculum", "specialized in the icse curriculum" in r1_text.lower(), r1_text)
     check("1e. Mentions concept mastery, doubt clearing, weekly progress updates", "concept mastery" in r1_text.lower() and "doubt clearing" in r1_text.lower() and "weekly progress" in r1_text.lower(), r1_text)
-    check("1f. Closes with demo invite", "ready to experience a session? you can book a free 30-minute demo class today!" in r1_text.lower() or "free 30-minute demo class" in r1_text.lower(), r1_text)
+    check("1f. Closes with demo invite", "ready to experience a session? you can book a free 30-minute demo class today!" in r1_text.lower().replace("\u2011", "-") or "free 30-minute demo class" in r1_text.lower().replace("\u2011", "-"), r1_text)
     check("1g. Avoids duplicate demo CTA", r1_text.count("Book Free Demo") <= 1 and r1_text.count("demo class") <= 1, r1_text)
     check("1h. Avoids generic fallback", "academic programs (grades 3" not in r1_text.lower(), r1_text)
 

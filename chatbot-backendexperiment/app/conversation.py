@@ -851,10 +851,11 @@ _MIDDLE_SCHOOL_EXACT_RE = re.compile(
     re.IGNORECASE,
 )
 _MIDDLE_SCHOOL_OVERVIEW_RE = re.compile(
-    r"\b(tell\s+me\s+about\s+middle(?:\s+school)?|"
-    r"what\s+is\s+(?:the\s+)?middle\s+school(?:\s+program)?|"
+    r"\b(tell\s+me\s+about\s+(?:the\s+)?middle(?:\s+school)?(?:\s+program(?:me)?)?|"
+    r"what\s+is\s+(?:the\s+)?middle\s+school(?:\s+program(?:me)?)?|"
     r"what\s+is\s+middle(?:\s+school)?|"
-    r"middle\s+school\s+program|"
+    r"middle\s+school\s+program(?:me)?|"
+    r"middle\s+school\s+overview|"
     r"explain\s+middle\s+school)\b",
     re.IGNORECASE,
 )
@@ -883,13 +884,22 @@ _MIDDLE_SCHOOL_SUBJECTS_RE = re.compile(
 )
 _DOUBT_CLINICS_RE = re.compile(
     r"\b(what\s+are\s+doubt\s+clinics|"
+    r"how\s+do\s+doubt\s+clinics\s+work|"
+    r"do\s+you\s+(?:offer|have|provide)\s+doubt\s+clinics|"
+    r"tell\s+me\s+about\s+doubt\s+clinics|"
     r"doubt\s+clinics?|"
     r"are\s+there\s+doubt[- ]solving\s+sessions|"
-    r"doubt[- ]solving\s+sessions?)\b",
+    r"doubt[- ]solving\s+sessions?|"
+    r"doubt[- ]clearing)\b",
     re.IGNORECASE,
 )
 _PRACTICAL_LABS_RE = re.compile(
     r"\b(do\s+students\s+get\s+practical\s+labs|"
+    r"tell\s+me\s+about\s+practical\s+labs|"
+    r"how\s+do\s+practical\s+labs\s+work|"
+    r"what\s+are\s+practical\s+problem\s+sets|"
+    r"do\s+you\s+have\s+practical\s+problem\s+sets|"
+    r"do\s+you\s+(?:offer|have|provide)\s+practical\s+labs|"
     r"practical\s+labs?|"
     r"practical\s+problem\s+sets?)\b",
     re.IGNORECASE,
@@ -1040,16 +1050,44 @@ class ConversationEngine:
             return "academic"
         return None
 
+    def _has_middle_school_explicit_context(self, text: str) -> bool:
+        t = text.lower()
+        return bool(
+            re.search(
+                r"\b(middle(?:\s+school)?|grades?\s*[678]\b|class\s*[678]\b|[678]th\s*(?:grade|class|standard)\b)\b",
+                t,
+            )
+        )
+
+    def _has_anaphoric_context(self, text: str) -> bool:
+        t = text.lower()
+        return bool(
+            re.search(
+                r"\b(in\s+that\s+(?:program|programme|course)|"
+                r"for\s+that\s+(?:program|programme|course)|"
+                r"in\s+this\s+(?:program|programme|course)|"
+                r"for\s+this\s+(?:program|programme|course)|"
+                r"in\s+it|there)\b",
+                t,
+            )
+        )
+
+    def _is_mentor_inquiry(self, text: str) -> bool:
+        t = text.lower()
+        if not re.search(r"\b(mentors?|tutoring|tutors?)\b", t):
+            return False
+        if re.search(r"\b(who\s+are|qualification|background|approach|methodology|how\s+will\s+the\s+mentor|confident\s+speaker|public\s+speaking|board\s+exams?|board\s+prep)\b", t):
+            return False
+        has_action = bool(re.search(r"\b(find|get|need|want|have|provide|assign|match|allocate|book|look(?:ing)?\s+for|can\s+(?:you|i)|could\s+(?:you|i)|do\s+you|available)\b", t))
+        return has_action
+
     def _match_mentor_inquiry_entries(self, text: str) -> List[ScoredEntry]:
         """Detect multi-facet mentor, grade, curriculum, and subject inquiries,
         and assemble the full set of relevant verified KB entries to ensure high
         confidence and complete, accurate RAG responses without tripping fallback."""
-        t = text.lower()
-        is_mentor_inq = bool(re.search(r"\b(mentors?|tutoring|tutors?|classes|coaching|teaching|guidance|learn(?:ing)?|support)\b", t))
-        has_action = bool(re.search(r"\b(find|get|need|want|have|provide|assign|match|allocate|book|look(?:ing)?\s+for|can\s+(?:you|i)|could\s+(?:you|i)|do\s+you|available)\b", t))
-
-        if not (is_mentor_inq and has_action):
+        if not self._is_mentor_inquiry(text):
             return []
+        t = text.lower()
 
         # Program / Stage detection
         is_foundation = bool(re.search(r"\b(grades?\s*[345]\b|class\s*[345]\b|[345](?:th|rd|st)?\s*(?:grade|class|standard)\b|foundation(?:\s+years?)?|primary)\b", t))
@@ -1556,9 +1594,17 @@ class ConversationEngine:
         if _MIDDLE_SCHOOL_SUBJECTS_RE.search(stripped) or _MIDDLE_SCHOOL_SUBJECTS_RE.search(normalized):
             return "middle_school_subjects"
         if _DOUBT_CLINICS_RE.search(stripped) or _DOUBT_CLINICS_RE.search(normalized):
-            return "middle_school_doubt_clinics"
+            has_ms = self._has_middle_school_explicit_context(stripped) or self._has_middle_school_explicit_context(normalized)
+            is_anaphoric = (memory.active_program == "middle") and (self._has_anaphoric_context(stripped) or self._has_anaphoric_context(normalized))
+            if has_ms or is_anaphoric:
+                return "middle_school_doubt_clinics"
+            return "doubt_clinics"
         if _PRACTICAL_LABS_RE.search(stripped) or _PRACTICAL_LABS_RE.search(normalized):
-            return "middle_school_practical_labs"
+            has_ms = self._has_middle_school_explicit_context(stripped) or self._has_middle_school_explicit_context(normalized)
+            is_anaphoric = (memory.active_program == "middle") and (self._has_anaphoric_context(stripped) or self._has_anaphoric_context(normalized))
+            if has_ms or is_anaphoric:
+                return "middle_school_practical_labs"
+            return "practical_labs"
         if _PROGRESS_DASHBOARD_RE.search(stripped) or _PROGRESS_DASHBOARD_RE.search(normalized):
             return "middle_school_progress_dashboard"
 
@@ -1660,9 +1706,13 @@ class ConversationEngine:
             if _MIDDLE_SCHOOL_SUBJECTS_RE.search(stripped) or _MIDDLE_SCHOOL_SUBJECTS_RE.search(normalized) or re.search(r"^\s*(what\s+subjects?\??|subjects?\??)\s*$", stripped, re.I):
                 return "middle_school_subjects"
             if _DOUBT_CLINICS_RE.search(stripped) or _DOUBT_CLINICS_RE.search(normalized) or re.search(r"\b(doubt|doubts)\b", stripped, re.I):
-                return "middle_school_doubt_clinics"
+                if self._has_anaphoric_context(stripped) or self._has_anaphoric_context(normalized):
+                    return "middle_school_doubt_clinics"
+                return "doubt_clinics"
             if _PRACTICAL_LABS_RE.search(stripped) or _PRACTICAL_LABS_RE.search(normalized) or re.search(r"\b(labs?|practical)\b", stripped, re.I):
-                return "middle_school_practical_labs"
+                if self._has_anaphoric_context(stripped) or self._has_anaphoric_context(normalized):
+                    return "middle_school_practical_labs"
+                return "practical_labs"
             if _PROGRESS_DASHBOARD_RE.search(stripped) or _PROGRESS_DASHBOARD_RE.search(normalized):
                 return "middle_school_progress_dashboard"
             if re.search(r"^\s*(how\s+does\s+(?:it|the\s+program)\s+work\??|how\s+does\s+it\s+work\??)\s*$", stripped, re.I):
@@ -1987,13 +2037,11 @@ class ConversationEngine:
         template_ans = self._format_template_answer(scored)
         if any(e.entry.id == "personalized-mentoring-concept" for e in scored) and not re.search(r"^\s*yes\b", template_ans, re.I):
             template_ans = "Yes, WeMentors provides dedicated 1-on-1 personal mentors for students across school boards and subjects.\n\n" + template_ans
+        if any(e.entry.id == "middle-school-practical-labs" for e in scored) and not self._has_middle_school_explicit_context(user_message):
+            template_ans = personality.GENERAL_PRACTICAL_LABS_RESPONSE
+        if any(e.entry.id == "middle-school-doubt-clinics" for e in scored) and not self._has_middle_school_explicit_context(user_message):
+            template_ans = personality.GENERAL_DOUBT_CLINICS_RESPONSE
         return template_ans
-
-    def _is_mentor_inquiry(self, text: str) -> bool:
-        t = text.lower()
-        is_mentor_inq = bool(re.search(r"\b(mentors?|tutoring|tutors?|classes|coaching|teaching|guidance|learn(?:ing)?|support)\b", t))
-        has_action = bool(re.search(r"\b(find|get|need|want|have|provide|assign|match|allocate|book|look(?:ing)?\s+for|can\s+(?:you|i)|could\s+(?:you|i)|do\s+you|available)\b", t))
-        return is_mentor_inq and has_action
 
     def _format_mentor_inquiry_answer(self, message: str) -> str:
         msg = message.lower()
@@ -2077,6 +2125,13 @@ class ConversationEngine:
         if not reply:
             return personality.AMBIGUOUS_GENERAL_FALLBACK
 
+        reply = (
+            reply.replace("\u2011", "-")
+            .replace("\u2010", "-")
+            .replace("\u202f", " ")
+            .replace("\u00a0", " ")
+        )
+
         query_norm = normalize_query(query)
         has_fee_intent = bool(
             set(tokenize(query_norm)) & _FEE_TRIGGER_WORDS
@@ -2147,6 +2202,15 @@ class ConversationEngine:
                 reply = personality.GRADE7_MATHS_SESSIONS_RESPONSE
             else:
                 reply = personality.ACADEMIC_SESSIONS_RESPONSE
+
+        # Scope sanitization for general feature intents (doubt clinics & practical labs)
+        if intent in ("doubt_clinics", "practical_labs") and not self._has_middle_school_explicit_context(query):
+            reply = re.sub(r"(?i)\bIn the Middle School program,?\s*", "Across our academic programs, ", reply)
+            reply = re.sub(r"(?i)\bThe Middle School program includes\b", "WeMentors includes", reply)
+            reply = re.sub(r"(?i)\bdesigned for Grades 6[–\-]8\b", "designed for school learners", reply)
+            reply = re.sub(r"(?i)\bfor Middle School students\b", "for learners", reply)
+            reply = re.sub(r"(?i)\bMiddle School (?:students|learners)\b", "learners", reply)
+            reply = re.sub(r"(?i)\bMiddle School program\b", "academic programs", reply)
 
         # Action intent check: If intent is an action intent (enrollment, booking, etc.), ensure action guidance exists
         if intent in ACTION_INTENTS:
@@ -3014,7 +3078,46 @@ class ConversationEngine:
             )
             return self._finalize_result(session_id, res, memory, message)
 
+        if intent == "doubt_clinics":
+            entry = self.entries_by_id.get("doubt-solving-sessions")
+            if entry and config.LLM_ENABLED:
+                scored = [ScoredEntry(entry=entry, score=1.0)]
+                answer = self._generate_answer(message, scored, session_id)
+                answer = self._run_response_quality_checks(message, answer, "doubt_clinics", [entry], memory.last_assistant_message)
+                res = ReplyResult(answer, "doubt_clinics", ["doubt-solving-sessions"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+            res = ReplyResult(
+                personality.GENERAL_DOUBT_CLINICS_RESPONSE,
+                "doubt_clinics",
+                ["doubt-solving-sessions"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "practical_labs":
+            entry = self.entries_by_id.get("middle-school-practical-labs")
+            if entry and config.LLM_ENABLED:
+                scored = [ScoredEntry(entry=entry, score=1.0)]
+                answer = self._generate_answer(message, scored, session_id)
+                answer = self._run_response_quality_checks(message, answer, "practical_labs", [entry], memory.last_assistant_message)
+                res = ReplyResult(answer, "practical_labs", ["middle-school-practical-labs"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+            res = ReplyResult(
+                personality.GENERAL_PRACTICAL_LABS_RESPONSE,
+                "practical_labs",
+                ["middle-school-practical-labs"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
         if intent == "middle_school_doubt_clinics":
+            entry = self.entries_by_id.get("middle-school-doubt-clinics")
+            if entry and config.LLM_ENABLED:
+                scored = [ScoredEntry(entry=entry, score=1.0)]
+                answer = self._generate_answer(message, scored, session_id)
+                answer = self._run_response_quality_checks(message, answer, "middle_school_doubt_clinics", [entry], memory.last_assistant_message)
+                res = ReplyResult(answer, "middle_school_doubt_clinics", ["middle-school-doubt-clinics", "program-middle-school"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
             res = ReplyResult(
                 personality.MIDDLE_SCHOOL_DOUBT_CLINICS_RESPONSE,
                 "middle_school_doubt_clinics",
@@ -3024,6 +3127,13 @@ class ConversationEngine:
             return self._finalize_result(session_id, res, memory, message)
 
         if intent == "middle_school_practical_labs":
+            entry = self.entries_by_id.get("middle-school-practical-labs")
+            if entry and config.LLM_ENABLED:
+                scored = [ScoredEntry(entry=entry, score=1.0)]
+                answer = self._generate_answer(message, scored, session_id)
+                answer = self._run_response_quality_checks(message, answer, "middle_school_practical_labs", [entry], memory.last_assistant_message)
+                res = ReplyResult(answer, "middle_school_practical_labs", ["middle-school-practical-labs", "program-middle-school"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
             res = ReplyResult(
                 personality.MIDDLE_SCHOOL_PRACTICAL_LABS_RESPONSE,
                 "middle_school_practical_labs",
