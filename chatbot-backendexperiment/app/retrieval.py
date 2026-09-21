@@ -187,6 +187,11 @@ class Retriever:
                 if not any(k in lowered_query for k in ("book", "demo", "trial", "register", "schedule", "sign up", "signup", "join")):
                     continue
 
+            # Senior school gate: IELTS, Business English, and communicative skills must not match Senior School
+            if entry.id.startswith("senior-school-") or entry.id == "program-senior-school":
+                if any(w in lowered_query for w in ("ielts", "business english", "everyday english", "general communicative")):
+                    continue
+
             # Confident speaker gate: queries explicitly asking about academic courses/subjects/grades
             # must not match Confident Speaker entries unless Confident Speaker or speaking is also mentioned
             if entry.id.startswith("confident-speaker-") or entry.id == "program-confident-speaker":
@@ -202,7 +207,10 @@ class Retriever:
                 )
                 has_speaker_word = any(
                     w in lowered_query
-                    for w in ("confident", "speaker", "speaking", "spoken", "speech", "interview")
+                    for w in (
+                        "confident", "speaker", "speaking", "spoken", "speech", "interview",
+                        "ielts", "business english", "communicative", "communication", "public speaking",
+                    )
                 )
                 if has_academic_word and not has_speaker_word:
                     continue
@@ -222,6 +230,11 @@ class Retriever:
                     )
                 )
                 if not has_g1_g2:
+                    continue
+
+            # Class duration gate: must not match generic course/program duration queries
+            if entry.id == "class-duration":
+                if re.search(r"\b(?:course|program|programme)\s+duration|duration\s+of\s+(?:the\s+|a\s+)?(?:course|program|programme)\b", lowered_query):
                     continue
 
             cosine = self._cosine(query_vec, query_norm, index)
@@ -254,8 +267,57 @@ class Retriever:
                     if re.search(r"\b(grades?\s*(?:9|10)\b|class\s*(?:9|10)\b|(?:9|10)th\s*(?:grade|class|standard)\b|senior(?:\s+school(?:\s+focus)?)?)\b", lowered_query):
                         score += 0.5
                 elif entry.id == "program-confident-speaker":
-                    if re.search(r"\b(confident\s+speaker|confident\s+speaking|spoken\s+english|public\s+speaking|interview\s+skills?)\b", lowered_query):
-                        score += 0.5
+                    is_specific_cs_track = any(w in lowered_query for w in ("ielts", "business english", "public speaking", "everyday english", "daily english", "general communicative"))
+                    if not is_specific_cs_track:
+                        if re.search(r"\b(confident\s+speaker|communication\s+skills?|speaking\s+program|public\s+speaking|spoken\s+english)\b", lowered_query):
+                            score += 0.5
+
+            # Confident Speaker curriculum track routing
+            if entry.id == "confident-speaker-ielts":
+                if "ielts" in lowered_query:
+                    score += 0.9
+            elif entry.id == "confident-speaker-business-english":
+                if "business english" in lowered_query or ("business" in lowered_query and "english" in lowered_query) or ("work" in lowered_query and "english" in lowered_query) or "businesspeople" in lowered_query:
+                    score += 0.9
+            elif entry.id == "confident-speaker-public-speaking":
+                if "public speaking" in lowered_query or ("speech" in lowered_query and "speaking" in lowered_query) or ("presentation" in lowered_query and "speaking" in lowered_query):
+                    score += 0.9
+            elif entry.id == "confident-speaker-general-communicative":
+                if any(w in lowered_query for w in ("everyday english", "daily english", "general communicative", "general communication", "daily life english")):
+                    score += 0.9
+            elif entry.id == "confident-speaker-scope":
+                if "curriculum" in lowered_query and ("confident speaker" in lowered_query or "curriculum areas" in lowered_query):
+                    score += 0.8
+
+            # Operational delivery, duration, frequency, evaluation, catch-up, updates boosts
+            if entry.id == "class-duration":
+                if any(w in lowered_query for w in (
+                    "class duration", "session duration", "session length", "class length",
+                    "how long is each class", "how long is a class", "how long is the class",
+                    "how long are classes", "how long are the classes", "how long are sessions",
+                    "how long is each session", "how many minutes is a class", "how many minutes is each class",
+                    "minutes per session", "duration of a class", "duration of each class", "duration of the class",
+                    "duration of each session", "duration of regular classes",
+                )) and not any(w in lowered_query for w in ("demo", "trial", "course", "program", "programme")):
+                    score += 0.8
+            elif entry.id == "demo-class-length":
+                if any(w in lowered_query for w in ("duration", "how long", "how many minutes")) and not any(w in lowered_query for w in ("demo", "trial")):
+                    score *= 0.2
+            elif entry.id == "class-frequency":
+                if any(w in lowered_query for w in ("classes per week", "classes a week", "classes each week", "how many classes", "how often")):
+                    score += 0.8
+            elif entry.id == "missed-classes-catch-up":
+                if any(w in lowered_query for w in ("miss", "missed", "catch-up", "catch up")):
+                    score += 0.9
+            elif entry.id == "academic-chapter-evaluation":
+                if any(w in lowered_query for w in ("chapter", "intervention", "evaluated after", "needs more help", "after each chapter")):
+                    score += 0.9
+            elif entry.id == "online-or-offline":
+                if any(w in lowered_query for w in ("online", "offline", "google meet", "lms", "platform", "conducted")):
+                    score += 0.7
+            elif entry.id == "progress-updates":
+                if any(w in lowered_query for w in ("parent", "parents")) and any(w in lowered_query for w in ("progress", "update", "report", "meeting", "know about")):
+                    score += 0.9
 
             # General vs Middle School feature routing
             if is_doubt_query:

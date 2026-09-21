@@ -218,7 +218,19 @@
         "in person classes",
         "in-person",
         "do you have offline centers",
-        "offline physical centers"
+        "offline physical centers",
+        "are classes online",
+        "are the classes online",
+        "how are classes conducted",
+        "how are the classes conducted",
+        "where are classes held",
+        "where do students attend the classes",
+        "where do students attend classes",
+        "do you use google meet",
+        "google meet",
+        "do you have your own lms",
+        "lms platform",
+        "wementors lms"
       ],
       "keywords": [
         "video call",
@@ -229,9 +241,12 @@
         "centers",
         "center",
         "worldwide",
-        "remote"
+        "remote",
+        "google meet",
+        "lms",
+        "wementors lms"
       ],
-      "answer": "All WeMentors classes and mentoring sessions are conducted 100% live and online worldwide through video calls. We do not have offline physical centers; students learn remotely from anywhere.",
+      "answer": "All WeMentors classes and mentoring sessions are conducted 100% live and online. The platform uses the WeMentors LMS platform for learning and course-related activities, and Google Meet for interactive live sessions with digital whiteboard support. We do not have physical centers or classrooms; students attend remotely from home anywhere worldwide.",
       "follow_ups": [
         "What is the batch size?",
         "Are one-on-one classes available?"
@@ -308,12 +323,24 @@
       "phrasings": [
         "progress updates",
         "progress tracked",
-        "how will i know how my child is doing"
+        "how will i know how my child is doing",
+        "how do parents know about their child's progress",
+        "how do parents know about progress",
+        "do parents get progress reports",
+        "how are parents updated",
+        "do mentors provide updates to parents",
+        "do mentors report to parents",
+        "how do parents know how they're doing",
+        "parent updates",
+        "parent meetings"
       ],
       "keywords": [
-        "weekly report"
+        "weekly report",
+        "weekly meetings",
+        "progress reports",
+        "reports from mentors"
       ],
-      "answer": "Progress is tracked and shared with parents every week.",
+      "answer": "Parents receive regular progress updates regarding their child's development through weekly meetings and progress reports provided by their personal mentors.",
       "follow_ups": [
         "How does the mentoring process work?"
       ],
@@ -652,7 +679,16 @@
         "personalized mentoring",
         "tell me about personalized mentoring",
         "how does personalized mentoring work",
-        "meaning of personalized mentoring"
+        "meaning of personalized mentoring",
+        "what does personalized mentoring mean",
+        "what does personalized learning mean",
+        "how is learning personalized",
+        "how is the learning personalized",
+        "personalized learning",
+        "does the pace change based on the student",
+        "do students learn at their own pace",
+        "will the sessions be adjusted to my child's learning pace",
+        "how do you personalize the learning"
       ],
       "keywords": [
         "personalized mentoring",
@@ -660,7 +696,7 @@
         "individual attention",
         "guidance"
       ],
-      "answer": "Personalized mentoring means each learner receives individual attention and guidance from a personal mentor. The mentor supports the learner according to their needs through practical guidance and regular feedback.",
+      "answer": "Personalized learning means sessions are planned around the student's individual pace and learning needs, so the learning experience can adjust as the student progresses. Each learner works individually with a dedicated personal mentor who adapts support to their strengths and learning gaps.",
       "confidence": "verified"
     },
     {
@@ -803,7 +839,14 @@
         "what is included in confident speaker",
         "is confident speaker for adults",
         "is confident speaker only for school students",
-        "confident speaker all ages"
+        "confident speaker all ages",
+        "what are the different areas in confident speaker",
+        "what curriculum does confident speaker have",
+        "confident speaker curriculum",
+        "communicative skills program",
+        "communication skills program",
+        "public speaking and business english",
+        "ielts preparation in confident speaker"
       ],
       "keywords": [
         "communication",
@@ -822,9 +865,13 @@
         "professionals",
         "homemakers",
         "students",
-        "demo"
+        "demo",
+        "business english",
+        "general communicative skills",
+        "ielts preparation",
+        "curriculum"
       ],
-      "answer": "**Confident Speaker**\n\nPractical, conversation-driven English coaching for school life, careers and everyday confidence.\n\n**Grades:** All Ages\n\n**Focus:**\n- Spoken English\n- Public Speaking\n- Interview Skills\n\n**Key features:**\n- Conversation-first method, no rote grammar drills\n- Small batches for maximum speaking time\n- Tracks for students, professionals & homemakers\n\nReady to explore the program? You can book a free 30-minute demo using the **Book Free Demo** button.",
+      "answer": "**Confident Speaker**\n\nPractical, conversation-driven communicative skills coaching for school life, careers and everyday confidence through personalized mentoring and individual attention.\n\n**Grades:** All Ages (students, college learners, professionals, and homemakers)\n\n**Curriculum:**\n- Public Speaking\n- Business English\n- General Communicative Skills\n- IELTS Preparation\n\n**Key features:**\n- Conversation-first method, no rote grammar drills\n- Small batches with individual attention for maximum speaking time\n- Guided speaking practice & practical conversation with regular feedback\n- Dedicated tracks for students, professionals & homemakers\n\nReady to explore the program? You can book a free 30-minute demo using the **Book Free Demo** button.",
       "follow_ups": [
         "Is a demo class available?",
         "How can I contact WeMentors?"
@@ -833,14 +880,16 @@
       "program": "confident_speaker",
       "grade_range": "all_ages",
       "subjects": [
-        "Spoken English",
         "Public Speaking",
-        "Interview Skills"
+        "Business English",
+        "General Communicative Skills",
+        "IELTS Preparation"
       ],
       "features": [
         "Conversation-first method, no rote grammar drills",
-        "Small batches for maximum speaking time",
-        "Tracks for students, professionals & homemakers"
+        "Small batches with individual attention for maximum speaking time",
+        "Guided speaking practice & practical conversation with regular feedback",
+        "Dedicated tracks for students, professionals & homemakers"
       ]
     },
     {
@@ -872,7 +921,7 @@
         "one-to-one",
         "how it works"
       ],
-      "answer": "The Confident Speaker program uses personalized one-to-one mentoring. Each learner works individually with a personal mentor through guided speaking practice, practical conversation, and regular feedback. The program covers Spoken English, Public Speaking, and Interview Skills, with the goal of building confidence in speaking.\n\nYou can click **Book Free Demo** at the top-right of the website to experience a trial session.",
+      "answer": "The Confident Speaker program uses personalized one-to-one mentoring. Each learner works individually with a personal mentor through guided speaking practice, practical conversation, and regular feedback. The communicative skills curriculum covers Public Speaking, Business English, General Communicative Skills, and IELTS Preparation (building spoken English, public speaking, and interview skills), with the goal of building confidence in speaking.\n\nYou can click **Book Free Demo** at the top-right of the website to experience a trial session.",
       "follow_ups": [
         "Who is the program for?",
         "Is a demo class available?"
@@ -916,7 +965,9 @@
         "what do we learn in confident speaker",
         "what skills will my child build in confident speaker",
         "what skills will my child build",
-        "what skills does confident speaker teach"
+        "what skills does confident speaker teach",
+        "what curriculum does confident speaker have",
+        "curriculum in confident speaker"
       ],
       "keywords": [
         "spoken english",
@@ -924,7 +975,7 @@
         "interview skills",
         "speaking skills"
       ],
-      "answer": "The Confident Speaker program covers Spoken English, Public Speaking, and Interview Skills. The program focuses on practical development rather than rote grammar drills.\n\nYou can click **Book Free Demo** at the top-right of the website to experience a trial session.",
+      "answer": "The Confident Speaker program is a communicative skills program covering four distinct curriculum areas: Public Speaking, Business English, General Communicative Skills, and IELTS Preparation. It builds practical spoken English, public speaking, and interview skills with a focus on real-world development rather than rote grammar drills.\n\nYou can click **Book Free Demo** at the top-right of the website to experience a trial session.",
       "confidence": "verified"
     },
     {
@@ -1368,6 +1419,238 @@
         "Are classes online or offline?",
         "How can I book a free demo?"
       ],
+      "confidence": "verified"
+    },
+    {
+      "id": "confident-speaker-public-speaking",
+      "category": "programs",
+      "question": "Do you teach public speaking in Confident Speaker?",
+      "phrasings": [
+        "do you teach public speaking",
+        "is public speaking part of confident speaker",
+        "public speaking for students",
+        "college public speaking",
+        "presentation skills",
+        "speech confidence",
+        "public speaking course",
+        "public speaking",
+        "who is public speaking for",
+        "does confident speaker help students improve communication skills",
+        "does confident speaker help students improve communication"
+      ],
+      "keywords": [
+        "public speaking",
+        "presentation",
+        "school students",
+        "college students",
+        "communication skills",
+        "speech",
+        "confidence"
+      ],
+      "answer": "Public Speaking is a core curriculum track in our Confident Speaker program, designed primarily for school and college students as well as learners looking to build speaking confidence and effective communication skills. Learners work with a personal mentor on practical presentation, speech clarity, and speaking confidence.\n\nYou can book a free 30-minute demo using the **Book Free Demo** button.",
+      "confidence": "verified"
+    },
+    {
+      "id": "confident-speaker-business-english",
+      "category": "programs",
+      "question": "Do you offer Business English in Confident Speaker?",
+      "phrasings": [
+        "do you offer business english",
+        "business english",
+        "do you teach business english",
+        "english for work",
+        "workplace english",
+        "english for professionals",
+        "english for businesspeople",
+        "business communication english",
+        "what does the business english part cover",
+        "what does business english cover",
+        "who is business english for",
+        "professional english"
+      ],
+      "keywords": [
+        "business english",
+        "workplace english",
+        "professionals",
+        "businesspersons",
+        "businesspeople",
+        "work communication",
+        "professional communication"
+      ],
+      "answer": "Business English is a dedicated curriculum track in our Confident Speaker program for businesspersons and working professionals. It focuses on practical English communication in professional and workplace contexts through personalized one-to-one mentoring.\n\nYou can book a free 30-minute demo using the **Book Free Demo** button.",
+      "confidence": "verified"
+    },
+    {
+      "id": "confident-speaker-general-communicative",
+      "category": "programs",
+      "question": "What are General Communicative Skills in Confident Speaker?",
+      "phrasings": [
+        "general communicative skills",
+        "everyday english",
+        "daily english",
+        "i want to improve my everyday english",
+        "i want to communicate better in english in daily life",
+        "conversational english",
+        "general communication skills",
+        "do you teach general communication skills",
+        "improve my english communication",
+        "comfortable speaking english every day",
+        "can i improve my everyday english",
+        "practical everyday english",
+        "i want to speak english better in daily life"
+      ],
+      "keywords": [
+        "general communicative skills",
+        "everyday english",
+        "daily english",
+        "conversational english",
+        "daily conversation",
+        "communicative ability"
+      ],
+      "answer": "General Communicative Skills is a Confident Speaker curriculum track intended for learners who want to improve their everyday English communication. It focuses on practical daily conversation and general communicative ability rather than rote grammar drills.\n\nYou can book a free 30-minute demo using the **Book Free Demo** button.",
+      "confidence": "verified"
+    },
+    {
+      "id": "confident-speaker-ielts",
+      "category": "programs",
+      "question": "Do you offer IELTS preparation in Confident Speaker?",
+      "phrasings": [
+        "do you offer ielts preparation",
+        "ielts preparation",
+        "prepare for ielts",
+        "i want to prepare for ielts",
+        "is ielts included in confident speaker",
+        "does confident speaker have an ielts course",
+        "ielts course",
+        "english for ielts",
+        "confident speaker ielts",
+        "ielts coaching",
+        "ielts",
+        "i need english preparation for ielts",
+        "is ielts preparation included"
+      ],
+      "keywords": [
+        "ielts",
+        "ielts preparation",
+        "ielts exam",
+        "ielts course",
+        "ielts coaching",
+        "prepare for ielts"
+      ],
+      "answer": "IELTS Preparation is offered as a distinct learning track within our Confident Speaker program for learners preparing for the IELTS exam. It provides targeted communicative and speaking practice with a personal mentor to build fluency and confidence.\n\nYou can book a free 30-minute demo using the **Book Free Demo** button.",
+      "confidence": "verified"
+    },
+    {
+      "id": "class-duration",
+      "category": "scheduling",
+      "question": "What is the duration of each class?",
+      "phrasings": [
+        "how long is each class",
+        "how long is a class",
+        "how many minutes is a class",
+        "what is the class duration",
+        "what's the class duration",
+        "whats the class duration",
+        "class duration",
+        "duration of classes",
+        "duration of regular classes",
+        "how long are the classes",
+        "how long are classes",
+        "how long are the sessions"
+      ],
+      "keywords": [
+        "class duration",
+        "50 minutes",
+        "session length",
+        "session duration",
+        "class length"
+      ],
+      "answer": "Classes are usually around 50 minutes per session. (Free trial demo sessions are 30 minutes long).",
+      "confidence": "verified"
+    },
+    {
+      "id": "class-frequency",
+      "category": "scheduling",
+      "question": "How many classes are held per week?",
+      "phrasings": [
+        "how many classes per week",
+        "how many classes are there per week",
+        "how many classes are there each week",
+        "how often are classes held",
+        "how many sessions do students have",
+        "how many sessions do students usually have",
+        "class frequency",
+        "how many classes a week",
+        "how many classes each week",
+        "how often are confident speaker classes",
+        "how many classes per week does confident speaker have",
+        "how many classes per week are there for the academic programs",
+        "how many classes per week for academic programs",
+        "how often are they",
+        "how many classes"
+      ],
+      "keywords": [
+        "frequency",
+        "classes per week",
+        "sessions per week",
+        "5 classes",
+        "3-5 classes",
+        "how often"
+      ],
+      "answer": "For academic programs (Grades 3–10), there are typically 5 classes per week. For the Confident Speaker program, there are typically 3–5 classes per week.",
+      "confidence": "verified"
+    },
+    {
+      "id": "missed-classes-catch-up",
+      "category": "scheduling",
+      "question": "What happens if a student misses a class?",
+      "phrasings": [
+        "what happens if my child misses a class",
+        "can a student get a catch-up class if they miss one",
+        "what happens if i miss a session",
+        "what happens if i miss a class",
+        "missed class",
+        "missed a class",
+        "my child missed a class",
+        "catch up class",
+        "catch-up class",
+        "catch up session",
+        "reschedule missed class"
+      ],
+      "keywords": [
+        "missed class",
+        "missed session",
+        "catch-up",
+        "catch up session",
+        "stay on track"
+      ],
+      "answer": "If a student misses a class, a catch-up session can be arranged to help them stay on track.",
+      "confidence": "verified"
+    },
+    {
+      "id": "academic-chapter-evaluation",
+      "category": "academics",
+      "question": "How are academic students evaluated and supported?",
+      "phrasings": [
+        "what happens after each chapter",
+        "are students evaluated after every chapter",
+        "what happens if a student needs more help",
+        "do you provide intervention classes",
+        "how do you identify areas where a student is struggling",
+        "intervention classes",
+        "chapter evaluation",
+        "evaluated after each chapter",
+        "extra support after evaluations",
+        "what happens if a student struggles"
+      ],
+      "keywords": [
+        "chapter evaluation",
+        "evaluated after each chapter",
+        "intervention classes",
+        "additional support",
+        "academic evaluation"
+      ],
+      "answer": "For academic programs, students are evaluated after each chapter, and intervention classes can be provided based on the evaluation to address areas where additional support is needed.",
       "confidence": "verified"
     }
   ]

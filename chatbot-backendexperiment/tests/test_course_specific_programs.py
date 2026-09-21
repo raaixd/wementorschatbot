@@ -89,10 +89,11 @@ class TestCourseSpecificPrograms:
         assert res.matched_entry_ids == ["program-confident-speaker"]
         assert "**Confident Speaker**" in res.reply
         assert "**Grades:** All Ages" in res.reply
-        assert "**Focus:**" in res.reply
-        assert "- Spoken English" in res.reply
+        assert "**Curriculum:**" in res.reply
         assert "- Public Speaking" in res.reply
-        assert "- Interview Skills" in res.reply
+        assert "- Business English" in res.reply
+        assert "- General Communicative Skills" in res.reply
+        assert "- IELTS Preparation" in res.reply
         assert "**Key features:**" in res.reply
         assert "- Conversation-first method, no rote grammar drills" in res.reply
         assert "- Small batches with individual attention for maximum speaking time" in res.reply

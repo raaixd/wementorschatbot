@@ -140,6 +140,90 @@ _MENTORING_RE = re.compile(
     re.IGNORECASE,
 )
 
+_IELTS_RE = re.compile(
+    r"\b(ielts|ielts\s+preparation|ielts\s+prep|ielts\s+course)\b",
+    re.IGNORECASE,
+)
+
+_BUSINESS_ENGLISH_RE = re.compile(
+    r"\b(business\s+english|english\s+for\s+(?:work|business|businesspeople|professionals?)|business\s+communication|english\s+training\s+for\s+businesspeople)\b",
+    re.IGNORECASE,
+)
+
+_PUBLIC_SPEAKING_RE = re.compile(
+    r"\b(public\s+speaking|presentation\s+skills?|speech\s+giving|speaking\s+in\s+public|"
+    r"improve\s+(?:my\s+)?communication(?:\s+skills)?|"
+    r"college\s+student.*communication|"
+    r"school\s+student.*public\s+speaking|"
+    r"confident\s+speaker\s+help\s+(?:students\s+)?improve\s+communication)\b",
+    re.IGNORECASE,
+)
+
+_GENERAL_COMMUNICATIVE_RE = re.compile(
+    r"\b(everyday\s+english|daily\s+(?:life\s+)?english|general\s+communicative(?:\s+skills)?|"
+    r"communicat(?:e|ing)\s+better\s+in\s+english\s+in\s+daily\s+life|"
+    r"comfortable\s+speaking\s+english\s+every\s+day|"
+    r"general\s+communication(?:\s+skills)?)\b",
+    re.IGNORECASE,
+)
+
+_CS_CURRICULUM_RE = re.compile(
+    r"\b(what\s+does\s+confident\s+speaker\s+teach|"
+    r"curriculum\s+(?:of\s+)?confident\s+speaker|"
+    r"confident\s+speaker\s+curriculum|"
+    r"what\s+are\s+the\s+(?:four|4)?\s*(?:curriculum\s+)?areas|"
+    r"what\s+areas\s+does\s+confident\s+speaker\s+cover)\b",
+    re.IGNORECASE,
+)
+
+_CLASS_DURATION_RE = re.compile(
+    r"\b(how\s+long\s+is\s+(?:each|a|the)\s+(?:regular\s+)?class|"
+    r"how\s+many\s+minutes\s+is\s+(?:a|each|the)\s+class|"
+    r"what(?:'s|\s+is)\s+the\s+class\s+duration|"
+    r"duration\s+of\s+(?:a\s+|each\s+|the\s+)?(?:regular\s+)?class|"
+    r"class\s+duration|"
+    r"how\s+long\s+are\s+(?:the\s+)?classes)\b",
+    re.IGNORECASE,
+)
+
+_CLASS_FREQUENCY_RE = re.compile(
+    r"\b(how\s+many\s+classes\s+(?:per|a|each)\s+week|"
+    r"how\s+many\s+classes\s+(?:do\s+you\s+have|are\s+there)\s+(?:per|a|each)\s+week|"
+    r"how\s+often\s+are\s+(?:the\s+)?classes|"
+    r"how\s+often\s+are\s+they|"
+    r"class\s+frequency|"
+    r"how\s+frequently\s+are\s+classes)\b",
+    re.IGNORECASE,
+)
+
+_MISSED_CLASSES_RE = re.compile(
+    r"\b(miss(?:es|ed)?\s+(?:a\s+)?class|"
+    r"missed\s+classes?|"
+    r"catch[- ]up\s+(?:class|session)s?|"
+    r"what\s+happens\s+if\s+(?:my\s+child|a\s+student|i)\s+miss(?:es)?\s+a\s+class)\b",
+    re.IGNORECASE,
+)
+
+_CHAPTER_EVALUATION_RE = re.compile(
+    r"\b(after\s+each\s+chapter|"
+    r"evaluated\s+after\s+each\s+chapter|"
+    r"chapter\s+evaluations?|"
+    r"intervention\s+classes?|"
+    r"what\s+happens\s+after\s+each\s+chapter|"
+    r"what\s+happens\s+if\s+a\s+student\s+needs\s+more\s+help|"
+    r"evaluation\s+after\s+each\s+chapter)\b",
+    re.IGNORECASE,
+)
+
+_PERSONALIZED_PACE_RE = re.compile(
+    r"\b(what\s+does\s+personalized\s+(?:learning|mentoring)\s+mean|"
+    r"personalized\s+learning\s+meaning|"
+    r"individual\s+pace\s+and\s+learning\s+needs|"
+    r"how\s+does\s+personalized\s+learning\s+work|"
+    r"learning\s+pace)\b",
+    re.IGNORECASE,
+)
+
 _SESSION_ACTIVITIES_RE = re.compile(
     r"\b("
     r"what\s+happens\s+(?:during|in)\s+(?:the\s+|practice\s+|class\s+|academic\s+)?sessions?|"
@@ -197,6 +281,12 @@ _PARENT_UPDATES_RE = re.compile(
     r"\b(do\s+parents\s+(?:receive|get)\s+(?:progress\s+)?updates|"
     r"how\s+do\s+parents\s+track\s+progress|"
     r"progress\s+updates\s+for\s+parents|"
+    r"how\s+(?:do\s+)?parents\s+know\s+about\s+(?:their\s+child's|student's)?\s*progress|"
+    r"how\s+are\s+parents\s+updated|"
+    r"do\s+mentors\s+provide\s+updates\s+to\s+parents|"
+    r"do\s+parents\s+get\s+progress\s+reports?|"
+    r"weekly\s+meetings?\s+with\s+parents|"
+    r"mentor\s+progress\s+reports?|"
     r"parent\s+updates)\b",
     re.IGNORECASE,
 )
@@ -307,8 +397,8 @@ _CONFIDENT_SPEAKER_OVERVIEW_RE = re.compile(
 
 _GRADE_PROGRAM_ROUTING_RE = re.compile(
     r"\b("
-    r"what\s+(?:program|course|class|classes|options?)\s+(?:is|are)?\s*(?:available|there|offered)?\s*for\s+(?:grade|class|standard)\s*(\d+)|"
-    r"(?:program|course|class|classes|options?)\s+for\s+(?:grade|class|standard)\s*(\d+)|"
+    r"what\s+(?:programs?|courses?|class|classes|options?)\s+(?:is|are)?\s*(?:available|there|offered)?\s*for\s+(?:grade|class|standard)\s*(\d+)|"
+    r"(?:programs?|courses?|class|classes|options?)\s+for\s+(?:grade|class|standard)\s*(\d+)|"
     r"which\s+(?:program|course|class)\s+is\s+for\s+(?:grade|class|standard)\s*(\d+)|"
     r"what\s+can\s+(?:a\s+)?(?:grade|class|standard)\s*(\d+)\s+student\s+(?:join|take|study)"
     r")\b"
@@ -747,7 +837,12 @@ _ONLINE_CLASSES_RE = re.compile(
     r"online\s+or\s+offline|"
     r"(?:what\s+about\s+)?online\s+classes\??|"
     r"(?:what\s+about\s+)?virtual\s+classes\??|"
-    r"how\s+are\s+classes\s+conducted"
+    r"how\s+are\s+classes\s+conducted|"
+    r"do\s+you\s+use\s+google\s+meet|"
+    r"do\s+you\s+have\s+your\s+own\s+lms|"
+    r"google\s+meet|"
+    r"own\s+lms|"
+    r"delivery\s+platforms?"
     r")\b",
     re.IGNORECASE,
 )
@@ -1016,7 +1111,10 @@ _PROGRAM_NAME_HINTS = {
         "senior", "board", "senior school", "senior school focus",
         "grades 9-10", "grades 9 to 10", "class 9", "class 10", "grade 9", "grade 10", "10th", "9th",
     ],
-    "program-confident-speaker": ["confident", "speaker", "confident speaker", "spoken", "speaking", "interview", "public speaking", "all ages"],
+    "program-confident-speaker": [
+        "confident", "speaker", "confident speaker", "spoken", "speaking", "interview", "public speaking", "all ages",
+        "ielts", "business english", "everyday english", "general communicative",
+    ],
 }
 
 _PLAYFUL_RE = re.compile(
@@ -1064,7 +1162,16 @@ class ConversationEngine:
                     return "foundation"
                 if "middle" in intent or "middle" in content:
                     return "middle"
-                if "confident_speaker" in intent or "confident speaker" in content or "speaking confidence" in content or "public speaking" in content or "spoken english" in content:
+                if (
+                    "confident_speaker" in intent
+                    or "confident speaker" in content
+                    or "speaking confidence" in content
+                    or "public speaking" in content
+                    or "spoken english" in content
+                    or "business english" in content
+                    or "ielts" in content
+                    or "everyday english" in content
+                ):
                     return "confident_speaker"
                 if "board_exam" in intent or "board" in content or "class 10" in content or "class 9" in content or "grade 10" in content or "grade 9" in content or "senior school" in content:
                     return "board_exam"
@@ -1084,7 +1191,7 @@ class ConversationEngine:
             return "program-middle-school"
         if any(w in n for w in ["senior", "board", "9-10", "grades 9", "class 10", "grade 10", "class 9", "grade 9", "10th", "9th"]):
             return "program-senior-school"
-        if any(w in n for w in ["speaker", "confident", "spoken", "speaking", "all ages"]):
+        if any(w in n for w in ["speaker", "confident", "spoken", "speaking", "all ages", "ielts", "business english", "public speaking", "everyday english", "general communicative"]):
             return "program-confident-speaker"
         return None
 
@@ -1109,7 +1216,7 @@ class ConversationEngine:
             return "foundation"
         if re.search(r"\b(middle(?:\s+school)?(?:\s*[-—–]\s*all\s+subjects)?|grades?\s*6\s*[-–to]\s*8|grades?\s*[678]\b|class\s*[678]\b|[678]th\s*(?:grade|class|standard)\b)\b", t):
             return "middle"
-        if re.search(r"\b(confident\s+speaker|public\s+speaking|spoken\s+english|interview\s+skills?|speaking\s+practice)\b", t):
+        if re.search(r"\b(confident\s+speaker|public\s+speaking|spoken\s+english|interview\s+skills?|speaking\s+practice|ielts|business\s+english|everyday\s+english|general\s+communicative)\b", t):
             return "confident_speaker"
         if re.search(r"\b(academic\s+(?:courses?|classes|sessions?|programs?|subjects?|mentoring|learning)|classes\s+for\s+school\s+students|courses\s+for\s+school\s+students|school\s+students|school\s+courses|academics?)\b", t):
             return "academic"
@@ -1450,6 +1557,14 @@ class ConversationEngine:
                 normalized = normalize_query(stripped)
                 word_count = len(stripped.split())
 
+        # Confident Speaker specific curriculum tracks checked early
+        # (CRITICAL: IELTS must be checked before Senior School/Board preparation)
+        if _IELTS_RE.search(stripped) or _IELTS_RE.search(normalized):
+            return "confident_speaker_ielts"
+
+        if _BUSINESS_ENGLISH_RE.search(stripped) or _BUSINESS_ENGLISH_RE.search(normalized):
+            return "confident_speaker_business_english"
+
         # Deep semantic routing: Compound / Mixed intents checked FIRST
         # to ensure compound whole-utterance meaning takes priority.
         if _ELIGIBILITY_MIXED_ENGLISH_RE.search(stripped) or _ELIGIBILITY_MIXED_ENGLISH_RE.search(normalized):
@@ -1463,6 +1578,43 @@ class ConversationEngine:
 
         if _ELIGIBILITY_MIXED_FEES_RE.search(stripped) or _ELIGIBILITY_MIXED_FEES_RE.search(normalized):
             return "eligibility_mixed_fees"
+
+        if _PUBLIC_SPEAKING_RE.search(stripped) or _PUBLIC_SPEAKING_RE.search(normalized):
+            return "confident_speaker_public_speaking"
+
+        if _GENERAL_COMMUNICATIVE_RE.search(stripped) or _GENERAL_COMMUNICATIVE_RE.search(normalized):
+            return "confident_speaker_general_communicative"
+
+        if _CS_CURRICULUM_RE.search(stripped) or _CS_CURRICULUM_RE.search(normalized):
+            return "confident_speaker_curriculum"
+
+        # Operational: Missed classes, Chapter evaluation, Parent updates, Class duration, Class frequency, Personalized learning pace
+        if _MISSED_CLASSES_RE.search(stripped) or _MISSED_CLASSES_RE.search(normalized):
+            return "missed_classes"
+
+        if _CHAPTER_EVALUATION_RE.search(stripped) or _CHAPTER_EVALUATION_RE.search(normalized):
+            return "academic_chapter_evaluation"
+
+        if _PARENT_UPDATES_RE.search(stripped) or _PARENT_UPDATES_RE.search(normalized):
+            return "parent_updates"
+
+        if _PERSONALIZED_PACE_RE.search(stripped) or _PERSONALIZED_PACE_RE.search(normalized):
+            return "personalized_learning_pace"
+
+        if _CLASS_DURATION_RE.search(stripped) or _CLASS_DURATION_RE.search(normalized):
+            if re.search(r"\b(demo|trial)\b", stripped, re.I):
+                return "demo_information"
+            return "class_duration"
+
+        if _CLASS_FREQUENCY_RE.search(stripped) or _CLASS_FREQUENCY_RE.search(normalized):
+            explicit_prog = self._extract_program_from_text(stripped) or self._extract_program_from_text(normalized)
+            active_p = explicit_prog or memory.active_program or self._get_current_subject(session_id)
+            if active_p == "confident_speaker":
+                return "class_frequency_confident_speaker"
+            elif active_p in ("academic", "foundation", "middle", "senior"):
+                return "class_frequency_academic"
+            else:
+                return "class_frequency_general"
 
         # First / Second Grade inquiry: explicitly handled so queries like
         # "courses for first grade", "what about second grade", "grade 1", "grade 2"
@@ -2415,6 +2567,19 @@ class ConversationEngine:
             "international_eligibility",
             "online_classes",
             "mentor_matching",
+            "confident_speaker_ielts",
+            "confident_speaker_business_english",
+            "confident_speaker_public_speaking",
+            "confident_speaker_general_communicative",
+            "confident_speaker_curriculum",
+            "missed_classes",
+            "parent_updates",
+            "academic_chapter_evaluation",
+            "class_duration",
+            "class_frequency_confident_speaker",
+            "class_frequency_academic",
+            "class_frequency_general",
+            "personalized_learning_pace",
         )
         if intent not in allowed_yes_intents:
             reply = re.sub(r"^\s*Yes\.\s*", "", reply)
@@ -3068,7 +3233,123 @@ class ConversationEngine:
             res = ReplyResult(
                 personality.ONLINE_CLASSES_RESPONSE,
                 "online_classes",
-                ["programs-overview"],
+                ["online-or-offline", "programs-overview"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "confident_speaker_ielts":
+            memory.active_program = "confident_speaker"
+            res = ReplyResult(
+                personality.IELTS_PREPARATION_TRACK_RESPONSE,
+                "confident_speaker_ielts",
+                ["confident-speaker-ielts", "program-confident-speaker"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "confident_speaker_business_english":
+            memory.active_program = "confident_speaker"
+            res = ReplyResult(
+                personality.BUSINESS_ENGLISH_TRACK_RESPONSE,
+                "confident_speaker_business_english",
+                ["confident-speaker-business-english", "program-confident-speaker"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "confident_speaker_public_speaking":
+            memory.active_program = "confident_speaker"
+            res = ReplyResult(
+                personality.PUBLIC_SPEAKING_TRACK_RESPONSE,
+                "confident_speaker_public_speaking",
+                ["confident-speaker-public-speaking", "program-confident-speaker"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "confident_speaker_general_communicative":
+            memory.active_program = "confident_speaker"
+            res = ReplyResult(
+                personality.GENERAL_COMMUNICATIVE_TRACK_RESPONSE,
+                "confident_speaker_general_communicative",
+                ["confident-speaker-general-communicative", "program-confident-speaker"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "confident_speaker_curriculum":
+            memory.active_program = "confident_speaker"
+            res = ReplyResult(
+                personality.CONFIDENT_SPEAKER_CURRICULUM_RESPONSE,
+                "confident_speaker_curriculum",
+                ["confident-speaker-scope", "program-confident-speaker"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "class_duration":
+            res = ReplyResult(
+                personality.CLASS_DURATION_RESPONSE,
+                "class_duration",
+                ["class-duration"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "class_frequency_confident_speaker":
+            memory.active_program = "confident_speaker"
+            res = ReplyResult(
+                personality.CLASS_FREQUENCY_CONFIDENT_SPEAKER_RESPONSE,
+                "class_frequency_confident_speaker",
+                ["class-frequency", "program-confident-speaker"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "class_frequency_academic":
+            memory.active_program = "academic"
+            res = ReplyResult(
+                personality.CLASS_FREQUENCY_ACADEMIC_RESPONSE,
+                "class_frequency_academic",
+                ["class-frequency"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "class_frequency_general":
+            res = ReplyResult(
+                personality.CLASS_FREQUENCY_GENERAL_RESPONSE,
+                "class_frequency_general",
+                ["class-frequency"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "missed_classes":
+            res = ReplyResult(
+                personality.MISSED_CLASSES_RESPONSE,
+                "missed_classes",
+                ["missed-classes-catch-up"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "academic_chapter_evaluation":
+            memory.active_program = "academic"
+            res = ReplyResult(
+                personality.CHAPTER_EVALUATION_INTERVENTION_RESPONSE,
+                "academic_chapter_evaluation",
+                ["academic-chapter-evaluation"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "personalized_learning_pace":
+            res = ReplyResult(
+                personality.PERSONALIZED_LEARNING_PACE_RESPONSE,
+                "personalized_learning_pace",
+                ["personalized-mentoring-concept"],
                 1.0,
             )
             return self._finalize_result(session_id, res, memory, message)
@@ -3597,7 +3878,7 @@ class ConversationEngine:
             res = ReplyResult(
                 personality.PARENT_UPDATES_RESPONSE,
                 "parent_updates",
-                ["program-senior-school"],
+                ["progress-updates"],
                 1.0,
             )
             return self._finalize_result(session_id, res, memory, message)

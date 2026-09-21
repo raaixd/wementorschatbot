@@ -49,12 +49,18 @@ Field-Level Program Knowledge
   * Individual mentor, weekly mock tests with review, priority doubt-clearing, weekly progress updates to parents.
   * NEVER guarantee marks, exam ranks, or specific board results.
 - Confident Speaker Program:
-  * Designed for: Students, Professionals, and Homemakers.
-  * Program Scope: Spoken English, Public Speaking, and Interview Skills.
-  * Mentoring Approach: Individual attention from a personal mentor, practical development rather than rote grammar drills.
+  * Designed for: School and college students, working professionals, businesspersons, and homemakers across dedicated tracks.
+  * Program Curriculum: Communicative skills program with 4 core areas: Public Speaking (students/college), Business English (businesspersons/professionals), General Communicative Skills (everyday English), and IELTS Preparation (IELTS learners).
+  * Mentoring Approach: Individual attention from a personal mentor, practical development rather than rote grammar drills. Sessions adapted to individual pace and learning needs.
   * Session Activities: Guided speaking practice, practical conversation, regular feedback, and confidence-building activities.
   * Program Format: Personalized 1:1 mentoring with guided speaking practice, practical conversation, and regular feedback.
-  * NEVER guarantee fluency, interview success, or overnight transformation.
+  * Class Delivery: 100% online via WeMentors LMS platform and Google Meet live video calls. No physical centers.
+  * Class Duration: Regular classes are usually around 50 minutes per session. (Demo sessions are 30 minutes).
+  * Class Frequency: Academic programs typically 5 classes/week; Confident Speaker typically 3–5 classes/week.
+  * Missed Classes: Catch-up sessions can be arranged to help students stay on track.
+  * Parent Updates: Regular updates through weekly meetings and progress reports from mentors.
+  * Academic Evaluations: Students evaluated after each chapter; intervention classes provided where additional support needed.
+  * NEVER guarantee fluency, exam scores, interview success, or overnight transformation.
   * Next step: Click **Book Free Demo** at the top-right of the website to experience a trial session.
 
 Uncertainty & Out-of-Scope Handling
@@ -136,26 +142,31 @@ BEGINNER_RECOMMENDATION_RESPONSE = (
 CONFIDENT_SPEAKER_FORMAT_DIRECT = (
     "The Confident Speaker program uses personalized one-to-one mentoring. Each learner works individually "
     "with a personal mentor through guided speaking practice, practical conversation, and regular feedback. "
-    "The program covers Spoken English, Public Speaking, and Interview Skills, with the goal of building confidence in speaking.\n\n"
+    "The communicative skills curriculum covers Public Speaking, Business English, General Communicative Skills, "
+    "and IELTS Preparation (building spoken English, public speaking, and interview skills), with the goal of "
+    "building confidence in speaking.\n\n"
     "You can click **Book Free Demo** at the top-right of the website to experience a trial session."
 )
 
 CONFIDENT_SPEAKER_FORMAT_CONCISE = (
     "In short, it is personalized one-to-one mentoring with guided speaking practice, practical conversation, "
-    "and regular feedback. It covers Spoken English, Public Speaking, and Interview Skills.\n\n"
+    "and regular feedback. It covers Public Speaking, Business English, General Communicative Skills, and IELTS Preparation "
+    "(with spoken English, public speaking, and interview skills).\n\n"
     "You can click **Book Free Demo** at the top-right of the website to experience a trial session."
 )
 
 CONFIDENT_SPEAKER_AUDIENCE_DIRECT = (
-    "The Confident Speaker program is designed for students, professionals, and homemakers. "
-    "Each learner receives individual attention from a personal mentor tailored to their background and speaking goals.\n\n"
+    "The Confident Speaker program is designed for school and college students, working professionals, businesspersons, "
+    "and homemakers. Each learner receives individual attention from a personal mentor tailored to their background, "
+    "chosen track, and speaking goals.\n\n"
     "You can click **Book Free Demo** at the top-right of the website to experience a trial session."
 )
 
 CONFIDENT_SPEAKER_SCOPE_DIRECT = (
-    "The Confident Speaker program covers Spoken English, Public Speaking, and Interview Skills. "
-    "Each learner receives individual attention from a personal mentor through guided practice and feedback, "
-    "focusing on practical development rather than rote grammar drills.\n\n"
+    "The Confident Speaker communicative skills program covers four distinct curriculum areas: Public Speaking, "
+    "Business English, General Communicative Skills, and IELTS Preparation. It builds practical Spoken English, "
+    "Public Speaking, and Interview Skills. Each learner receives individual attention from a personal mentor "
+    "through guided practice and feedback, focusing on practical development rather than rote grammar drills.\n\n"
     "You can click **Book Free Demo** at the top-right of the website to experience a trial session."
 )
 
@@ -319,18 +330,80 @@ SENIOR_SCHOOL_FEATURES_RESPONSE = (
 
 CONFIDENT_SPEAKER_OVERVIEW_RESPONSE = (
     "**Confident Speaker**\n\n"
-    "Practical, conversation-driven English coaching for school life, careers and everyday confidence through personalized mentoring and individual attention.\n\n"
-    "**Grades:** All Ages (students, professionals, and homemakers)\n\n"
-    "**Focus:**\n"
-    "- Spoken English\n"
+    "Practical, conversation-driven spoken English and communicative skills coaching for school life, careers and everyday confidence through personalized mentoring and individual attention.\n\n"
+    "**Grades:** All Ages (students, college learners, professionals, businesspersons, and other learners depending on the track)\n\n"
+    "**Curriculum:**\n"
     "- Public Speaking\n"
-    "- Interview Skills\n\n"
+    "- Business English\n"
+    "- General Communicative Skills\n"
+    "- IELTS Preparation\n\n"
     "**Key features:**\n"
     "- Conversation-first method, no rote grammar drills\n"
     "- Small batches with individual attention for maximum speaking time\n"
     "- Guided speaking practice & practical conversation with regular feedback\n"
     "- Dedicated tracks for students, professionals & homemakers\n\n"
     "Ready to explore the program? You can book a free 30-minute demo using the **Book Free Demo** button."
+)
+
+CONFIDENT_SPEAKER_CURRICULUM_RESPONSE = (
+    "The Confident Speaker program is a communicative skills program with four distinct curriculum tracks:\n\n"
+    "- **Public Speaking**: For school and college students looking to improve communication skills, speaking confidence, and effective presentation.\n"
+    "- **Business English**: For businesspersons and working professionals focusing on English communication in professional and workplace contexts.\n"
+    "- **General Communicative Skills**: For learners who want to improve practical, everyday English communication in daily life.\n"
+    "- **IELTS Preparation**: For learners preparing for the IELTS exam with targeted speaking and communicative practice.\n\n"
+    "Each track provides personalized 1-on-1 mentoring. You can book a free 30-minute demo using the **Book Free Demo** button."
+)
+
+PUBLIC_SPEAKING_TRACK_RESPONSE = (
+    "Public Speaking is a core curriculum track in our Confident Speaker program, designed primarily for school and college students as well as learners looking to build speaking confidence and effective communication skills. Learners receive individual attention from a personal mentor through guided speaking practice and feedback on practical presentation, speech clarity, and speaking confidence.\n\nYou can book a free 30-minute demo using the **Book Free Demo** button."
+)
+
+BUSINESS_ENGLISH_TRACK_RESPONSE = (
+    "Business English is a dedicated curriculum track in our Confident Speaker program for businesspersons and working professionals. It focuses on practical English communication in professional and workplace contexts through personalized one-to-one mentoring with individual attention, guided practice, and feedback.\n\nYou can book a free 30-minute demo using the **Book Free Demo** button."
+)
+
+GENERAL_COMMUNICATIVE_TRACK_RESPONSE = (
+    "General Communicative Skills is a Confident Speaker curriculum track intended for learners who want to improve their everyday English communication. It focuses on practical daily conversation and guided speaking practice with individual attention from a personal mentor, rather than rote grammar drills.\n\nYou can book a free 30-minute demo using the **Book Free Demo** button."
+)
+
+IELTS_PREPARATION_TRACK_RESPONSE = (
+    "IELTS Preparation is offered as a distinct learning track within our Confident Speaker program for learners preparing for the IELTS exam. It provides targeted communicative and speaking practice with individual attention from a personal mentor to build fluency and confidence.\n\nYou can book a free 30-minute demo using the **Book Free Demo** button."
+)
+
+CLASS_DURATION_RESPONSE = (
+    "Classes are usually around 50 minutes per session. (Free trial demo classes are 30 minutes long)."
+)
+
+CLASS_FREQUENCY_ACADEMIC_RESPONSE = (
+    "For our academic programs (Grades 3–10), there are typically 5 classes per week."
+)
+
+CLASS_FREQUENCY_CONFIDENT_SPEAKER_RESPONSE = (
+    "For the Confident Speaker program, there are typically 3–5 classes per week."
+)
+
+CLASS_FREQUENCY_GENERAL_RESPONSE = (
+    "For our academic programs (Grades 3–10), there are typically 5 classes per week. For the Confident Speaker program, there are typically 3–5 classes per week."
+)
+
+MISSED_CLASSES_RESPONSE = (
+    "If a student misses a class, a catch-up session can be arranged to help them stay on track."
+)
+
+PARENT_UPDATES_RESPONSE = (
+    "Learner progress is tracked and shared with parents every week through weekly meetings and progress reports provided by their personal mentors."
+)
+
+CHAPTER_EVALUATION_INTERVENTION_RESPONSE = (
+    "For academic programs, students are evaluated after each chapter, and intervention classes can be provided based on the evaluation to address areas where additional support is needed."
+)
+
+ONLINE_DELIVERY_RESPONSE = (
+    "All WeMentors classes and mentoring sessions are conducted 100% live and online. The platform uses the WeMentors LMS platform for learning and course-related activities, and Google Meet for interactive live sessions with digital whiteboard support. We do not have physical centers or classrooms; students attend remotely from home anywhere worldwide."
+)
+
+PERSONALIZED_LEARNING_PACE_RESPONSE = (
+    "Personalized learning means sessions are planned around the student's individual pace and learning needs, so the learning experience can adjust as the student progresses. Each learner works individually with a dedicated personal mentor who adapts support to their strengths and learning gaps."
 )
 
 CONFIDENT_SPEAKER_FEATURES_RESPONSE = (
@@ -686,9 +759,10 @@ LOCATION_RESPONSE = (
 
 # Online classes response
 ONLINE_CLASSES_RESPONSE = (
-    "Yes, WeMentors classes are conducted live and online through interactive video calls with digital whiteboard support, "
-    "allowing mentors to teach and solve problems in real time. Students attend all sessions from home, so there is no "
-    "physical center you need to travel to."
+    "Yes, WeMentors classes are conducted live and online. Live classes are held on Google Meet "
+    "via interactive video calls with digital whiteboard support, and coursework, assignments, and learning materials "
+    "are managed through WeMentors' own LMS platform. Students attend all sessions from home, so there are no "
+    "physical centers you need to travel to."
 )
 
 # Grade 1 & 2 unavailable response
