@@ -194,4 +194,3 @@ if failures:
 else:
     print("ALL CONVERSATIONAL UX & REGRESSION CHECKS PASSED!")
     print("==================================================\n")
-    sys.exit(0)
