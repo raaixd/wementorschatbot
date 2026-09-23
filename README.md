@@ -75,7 +75,6 @@ wementorschatbotexperiment/
 │   ├── runners/run_benchmark.py     # Automated RAG evaluation benchmark
 │   └── reports/baseline_report.md   # Benchmark scorecard & accuracy metrics
 ├── docs/
-│   ├── BUSINESS_REQUIREMENTS_DOCUMENT.md # Official Business Requirements Document (BRD)
 │   ├── PROJECT_REPORT.md            # Comprehensive project report & production summary
 │   ├── PRODUCTION_AUDIT.md          # Full architectural and codebase audit
 │   ├── BASELINE.md                  # Pre-existing state & empirical baseline
