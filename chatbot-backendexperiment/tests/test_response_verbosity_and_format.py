@@ -410,5 +410,69 @@ class TestResponseVerbosityAndFormatting(unittest.TestCase):
         self.assertIn("book free demo", res_complex.reply.lower())
 
 
+    def test_24_bare_subjects_always_global(self):
+        """Bare 'subjects' must always return the global subject overview,
+        regardless of which program was previously discussed."""
+        bare_queries = ["subjects", "subjects?",
+                        "what are the subjects", "what are the subjects?"]
+
+        # 1. Fresh session
+        for q in bare_queries:
+            with self.subTest(query=q, context="fresh"):
+                res = self.engine.handle_message(f"sess_bare_fresh_{hash(q)}", q)
+                self.assertEqual(res.intent, "faq")
+                self.assertIn("**Academic Subjects**", res.reply)
+                self.assertIn("**Confident Speaker**", res.reply)
+                self.assertIn("- **Public Speaking**", res.reply)
+                self.assertIn("- **IELTS Preparation**", res.reply)
+
+        # 2-5. After each program context
+        programs = [
+            ("Senior School Focus", "senior_school_overview"),
+            ("Tell me about Middle School.", "middle_school_overview"),
+            ("Tell me about Confident Speaker.", "confident_speaker"),
+            ("Tell me about Foundation Years.", "foundation_years_overview"),
+        ]
+        for setup_msg, _expected_setup_intent in programs:
+            with self.subTest(query="subjects", context=setup_msg):
+                sid = f"sess_bare_{hash(setup_msg)}_subjects"
+                self.engine.handle_message(sid, setup_msg)
+                res = self.engine.handle_message(sid, "subjects")
+                self.assertEqual(res.intent, "faq")
+                self.assertIn("**Academic Subjects**", res.reply)
+                self.assertIn("**Confident Speaker**", res.reply)
+                self.assertNotIn("Grades 6", res.reply)
+
+
+        # Exact Senior School -> "subjects" regression (the original bug)
+        sid_bug = "sess_senior_subjects_bug"
+        self.engine.handle_message(sid_bug, "Senior School Focus")
+        res_bug = self.engine.handle_message(sid_bug, "subjects")
+        self.assertNotIn("Middle School", res_bug.reply)
+        self.assertNotIn("Grades 6–8", res_bug.reply)
+        self.assertIn("**Academic Subjects**", res_bug.reply)
+        self.assertIn("**Confident Speaker**", res_bug.reply)
+        self.assertIn("- **Public Speaking**", res_bug.reply)
+        self.assertIn("- **IELTS Preparation**", res_bug.reply)
+
+    def test_25_explicit_subjects_in_program(self):
+        """'subjects in <program>' must still route to program-specific responses."""
+        # subjects in Middle School
+        res_ms = self.engine.handle_message("sess_expl_ms", "subjects in Middle School")
+        self.assertEqual(res_ms.intent, "middle_school_subjects")
+        self.assertIn("Middle School", res_ms.reply)
+        self.assertIn("Social Studies", res_ms.reply)
+
+        # subjects in Senior School
+        res_ss = self.engine.handle_message("sess_expl_ss", "subjects in Senior School")
+        self.assertEqual(res_ss.intent, "senior_school_subjects")
+        self.assertIn("Senior School Focus", res_ss.reply)
+
+        # subjects in Confident Speaker
+        res_cs = self.engine.handle_message("sess_expl_cs", "subjects in Confident Speaker")
+        self.assertEqual(res_cs.intent, "confident_speaker_scope")
+        self.assertIn("Public Speaking", res_cs.reply)
+
+
 if __name__ == "__main__":
     unittest.main()

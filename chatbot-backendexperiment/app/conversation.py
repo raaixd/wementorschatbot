@@ -431,7 +431,7 @@ _FOUNDATION_SUBJECTS_RE = re.compile(
     r"(?:what|which)\s+subjects\s+(?:are\s+)?(?:in|for)\s+foundation(?:\s+years?)?|"
     r"(?:what|which)\s+subjects\s+does\s+foundation(?:\s+years?)?\s+have|"
     r"what\s+does\s+foundation(?:\s+years?)?\s+cover|"
-    r"subjects?\s+(?:included|offered|taught)\s+in\s+foundation(?:\s+years?)?|"
+    r"subjects?\s+(?:included|offered|taught|in)\s+foundation(?:\s+years?)?|"
     r"foundation(?:\s+years?)?\s+subjects"
     r")\b",
     re.IGNORECASE,
@@ -496,7 +496,7 @@ _SENIOR_SUBJECTS_RE = re.compile(
     r"(?:what|which)\s+subjects\s+(?:are\s+)?(?:in|for)\s+senior\s+school(?:\s+focus)?|"
     r"(?:what|which)\s+subjects\s+does\s+senior\s+school(?:\s+focus)?\s+have|"
     r"what\s+does\s+senior\s+school(?:\s+focus)?\s+cover|"
-    r"subjects?\s+(?:included|offered|taught)\s+in\s+senior\s+school(?:\s+focus)?|"
+    r"subjects?\s+(?:included|offered|taught|in)\s+senior\s+school(?:\s+focus)?|"
     r"senior\s+school(?:\s+focus)?\s+subjects"
     r")\b",
     re.IGNORECASE,
@@ -524,7 +524,8 @@ _CONFIDENT_SPEAKER_SUBJECTS_RE = re.compile(
     r"what\s+does\s+confident\s+speaker\s+cover|"
     r"confident\s+speaker\s+subjects|"
     r"(?:what|which)\s+curriculum\s+(?:does\s+)?confident\s+speaker|"
-    r"what\s+curriculum\s+in\s+confident\s+speaker"
+    r"what\s+curriculum\s+in\s+confident\s+speaker|"
+    r"subjects?\s+in\s+confident\s+speaker"
     r")\b",
     re.IGNORECASE,
 )
@@ -536,6 +537,15 @@ _SUBJECTS_OFFERED_RE = re.compile(
     r"|subjects?\s+(?:offered|taught|covered|available)"
     r"|what\s+do\s+you\s+(?:teach|offer)"
     r")\s*[?!.]*$",
+    re.IGNORECASE,
+)
+
+# Matches bare/standalone subject queries that should ALWAYS return the global
+# subject overview, regardless of active program context.  These forms are too
+# short/ambiguous to resolve within a single program and must not fall through
+# to retrieval (which may return stale or incorrect program-specific content).
+_BARE_SUBJECTS_GLOBAL_RE = re.compile(
+    r"^\s*(?:subjects?|what\s+are\s+the\s+subjects?)\s*[?!.]*$",
     re.IGNORECASE,
 )
 
@@ -1195,6 +1205,7 @@ _MIDDLE_SCHOOL_SUBJECTS_RE = re.compile(
     r"(?:what|which)\s+subjects\s+(?:are\s+)?(?:in|for)\s+middle\s+(?:school|shcool)|"
     r"(?:what|which)\s+subjects\s+are\s+taught\s+in\s+middle\s+(?:school|shcool)|"
     r"(?:what|which)\s+subjects\s+does\s+middle\s+(?:school|shcool)\s+have|"
+    r"subjects?\s+in\s+middle\s+(?:school|shcool)|"
     r"middle\s+(?:school|shcool)\s+subjects"
     r")\b",
     re.IGNORECASE,
@@ -3361,6 +3372,18 @@ class ConversationEngine:
             m_voc = re.match(r"^\s*([A-Za-z]{2,20})\s*[,.:;-]\s*(.+)$", cleaned_subj)
             if m_voc and m_voc.group(1).lower() not in ("how", "what", "why", "when", "where", "who", "which", "can", "do", "does", "is", "are"):
                 cleaned_subj = m_voc.group(2).strip()
+
+            # Bare standalone subject queries ("subjects", "subject",
+            # "what are the subjects") always return the global overview,
+            # regardless of active program context.
+            if _BARE_SUBJECTS_GLOBAL_RE.match(cleaned_subj) or _BARE_SUBJECTS_GLOBAL_RE.match(normalize_query(cleaned_subj)):
+                res = ReplyResult(
+                    personality.SUBJECTS_OFFERED_RESPONSE,
+                    "faq",
+                    ["what-subjects-offered", "programs-overview"],
+                    1.0,
+                )
+                return self._finalize_result(session_id, res, memory, message)
 
             if _SUBJECTS_OFFERED_RE.match(cleaned_subj) or _SUBJECTS_OFFERED_RE.match(normalize_query(cleaned_subj)):
                 if memory.active_program == "middle":
