@@ -505,6 +505,16 @@ _SUBJECTS_INQUIRY_RE = re.compile(
     re.IGNORECASE,
 )
 
+_SUBJECTS_OFFERED_RE = re.compile(
+    r"^\s*(?:(?:could\s+you\s+|can\s+you\s+|please\s+)?tell\s+me\s+)?(?:"
+    r"(?:which|what)\s+subjects?(?:\s+(?:(?:do\s+)?you|are)\s+(?:offer|offered|teach|taught|have|covered|cover|provide))?"
+    r"|(?:which|what)\s+courses?(?:\s+(?:(?:do\s+)?you|are)\s+(?:offer|offered|teach|taught|have|covered|cover|provide))?"
+    r"|subjects?\s+(?:offered|taught|covered|available)"
+    r"|what\s+do\s+you\s+(?:teach|offer)"
+    r")\s*[?!.]*$",
+    re.IGNORECASE,
+)
+
 ACTION_INTENTS = {
     "enrollment",
     "sign_up",
@@ -3248,6 +3258,27 @@ class ConversationEngine:
             ref_res = self._resolve_relative_or_correction(message, memory, session_id)
             if ref_res:
                 return self._finalize_result(session_id, ref_res, memory, message)
+
+        if intent == "faq":
+            cleaned_subj = message.strip()
+            m_cancel = _CANCELLATION_PREFIX_RE.match(cleaned_subj)
+            if m_cancel:
+                cleaned_subj = cleaned_subj[m_cancel.end():].strip()
+            m_disc = _DISCOURSE_PREFIX_RE.match(cleaned_subj)
+            if m_disc:
+                cleaned_subj = cleaned_subj[m_disc.end():].strip()
+            m_voc = re.match(r"^\s*([A-Za-z]{2,20})\s*[,.:;-]\s*(.+)$", cleaned_subj)
+            if m_voc and m_voc.group(1).lower() not in ("how", "what", "why", "when", "where", "who", "which", "can", "do", "does", "is", "are"):
+                cleaned_subj = m_voc.group(2).strip()
+
+            if _SUBJECTS_OFFERED_RE.match(cleaned_subj) or _SUBJECTS_OFFERED_RE.match(normalize_query(cleaned_subj)):
+                res = ReplyResult(
+                    personality.SUBJECTS_OFFERED_RESPONSE,
+                    "faq",
+                    ["what-subjects-offered", "programs-overview"],
+                    1.0,
+                )
+                return self._finalize_result(session_id, res, memory, message)
 
         if intent == "personalized_mentoring_general":
             res = ReplyResult(

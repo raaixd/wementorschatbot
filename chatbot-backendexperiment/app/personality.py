@@ -217,6 +217,24 @@ ACADEMIC_SESSIONS_RESPONSE = (
     "You can click **Book Free Demo** at the top-right of the website to experience an academic trial session."
 )
 
+SUBJECTS_OFFERED_RESPONSE = (
+    "WeMentors offers academic programs covering core school subjects as well as specialized communication coaching:\n\n"
+    "**Academic Programs (Grades 3–10)**\n"
+    "Personalized 1-on-1 mentoring across Foundation, Middle, and Senior School grades:\n"
+    "- **Core Subjects**: Mathematics, Science, and English\n"
+    "- **Grade Levels**:\n"
+    "  - **Foundation Years (Grades 3–5)**: Core conceptual understanding and study habits\n"
+    "  - **Middle School (Grades 6–8)**: Practical problem sets, concept clarity, and doubt clinics\n"
+    "  - **Senior School Focus (Grades 9–10)**: Exam preparation, syllabus mastery, and regular mock tests\n\n"
+    "**Confident Speaker Program**\n"
+    "Focuses on practical communication skills rather than traditional academic subjects:\n"
+    "- **Public Speaking**: Speech delivery, presentation skills, and confidence building\n"
+    "- **Business English**: Professional communication and workplace presentations\n"
+    "- **General Communicative Skills**: Everyday conversation and spoken fluency\n"
+    "- **IELTS Preparation**: Targeted speaking practice and test readiness\n\n"
+    "You can click **Book Free Demo** at the top-right of the website to experience a trial session with a personal mentor."
+)
+
 ACADEMIC_COURSES_OVERVIEW_RESPONSE = (
     "**WeMentors Academic Programs (Grades 3–10)**\n\n"
     "WeMentors provides personalized 1-on-1 academic mentoring across three key stages for school students:\n\n"
