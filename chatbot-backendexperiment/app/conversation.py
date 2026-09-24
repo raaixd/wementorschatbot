@@ -515,6 +515,54 @@ _SUBJECTS_OFFERED_RE = re.compile(
     re.IGNORECASE,
 )
 
+_GRADES_SUPPORTED_RE = re.compile(
+    r"^\s*(?:(?:could\s+you\s+|can\s+you\s+|please\s+)?tell\s+me\s+)?(?:"
+    r"(?:which|what)\s+(?:grades?|classes?|standards?)(?:\s+(?:(?:do\s+)?you|are)\s+(?:support|supported|offer|offered|teach|taught|have|cover|covered|provide))?"
+    r"|(?:grades?|classes?|standards?)\s+(?:supported|offered|taught|covered|available)"
+    r"|which\s+(?:grades?|classes?|standards?)"
+    r"|what\s+(?:grades?|classes?|standards?)"
+    r")\s*[?!.]*$",
+    re.IGNORECASE,
+)
+
+_MATH_QUERY_RE = re.compile(
+    r"^\s*(?:(?:could\s+you\s+|can\s+you\s+|please\s+)?tell\s+me\s+)?(?:"
+    r"(?:do\s+you\s+(?:teach|offer|have|cover)|is\s+there)\s+(?:maths?|mathematics)"
+    r"|(?:teach|offer)\s+(?:maths?|mathematics)"
+    r"|(?:maths?|mathematics)\s+(?:offered|taught|covered|subject)"
+    r")\s*[?!.]*$",
+    re.IGNORECASE,
+)
+
+_SCIENCE_QUERY_RE = re.compile(
+    r"^\s*(?:(?:could\s+you\s+|can\s+you\s+|please\s+)?tell\s+me\s+)?(?:"
+    r"(?:do\s+you\s+(?:teach|offer|have|cover)|is\s+there)\s+science"
+    r"|(?:teach|offer)\s+science"
+    r"|science\s+(?:offered|taught|covered|subject)"
+    r")\s*[?!.]*$",
+    re.IGNORECASE,
+)
+
+_CBSE_QUERY_RE = re.compile(
+    r"^\s*(?:(?:could\s+you\s+|can\s+you\s+|please\s+)?tell\s+me\s+)?(?:"
+    r"(?:do\s+you\s+(?:offer|support|teach|follow|cover)|is\s+there)\s+cbse"
+    r"|(?:offer|support|teach|follow)\s+cbse"
+    r"|cbse\s+(?:curriculum|syllabus|board|supported|offered)"
+    r")\s*[?!.]*$",
+    re.IGNORECASE,
+)
+
+_ENGLISH_QUERY_RE = re.compile(
+    r"^\s*(?:(?:could\s+you\s+|can\s+you\s+|please\s+)?tell\s+me\s+)?(?:"
+    r"(?:what|how)\s+about\s+english"
+    r"|(?:do\s+you\s+(?:teach|offer|have|cover)|is\s+there)\s+english"
+    r"|(?:tell\s+me\s+about\s+english)"
+    r"|(?:teach|offer)\s+english"
+    r"|english\s+(?:offered|taught|covered|subject)"
+    r")\s*[?!.]*$",
+    re.IGNORECASE,
+)
+
 ACTION_INTENTS = {
     "enrollment",
     "sign_up",
@@ -522,7 +570,6 @@ ACTION_INTENTS = {
     "demo_booking",
     "contact",
     "fees",
-    "duration",
     "foundation_enrollment",
     "middle_enrollment",
     "senior_enrollment",
@@ -2429,12 +2476,6 @@ class ConversationEngine:
                         answer = answer.strip() + f"\n\n{demo_cta}"
                 elif any("confident-speaker" in item.entry.id for item in scored):
                     answer = re.sub(r"personalized\s+1:1\s+mentoring", "personalized mentoring", answer, flags=re.IGNORECASE)
-                    if "personal mentor" not in answer.lower() and "personalized mentoring" not in answer.lower():
-                        answer = re.sub(r"\bdedicated mentor\b", "personal mentor", answer, count=1, flags=re.IGNORECASE)
-                        if "personal mentor" not in answer.lower() and "personalized mentoring" not in answer.lower():
-                            answer = "Personalized mentoring with a personal mentor is provided. " + answer
-                    if "individual" not in answer.lower():
-                        answer += " Students receive individual attention and dedicated mentor feedback."
                 return answer
             # LLM failed or timed out -> fall through to the safe template path.
         if self._is_mentor_inquiry(user_message):
@@ -2577,9 +2618,19 @@ class ConversationEngine:
             return ReplyResult(prompt, "clarify", [], None)
 
         a, b = matched[0], matched[1]
+        def _clean_comp_answer(ans: str) -> str:
+            return re.sub(
+                r"\n*Ready to explore the program\?.*?(?:\n|$)",
+                "",
+                ans,
+                flags=re.IGNORECASE | re.DOTALL,
+            ).strip()
+
+        a_clean = _clean_comp_answer(a.answer)
+        b_clean = _clean_comp_answer(b.answer)
         text_out = (
-            f"{a.question.replace('What is the ', '').rstrip('?')}:\n{a.answer}\n\n"
-            f"{b.question.replace('What is the ', '').rstrip('?')}:\n{b.answer}\n\n"
+            f"{a.question.replace('What is the ', '').rstrip('?')}:\n{a_clean}\n\n"
+            f"{b.question.replace('What is the ', '').rstrip('?')}:\n{b_clean}\n\n"
             "Let me know if you would like help deciding which fits better for the student."
         )
         return ReplyResult(text_out, "comparison", [a.id, b.id], None)
@@ -3276,6 +3327,58 @@ class ConversationEngine:
                     personality.SUBJECTS_OFFERED_RESPONSE,
                     "faq",
                     ["what-subjects-offered", "programs-overview"],
+                    1.0,
+                )
+                return self._finalize_result(session_id, res, memory, message)
+
+            if _GRADES_SUPPORTED_RE.match(cleaned_subj) or _GRADES_SUPPORTED_RE.match(normalize_query(cleaned_subj)):
+                res = ReplyResult(
+                    personality.GRADES_SUPPORTED_RESPONSE,
+                    "faq",
+                    ["which-grades-supported"],
+                    1.0,
+                )
+                return self._finalize_result(session_id, res, memory, message)
+
+            if _MATH_QUERY_RE.match(cleaned_subj) or _MATH_QUERY_RE.match(normalize_query(cleaned_subj)):
+                res = ReplyResult(
+                    personality.MATH_OFFERED_RESPONSE,
+                    "faq",
+                    ["what-subjects-offered"],
+                    1.0,
+                )
+                return self._finalize_result(session_id, res, memory, message)
+
+            if _SCIENCE_QUERY_RE.match(cleaned_subj) or _SCIENCE_QUERY_RE.match(normalize_query(cleaned_subj)):
+                res = ReplyResult(
+                    personality.SCIENCE_OFFERED_RESPONSE,
+                    "faq",
+                    ["what-subjects-offered"],
+                    1.0,
+                )
+                return self._finalize_result(session_id, res, memory, message)
+
+            if _CBSE_QUERY_RE.match(cleaned_subj) or _CBSE_QUERY_RE.match(normalize_query(cleaned_subj)):
+                res = ReplyResult(
+                    personality.CBSE_OFFERED_RESPONSE,
+                    "faq",
+                    ["curricula-supported"],
+                    1.0,
+                )
+                return self._finalize_result(session_id, res, memory, message)
+
+            if _ENGLISH_QUERY_RE.match(cleaned_subj) or _ENGLISH_QUERY_RE.match(normalize_query(cleaned_subj)):
+                if memory.active_program == "senior_school":
+                    eng_reply = (
+                        "Senior School Focus (Grades 9–10) focuses specifically on Mathematics and Science for board exam preparation. "
+                        "English is offered in our Foundation Years (Grades 3–5) and Middle School (Grades 6–8) programs, as well as in Confident Speaker."
+                    )
+                else:
+                    eng_reply = personality.ENGLISH_OFFERED_RESPONSE
+                res = ReplyResult(
+                    eng_reply,
+                    "faq",
+                    ["what-subjects-offered", "program-confident-speaker"],
                     1.0,
                 )
                 return self._finalize_result(session_id, res, memory, message)

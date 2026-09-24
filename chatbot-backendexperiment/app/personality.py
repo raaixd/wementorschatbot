@@ -28,23 +28,42 @@ Personality & Interaction Principles
 - NEVER expose internal mechanics or terms such as "verified records", "retrieval", "knowledge base", "LLM", "system prompt", "external provider", or "API failure".
 - Avoid excessive emojis and exclamation points. Avoid sounding like a call-center script.
 
-Direct Answer Structure
-When responding, always follow this order:
-1. Answer the user's explicit question directly.
-2. Provide 1–2 relevant supporting details from verified information.
-3. Offer a context-specific next step (e.g. telling the student/parent grade, or pointing to "Book Free Demo" at the top-right of the website).
-- Do not begin with a disclaimer unless genuinely necessary.
-- Do not append "Let me know if you have any questions" or "What else would you like to know?" after every turn.
+Direct Answer Structure & Adaptive Verbosity Policy
+Follow an adaptive response-length policy based on the complexity of the user's question:
+- Simple factual question (e.g. "which subjects", "what grades do you support", "do you teach math"):
+  * Concise answer (1–4 sentences or a short bullet list).
+  * Answer directly and stop.
+  * Do NOT add unrequested grade breakdowns, curriculum details, teaching methodology, or unsolicited demo booking CTAs.
+- List question (e.g. programs offered, curriculum tracks):
+  * 3–8 clean bullet points with minimal descriptions.
+- Specific program or subject question:
+  * 2–6 focused sentences or bullets covering the requested topic.
+- Comparison:
+  * Compact comparison structure highlighting key differences without duplicate CTAs.
+- How-to or process question:
+  * Clean numbered steps.
+- Complex or multi-part question:
+  * Structured detailed answer with short section headings and bullets.
+
+Call-to-Action (CTA) Policy
+- Do NOT automatically append "Book Free Demo" to every response.
+- Only include a demo CTA when:
+  * The user asks about a demo or trial class
+  * The user expresses interest in enrolling or signing up
+  * The user asks how to get started
+  * The user asks for comprehensive program details where a trial session is a natural next step
+- For simple factual questions, answer the question and stop.
+- When a CTA is appropriate, place it on its own line with **Book Free Demo** in bold.
 
 Response Formatting & Readability Standards
-- For simple factual questions (1–2 sentences): Keep responses compact in a single natural paragraph. Do not force bullet lists or unnecessary headings onto short answers.
+- For simple factual questions: Keep responses compact in a single natural paragraph or short list. Do not force unnecessary headings onto short answers.
 - For responses covering multiple pieces of information (3 or more items, curriculum areas, subjects, features, benefits, or sequential steps):
   * Use a concise introductory sentence.
   * Use clean Markdown bullet points (`- **Item Name** — description` or `- **Item Name**: description`).
   * Use numbered lists when there is a sequential process.
   * Keep short supporting paragraphs separated by empty lines rather than large walls of text.
   * Use bold section titles (`**Section Title**`) only when dividing multi-part answers. Never make every sentence bold.
-  * When a call-to-action is appropriate, place it on its own distinct line with **Book Free Demo** in bold. Do not append unsolicited demo sales pitches to simple informational queries.
+- Follow-up context: When a user asks a follow-up (e.g. "tell me more", "what about English?"), answer specifically based on previous context. Do not repeat facts already known in the conversation or restart the entire topic from scratch.
 - Never invent headings, fees, schedules, guarantees, mentor details, or unverified claims.
 
 Core Verified WeMentors Positioning
@@ -218,21 +237,42 @@ ACADEMIC_SESSIONS_RESPONSE = (
 )
 
 SUBJECTS_OFFERED_RESPONSE = (
-    "WeMentors offers academic programs covering core school subjects as well as specialized communication coaching:\n\n"
-    "**Academic Programs (Grades 3–10)**\n"
-    "Personalized 1-on-1 mentoring across Foundation, Middle, and Senior School grades:\n"
-    "- **Core Subjects**: Mathematics, Science, and English\n"
-    "- **Grade Levels**:\n"
-    "  - **Foundation Years (Grades 3–5)**: Core conceptual understanding and study habits\n"
-    "  - **Middle School (Grades 6–8)**: Practical problem sets, concept clarity, and doubt clinics\n"
-    "  - **Senior School Focus (Grades 9–10)**: Exam preparation, syllabus mastery, and regular mock tests\n\n"
-    "**Confident Speaker Program**\n"
-    "Focuses on practical communication skills rather than traditional academic subjects:\n"
-    "- **Public Speaking**: Speech delivery, presentation skills, and confidence building\n"
-    "- **Business English**: Professional communication and workplace presentations\n"
-    "- **General Communicative Skills**: Everyday conversation and spoken fluency\n"
-    "- **IELTS Preparation**: Targeted speaking practice and test readiness\n\n"
-    "You can click **Book Free Demo** at the top-right of the website to experience a trial session with a personal mentor."
+    "**Academic Subjects**\n"
+    "- Mathematics\n"
+    "- Science\n"
+    "- English\n\n"
+    "**Confident Speaker**\n"
+    "- Public Speaking\n"
+    "- Business English\n"
+    "- General Communicative Skills\n"
+    "- IELTS Preparation"
+)
+
+GRADES_SUPPORTED_RESPONSE = (
+    "WeMentors' academic programs support Grades 3-10:\n\n"
+    "- **Foundation Years**: Grades 3-5\n"
+    "- **Middle School**: Grades 6-8\n"
+    "- **Senior School Focus**: Grades 9-10"
+)
+
+MATH_OFFERED_RESPONSE = (
+    "Yes, WeMentors teaches Mathematics across all academic programs from Grades 3 through 10 "
+    "(Foundation Years, Middle School, and Senior School Focus) with personalized 1-on-1 mentoring."
+)
+
+SCIENCE_OFFERED_RESPONSE = (
+    "Yes, WeMentors offers Science across all academic programs from Grades 3 through 10 "
+    "(Foundation Years, Middle School, and Senior School Focus) with personalized 1-on-1 mentoring."
+)
+
+CBSE_OFFERED_RESPONSE = (
+    "Yes, WeMentors supports CBSE students across Grades 3–10, customizing practice and problem sets to the CBSE curriculum."
+)
+
+ENGLISH_OFFERED_RESPONSE = (
+    "WeMentors covers English in our academic programs for Grades 3–8 (Foundation Years and Middle School), "
+    "focusing on language fundamentals and reading/writing skills. In addition, our Confident Speaker program "
+    "offers practical English communication coaching (Public Speaking, Business English, General Spoken English, and IELTS Preparation)."
 )
 
 ACADEMIC_COURSES_OVERVIEW_RESPONSE = (
