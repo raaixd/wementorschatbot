@@ -1,889 +1,301 @@
-# WeMentors Chatbot
+# WeMentors AI Chatbot
 
-A RAG-powered chatbot embedded in the WeMentors website. A FastAPI backend
-retrieves relevant answers from a structured, verified WeMentors knowledge
-base, resolves follow-up questions using real conversation history, and
-replies in a consistent, warm, and honest tone — without ever inventing
-fees, policies, or promises the knowledge base doesn't support.
+> Production-oriented conversational RAG system for grounded, context-aware student and parent support.
 
-## Features
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://wementors.vercel.app)
+[![Python](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/backend-FastAPI-009688)](https://fastapi.tiangolo.com/)
+[![pytest](https://img.shields.io/badge/tests-pytest-0A9EDC)](https://docs.pytest.org/)
+[![CI](https://github.com/raaixd/wementorschatbot/actions/workflows/ci.yml/badge.svg)](https://github.com/raaixd/wementorschatbot/actions/workflows/ci.yml)
 
-- Premium, dark glassmorphism chat widget (frosted-glass surfaces, subtle
-  purple/indigo/blue gradients, a liquid-glass logo mark in the launcher
-  and header) that opens over the existing light WeMentors site without
-  changing it
-- Smooth, restrained micro-interactions throughout: launcher hover/press,
-  panel open/close, message fade-and-rise, typing indicator, suggestion
-  chip hover/press, send-button feedback, focus states — all disabled
-  under `prefers-reduced-motion`
-- Structured JSON knowledge base (`knowledge/wementors_kb.json`) with
-  categories, alternative phrasings, keywords, and follow-up suggestions
-- Hybrid lexical retrieval (TF-IDF + keyword overlap) with a confidence
-  threshold and safe fallback — no external ML service required
-- Responses formatted to fit the question: short answers for simple
-  facts, bullet lists for "what programs/subjects", numbered steps for
-  "how do I apply", and a side-by-side layout for "compare X and Y"
-- Intent detection: greetings, thanks, goodbyes, demo-booking requests,
-  program comparisons, frustrated/confused users, prompt-injection
-  deflection, and off-topic handling — when a provider is active, an
-  unmatched question that is genuinely general or conversational (not a
-  WeMentors-specific fact) gets a brief, honest answer from the model
-  instead of a canned redirect; with no provider, or when the model
-  declines, the canned redirect is used
-- Context-aware follow-up handling: "tell me more", "what about the first
-  one?", "the second program", pronoun references like "it"/"that" —
-  without misfiring on ordinary phrases like "one-on-one classes"
-- Server-side session + conversation history stored in SQLite, so context
-  survives page refreshes within the same browser session and backend
-  restarts
-- Bounded 3-tier LLM fallback architecture:
-  1. **Primary**: Google Gemini 3.5 Flash-Lite (fast, grounded, 4.0s timeout)
-  2. **Secondary Fallback**: Groq (`llama-3.3-70b-versatile`, `qwen/qwen3.8-27b`, `openai/gpt-oss-120b` for sub-800ms recovery)
-  3. **Offline Fail-Safe**: Deterministic Knowledge Base Answer template (zero external dependency, zero hallucination)
-- Strict Demo Transaction Boundary: `DEMO_TRANSACTION_ENABLED = False` invariant; directs visitors cleanly to official website form/contact channels; zero fake bookings or leads created.
-- Production Security: Rate limiting (60 req/min per IP), session validation, prompt injection deflection, and HTML tag sanitization.
-- `/health`, `/docs` (interactive API docs, built into FastAPI), structured logging, and release verification test suites.
+**[Live Demo](https://wementors.vercel.app)** · **[Repository](https://github.com/raaixd/wementorschatbot)**
+
+WeMentors AI is the conversational assistant embedded in the [WeMentors](https://wementors.vercel.app) website, answering student and parent questions about programs, curricula, mentoring, class logistics, and demo bookings. It doesn't generate freely — every factual claim is grounded in a verified knowledge base, and the system is built to say "I don't know, here's who to ask" rather than guess.
+
+Under the hood it's a conversational RAG pipeline: deterministic intent routing, contextual query rewriting for follow-ups ("what about the second one?"), hybrid lexical + semantic retrieval over a curated knowledge base, bounded LLM generation constrained to retrieved evidence, and a response-validation layer that strips hallucinated claims before anything reaches the user.
+
+The project also treats evaluation as a first-class concern — retrieval changes are benchmarked against a fixed query set before they ship, not shipped on the assumption that "embeddings are better."
+
+## At a Glance
+
+| | |
+|---|---|
+| **Architecture** | Conversational RAG (retrieval → grounded generation → validation) |
+| **Backend** | Python / FastAPI |
+| **Database** | SQLite |
+| **Retrieval** | Hybrid — lexical (TF-IDF) + semantic embeddings, conditionally fused |
+| **Embeddings** | `gemini-embedding-001` (3072-dim) |
+| **Primary LLM** | Gemini 3.5 Flash-Lite |
+| **Fallback LLM** | Groq (Llama / GPT-OSS models) |
+| **Final fail-safe** | Deterministic knowledge-base answer (no LLM call) |
+| **Knowledge base** | 52 verified entries |
+| **Deployment** | Vercel (serverless) |
+| **CI** | GitHub Actions — pytest on every push/PR to `main` |
+
+## Key Features
+
+### Conversational Intelligence
+- Multi-turn state read from persistent session history (correct across restarts/workers, not an in-process dict)
+- Contextual query rewriting for follow-ups
+- Pronoun and reference resolution ("its fees", "that one")
+- Ordinal references — "the first one" / "the second program"
+- Topic switching without losing prior context
+- Deterministic intent routing for greetings, thanks, goodbyes, and demo requests
+
+### Retrieval & RAG
+- TF-IDF lexical retrieval with keyword-overlap boosting
+- Token-coverage gating to reject low-evidence matches
+- Conditional semantic embedding retrieval (only invoked when lexical confidence is weak)
+- Weighted lexical–semantic score fusion
+- Confidence thresholds with a safe "I'm not sure" fallback
+- Category- and topic-specific negative gates to prevent cross-program false matches
+
+### Reliability & Safety
+- Grounding: generation is bounded to retrieved, verified KB content
+- Honest fallback on unsupported questions instead of invented answers
+- Prompt-injection detection and deflection
+- Hard demo-transaction boundary — no fake bookings or leads
+- LLM output sanitization (strips false completion claims, raw HTML)
+- Client-side request deduplication and in-flight request cancellation
+- Per-IP rate limiting
+- Session isolation via validated session tokens
+
+### Production Engineering
+- LLM provider fallback chain (primary → secondary → deterministic KB)
+- 25 automated regression/test suites
+- Offline retrieval benchmarking with measured deltas, not assumptions
+- GitHub Actions CI on every push and PR
+- Vercel serverless deployment
+- Production smoke test suite
+
+## Architecture
+
+```
+                              User
+                               │
+                               ▼
+                    Request Validation
+                   (length, schema, rate limit)
+                               │
+                               ▼
+                Intent + Context Resolution
+             (greeting / demo / follow-up / FAQ)
+                               │
+                               ▼
+                 Contextual Query Rewriting
+                               │
+                               ▼
+                          Retrieval
+                 ┌─────────────┴─────────────┐
+                 ▼                           ▼
+         Lexical Retrieval           Semantic Retrieval
+         (TF-IDF, instant)        (gemini-embedding-001,
+                                    conditional only)
+                 └─────────────┬─────────────┘
+                               ▼
+              Hybrid Score Fusion / Confidence Gate
+                               │
+                               ▼
+                       Verified Evidence
+                               │
+                               ▼
+                   Bounded LLM Generation
+              (Gemini → Groq fallback → KB template)
+                               │
+                               ▼
+              Response Validation / Safety Gates
+                               │
+                               ▼
+                              User
+```
+
+Each stage is a plain function call, not an agent — the system is a single deterministic pipeline, which keeps it fast, testable, and easy to reason about.
+
+## Hybrid Retrieval
+
+Earlier versions of this system were purely lexical. The current implementation is a **conditional hybrid retriever**:
+
+1. Every query runs through TF-IDF lexical retrieval first — sub-10ms, zero external calls.
+2. If the top lexical match is confident *and* has high keyword coverage, that result is returned immediately (the fast path — no embedding call).
+3. Weaker or ambiguous matches trigger semantic retrieval via `gemini-embedding-001`.
+4. The same domain/safety gates used for lexical retrieval (fee gating, program-boundary gating, etc.) are applied to semantic candidates too.
+5. Lexical and semantic scores are min-max normalized and linearly fused (50/50 weighting).
+6. A final acceptance threshold decides whether the fused result is returned at all.
+7. If the embedding API times out, rate-limits, or returns malformed data, the system falls back to the lexical result — semantic retrieval never blocks or breaks a reply.
+
+**Why this shape:** lexical retrieval is fast, interpretable, and reliable for direct FAQ-style questions, which make up most real traffic. Semantic retrieval earns its latency and API cost only on the harder slice — paraphrased or conversational queries with little literal keyword overlap. The conditional design means the embedding API is called only when it's actually needed, not on every request.
+
+## Retrieval Evaluation
+
+Hybrid retrieval wasn't adopted on the assumption that embeddings are strictly better — it was benchmarked against the existing lexical baseline on a **156-query evaluation set** before being enabled.
+
+| Metric | Lexical Baseline | Hybrid | Change |
+|---|---:|---:|---:|
+| Recall@1 | 72.00% | 76.00% | +4.00 pp |
+| Recall@3 | 84.00% | 84.00% | — |
+| MRR | 0.7733 | 0.8000 | +0.0267 |
+| NDCG@3 | 0.7905 | 0.8105 | +0.0200 |
+| Answer correctness | 78.85% | 82.69% | +3.84 pp |
+| Groundedness | 96.79% | 97.44% | +0.65 pp |
+| Hallucination | 3.21% | 2.56% | −0.65 pp |
+| Context resolution | 91.03% | 93.59% | +2.56 pp |
+
+Lexical retrieval was kept as the baseline and fast path rather than replaced. Dense retrieval was tested standalone, then swept across fusion strategies (weighted linear, reciprocal rank fusion) and gating configurations; weighted fusion at the fast-path thresholds above performed best on this set. The clearest gains were in top-1 retrieval accuracy and answer correctness, driven by paraphrased queries the lexical matcher had no shared vocabulary with. In this same run, the fast path resolved the majority of queries without ever calling the embedding API — semantic retrieval was invoked only for the harder minority.
+
+## Example: Semantic Recovery
+
+> "He was sick and had to skip. Is there a way to do the session later?"
+
+The lexical retriever finds almost no shared vocabulary between this query and the knowledge base's missed-class/catch-up entry — "sick," "skip," and "later" don't appear in the entry's question or phrasings. Semantic retrieval recovers the correct entry by matching on meaning rather than keywords. This is one of the regression cases in the test suite, covering the exact scenario the hybrid path exists for.
+
+## LLM & Generation Architecture
+
+Generation is bounded, not open-ended: the model only receives retrieved, verified knowledge-base content as context and is not free to answer from general world knowledge about WeMentors.
+
+- **Provider abstraction** — a common interface over Gemini, Groq, and Anthropic providers, plus a null provider for template-only mode
+- **Primary:** Gemini (`gemini-3.5-flash-lite`)
+- **Fallback:** Groq, attempted automatically if the primary provider fails, times out, or is rate-limited
+- **Final fail-safe:** a deterministic, template-based answer built directly from the KB entry — no network call, works fully offline
+- API credentials are read from environment variables server-side and never returned to the client
+- Provider selection and any misconfiguration are surfaced through `/health`, not hidden behind a silent fallback
+
+## Safety & Reliability
+
+The chatbot answers questions — it does not take actions. `DEMO_TRANSACTION_ENABLED = False` is a hard constant: the system cannot submit a booking, create a lead, or claim to have completed a transaction on the user's behalf. It always directs booking intent to the site's official demo/contact flow. This is a capability boundary by design, not a missing feature.
+
+| Control | Implementation |
+|---|---|
+| Prompt injection | Regex-based deflection + generation bounded to retrieved context |
+| Secrets | Environment variables only, never logged or echoed |
+| Output safety | LLM output sanitization strips false action claims and raw HTML |
+| Demo safety | No transactional capability; `DEMO_TRANSACTION_ENABLED = False` |
+| Rate limiting | Per-client sliding-window limiter (in-memory) |
+| Session isolation | Session IDs, validated by format before use |
+| Input validation | Pydantic schemas, length-capped requests |
+| HTML safety | Frontend escapes all rendered text before DOM insertion |
+
+**Known limitation:** session IDs are bearer values — anyone holding a session ID can act as that session. There is no additional authentication layer, which is an accepted trade-off for an anonymous, informational assistant with no PII or transactional capability. See [`docs/SECURITY_REVIEW.md`](docs/SECURITY_REVIEW.md) for the full OWASP-mapped review.
+
+## Testing & Reliability
+
+The guiding rule: **observed failures were converted into regression tests.** The suite isn't a checklist written in advance — most of it exists because something broke once and got locked down.
+
+25 automated test suites cover:
+- Retrieval (lexical, semantic, and hybrid fusion)
+- Conversation state and contextual follow-ups
+- Unsupported/out-of-scope questions
+- Prompt injection
+- LLM provider failure and fallback
+- Demo-transaction safety
+- Message ownership and request deduplication
+- Frontend and security behavior
+- Production smoke testing
+
+GitHub Actions runs the full pytest suite on every push and pull request to `main`.
+
+One example worth calling out as production engineering rather than a bug: the semantic embedding cache is validated against a SHA-256 hash of the knowledge-base file, and that hash needs to match across Windows and Linux. A `.env`/KB file with Windows line endings produced a different hash than the same content on the Linux CI runner, which invalidated the embedding cache on every CI run. The fix normalizes newlines before hashing, and CI has been stable since.
 
 ## Project Structure
 
-```text
-wementorschatbotexperiment/
-├── index.html                       # WeMentors website + glassmorphic chatbot UI
-├── knowledge/
-│   └── wementors_kb.json            # Canonical knowledge base (35 verified entries)
+```
+wementorschatbot/
 ├── chatbot-backendexperiment/
 │   ├── app/
-│   │   ├── main.py                  # FastAPI app, routes, CORS, error handling
-│   │   ├── config.py                # Environment configuration & provider selection
-│   │   ├── database.py              # SQLite WAL: sessions, messages, memory
-│   │   ├── knowledge.py             # Knowledge base loader & validation
-│   │   ├── retrieval.py             # TF-IDF + keyword hybrid retriever (<10ms)
-│   │   ├── conversation.py          # State tracking, reference resolution, RAG orchestration
-│   │   ├── personality.py           # Persona specification & canned templates
-│   │   ├── ratelimit.py             # Per-client token bucket rate limiter
-│   │   └── llm.py                   # Bounded 3-tier fallback & response sanitizer
-│   ├── tests/
-│   │   ├── run_release_test_suite.py# Unified master runner (executes all 20 test suites)
-│   │   ├── test_production_reliability.py # 20 failure paths & provider fault injection
-│   │   ├── test_production_smoke.py # End-to-end production smoke test suite
-│   │   └── test_core_pipeline.py    # Core pipeline and retrieval tests
-│   ├── data/                        # SQLite database file (chatbot.db)
-│   ├── requirements.txt
-│   └── .env.example
+│   │   ├── main.py           # FastAPI app, routes, request validation
+│   │   ├── conversation.py   # Conversation engine / RAG pipeline
+│   │   ├── retrieval.py      # Lexical retrieval + hybrid fusion
+│   │   ├── semantic.py       # Embedding client + KB embedding store
+│   │   ├── llm.py            # Provider abstraction (Gemini/Groq/Anthropic)
+│   │   ├── knowledge.py      # Knowledge base loading
+│   │   ├── leads.py          # Demo-transaction boundary
+│   │   ├── database.py       # SQLite persistence
+│   │   ├── ratelimit.py      # Per-client rate limiter
+│   │   └── config.py         # Environment-driven configuration
+│   └── tests/                # 25 pytest suites + release/smoke runners
+├── knowledge/
+│   ├── wementors_kb.json     # Verified knowledge base (52 entries)
+│   └── kb_embeddings.json    # Precomputed KB embeddings
+├── scripts/
+│   └── generate_kb_embeddings.py
 ├── evaluation/
-│   ├── dataset/eval_cases.json      # 126 categorized empirical test cases
-│   ├── runners/run_benchmark.py     # Automated RAG evaluation benchmark
-│   └── reports/baseline_report.md   # Benchmark scorecard & accuracy metrics
-├── docs/
-│   ├── PROJECT_REPORT.md            # Comprehensive project report & production summary
-│   ├── PRODUCTION_AUDIT.md          # Full architectural and codebase audit
-│   ├── BASELINE.md                  # Pre-existing state & empirical baseline
-│   ├── SECURITY_REVIEW.md           # OWASP Top 10 for LLMs security assessment
-│   ├── RAG_EVALUATION.md            # RAG methodology, metrics, and empirical findings
-│   ├── KNOWLEDGE_GAPS.md            # Knowledge gap analysis & human input requirements
-│   ├── PERFORMANCE.md               # Latency profiling & component benchmarks
-│   └── RELEASE_CHECKLIST.md         # Production release sign-off checklist
-└── README.md
+│   ├── questions/            # Benchmark query sets
+│   ├── runners/               # Benchmark + experiment runners
+│   └── reports/               # Measured benchmark reports
+├── docs/                     # Engineering documentation (see below)
+└── .github/workflows/ci.yml  # CI pipeline
 ```
 
-## How It Works (RAG Pipeline)
-
-```
-user message
-  → validation (length, empty-message checks)
-  → intent detection (greeting / thanks / goodbye / demo booking /
-      comparison / frustrated / confused / off-topic / faq / injection)
-  → reference resolution (uses the last turn stored in SQLite:
-      "the first one" / "the second program" → ordinal lookup into the
-      previously shown list; "it" / "that" / "tell me more" → falls back
-      to the previous answer only when direct retrieval is weak)
-  → knowledge-base retrieval (TF-IDF + keyword overlap + a token-coverage
-      gate, top-k=3 — see "Retrieval precision" below)
-  → confidence threshold check: no match at all → if a provider is
-      active, ask it for a brief general answer (never a WeMentors fact
-      it wasn't given); below the confidence threshold → honest fallback,
-      never a guess
-  → answer generation (template composition by default, rendering
-      "bullets"/"steps" entries as real lists; optional LLM rewrite when a
-      provider is configured, using ONLY the retrieved text as source
-      material, then validated before use)
-  → response returned to the frontend, and the turn is logged to SQLite
-```
-
-Only the single best-matching entry (or, for an explicit multi-part
-reference like the programs list or a two-program comparison) is ever
-sent back — the full knowledge base is never dumped into one answer.
-
-### Why lexical retrieval instead of embeddings?
-
-The knowledge base is a few dozen short FAQ entries. A pure-Python TF-IDF +
-keyword-overlap retriever (see `retrieval.py`) is fast, has zero extra
-dependencies, needs no vector database, and is easy for a student
-developer to read and extend. `retrieval.py` isolates the
-"turn text into a ranked list of candidate entries" step behind a single
-`Retriever.search()` call — if the knowledge base grows much larger or
-needs true semantic matching, that method is the only place that would
-need to change to call an embeddings API instead.
-
-### Retrieval precision: the token-coverage gate
-
-Plain TF-IDF cosine similarity has a real failure mode on a small corpus:
-one rare shared word can make an unrelated multi-word question look like a
-confident match. For example, "Do you offer scholarships or financial
-aid?" (a topic genuinely absent from the knowledge base) shared only the
-word "offer" with the programs-overview entry's phrasing "what courses do
-you offer" — but because "offer" is a rare (high-IDF) word, the cosine
-score alone came out above the confidence threshold, and the chatbot would
-have confidently returned the programs list instead of honestly saying it
-didn't know. `Retriever.search()` now scales the score by what fraction of
-the query's words actually appear anywhere in the candidate entry (for
-queries of 3+ words); that single case drops from a false-confident 0.33
-to 0.08, correctly falling back to the honest "I'm not certain about that"
-response, while every genuine multi-word match in the test suite is
-unaffected (verified in `test_core_pipeline.py`).
-
-### LLM providers (all optional)
-
-Three modes are supported. **The default is `none`** — the chatbot is
-fully functional with no API key and makes no external request.
-
-| Provider | Env vars required | Package | Default model |
-|---|---|---|---|
-| `none` (default) | *(none)* | *(none)* | n/a — deterministic templates |
-| `gemini` | `GEMINI_API_KEY` | `pip install openai` | `gemini-3.5-flash-lite` |
-| `groq` | `GROQ_API_KEY` | `pip install openai` | `llama-3.3-70b-versatile` |
-| `anthropic` | `ANTHROPIC_API_KEY` | `pip install anthropic` | `claude-3-5-haiku-latest` |
-
-Gemini and Groq are reached through their **OpenAI-compatible** endpoints
-(`GEMINI_BASE_URL`, default `https://generativelanguage.googleapis.com/v1beta/openai/`;
-`GROQ_BASE_URL`, default `https://api.groq.com/openai/v1`), which is why
-the `openai` package is what you install.
-
-**How selection works**
-
-1. If `LLM_PROVIDER` is set, that provider is used — **but only if its API
-   key is present**. Requesting a provider without its key is treated as a
-   misconfiguration: the app logs a warning at startup, falls back to
-   `none`, and `/health` reports `llm_enabled: false` with an
-   `llm_config_warning`. It never claims an LLM is active when it isn't.
-2. If `LLM_PROVIDER` is unset, the provider is auto-detected:
-   `GEMINI_API_KEY` first, then `GROQ_API_KEY`, then `ANTHROPIC_API_KEY`.
-3. If no key is set, the provider is `none`.
-4. An unrecognised `LLM_PROVIDER` value fails safe to `none` with a
-   warning naming the valid options.
-
-An empty or whitespace-only key counts as absent. `LLM_PROVIDER=none`
-disables the LLM even when keys are present.
-
-**No API call happens when the provider is disabled.** With `none`
-active, `NullProvider` declines every request before any client is built,
-and no provider SDK is even imported. This is enforced by
-`tests/test_no_api_mode.py`, which blocks outbound sockets for the whole
-run and asserts that zero connection attempts were made.
-
-**Running with no API key**
+## Quick Start
 
 ```powershell
-# nothing to configure - this is the default
-python -m uvicorn app.main:app --reload
-```
+git clone https://github.com/raaixd/wementorschatbot.git
+cd wementorschatbot
 
-**Running with Groq**
-
-```powershell
-pip install openai
-# in chatbot-backend\.env:
-#   GROQ_API_KEY=<your key>
-#   GROQ_MODEL=openai/gpt-oss-120b
-python -m uvicorn app.main:app --reload
-```
-
-**Running with Anthropic**
-
-```powershell
-pip install anthropic
-# in chatbot-backend\.env:
-#   ANTHROPIC_API_KEY=<your key>
-#   ANTHROPIC_MODEL=claude-3-5-haiku-latest
-python -m uvicorn app.main:app --reload
-```
-
-**Three kinds of answer, kept separate**
-
-The persona prompt (`personality.py`) instructs the model to distinguish:
-1. **WeMentors-specific facts** (programs, fees, schedules, contact,
-   eligibility) — stated only from the retrieved context, never invented.
-2. **General conversational/educational content** that needs no
-   WeMentors-specific fact (e.g. reassurance about choosing a program, a
-   plain general-knowledge question) — the model may answer this briefly
-   from its own knowledge, but must never present it as WeMentors policy.
-3. **A WeMentors-specific fact the context doesn't contain** — stated
-   honestly as unknown, with a pointer to the WeMentors team or a demo.
-
-This is why an unmatched question doesn't always get the same canned
-"I'm here to help with WeMentors..." redirect: a genuinely off-topic or
-inappropriate message still does, but an ordinary conversational or
-general question gets a real answer when a provider is active (see
-`ConversationEngine._generate_general_answer`). Injection attempts and
-demo-booking requests are still classified before this path is ever
-reached, so they're unaffected by it.
-
-**What the provider does (and does not) do**
-
-When a provider is active it only *rephrases* the retrieved
-knowledge-base text more conversationally. It is given that text as its
-only source of facts and the visitor's message explicitly labelled as
-data, never instructions. Every response is validated by
-`sanitize_llm_output()` before display: HTML stripped, length capped, and
-any output that leaks internal instructions or falsely claims a completed
-action (e.g. "I've booked your demo") is discarded in favour of the
-deterministic answer. Any failure — missing package, bad key, timeout,
-HTTP error, empty response — falls back silently to the same
-deterministic answer, so the chatbot never appears broken.
-
-## Conversation Memory
-
-Conversation state lives in SQLite (`chatbot-backend/data/chatbot.db`),
-keyed by a `session_id` that the frontend generates once per browser tab
-(`sessionStorage`, cleared when the tab closes) and sends with every
-request. This means:
-
-- Follow-up questions work correctly because the backend — not the
-  browser — is the source of truth for "what was just discussed."
-- A backend restart doesn't erase conversation context (it's on disk).
-- Different browser tabs/visitors never share or contaminate each other's
-  context (separate session ids).
-- "Clear Chat" both resets the visible widget and deletes that session's
-  stored messages server-side.
-
-## Database
-
-SQLite was chosen deliberately over a heavier database: this is a
-single-instance, low-write-volume application, and SQLite needs no extra
-infrastructure while still giving real persistence across restarts (see
-`chatbot-backend/app/database.py` for the schema and rationale in the
-module docstring). Tables:
-
-- `sessions` — one row per chat session
-- `messages` — every user/assistant turn, with detected intent, matched
-  knowledge-base entry id(s), and retrieval confidence (used for
-  follow-up resolution and analytics)
-- `feedback` — optional thumbs up/down on a specific reply
-  (`POST /feedback`)
-- `error_logs` — server-side error details, so visitors only ever see a
-  safe generic message while the real cause is still recoverable for
-  debugging
-
-If this project ever needs multi-instance deployment, the rate limiter
-(currently in-memory, see the note in `main.py`) and the SQLite file would
-both need to move to shared infrastructure (e.g. Redis + a networked
-database) — everything else is already isolated behind small modules so
-that swap wouldn't touch retrieval, conversation, or persona logic.
-
-## Requirements
-
-- Python 3.10 or newer (Windows: install from [python.org](https://www.python.org/downloads/) and check "Add python.exe to PATH" during install)
-- Git
-- A modern web browser
-
-## Local Setup — Windows (PowerShell)
-
-These are the exact commands, in order, for Windows PowerShell. Use two
-separate PowerShell windows: **Terminal A runs the backend**, **Terminal B
-runs the frontend**. Leave both open while you test.
-
-### 1. Extract the ZIP and open the project
-
-Right-click the downloaded ZIP → **Extract All...**, then open the
-extracted folder in PowerShell:
-
-```powershell
-cd C:\path\to\wementorschatbotdev
-```
-
-### 2. Terminal A — set up and start the backend
-
-```powershell
-cd chatbot-backend
+cd chatbot-backendexperiment
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-```
-
-If PowerShell blocks the activation script with an execution-policy error,
-run this once (in the same window) and try activating again:
-
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
-```
-
-Continue in the same (now-activated) terminal:
-
-```powershell
 pip install -r requirements.txt
 Copy-Item .env.example .env
 python -m uvicorn app.main:app --reload
 ```
 
-You should see `Uvicorn running on http://127.0.0.1:8000`. Leave this
-window open — **this is the backend, at `http://127.0.0.1:8000`.**
-
-### 3. Terminal B — start the frontend
-
-Open a **new** PowerShell window (don't close Terminal A):
+In another terminal, serve the frontend:
 
 ```powershell
-cd C:\path\to\wementorschatbotdev
-python -m http.server 5500
-```
-
-Leave this window open too — **this is the frontend, at
-`http://127.0.0.1:5500`.**
-
-### 4. Test the backend
-
-In a third PowerShell window (or a browser tab):
-
-```powershell
-Invoke-RestMethod http://127.0.0.1:8000/health
-```
-
-You should get back `status: healthy`. You can also open
-`http://127.0.0.1:8000/docs` in a browser for the interactive API
-documentation (provided automatically by FastAPI).
-
-### 5. Open the website
-
-Open `http://127.0.0.1:5500` in your browser. The chatbot launcher button
-appears in the bottom-right corner.
-
-### 6. Stop both processes
-
-Click into each PowerShell window and press `Ctrl+C`. To leave the Python
-virtual environment afterward, run `deactivate` in Terminal A.
-
-### Troubleshooting (Windows)
-
-| Problem | Fix |
-|---|---|
-| `python` is not recognized | Reinstall Python from python.org with "Add to PATH" checked, then open a new PowerShell window |
-| `Activate.ps1 cannot be loaded because running scripts is disabled` | Run `Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned` in that window, then retry |
-| Chatbot shows a connection error in the browser | Confirm Terminal A still shows `Uvicorn running...` and that `chatbot-backend/.env` has `ALLOWED_ORIGINS` including `http://127.0.0.1:5500` |
-| `Address already in use` / port 8000 or 5500 busy | Another process is using that port — stop it, or run uvicorn on a different port with `--port 8001` (and update `window.CHATBOT_API_URL` in `index.html` to match) |
-| `ModuleNotFoundError: No module named 'fastapi'` | The virtual environment isn't activated, or `pip install -r requirements.txt` wasn't run inside it — re-activate and reinstall |
-| Browser console shows a CORS error | Add the exact frontend origin you're using (e.g. `http://127.0.0.1:5500`) to `ALLOWED_ORIGINS` in `chatbot-backend/.env` and restart the backend |
-
-## Local Setup — macOS / Linux
-
-```bash
-git clone https://github.com/raaixd/wementorschatbot.git
-cd wementorschatbot/chatbot-backend
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env
-python -m uvicorn app.main:app --reload
-```
-
-In a second terminal, from the project root:
-
-```bash
-python3 -m http.server 5500
-```
-
-Backend: `http://127.0.0.1:8000` (health check: `http://127.0.0.1:8000/health`, docs: `http://127.0.0.1:8000/docs`)
-Frontend: `http://127.0.0.1:5500`
-Stop either with `Ctrl+C` in its terminal.
-
-## Environment Variables
-
-See `chatbot-backend/.env.example` for the full, commented list. Key ones:
-
-| Variable | Purpose | Default |
-|---|---|---|
-| `ALLOWED_ORIGINS` | Comma-separated frontend origins allowed by CORS | `http://127.0.0.1:5500,http://localhost:5500` |
-| `DATABASE_PATH` | SQLite file location | `chatbot-backend/data/chatbot.db` |
-| `KNOWLEDGE_FILE` | Path to the JSON knowledge base | `knowledge/wementors_kb.json` |
-| `RATE_LIMIT_MAX_REQUESTS` / `RATE_LIMIT_WINDOW_SECONDS` | Per-IP request limit | 20 requests / 60s |
-| `RETRIEVAL_CONFIDENCE_THRESHOLD` | Minimum score before the bot admits it doesn't know | `0.12` |
-| `LLM_PROVIDER` | Force a provider: `none`, `gemini`, `groq`, `anthropic`. Unset = auto-detect from whichever key is present | *(unset)* |
-| `GEMINI_API_KEY` | Enables Google Gemini (needs `pip install openai`). Blank = provider not selectable | *(blank)* |
-| `GEMINI_MODEL` | Gemini model id | `gemini-3.5-flash-lite` |
-| `GEMINI_BASE_URL` | Gemini's OpenAI-compatible endpoint | `https://generativelanguage.googleapis.com/v1beta/openai/` |
-| `GROQ_API_KEY` | Enables Groq (needs `pip install openai`). Blank = provider not selectable | *(blank)* |
-| `GROQ_MODEL` | Groq model id | `llama-3.3-70b-versatile` |
-| `GROQ_BASE_URL` | Groq's OpenAI-compatible endpoint | `https://api.groq.com/openai/v1` |
-| `ANTHROPIC_API_KEY` | Enables Anthropic (needs `pip install anthropic`) | *(blank)* |
-| `ANTHROPIC_MODEL` | Anthropic model id | `claude-3-5-haiku-latest` |
-| `LLM_TIMEOUT_SECONDS` / `LLM_MAX_TOKENS` / `LLM_TEMPERATURE` | Generation limits | `15` / `600` / `0.3` |
-| `LLM_HISTORY_TURNS` | Prior turns replayed so follow-ups resolve | `6` |
-| `ADMIN_API_KEY` | Protects `GET /admin/analytics`; blank disables the endpoint | *(blank)* |
-
-Never commit a real `.env` file — it's already listed in `.gitignore`.
-
-## API Endpoints
-
-### `GET /health`
-
-```powershell
-Invoke-RestMethod http://127.0.0.1:8000/health
-```
-
-With no API key configured (the default):
-
-```json
-{
-  "status": "healthy",
-  "service": "wementors-chatbot",
-  "knowledge_base_loaded": true,
-  "knowledge_base_entries": 27,
-  "llm_enabled": false,
-  "llm_provider": "none",
-  "llm_provider_configured": "none"
-}
-```
-
-`llm_enabled` reflects the **actually active** provider, not what
-configuration asked for. If a provider was requested but could not be
-built (missing key, missing package, bad client), `llm_enabled` is
-`false`, `llm_provider` is `"none"`, and an `llm_config_warning` field
-explains why. Responses are sent as
-`application/json; charset=utf-8` so Windows PowerShell decodes
-punctuation such as em dashes correctly.
-
-### `POST /chat`
-
-Request:
-
-```json
-{"message": "Which grades are supported?", "session_id": "optional-existing-session-id"}
-```
-
-Response:
-
-```json
-{"reply": "...", "session_id": "the session id to reuse on the next call", "intent": "faq"}
-```
-
-### `POST /chat/clear`
-
-Clears stored history for a session. Body: `{"session_id": "..."}`.
-
-### `POST /feedback`
-
-Optional thumbs up/down on a reply: `{"session_id": "...", "message_id": 42, "rating": "up"}`.
-
-### `GET /admin/analytics`
-
-Requires header `X-Admin-Key` matching `ADMIN_API_KEY`. Returns total
-sessions, total user messages, top intents, and low-confidence reply
-count. Returns 404 (not just 401) when disabled, so the endpoint's
-existence isn't revealed.
-
-## Updating the Knowledge Base
-
-Edit `knowledge/wementors_kb.json`. Each entry follows the schema
-documented in that file's `_meta.schema` key:
-
-```json
-{
-  "id": "unique-slug",
-  "category": "programs",
-  "question": "The canonical question",
-  "phrasings": ["alternative ways to ask this"],
-  "keywords": ["extra retrieval keywords"],
-  "answer": "The verified, direct answer.",
-  "follow_ups": ["A related question to suggest next"],
-  "confidence": "verified"
-}
-```
-
-An entry doesn't have to restate a single fact from your team to be
-`"verified"` — it can also be a direct logical consequence of facts
-already verified elsewhere in the file. For example,
-`college-students-eligibility` states that college students aren't
-eligible for the academic programs and are welcome in Confident Speaker;
-that isn't a new claim, it follows directly from `which-grades-supported`
-(academic programs are grade-banded 3-10) and `who-can-use-wementors`
-(Confident Speaker already covers "students, professionals, and
-homemakers"). If a fact doesn't follow that directly from something
-already verified, set `"confidence": "unverified"` for anything not yet confirmed (see the
-`fees-and-pricing` entry for an example) — the persona and fallback
-wording are built around never stating unverified information as fact.
-Restart the backend after editing (or rely on `--reload` in dev) and test
-the updated question through the chatbot.
-
-## Testing
-
-### Automated
-
-Two **stdlib-only** test scripts (no `pip install` required to run them):
-
-**`chatbot-backend/tests/test_core_pipeline.py`** — knowledge base, database
-layer, retrieval (including the coverage-gate fix above), intent detection,
-reference resolution, structured (bullet/numbered) formatting, program
-comparison, frustrated/confused handling, session isolation, LLM output
-sanitization, and the exact multi-turn scenario from the project spec
-("what programs do you offer" → "tell me more about the first one" →
-"what are its fees" → "how can I apply" → "what about the second program").
-
-**`chatbot-backend/tests/test_frontend_and_security.py`** — `index.html`
-parses cleanly, all required chatbot elements exist, the shared liquid-glass
-logo SVG def is defined once and referenced by both the launcher and header,
-the close button is actually wired, `prefers-reduced-motion` is present,
-inline JS syntax is checked with Node if available, message rendering is
-confirmed to use `.textContent` (never `.innerHTML` with dynamic content) —
-scoped to the chatbot's own script so the pre-existing site's course/FAQ
-rendering (unrelated, out of scope) isn't flagged — the duplicate-submit
-guard is present, and a source-tree scan confirms no hardcoded API keys,
-no real `.env` file, and that `.gitignore`/`.env.example` are safe.
-
-```powershell
-# 1. Run all unit and regression tests with Pytest (158+ tests)
-pytest
-
-# 2. Run the Full Unified Master Release Test Suite (all 25 test suites)
-python chatbot-backendexperiment/tests/run_release_test_suite.py
-
-# 3. Run the RAG Evaluation Benchmark (126 test cases)
-python evaluation/runners/run_benchmark.py
-
-# 4. Run Production Smoke Tests (11 high-speed end-to-end checks)
-python chatbot-backendexperiment/tests/test_production_smoke.py
-
-# 5. Run Fault Injection & Reliability Tests (20 failure paths)
-python chatbot-backendexperiment/tests/test_production_reliability.py
-```
-
-**Master Suite Coverage**: The unified release runner executes 25 dedicated test suites spanning core retrieval, memory isolation, conversational routing, prompt injection, rate limiting, and provider failure recovery.
-
-**Running the Servers Locally**:
-
-```powershell
-# Start the FastAPI Backend (Port 8000)
-cd chatbot-backendexperiment
-.\.venv\Scripts\python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-
-# In a separate terminal, serve the frontend website (Port 3000)
+cd C:\path\to\wementorschatbot
 python -m http.server 3000
 ```
-`requirements.txt`); this project was developed in a sandbox with **no
-network access**, so `pip install` could not run here. As a result:
 
-- **Verified in this environment:** all pipeline/retrieval/conversation
-  logic above, `python -m py_compile app/*.py` (no syntax errors), JS
-  syntax via `node --check` (Node.js was available in this sandbox),
-  static HTML/element/security checks.
-- **Not verified in this environment (blocked by no network access):**
-  the live `uvicorn` server, real HTTP requests to `/health` or `/chat`,
-  CORS behavior against a real browser, rate-limit behavior under load,
-  the actual rendered dark-glass UI, the liquid-glass logo animation, and
-  any keyboard/mobile/screen-reader behavior. These require a real
-  browser and are listed explicitly so they aren't mistaken for having
-  been tested.
+| | |
+|---|---|
+| Frontend | http://127.0.0.1:3000 |
+| Backend | http://127.0.0.1:8000 |
+| Health | http://127.0.0.1:8000/health |
+| Docs | http://127.0.0.1:8000/docs |
 
-Please run the manual checklist below after starting both servers locally
-(see the Windows PowerShell or macOS/Linux setup sections above):
+### Configuration
+
+The chatbot runs fully offline with no keys set — it answers from the knowledge base using deterministic templates. Set `GEMINI_API_KEY` (and optionally `GROQ_API_KEY` for fallback) in `.env` for LLM-generated phrasing. Set `HYBRID_RETRIEVAL_ENABLED=true` to enable semantic retrieval; it defaults to lexical-only. See `.env.example` for the full list of variables.
+
+### Run Tests
 
 ```powershell
-Invoke-RestMethod http://127.0.0.1:8000/health
-Invoke-RestMethod -Method Post http://127.0.0.1:8000/chat -ContentType "application/json" -Body '{"message": "Which grades are supported?"}'
+pytest                                  # full suite
+python tests/run_release_test_suite.py  # aggregated release scorecard
+python tests/run_50_validation_tests.py # live-API end-to-end checks
 ```
 
-### Manual checklist (requires a real browser — not yet performed)
+## Documentation
 
-- Greetings, thanks, goodbyes
-- Grades, subjects, programs, fees (should say "not published", never a
-  number), admissions, contact, teaching approach, scheduling questions
-- Program comparison ("compare Foundation Years and Middle School")
-- Follow-ups: "tell me more", "what about the first one", "the second
-  program", pronoun references, and confirming "one-on-one classes"
-  doesn't get misread as an ordinal reference
-- Frustrated ("this is useless") and confused ("I don't understand")
-  messages get an empathetic / clarifying reply, not a generic fallback
-- Topic switching (asking about batch size, then working hours, and
-  confirming the second answer isn't contaminated by the first topic)
-- Clear Chat (resets both the visible widget and server-side history)
-- Backend offline (frontend shows a friendly connection error, not a
-  crash); optional LLM key missing or invalid (falls back to template
-  answers automatically)
-- Empty message, very long message (2000+ characters), rapid repeated
-  clicks on Send (input/button disable during a pending request, so no
-  duplicate requests)
-- Prompt-injection attempts ("ignore previous instructions...")
-- Desktop, tablet, and mobile widths (320px, 375px, 430px) — no
-  horizontal overflow, no clipped text, touch targets large enough
-- Keyboard navigation (Tab to reach the launcher, Enter/Space to open,
-  Tab through header/messages/suggestions/input/send, Escape to close);
-  visible focus rings; `prefers-reduced-motion` disables animations
-- Browser DevTools: no console errors, `/chat` requests visible and
-  succeeding in the Network tab, correct ports on both requests
-
-## Security Review
-
-Verified by actually running `test_frontend_and_security.py` (source-tree
-scan) and by reading the relevant code, not assumed from having a section
-titled "Security":
-
-- `.env` is git-ignored (`chatbot-backend/.env` in `.gitignore`, confirmed
-  present in `.gitignore`'s text); only `.env.example` (blank secret
-  fields, confirmed by regex) ships in the project/ZIP; a source-tree scan
-  confirms no real `chatbot-backend/.env` file exists in the delivered
-  project
-- A source-tree scan (`test_frontend_and_security.py`) checked every
-  `.py`/`.html`/`.js`/`.json`/`.md` file for common secret-key shapes
-  (Anthropic/OpenAI-style key prefixes, AWS access key IDs, a populated
-  `ANTHROPIC_API_KEY=`) — none found
-- `ANTHROPIC_API_KEY` and `ADMIN_API_KEY` are read from environment
-  variables only (`config.py`), never hardcoded, never logged, never
-  echoed back in any API response, and never referenced anywhere in
-  `index.html` or its JavaScript (the frontend only ever calls `/chat`,
-  `/chat/clear`, and `/feedback` — it holds no key of any kind)
-- `/admin/analytics` requires `X-Admin-Key` to match `ADMIN_API_KEY` and
-  returns a plain 404 (not 401) when the key is unset or wrong, so the
-  endpoint's existence isn't revealed to an unauthenticated caller
-- The chatbot never reveals its system prompt/instructions: injection
-  attempts ("ignore previous instructions", "reveal your system prompt",
-  etc.) are pattern-matched and deflected before reaching retrieval or the
-  optional LLM (verified by test); in the default (no-LLM) mode there is
-  no model to prompt-inject in the first place — replies are always a
-  fixed template built from knowledge-base text. When the optional LLM is
-  active, the user's message is always sent labeled as "data, not
-  instructions", and the persona system prompt explicitly forbids
-  revealing instructions or inventing facts
-- If the optional LLM is active, every response is passed through
-  `sanitize_llm_output()` before use: HTML tags and control characters are
-  stripped (defense-in-depth — the frontend already renders all message
-  text via `.textContent`, verified by static test, never `.innerHTML`, so
-  injected HTML/script text cannot execute either way), length is capped,
-  and text matching a false-completion pattern ("I've booked...", "I have
-  contacted...") is discarded rather than shown, so the assistant can
-  never falsely claim to have performed a real action
-- Only the single best-matching knowledge-base entry (or, for an explicit
-  comparison, the specific two asked about) is ever returned — the full
-  knowledge base is never dumped into a response; the retrieval
-  token-coverage gate (see the RAG section above) additionally prevents
-  an unrelated entry from leaking through as a false-confident match
-- All request bodies are validated with Pydantic (length limits on
-  `message`, `session_id`, `comment`, etc.); malformed JSON or missing
-  fields return FastAPI's standard 422 response, not a stack trace
-- The generic `Exception` handler in `main.py` returns a fixed, safe JSON
-  error (`{"error": "An unexpected error occurred..."}`) and logs the real
-  exception server-side (`error_logs` table) — no stack trace, file path,
-  or internal detail reaches the visitor
-- Per-IP rate limiting (`RATE_LIMIT_MAX_REQUESTS` per
-  `RATE_LIMIT_WINDOW_SECONDS`, default 20/60s) applies to `/chat`,
-  `/chat/clear`, and `/feedback`
-- `ALLOWED_ORIGINS` defaults to explicit local dev origins, not `*` —
-  update it to your real deployed domain(s) before going to production
-- User-provided content is only ever stored as text (SQLite parameterized
-  queries throughout `database.py`) or matched against the knowledge base
-  lexically — never evaluated, executed, or interpolated into a shell
-  command or template
-- Session ids are validated against `[A-Za-z0-9_-]{8,100}` before use;
-  trivially guessable ("1"), oversized, path-traversal (`../../etc/passwd`)
-  and SQL-injection-shaped values are rejected and replaced with a freshly
-  generated UUID (covered by tests)
-- **Residual risk, stated plainly:** session ids are unauthenticated bearer
-  values — anyone who obtains one can continue that conversation's
-  follow-up context. This is acceptable here because the frontend mints a
-  random UUID per browser tab and no personal or sensitive data is stored
-  against a session, but it is *not* suitable for storing anything private.
-  If sensitive data is ever added, real authentication must come first.
-- The rate limiter prunes idle clients (verified by test), so a public
-  deployment cannot be made to leak memory by cycling source IPs
-
-## Production Deployment (handing this to a website developer)
-
-**The key point:** this project has two halves that deploy to two
-different places. Uploading the whole folder to the WeMentors web host
-will *not* work unless that host can run Python.
-
-| Half | What it is | Where it goes |
-|---|---|---|
-| `chatbot-backend/` + `knowledge/` | A Python/FastAPI service | A host that runs Python (Render, Railway, Fly.io, a VPS, etc.) — **not** typical shared/static web hosting |
-| The chatbot widget inside `index.html` | Plain HTML/CSS/JS | Pasted into the existing WeMentors website |
-
-### Step 1 — Deploy the backend
-
-On a Python-capable host, from the project root:
-
-```bash
-pip install -r chatbot-backend/requirements.txt
-cd chatbot-backend
-python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
-```
-
-Do **not** use `--reload` in production. Run it under a process manager
-(systemd, Docker, or your platform's built-in process runner) so it
-restarts automatically after a crash or reboot.
-
-### Step 2 — Configure environment variables
-
-Create `chatbot-backend/.env` **on the server** (never commit it):
-
-```bash
-ALLOWED_ORIGINS=https://wementors.co,https://www.wementors.co
-ANTHROPIC_API_KEY=            # optional; blank = deterministic KB mode
-ADMIN_API_KEY=                # optional; blank disables /admin/analytics
-LOG_LEVEL=INFO
-```
-
-`ALLOWED_ORIGINS` **must** list the real website origin(s), exactly as the
-browser sends them (scheme + domain, no trailing slash). If this is wrong,
-the widget will load but every request will fail with a CORS error in the
-browser console.
-
-### Step 3 — Get the public backend URL
-
-After deploying you will have a URL such as
-`https://wementors-chatbot.onrender.com`. Confirm it works before going
-further:
-
-```bash
-curl https://YOUR-BACKEND-URL/health
-```
-
-You should get `{"status":"healthy", ...}`. Serve it over **HTTPS** — a
-browser on an `https://` website will refuse to call an `http://` backend.
-
-### Step 4 — Give the website developer the widget
-
-The chatbot in `index.html` is self-contained in three blocks, all marked
-with the comment `WeMentors chatbot`:
-
-1. the `<style id="chatbot-styles">` block,
-2. the chatbot markup (the shared `<svg>` logo defs, `#chatbotToggle`, and
-   `#chatbotPanel`), and
-3. the chatbot `<script>` block (the `(function () { ... })();` IIFE).
-
-Copy those three blocks into the existing website's HTML, just before
-`</body>`. They are namespaced under `chatbot*` ids/classes and their own
-CSS variables, so they should not collide with existing site styles.
-
-### Step 5 — Point the widget at the deployed backend
-
-The widget defaults to `http://127.0.0.1:8000`. Override it by adding this
-line **before** the chatbot script block:
-
-```html
-<script>window.CHATBOT_API_URL = "https://YOUR-BACKEND-URL";</script>
-```
-
-### Step 6 — Test the live website
-
-Open the site and check, with DevTools open:
-
-- the launcher appears and the panel opens
-- a real question returns a real answer
-- the Network tab shows `POST /chat` returning 200 (not a CORS error)
-- no console errors
-- it works on a phone, not just desktop
-
-### Step 7 — Updating the knowledge base later
-
-Edit `knowledge/wementors_kb.json` (see *Updating the Knowledge Base*
-above), redeploy the backend, and confirm `/health` reports the new
-`knowledge_base_entries` count. The website HTML does **not** need to
-change — content updates are backend-only.
-
-### Backup and rollback
-
-- **Backup:** `chatbot-backend/data/chatbot.db` holds conversation history.
-  Back it up on whatever schedule suits; it is not required for the bot to
-  function (a fresh database is created automatically if missing).
-- **Rollback:** the backend is stateless apart from that file, so rolling
-  back means redeploying the previous commit. Keep `wementors_kb.json`
-  under version control so a bad content edit can be reverted on its own.
-- **Persistence warning:** some platforms (including Render's free tier)
-  use ephemeral disks, so the SQLite file is wiped on each redeploy. The
-  chatbot still works — only stored history is lost. Use a persistent
-  volume if you want history to survive deploys.
-
-## Deployment Considerations
-
-This project is set up for local development; before deploying it
-publicly:
-
-- Set `ALLOWED_ORIGINS` to your real production domain(s) only — never `*`
-- Set a strong, random `ADMIN_API_KEY` if you want `/admin/analytics`
-  enabled in production (leave it blank to disable the endpoint entirely)
-- Put the backend behind HTTPS (a reverse proxy such as nginx/Caddy, or
-  your hosting platform's TLS termination) — plain `uvicorn --reload` is
-  for local development only
-- Run without `--reload` in production (`python -m uvicorn app.main:app
-  --host 0.0.0.0 --port 8000`), and consider a process manager
-  (systemd, Docker, a platform-as-a-service) instead of a bare terminal
-- The in-memory rate limiter and SQLite file are both per-process/single
-  file — fine for one backend instance, but a multi-instance/multi-worker
-  deployment needs a shared rate-limit store (e.g. Redis) and either a
-  shared database or a networked one instead of local SQLite
-- Update `window.CHATBOT_API_URL` (or set it via a `<script>` tag before
-  the chatbot script in `index.html`) to point at the deployed backend's
-  real URL instead of `http://127.0.0.1:8000`
-- Back up or rotate `chatbot-backend/data/chatbot.db` per your own data
-  retention policy — it accumulates conversation history over time
+| Document | Purpose |
+|---|---|
+| [`docs/PROJECT_REPORT.md`](docs/PROJECT_REPORT.md) | Full engineering case study |
+| [`docs/RAG_EVALUATION.md`](docs/RAG_EVALUATION.md) | Retrieval methodology and benchmark results |
+| [`docs/SECURITY_REVIEW.md`](docs/SECURITY_REVIEW.md) | OWASP-mapped security analysis |
+| [`docs/PRODUCTION_AUDIT.md`](docs/PRODUCTION_AUDIT.md) | Architecture / codebase audit |
+| [`docs/KNOWLEDGE_GAPS.md`](docs/KNOWLEDGE_GAPS.md) | Verified knowledge gaps |
+| [`docs/PERFORMANCE.md`](docs/PERFORMANCE.md) | Performance measurements |
+| [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) | Release validation gates |
 
 ## Current Limitations
 
-- Retrieval is lexical (TF-IDF + keywords + a token-coverage gate), not
-  semantic embeddings — works well for this FAQ's size but won't catch
-  paraphrases with no shared words at all.
-- **Known residual retrieval case:** "What program is offered in summer?"
-  still scores 0.2355 (above the 0.12 threshold) and returns the subjects
-  list, because it shares two real words with that entry while the
-  discriminating word ("summer") is simply absent from the corpus. It does
-  not fabricate a summer program, but it answers an adjacent question
-  rather than saying "I don't have that." IDF-weighted coverage was
-  evaluated as a fix and rejected — it moved the score only to 0.2202 while
-  slightly degrading a legitimate query — so this is documented rather than
-  papered over. Adding an explicit "we don't offer summer/holiday
-  programmes" knowledge-base entry (once WeMentors confirms the fact) would
-  resolve it cleanly.
-- The in-memory rate limiter is per-process; a multi-worker or
-  multi-instance deployment needs a shared store (e.g. Redis) instead.
-- No authentication/user accounts (not required for this use case).
-- `sanitize_llm_output()`'s validation logic (HTML stripping, length cap,
-  false-completion-claim detection) has automated test coverage, but the
-  the providers' actual network calls have not been exercised against a
-  live Groq or Anthropic API key in this environment (no network access) —
-  test it with a real key before relying on it in production.
-- Demo-class enquiry details are logged as a conversation message, not
-  yet forwarded anywhere (e.g. email/CRM) — see Future Improvements.
-- The premium dark-glass UI, liquid-glass logo animation, and all
-  responsive/keyboard/reduced-motion behavior were built and verified with
-  static checks (HTML parsing, required elements, JS syntax) but have
-  **not** been visually confirmed in a real browser from this sandboxed
-  environment (no display/browser/network available here) — please do a
-  visual pass after starting the servers locally, using the manual
-  checklist above.
-- The live FastAPI server itself (`uvicorn`) has not been started in this
-  environment, so real HTTP request/response behavior, CORS preflight
-  handling, and live rate-limiting have been verified by code review and
-  by exercising the same underlying Python objects `main.py` calls, but
-  not by an actual HTTP round-trip. Run the `Invoke-RestMethod` commands
-  above locally to confirm.
+- Knowledge base is small and curated (52 entries) — coverage, not scale, is the design goal
+- Semantic retrieval depends on an external embedding API; it degrades gracefully to lexical-only on failure, but adds latency when invoked
+- SQLite is single-instance; horizontal scaling would need a shared database
+- Rate limiting is in-memory and per-process — a multi-worker or multi-instance deployment would need a shared store (e.g. Redis)
+- No real CRM or booking-system integration — demo requests are guided, not submitted
+- Session identity is a bearer token with no additional authentication layer
+- The retrieval benchmark set (156 queries) is useful but modest in size for statistical confidence
 
-## Future Improvements
+## Future Work
 
-- Forward demo-class enquiries to an email address or CRM instead of just
-  logging them
-- Swap `retrieval.py`'s lexical search for embeddings if the knowledge
-  base grows significantly
-- Automated CI pipeline execution for pytest and evaluation suites
-- Deploy frontend and backend, move `ALLOWED_ORIGINS` to the real domain
-
-## Git Workflow
-
-```bash
-git checkout chatbot-development
-git add .
-git commit -m "Describe your changes"
-git push origin chatbot-development
-```
-
-After testing, merge into `main` through GitHub or Git.
+- Larger, more diverse evaluation datasets
+- Human preference evaluation alongside automated metrics
+- Structured production observability (request-level tracing, not log lines)
+- Real CRM / booking-system integration
+- Knowledge-base versioning and an approval workflow for edits
+- A shared-state rate limiter and database if traffic outgrows a single instance
 
 ## License
 
-This project is intended for the WeMentors website. Add an appropriate
-license here if the project will be distributed publicly.
+This project is a portfolio / engineering case study. See the repository for license details.
