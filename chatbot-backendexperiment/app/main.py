@@ -19,6 +19,7 @@ import logging
 import re
 import time
 import uuid
+from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -54,38 +55,12 @@ logger = logging.getLogger("wementors.api")
 # crypto.randomUUID()). Length floor of 8 prevents guessable values.
 _SESSION_ID_RE = re.compile(r"[A-Za-z0-9_-]{8,100}")
 
-app = FastAPI(
-    title="WeMentors Chatbot API",
-    version="2.1.0",
-    description="RAG-powered FAQ chatbot backend for the WeMentors website.",
-    default_response_class=UTF8JSONResponse,
-)
-
-# Allowed origins for the website and local development servers
-_cors_origins = list(dict.fromkeys(["null", "http://127.0.0.1:5500", "http://localhost:5500", *config.ALLOWED_ORIGINS]))
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=_cors_origins,
-    allow_credentials=False,
-    allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["Content-Type", "X-Session-Id", "X-Admin-Key"],
-)
-
 # --- knowledge base / conversation engine ------------------------------
 # Loaded once at startup. If the knowledge base is broken, the app still
 # starts (so /health works and ops can see the problem) but /chat returns
 # a safe error instead of crashing.
 _engine: Optional[ConversationEngine] = None
 _kb_load_error: Optional[str] = None
-
-# --- rate limiter ---------------------------------------------------------
-# Logic lives in app/ratelimit.py so it can be unit-tested without FastAPI
-# installed. See that module's docstring for the single-instance caveat.
-_rate_limiter = RateLimiter(
-    max_requests=config.RATE_LIMIT_MAX_REQUESTS,
-    window_seconds=config.RATE_LIMIT_WINDOW_SECONDS,
-)
 
 
 def _ensure_engine() -> Optional[ConversationEngine]:
@@ -104,9 +79,38 @@ def _ensure_engine() -> Optional[ConversationEngine]:
     return _engine
 
 
-@app.on_event("startup")
-def on_startup() -> None:
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     _ensure_engine()
+    yield
+
+
+app = FastAPI(
+    title="WeMentors Chatbot API",
+    version="2.1.0",
+    description="RAG-powered FAQ chatbot backend for the WeMentors website.",
+    default_response_class=UTF8JSONResponse,
+    lifespan=lifespan,
+)
+
+# Allowed origins for the website and local development servers
+_cors_origins = list(dict.fromkeys(["null", "http://127.0.0.1:5500", "http://localhost:5500", *config.ALLOWED_ORIGINS]))
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_cors_origins,
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "X-Session-Id", "X-Admin-Key"],
+)
+
+# --- rate limiter ---------------------------------------------------------
+# Logic lives in app/ratelimit.py so it can be unit-tested without FastAPI
+# installed. See that module's docstring for the single-instance caveat.
+_rate_limiter = RateLimiter(
+    max_requests=config.RATE_LIMIT_MAX_REQUESTS,
+    window_seconds=config.RATE_LIMIT_WINDOW_SECONDS,
+)
 
 
 # --- schemas ---------------------------------------------------------------
