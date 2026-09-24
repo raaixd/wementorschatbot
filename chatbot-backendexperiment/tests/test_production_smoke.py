@@ -104,6 +104,19 @@ class TestProductionSmoke(unittest.TestCase):
         self.assertIn(config.LLM_PROVIDER, ("gemini", "groq", "none"))
         self.assertIn(config.LLM_FALLBACK_PROVIDER, ("groq", "gemini", "none"))
 
+    def test_11_lifespan_lifecycle(self):
+        """11. Verify FastAPI lifespan context manager initializes engine cleanly."""
+        import asyncio
+        from app.main import lifespan, _ensure_engine
+
+        async def _run_lifespan():
+            async with lifespan(app):
+                engine = _ensure_engine()
+                self.assertIsNotNone(engine)
+
+        asyncio.run(_run_lifespan())
+
 
 if __name__ == "__main__":
     unittest.main()
+
