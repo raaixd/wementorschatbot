@@ -209,12 +209,70 @@ _CLASS_FREQUENCY_RE = re.compile(
 )
 
 _MISSED_CLASSES_RE = re.compile(
-    r"\b(miss(?:es|ed)?\s+(?:a\s+)?class|"
-    r"missed\s+classes?|"
-    r"catch[- ]up\s+(?:class|session)s?|"
-    r"what\s+happens\s+if\s+(?:my\s+child|a\s+student|i)\s+miss(?:es)?\s+a\s+class)\b",
+    r"\b("
+    r"miss(?:es|ed|ing)?\s+(?:a\s+|his\s+|her\s+|their\s+|the\s+)?(?:class|classes|session|sessions)|"
+    r"missed\s+(?:classes?|sessions?)|"
+    r"reschedule\s+(?:a\s+)?(?:missed\s+)?(?:class|session)|"
+    r"can\s+(?:a\s+)?missed\s+class\s+be\s+rescheduled|"
+    r"rescheduling\s+(?:a\s+)?(?:missed\s+)?(?:class|session)|"
+    r"make[- ]?up\s+(?:class|classes|session|sessions)|"
+    r"catch[- ]up\s+(?:class|classes|session|sessions)|"
+    r"couldn['\u2019]?t\s+attend\s+(?:a\s+|his\s+|her\s+|the\s+)?(?:class|session)|"
+    r"unable\s+to\s+attend\s+(?:a\s+|his\s+|her\s+|the\s+)?(?:class|session)|"
+    r"what\s+happens\s+if\s+(?:my\s+(?:child|son|daughter)|a\s+student|i)\s+miss(?:es)?\s+(?:a\s+|his\s+|her\s+)?(?:class|session)"
+    r")\b",
     re.IGNORECASE,
 )
+
+_GRADE_11_12_JEE_NEET_RE = re.compile(
+    r"\b("
+    r"(?:grades?|class(?:es)?|standards?)\s*(?:11|12)\b|"
+    r"(?:11|12)th\s*(?:grade|class|standard|cbse|icse|igcse|ib|physics|chemistry|maths?|biology|science|student|students|coaching)?\b|"
+    r"jee(?:\s+(?:prep|preparation|coaching|foundation|mains?|advanced))?\b|"
+    r"neet(?:\s+(?:prep|preparation|coaching|ug))?\b|"
+    r"senior\s+secondary"
+    r")\b",
+    re.IGNORECASE,
+)
+
+_STATE_BOARD_RE = re.compile(
+    r"\b("
+    r"state\s+boards?|"
+    r"state\s+board\s+curricul(?:um|a)|"
+    r"state\s+board\s+syllabus|"
+    r"state\s+syllabus|"
+    r"following\s+a\s+state\s+board"
+    r")\b",
+    re.IGNORECASE,
+)
+
+_SCHOLARSHIPS_DISCOUNTS_RE = re.compile(
+    r"\b("
+    r"scholarships?|"
+    r"discounts?|"
+    r"sibling\s+discounts?|"
+    r"financial\s+(?:aid|assistance)|"
+    r"concessions?|"
+    r"fee\s+waivers?|"
+    r"can\s+i\s+get\s+a\s+discount|"
+    r"is\s+there\s+any\s+discount"
+    r")\b",
+    re.IGNORECASE,
+)
+
+_MENTOR_QUALIFICATIONS_RE = re.compile(
+    r"\b("
+    r"qualifications?\s+(?:of|do|does|have)?\s+(?:the\s+|your\s+)?(?:[\w-]+\s+){0,3}(?:mentors?|tutors?)|"
+    r"(?:mentors?|tutors?)(?:'s)?\s+qualifications?|"
+    r"tell\s+me\s+about\s+(?:the\s+|your\s+)?(?:[\w-]+\s+){0,3}(?:mentors?|tutors?)(?:'s|\s+background|\s+qualifications?)?|"
+    r"(?:what\s+is|what's)\s+(?:the\s+|your\s+)?(?:[\w-]+\s+){0,3}(?:mentors?|tutors?)(?:'s)?\s+(?:background|qualifications?|credentials?)|"
+    r"are\s+(?:your\s+)?mentors?\s+qualified|"
+    r"(?:what\s+)?certifications?\s+does\s+(?:the\s+|your\s+)?(?:[\w-]+\s+){0,3}(?:mentors?|tutors?)|"
+    r"who\s+are\s+(?:your|the)\s+mentors?"
+    r")\b",
+    re.IGNORECASE,
+)
+
 
 _CHAPTER_EVALUATION_RE = re.compile(
     r"\b(after\s+each\s+chapter|"
@@ -1280,7 +1338,7 @@ class ConversationEngine:
         is_cs = bool(re.search(r"\b(confident\s+speaker|public\s+speaking|spoken\s+english|interview\s+skills?|speaking\s+practice)\b", t))
 
         # Curriculum / Board detection
-        is_curriculum = bool(re.search(r"\b(cbse|icse|igcse|cambridge|ib|boards?|curriculum|curricula|syllabus)\b", t))
+        is_curriculum = bool(re.search(r"\b(cbse|icse|igcse|cambridge|ib|state\s+boards?|boards?|curriculum|curricula|syllabus)\b", t))
 
         # Subject detection
         is_math = bool(re.search(r"\b(math|maths|mathematics|algebra|geometry)\b", t))
@@ -1634,6 +1692,28 @@ class ConversationEngine:
         if _GRADE_1_2_RE.search(stripped) or _GRADE_1_2_RE.search(normalized):
             return "grade_1_2_unavailable"
 
+        # Explicit Mentor Qualifications (checked before general mentor inquiry)
+        if _MENTOR_QUALIFICATIONS_RE.search(stripped) or _MENTOR_QUALIFICATIONS_RE.search(normalized):
+            return "mentor_qualifications"
+
+        # Scholarships & Discounts (verified negative policy)
+        if _SCHOLARSHIPS_DISCOUNTS_RE.search(stripped) or _SCHOLARSHIPS_DISCOUNTS_RE.search(normalized):
+            return "scholarships_discounts"
+
+        # State Board Curricula inquiries
+        if (_STATE_BOARD_RE.search(stripped) or _STATE_BOARD_RE.search(normalized)) and not self._is_mentor_inquiry(stripped):
+            return "state_board_curriculum"
+
+        # Grades 11-12 / JEE / NEET unsupported
+        if (_GRADE_11_12_JEE_NEET_RE.search(stripped) or _GRADE_11_12_JEE_NEET_RE.search(normalized)) and not (
+            _CONFIDENT_SPEAKER_RE.search(stripped) or _CONFIDENT_SPEAKER_RE.search(normalized) or
+            _PUBLIC_SPEAKING_RE.search(stripped) or _PUBLIC_SPEAKING_RE.search(normalized) or
+            _GENERAL_COMMUNICATIVE_RE.search(stripped) or _GENERAL_COMMUNICATIVE_RE.search(normalized) or
+            _IELTS_RE.search(stripped) or _IELTS_RE.search(normalized)
+        ):
+            return "grade_11_12_unsupported"
+
+
         # International / Global access inquiry: "can i join from saudi arabia", etc.
         if _INTERNATIONAL_ELIGIBILITY_RE.search(stripped) or _INTERNATIONAL_ELIGIBILITY_RE.search(normalized):
             return "international_eligibility"
@@ -1880,6 +1960,8 @@ class ConversationEngine:
                     return "middle_school_overview"
                 elif 9 <= g_num <= 10:
                     return "senior_school_overview"
+                elif g_num in (11, 12):
+                    return "grade_11_12_unsupported"
 
         # PRIORITY 4: Genuine Confirmations / Clarifications
         if _AFFIRMATION_RE.match(stripped):
@@ -2124,8 +2206,12 @@ class ConversationEngine:
             "grade7_maths_sessions", "confident_speaker_activities",
         ):
             return "program/topic"
-        if detected.startswith("eligibility") or detected in ("grade_1_2_unavailable", "international_eligibility"):
+        if detected.startswith("eligibility") or detected in ("grade_1_2_unavailable", "international_eligibility", "grade_11_12_unsupported", "scholarships_discounts"):
             return "eligibility"
+        if detected == "state_board_curriculum":
+            return "program/topic"
+        if detected == "mentor_qualifications":
+            return "mentorship"
         if detected == "location":
             return "location"
         if detected == "online_classes":
@@ -2365,6 +2451,8 @@ class ConversationEngine:
             curriculum_str = "the Cambridge curriculum"
         elif "ib" in msg:
             curriculum_str = "the IB curriculum"
+        elif "state board" in msg or "state boards" in msg:
+            curriculum_str = "State Board curricula"
         else:
             curriculum_str = None
 
@@ -2592,6 +2680,7 @@ class ConversationEngine:
             "class_frequency_academic",
             "class_frequency_general",
             "personalized_learning_pace",
+            "state_board_curriculum",
         )
         if intent not in allowed_yes_intents:
             reply = re.sub(r"^\s*Yes\.\s*", "", reply)
@@ -3393,6 +3482,50 @@ class ConversationEngine:
                 1.0,
             )
             return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "grade_11_12_unsupported":
+            res = ReplyResult(
+                personality.GRADE_11_12_UNSUPPORTED_RESPONSE,
+                "grade_11_12_unsupported",
+                ["grades-11-12-jee-neet-unsupported", "which-grades-supported"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "state_board_curriculum":
+            res = ReplyResult(
+                personality.STATE_BOARD_CURRICULUM_RESPONSE,
+                "state_board_curriculum",
+                ["curricula-supported"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "scholarships_discounts":
+            res = ReplyResult(
+                personality.SCHOLARSHIPS_DISCOUNTS_RESPONSE,
+                "scholarships_discounts",
+                ["scholarships-and-discounts"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "mentor_qualifications":
+            msg_lower = message.lower()
+            if any(w in msg_lower for w in ("english", "communication", "tefl", "ielts", "literature")):
+                resp = personality.MENTOR_QUALIFICATIONS_ENGLISH_RESPONSE
+            elif any(w in msg_lower for w in ("academic", "biotechnology", "gold medalist", "b.ed", "bed")):
+                resp = personality.MENTOR_QUALIFICATIONS_ACADEMIC_RESPONSE
+            else:
+                resp = personality.MENTOR_QUALIFICATIONS_GENERAL_RESPONSE
+            res = ReplyResult(
+                resp,
+                "mentor_qualifications",
+                ["mentor-qualifications"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
 
         if intent == "fees":
             entry = self.entries_by_id.get("fees-and-pricing")

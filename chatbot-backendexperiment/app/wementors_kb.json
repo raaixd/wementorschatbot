@@ -144,7 +144,16 @@
         "what boards",
         "which boards",
         "boards supported",
-        "school boards"
+        "school boards",
+        "do you support state boards",
+        "do you teach state board students",
+        "can you teach according to my state board syllabus",
+        "do you support state board curriculum",
+        "do you teach students following a state board",
+        "state board",
+        "state boards",
+        "state board syllabus",
+        "state board curriculum"
       ],
       "keywords": [
         "board",
@@ -154,9 +163,12 @@
         "cbse",
         "icse",
         "igcse",
-        "ib"
+        "ib",
+        "state board",
+        "state boards",
+        "state syllabus"
       ],
-      "answer": "WeMentors supports CBSE, ICSE, IGCSE, and IB curricula.",
+      "answer": "WeMentors supports CBSE, ICSE, IGCSE, IB, and State Board curricula.",
       "follow_ups": [
         "Which grades are supported?"
       ],
@@ -1130,7 +1142,6 @@
         "price",
         "how much does it cost",
         "fee structure",
-        "discounts",
         "payment plans"
       ],
       "keywords": [
@@ -1615,16 +1626,26 @@
         "catch up class",
         "catch-up class",
         "catch up session",
-        "reschedule missed class"
+        "reschedule missed class",
+        "can i reschedule a missed class",
+        "what if my son misses his class",
+        "my daughter couldn't attend her class, what happens",
+        "can a missed class be rescheduled",
+        "do you provide a makeup class",
+        "rescheduling policy"
       ],
       "keywords": [
         "missed class",
         "missed session",
         "catch-up",
         "catch up session",
-        "stay on track"
+        "stay on track",
+        "genuine reason",
+        "reschedule",
+        "makeup class",
+        "specific topic"
       ],
-      "answer": "If a student misses a class, a catch-up session can be arranged to help them stay on track.",
+      "answer": "If a student misses a class for a genuine reason, our mentors can arrange a rescheduled class (catch-up session) for the student covering that specific topic.",
       "confidence": "verified"
     },
     {
@@ -1651,6 +1672,123 @@
         "academic evaluation"
       ],
       "answer": "For academic programs, students are evaluated after each chapter, and intervention classes can be provided based on the evaluation to address areas where additional support is needed.",
+      "confidence": "verified"
+    },
+    {
+      "id": "grades-11-12-jee-neet-unsupported",
+      "category": "eligibility",
+      "question": "Do you offer programs for Grades 11-12, Class 11-12, JEE, or NEET?",
+      "phrasings": [
+        "do you teach class 11",
+        "do you teach class 12",
+        "do you teach 11th standard physics",
+        "do you provide 12th cbse coaching",
+        "do you offer jee preparation",
+        "do you offer neet coaching",
+        "can i join for class 11",
+        "do you have programs for senior secondary students",
+        "grade 11 coaching",
+        "grade 12 coaching",
+        "class 11 academic coaching",
+        "class 12 academic coaching",
+        "jee coaching",
+        "neet preparation",
+        "programs for 11th grade",
+        "classes for 12th grade",
+        "senior secondary coaching"
+      ],
+      "keywords": [
+        "grade 11",
+        "grade 12",
+        "class 11",
+        "class 12",
+        "11th standard",
+        "12th standard",
+        "jee",
+        "neet",
+        "senior secondary",
+        "unsupported",
+        "not offered"
+      ],
+      "answer": "WeMentors does not currently offer academic programs or coaching for Grades 11-12 (Class 11 and Class 12), nor do we provide preparation for competitive exams such as JEE or NEET. Our academic mentoring programs support students in Grades 3-10 (Foundation Years for Grades 3-5, Middle School for Grades 6-8, and Senior School Focus for Grades 9-10). Learners of all ages can join our Confident Speaker communicative skills program.",
+      "follow_ups": [
+        "Which grades are supported?",
+        "What is the Senior School Focus program?",
+        "What is the Confident Speaker program?"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "id": "scholarships-and-discounts",
+      "category": "fees",
+      "question": "Do you offer scholarships or discounts?",
+      "phrasings": [
+        "do you offer scholarships",
+        "are there any scholarships",
+        "do you have discounts",
+        "do you offer sibling discounts",
+        "is there any discount available",
+        "do you have financial assistance",
+        "can i get a discount",
+        "are discounts available",
+        "sibling discount",
+        "scholarship",
+        "financial aid"
+      ],
+      "keywords": [
+        "scholarship",
+        "scholarships",
+        "discount",
+        "discounts",
+        "sibling discount",
+        "financial assistance",
+        "financial aid",
+        "concession"
+      ],
+      "answer": "WeMentors does not currently offer scholarships or discounts on our programs. If you have questions about enrollment or would like to experience a session, you can book a free 30-minute trial using the Book Free Demo button or contact our team directly.",
+      "follow_ups": [
+        "How can I book a free demo class?",
+        "How much does WeMentors cost?"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "id": "mentor-qualifications",
+      "category": "mentorship",
+      "question": "What qualifications do your mentors have?",
+      "phrasings": [
+        "what qualifications do your mentors have",
+        "tell me about your english mentor",
+        "what are the qualifications of the english communication mentor",
+        "what qualifications does the academic mentor have",
+        "what is the english mentor's background",
+        "are your mentors qualified",
+        "what certifications does the english mentor have",
+        "who are your mentors",
+        "mentor qualifications",
+        "mentor background",
+        "academic mentor qualifications",
+        "english mentor qualifications",
+        "what degrees do your mentors have"
+      ],
+      "keywords": [
+        "qualifications",
+        "degrees",
+        "phd",
+        "tefl",
+        "ielts band 8.0",
+        "msc",
+        "biotechnology",
+        "gold medalist",
+        "bed",
+        "credentials",
+        "background"
+      ],
+      "answer": "Our mentors have verified qualifications: The English Communication Mentor holds a Ph.D. in English Literature, is TEFL Certified, and has IELTS Band 8.0. The Academic Mentor holds an M.Sc. in Biotechnology (Gold Medalist) and a B.Ed.",
+      "follow_ups": [
+        "How does 1-on-1 personalized mentoring work?",
+        "How can I book a free demo class?"
+      ],
       "confidence": "verified"
     }
   ]

@@ -170,15 +170,15 @@ r = ask(sid6, "Can you compare your programs?")
 check("ambiguous comparison asks which two", r.intent == "clarify", r.reply)
 
 # --- unsupported question: real RAG-leakage regression test -----------------
-# "financial aid / scholarships" is NOT in the knowledge base. Retrieval
+# "hostel / transport facilities" is NOT in the knowledge base. Retrieval
 # must not confidently return an unrelated entry (e.g. the programs list)
 # just because it shares one common word like "offer".
 sid7 = "test-session-8"
 database.ensure_session(sid7)
-r = ask(sid7, "Do you offer scholarships or financial aid?")
+r = ask(sid7, "Do you offer hostel or transport facilities?")
 check(
-    "unsupported question (scholarships) triggers honest fallback, not a leaked unrelated answer",
-    r.intent in {"low_confidence", "off_topic"} and "scholarship" not in r.reply.lower(),
+    "unsupported question (hostel/transport) triggers honest fallback, not a leaked unrelated answer",
+    r.intent in {"low_confidence", "off_topic"} and "hostel" not in r.reply.lower(),
     f"intent={r.intent} reply={r.reply!r}",
 )
 
@@ -242,7 +242,7 @@ def top_score(query):
 
 
 for query, why in [
-    ("Do you offer scholarships or financial aid?", "shares only the generic word 'offer'"),
+    ("Do you offer hostel or transport facilities?", "shares only the generic word 'offer'"),
     ("Can you help me?", "matches only incidental prose ('help') in an answer"),
     ("What is the duration of the course?", "shares only 'duration' with the demo-class entry"),
     ("Do you offer a refund policy?", "shares only 'offer'"),

@@ -130,7 +130,27 @@ class TestCourseSpecificPrograms:
         res = engine.handle_message("test_doubt_gen", "How do doubt clinics work?")
         assert res.intent == "doubt_clinics"
         assert "middle school" not in res.reply.lower()
-        assert "weMentors provides dedicated doubt-solving sessions" in res.reply.lower() or "fortnightly doubt clinics" in res.reply.lower()
+        reply = res.reply.lower()
+        assert any(
+            phrase in reply
+            for phrase in [
+                "doubt clinic",
+                "doubt clinics",
+                "doubt-solving sessions",
+                "doubt solving sessions",
+            ]
+        )
+        assert "fortnightly" in reply
+        assert any(
+            phrase in reply
+            for phrase in [
+                "doubt-solving",
+                "doubt solving",
+                "doubt-clearing",
+                "doubt clearing",
+                "resolving",
+            ]
+        )
 
     def test_09_generic_practical_labs_preservation(self, engine):
         res = engine.handle_message("test_labs_gen", "Tell me about practical labs.")

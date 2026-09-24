@@ -229,7 +229,7 @@ def run_tests():
     check("Unsupported details returns unsupported fallback", r_unsupported.reply == personality.UNSUPPORTED_DETAILS_FALLBACK, r_unsupported.reply)
 
     # Ambiguous general question
-    r_ambiguous = engine.handle_message(sid_fb, "Do you offer scholarships or financial aid?")
+    r_ambiguous = engine.handle_message(sid_fb, "Do you provide hostel or transport facilities for students?")
     check("Ambiguous general returns general fallback", r_ambiguous.reply == personality.AMBIGUOUS_GENERAL_FALLBACK, r_ambiguous.reply)
 
     # -------------------------------------------------------------------------

@@ -414,7 +414,8 @@ CLASS_FREQUENCY_GENERAL_RESPONSE = (
 )
 
 MISSED_CLASSES_RESPONSE = (
-    "If a student misses a class, a catch-up session can be arranged to help them stay on track."
+    "If a student misses a class for a genuine reason, our mentors can arrange a rescheduled class "
+    "(catch-up session) for the student covering that specific topic."
 )
 
 PARENT_UPDATES_RESPONSE = (
@@ -809,6 +810,56 @@ INTERNATIONAL_ELIGIBILITY_RESPONSE = (
     "All WeMentors classes and mentoring sessions are conducted 1-on-1 live and online, so learners can join from Saudi Arabia, the UAE, the US, the UK, India, or anywhere else in the world. "
     "Sessions and schedules are flexible and can be coordinated to fit your local time zone.\n\n"
     "You can explore our academic mentoring programs for Grades 3–10 or our Confident Speaker program for communication skills, or click **Book Free Demo** at the top-right of the website to experience an online session."
+)
+
+# State Board curricula response
+STATE_BOARD_CURRICULUM_RESPONSE = (
+    "Yes, WeMentors supports State Board curricula in addition to CBSE, ICSE, IGCSE, and IB.\n\n"
+    "Our mentors adapt personalized 1-on-1 sessions to your child's specific syllabus and learning needs "
+    "across our academic programs (Grades 3–10)."
+)
+
+# Grades 11-12 / JEE / NEET unsupported response
+GRADE_11_12_UNSUPPORTED_RESPONSE = (
+    "WeMentors does not currently offer academic programs or coaching for Grades 11–12 (Class 11 and Class 12), "
+    "nor do we provide preparation for competitive exams such as JEE or NEET.\n\n"
+    "Our academic mentoring programs support students in Grades 3–10:\n"
+    "- **Foundation Years**: Grades 3–5\n"
+    "- **Middle School**: Grades 6–8\n"
+    "- **Senior School Focus**: Grades 9–10\n\n"
+    "Learners of all ages can join our **Confident Speaker** communicative skills program."
+)
+
+# Scholarships and Discounts response
+SCHOLARSHIPS_DISCOUNTS_RESPONSE = (
+    "WeMentors does not currently offer scholarships or discounts on our programs. "
+    "If you have questions about enrollment or would like to experience a session, "
+    "you can book a free 30-minute trial using the **Book Free Demo** button or contact our team directly."
+)
+
+# Mentor qualifications responses (strictly for explicit mentor queries)
+MENTOR_QUALIFICATIONS_GENERAL_RESPONSE = (
+    "Our mentors have verified qualifications in their respective domains:\n\n"
+    "- **English Communication Mentor**:\n"
+    "  - Ph.D. in English Literature\n"
+    "  - TEFL Certified\n"
+    "  - IELTS Band 8.0\n\n"
+    "- **Academic Mentor**:\n"
+    "  - M.Sc. Biotechnology (Gold Medalist)\n"
+    "  - B.Ed."
+)
+
+MENTOR_QUALIFICATIONS_ENGLISH_RESPONSE = (
+    "Our English Communication Mentor holds the following verified qualifications:\n\n"
+    "- Ph.D. in English Literature\n"
+    "- TEFL Certified\n"
+    "- IELTS Band 8.0"
+)
+
+MENTOR_QUALIFICATIONS_ACADEMIC_RESPONSE = (
+    "Our Academic Mentor holds the following verified qualifications:\n\n"
+    "- M.Sc. Biotechnology (Gold Medalist)\n"
+    "- B.Ed."
 )
 
 
