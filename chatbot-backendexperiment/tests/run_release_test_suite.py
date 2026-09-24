@@ -1,7 +1,7 @@
 """
 Master Release Test Suite Runner for WeMentors AI Chatbot.
 
-Executes all 21 regression and verification suites, including core pipeline,
+Executes all 25 regression and verification suites, including core pipeline,
 natural language, false-booking prevention, failure-path reliability, and production smoke tests.
 Generates an aggregated release scorecard.
 """

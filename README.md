@@ -541,7 +541,7 @@ no real `.env` file, and that `.gitignore`/`.env.example` are safe.
 # 1. Run all unit and regression tests with Pytest (158+ tests)
 pytest
 
-# 2. Run the Full Unified Master Release Test Suite (all 20 test suites)
+# 2. Run the Full Unified Master Release Test Suite (all 25 test suites)
 python chatbot-backendexperiment/tests/run_release_test_suite.py
 
 # 3. Run the RAG Evaluation Benchmark (126 test cases)
@@ -554,7 +554,7 @@ python chatbot-backendexperiment/tests/test_production_smoke.py
 python chatbot-backendexperiment/tests/test_production_reliability.py
 ```
 
-**Master Suite Coverage**: The unified release runner executes 20 dedicated test suites spanning core retrieval, memory isolation, conversational routing, prompt injection, rate limiting, and provider failure recovery.
+**Master Suite Coverage**: The unified release runner executes 25 dedicated test suites spanning core retrieval, memory isolation, conversational routing, prompt injection, rate limiting, and provider failure recovery.
 
 **Running the Servers Locally**:
 
