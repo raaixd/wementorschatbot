@@ -35,13 +35,13 @@ except ImportError:
 
 
 def compute_file_sha256(path: Path) -> str:
-    """Compute SHA-256 hex digest of a file."""
+    """Compute SHA-256 hex digest of a file with normalized newlines for cross-platform consistency."""
     if not path.exists():
         return ""
     hasher = hashlib.sha256()
     with open(path, "rb") as f:
-        while chunk := f.read(65536):
-            hasher.update(chunk)
+        data = f.read()
+    hasher.update(data.replace(b"\r\n", b"\n"))
     return hasher.hexdigest()
 
 

@@ -31,9 +31,9 @@ EXPECTED_DIMENSION = 3072
 
 
 def compute_kb_hash(file_path: Path) -> str:
-    """Compute SHA-256 hash of the knowledge base file."""
+    """Compute SHA-256 hash of the knowledge base file with normalized newlines."""
     with open(file_path, "rb") as f:
-        return hashlib.sha256(f.read()).hexdigest()
+        return hashlib.sha256(f.read().replace(b"\r\n", b"\n")).hexdigest()
 
 
 def load_kb_entries(file_path: Path) -> List[Dict]:

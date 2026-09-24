@@ -27,4 +27,4 @@ jobs:
 
       - name: Run pytest suite
         run: |
-          pytest
+          pytest -v --tb=short

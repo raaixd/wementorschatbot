@@ -2,7 +2,7 @@
   "metadata": {
     "embedding_model": "gemini-embedding-001",
     "vector_dimension": 3072,
-    "kb_content_hash": "cbc0f0e6bbc037219dfefae67bf35d06e55fb89907bdd5d1b80cd7b91c53a3cd",
+    "kb_content_hash": "67c56a84df6f49f15fc6eebb437373c27becb980cbbfb4b75d3e282251a941ab",
     "generation_timestamp": "2026-09-24T21:04:50.808335+00:00",
     "total_entries": 52
   },
