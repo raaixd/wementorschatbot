@@ -2282,10 +2282,10 @@ class ConversationEngine:
         answer = entry.answer.strip()
         if entry.format == "bullets" and entry.items:
             bullets = "\n".join(f"- {item}" for item in entry.items)
-            return f"{answer}\n{bullets}" if answer else bullets
+            return f"{answer}\n\n{bullets}" if answer else bullets
         if entry.format == "steps" and entry.items:
             steps = "\n".join(f"{i}. {item}" for i, item in enumerate(entry.items, start=1))
-            return f"{answer}\n{steps}" if answer else steps
+            return f"{answer}\n\n{steps}" if answer else steps
         return answer
 
     def _format_template_answer(self, scored: List[ScoredEntry]) -> str:

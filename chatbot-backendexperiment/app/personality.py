@@ -36,6 +36,17 @@ When responding, always follow this order:
 - Do not begin with a disclaimer unless genuinely necessary.
 - Do not append "Let me know if you have any questions" or "What else would you like to know?" after every turn.
 
+Response Formatting & Readability Standards
+- For simple factual questions (1–2 sentences): Keep responses compact in a single natural paragraph. Do not force bullet lists or unnecessary headings onto short answers.
+- For responses covering multiple pieces of information (3 or more items, curriculum areas, subjects, features, benefits, or sequential steps):
+  * Use a concise introductory sentence.
+  * Use clean Markdown bullet points (`- **Item Name** — description` or `- **Item Name**: description`).
+  * Use numbered lists when there is a sequential process.
+  * Keep short supporting paragraphs separated by empty lines rather than large walls of text.
+  * Use bold section titles (`**Section Title**`) only when dividing multi-part answers. Never make every sentence bold.
+  * When a call-to-action is appropriate, place it on its own distinct line with **Book Free Demo** in bold. Do not append unsolicited demo sales pitches to simple informational queries.
+- Never invent headings, fees, schedules, guarantees, mentor details, or unverified claims.
+
 Core Verified WeMentors Positioning
 - Every learner receives individual attention from a dedicated personal mentor, not a rotating roster.
 - Mentors focus on conceptual understanding rather than rote memorization.
@@ -140,8 +151,11 @@ BEGINNER_RECOMMENDATION_RESPONSE = (
 )
 
 CONFIDENT_SPEAKER_FORMAT_DIRECT = (
-    "The Confident Speaker program uses personalized one-to-one mentoring. Each learner works individually "
-    "with a personal mentor through guided speaking practice, practical conversation, and regular feedback. "
+    "The Confident Speaker program uses personalized one-to-one mentoring where each learner works individually with a personal mentor.\n\n"
+    "**Key elements of the format:**\n"
+    "- **1:1 Mentoring** — individual attention adapted to your pace and goals\n"
+    "- **Guided Speaking Practice** — practical conversation and confidence building\n"
+    "- **Regular Feedback** — actionable guidance after each session\n\n"
     "The communicative skills curriculum covers Public Speaking, Business English, General Communicative Skills, "
     "and IELTS Preparation (building spoken English, public speaking, and interview skills), with the goal of "
     "building confidence in speaking.\n\n"
@@ -163,22 +177,23 @@ CONFIDENT_SPEAKER_AUDIENCE_DIRECT = (
 )
 
 CONFIDENT_SPEAKER_SCOPE_DIRECT = (
-    "The Confident Speaker communicative skills program covers four distinct curriculum areas: Public Speaking, "
-    "Business English, General Communicative Skills, and IELTS Preparation. It builds practical Spoken English, "
-    "Public Speaking, and Interview Skills. Each learner receives individual attention from a personal mentor "
-    "through guided practice and feedback, focusing on practical development rather than rote grammar drills.\n\n"
+    "**The Confident Speaker program covers four curriculum areas:**\n\n"
+    "- **Public Speaking** — build confidence and speaking skills for school and college.\n"
+    "- **Business English** — develop professional and workplace communication skills.\n"
+    "- **General Communicative Skills** — improve practical everyday English.\n"
+    "- **IELTS Preparation** — prepare for IELTS with guided practice and mentoring.\n\n"
+    "The program focuses on practical Spoken English, Public Speaking, and Interview Skills, with individual attention from a personal mentor through guided practice and feedback rather than rote grammar drills.\n\n"
     "You can click **Book Free Demo** at the top-right of the website to experience a trial session."
 )
 
 CONFIDENT_SPEAKER_SKILLS_RESPONSE = (
-    "Confident Speaker\n\n"
-    "The program covers four curriculum areas:\n\n"
-    "- Public Speaking — build confidence and speaking skills for school and college.\n"
-    "- Business English — improve professional and workplace communication.\n"
-    "- General Communicative Skills — develop practical English for everyday conversations.\n"
-    "- IELTS Preparation — prepare for IELTS with guided practice and mentoring.\n\n"
+    "**The program covers four curriculum areas:**\n\n"
+    "- **Public Speaking** — build confidence and speaking skills for school and college.\n"
+    "- **Business English** — improve professional and workplace communication.\n"
+    "- **General Communicative Skills** — develop practical English for everyday conversations.\n"
+    "- **IELTS Preparation** — prepare for IELTS with guided practice and mentoring.\n\n"
     "Across the program, learners receive personalized mentoring, individual attention, guided speaking practice, and regular feedback focused on practical communication rather than rote grammar drills.\n\n"
-    "Ready to explore the program? You can book a free 30-minute demo using the Book Free Demo button."
+    "Ready to explore the program? You can book a free 30-minute demo using the **Book Free Demo** button."
 )
 
 CONFIDENT_SPEAKER_MENTORING_DIRECT = (
@@ -203,6 +218,7 @@ ACADEMIC_SESSIONS_RESPONSE = (
 )
 
 ACADEMIC_COURSES_OVERVIEW_RESPONSE = (
+    "**WeMentors Academic Programs (Grades 3–10)**\n\n"
     "WeMentors provides personalized 1-on-1 academic mentoring across three key stages for school students:\n\n"
     "- **Foundation Years (Grades 3–5)**: Mathematics, Science, and English, focusing on concept clarity and building strong study habits.\n"
     "- **Middle School (Grades 6–8)**: Core subjects (Mathematics, Science, English, Social Studies) with concept-based learning, practical problem sets, and fortnightly doubt clinics.\n"
@@ -517,9 +533,9 @@ OKAY_CONFIRMATION_RESPONSE = (
 )
 
 DEMO_BOOKING_RESPONSE = (
-    "You can book a free demo in either of these ways:\n\n"
-    "- Use the **Book Free Demo** option at the top-right of the website and enter your details directly.\n"
-    "- Contact the WeMentors team directly through phone/WhatsApp at **+91 76111 92227** (alternate: +91 90398 03526, +91 88719 34995) or email at **admin@wementors.co** (Monday to Saturday, 9:00 AM to 8:00 PM IST)."
+    "**You can book a free demo in either of these ways:**\n\n"
+    "- **Website Form**: Use the **Book Free Demo** option at the top-right of the website and enter your details directly.\n"
+    "- **Direct Contact**: Contact the WeMentors team directly through phone/WhatsApp at **+91 76111 92227** (alternate: +91 90398 03526, +91 88719 34995) or email at **admin@wementors.co** (Monday to Saturday, 9:00 AM to 8:00 PM IST)."
 )
 
 DEMO_TRANSACTION_REQUEST_RESPONSE = (
