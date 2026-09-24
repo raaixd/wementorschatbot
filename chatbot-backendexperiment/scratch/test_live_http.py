@@ -21,14 +21,20 @@ queries = [
 
 session_id = "00000000-0000-4000-8000-000000000099"
 
-for q in queries:
-    req = urllib.request.Request(
-        "http://127.0.0.1:8000/chat",
-        data=json.dumps({"message": q, "session_id": session_id}).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
-    )
-    res = urllib.request.urlopen(req)
-    data = json.loads(res.read().decode("utf-8"))
-    print(f"--- Q: {q} ---")
-    print(f"Intent: {data.get('intent')}")
-    print(f"Reply: {data.get('reply')}\n")
+
+def run_queries():
+    for q in queries:
+        req = urllib.request.Request(
+            "http://127.0.0.1:8000/chat",
+            data=json.dumps({"message": q, "session_id": session_id}).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+        )
+        res = urllib.request.urlopen(req)
+        data = json.loads(res.read().decode("utf-8"))
+        print(f"--- Q: {q} ---")
+        print(f"Intent: {data.get('intent')}")
+        print(f"Reply: {data.get('reply')}\n")
+
+
+if __name__ == "__main__":
+    run_queries()
