@@ -114,6 +114,18 @@ class TestCourseSpecificPrograms:
         assert "Grades 6–8" in res.reply
 
     def test_07_grade_10_routing_and_exclusion_fix(self, engine):
+        # Grade 9 query routing
+        res_g9 = engine.handle_message("test_g9", "What program is available for Grade 9?")
+        assert res_g9.intent == "senior_school_overview"
+        assert "**Senior School Focus**" in res_g9.reply
+        assert "Grades 9–10" in res_g9.reply
+
+        # Standalone Grade 9 query
+        res_g9_bare = engine.handle_message("test_g9_bare", "Grade 9")
+        assert res_g9_bare.intent == "senior_school_overview"
+        assert "**Senior School Focus**" in res_g9_bare.reply
+
+        # Grade 10 query routing and grade 1-2 exclusion
         res = engine.handle_message("test_g10", "What program is available for Grade 10?")
         assert res.intent == "senior_school_overview"
         assert "**Senior School Focus**" in res.reply
