@@ -133,6 +133,24 @@ MAX_HISTORY_MESSAGES = _get_int("MAX_HISTORY_MESSAGES", 20)
 RETRIEVAL_TOP_K = _get_int("RETRIEVAL_TOP_K", 3)
 RETRIEVAL_CONFIDENCE_THRESHOLD = float(os.getenv("RETRIEVAL_CONFIDENCE_THRESHOLD", "0.12"))
 
+# --- Hybrid Semantic Retrieval (Feature Flagged) ---------------------------
+# When False (the default), retrieval behavior remains 100% byte-for-byte
+# identical to the existing TF-IDF implementation.
+HYBRID_RETRIEVAL_ENABLED = _get_bool("HYBRID_RETRIEVAL_ENABLED", False)
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "gemini-embedding-001")
+EMBEDDING_DIMENSION = _get_int("EMBEDDING_DIMENSION", 3072)
+KB_EMBEDDINGS_FILE = _get_path(
+    "KB_EMBEDDINGS_FILE", PROJECT_ROOT / "knowledge" / "kb_embeddings.json"
+)
+EMBEDDING_API_TIMEOUT = float(os.getenv("EMBEDDING_API_TIMEOUT", "2.0"))
+
+# Tuned thresholds for conditional hybrid retrieval
+HYBRID_LEXICAL_FAST_PATH_THRESHOLD = float(os.getenv("HYBRID_LEXICAL_FAST_PATH_THRESHOLD", "0.35"))
+HYBRID_LEXICAL_FAST_PATH_COVERAGE = float(os.getenv("HYBRID_LEXICAL_FAST_PATH_COVERAGE", "0.75"))
+HYBRID_ACCEPTANCE_THRESHOLD = float(os.getenv("HYBRID_ACCEPTANCE_THRESHOLD", "0.28"))
+HYBRID_ALPHA = float(os.getenv("HYBRID_ALPHA", "0.5"))
+
+
 # --- Optional LLM answer generation ---------------------------------------
 # When no provider key is set, the chatbot falls back to deterministic
 # template answers built from the knowledge base (no external call, works

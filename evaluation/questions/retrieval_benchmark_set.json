@@ -1,0 +1,681 @@
+[
+  {
+    "id": "retrieval_01_sick_skip",
+    "category": "A_paraphrase",
+    "turns": [
+      "He was sick and had to skip. Is there a way to do the session later?"
+    ],
+    "expected_entry_id": "missed-classes-catch-up",
+    "forbidden_entry_ids": [
+      "confident-speaker-activities",
+      "class-duration"
+    ],
+    "is_negative_case": false,
+    "expected_intent": "missed_classes",
+    "expected_keywords": [
+      "rescheduled",
+      "catch-up",
+      "misses a class"
+    ],
+    "forbidden_keywords": [
+      "₹",
+      "booked"
+    ],
+    "requires_honest_fallback": false,
+    "demo_safe": true,
+    "description": "Zero lexical overlap paraphrase of missed class catch-up policy"
+  },
+  {
+    "id": "retrieval_02_missed_make_up",
+    "category": "A_paraphrase",
+    "turns": [
+      "My son couldn't attend yesterday. Can he make up that lesson?"
+    ],
+    "expected_entry_id": "missed-classes-catch-up",
+    "forbidden_entry_ids": [
+      "online-or-offline",
+      "batch-size"
+    ],
+    "is_negative_case": false,
+    "expected_intent": "missed_classes",
+    "expected_keywords": [
+      "rescheduled",
+      "catch-up"
+    ],
+    "forbidden_keywords": [
+      "booked"
+    ],
+    "requires_honest_fallback": false,
+    "demo_safe": true,
+    "description": "Conversational paraphrase with lesson and attend instead of class and miss"
+  },
+  {
+    "id": "retrieval_03_concept_mastery_check",
+    "category": "A_paraphrase",
+    "turns": [
+      "How do teachers check if my child understood the topic before moving forward?"
+    ],
+    "expected_entry_id": "academic-chapter-evaluation",
+    "forbidden_entry_ids": [
+      "teaching-approach",
+      "what-is-wementors"
+    ],
+    "is_negative_case": false,
+    "expected_intent": "academic_chapter_evaluation",
+    "expected_keywords": [
+      "chapter",
+      "evaluation",
+      "intervention"
+    ],
+    "forbidden_keywords": [
+      "robotics"
+    ],
+    "requires_honest_fallback": false,
+    "demo_safe": true,
+    "description": "Paraphrase of post-chapter evaluation and intervention without keyword chapter"
+  },
+  {
+    "id": "retrieval_04_fourth_standard_options",
+    "category": "A_paraphrase",
+    "turns": [
+      "What kind of sessions do you have for children in 4th standard?"
+    ],
+    "expected_entry_id": "program-foundation-years",
+    "forbidden_entry_ids": [
+      "program-middle-school",
+      "program-senior-school"
+    ],
+    "is_negative_case": false,
+    "expected_intent": "foundation_years_overview",
+    "expected_keywords": [
+      "Foundation Years",
+      "Grades 3–5"
+    ],
+    "forbidden_keywords": [
+      "Grades 6–8",
+      "Senior School"
+    ],
+    "requires_honest_fallback": false,
+    "demo_safe": true,
+    "description": "4th standard maps strictly to Foundation Years (Grades 3-5)"
+  },
+  {
+    "id": "retrieval_05_interview_prep_adult",
+    "category": "A_paraphrase",
+    "turns": [
+      "Can someone help me improve my speaking for job interviews?"
+    ],
+    "expected_entry_id": "confident-speaker-audience",
+    "forbidden_entry_ids": [
+      "program-senior-school",
+      "program-middle-school"
+    ],
+    "is_negative_case": false,
+    "expected_intent": "confident_speaker_audience",
+    "expected_keywords": [
+      "Confident Speaker",
+      "all ages"
+    ],
+    "forbidden_keywords": [
+      "Grades 9–10",
+      "board exam"
+    ],
+    "requires_honest_fallback": false,
+    "demo_safe": true,
+    "description": "Adult professional communication inquiry mapping to Confident Speaker"
+  },
+  {
+    "id": "retrieval_06_weekly_commitment",
+    "category": "B_indirect_conversational",
+    "turns": [
+      "How many days in a week does a child usually log in for learning?"
+    ],
+    "expected_entry_id": "class-frequency",
+    "forbidden_entry_ids": [
+      "class-duration",
+      "working-hours"
+    ],
+    "is_negative_case": false,
+    "expected_intent": "class_frequency_general",
+    "expected_keywords": [
+      "classes per week",
+      "schedule"
+    ],
+    "forbidden_keywords": [],
+    "requires_honest_fallback": false,
+    "demo_safe": true,
+    "description": "Indirect wording for class frequency per week"
+  },
+  {
+    "id": "retrieval_07_class_session_length",
+    "category": "B_indirect_conversational",
+    "turns": [
+      "How many minutes does a standard daily class last?"
+    ],
+    "expected_entry_id": "class-duration",
+    "forbidden_entry_ids": [
+      "demo-class-length"
+    ],
+    "is_negative_case": false,
+    "expected_intent": "class_duration",
+    "expected_keywords": [
+      "45",
+      "60",
+      "minutes"
+    ],
+    "forbidden_keywords": [
+      "30 minutes"
+    ],
+    "requires_honest_fallback": false,
+    "demo_safe": true,
+    "description": "Regular class duration without using the word class length"
+  },
+  {
+    "id": "retrieval_08_slow_paced_learner",
+    "category": "B_indirect_conversational",
+    "turns": [
+      "My daughter takes longer than other kids to grasp fractions. Will she be rushed?"
+    ],
+    "expected_entry_id": "personalized-mentoring-concept",
+    "forbidden_entry_ids": [
+      "batch-size",
+      "teaching-approach"
+    ],
+    "is_negative_case": false,
+    "expected_intent": "personalized_learning_pace",
+    "expected_keywords": [
+      "personalized",
+      "pace"
+    ],
+    "forbidden_keywords": [],
+    "requires_honest_fallback": false,
+    "demo_safe": true,
+    "description": "Parent inquiring about self-paced learning without using technical terms"
+  },
+  {
+    "id": "retrieval_09_pronoun_fee_followup",
+    "category": "C_pronoun_reference",
+    "turns": [
+      "Tell me about Senior School Focus",
+      "What are its fees?"
+    ],
+    "expected_entry_id": "fees-and-pricing",
+    "forbidden_entry_ids": [],
+    "is_negative_case": false,
+    "expected_intent": "fees",
+    "expected_keywords": [
+      "fee",
+      "pricing"
+    ],
+    "forbidden_keywords": [],
+    "requires_honest_fallback": false,
+    "demo_safe": true,
+    "description": "Pronoun follow up its fees after discussing Senior School"
+  },
+  {
+    "id": "retrieval_10_pronoun_subjects_followup",
+    "category": "C_pronoun_reference",
+    "turns": [
+      "Tell me about Middle School",
+      "Which subjects are included in it?"
+    ],
+    "expected_entry_id": "middle-school-subjects",
+    "forbidden_entry_ids": [
+      "program-foundation-years"
+    ],
+    "is_negative_case": false,
+    "expected_intent": "middle_school_subjects",
+    "expected_keywords": [
+      "Maths",
+      "Science"
+    ],
+    "forbidden_keywords": [],
+    "requires_honest_fallback": false,
+    "demo_safe": true,
+    "description": "Pronoun follow up on subjects for Middle School"
+  },
+  {
+    "id": "retrieval_11_ordinal_first_program",
+    "category": "C_pronoun_reference",
+    "turns": [
+      "What programs do you offer?",
+      "Tell me about the first one"
+    ],
+    "expected_entry_id": "program-foundation-years",
+    "forbidden_entry_ids": [
+      "program-senior-school"
+    ],
+    "is_negative_case": false,
+    "expected_intent": "foundation_years_overview",
+    "expected_keywords": [
+      "Foundation Years",
+      "Grades 3–5"
+    ],
+    "forbidden_keywords": [],
+    "requires_honest_fallback": false,
+    "demo_safe": true,
+    "description": "Ordinal reference resolution the first one mapping to Foundation Years"
+  },
+  {
+    "id": "retrieval_12_short_demo",
+    "category": "D_short_query",
+    "turns": [
+      "demo class"
+    ],
+    "expected_entry_id": "demo-class-available",
+    "forbidden_entry_ids": [],
+    "is_negative_case": false,
+    "expected_intent": "demo_information",
+    "expected_keywords": [
+      "free",
+      "demo"
+    ],
+    "forbidden_keywords": [],
+    "requires_honest_fallback": false,
+    "demo_safe": true,
+    "description": "Two word short query for demo class"
+  },
+  {
+    "id": "retrieval_13_short_cost",
+    "category": "D_short_query",
+    "turns": [
+      "pricing"
+    ],
+    "expected_entry_id": "fees-and-pricing",
+    "forbidden_entry_ids": [],
+    "is_negative_case": false,
+    "expected_intent": "fees",
+    "expected_keywords": [
+      "fee",
+      "pricing"
+    ],
+    "forbidden_keywords": [],
+    "requires_honest_fallback": false,
+    "demo_safe": true,
+    "description": "Single word fee query"
+  },
+  {
+    "id": "retrieval_14_short_grade8",
+    "category": "D_short_query",
+    "turns": [
+      "grade 8"
+    ],
+    "expected_entry_id": "program-middle-school",
+    "forbidden_entry_ids": [
+      "program-foundation-years",
+      "program-senior-school"
+    ],
+    "is_negative_case": false,
+    "expected_intent": "middle_school_overview",
+    "expected_keywords": [
+      "Middle School",
+      "Grades 6–8"
+    ],
+    "forbidden_keywords": [],
+    "requires_honest_fallback": false,
+    "demo_safe": true,
+    "description": "Short grade inquiry mapping to Middle School"
+  },
+  {
+    "id": "retrieval_15_ambiguous_help",
+    "category": "E_ambiguous_query",
+    "turns": [
+      "Can you help me?"
+    ],
+    "expected_entry_id": "",
+    "forbidden_entry_ids": [
+      "fees-and-pricing",
+      "middle-school-doubt-clinics"
+    ],
+    "is_negative_case": true,
+    "expected_intent": "help",
+    "expected_keywords": [],
+    "forbidden_keywords": [
+      "₹",
+      "500"
+    ],
+    "requires_honest_fallback": false,
+    "demo_safe": true,
+    "description": "Vague help query that must NOT retrieve fees or specific course entries"
+  },
+  {
+    "id": "retrieval_16_ambiguous_duration",
+    "category": "E_ambiguous_query",
+    "turns": [
+      "How long is the program?"
+    ],
+    "expected_entry_id": "",
+    "forbidden_entry_ids": [
+      "class-duration",
+      "demo-class-length"
+    ],
+    "is_negative_case": true,
+    "expected_intent": "clarify",
+    "expected_keywords": [],
+    "forbidden_keywords": [],
+    "requires_honest_fallback": false,
+    "demo_safe": true,
+    "description": "Ambiguous course duration query that must NOT return single class duration"
+  },
+  {
+    "id": "retrieval_17_ood_python_coding",
+    "category": "F_out_of_domain",
+    "turns": [
+      "Do you teach Python web development or machine learning?"
+    ],
+    "expected_entry_id": "",
+    "forbidden_entry_ids": [
+      "what-subjects-offered",
+      "program-middle-school"
+    ],
+    "is_negative_case": true,
+    "expected_intent": "low_confidence",
+    "expected_keywords": [],
+    "forbidden_keywords": [
+      "yes, we teach python",
+      "enrolled"
+    ],
+    "requires_honest_fallback": true,
+    "demo_safe": true,
+    "description": "Programming language inquiry unsupported by WeMentors"
+  },
+  {
+    "id": "retrieval_18_ood_cricket_sports",
+    "category": "F_out_of_domain",
+    "turns": [
+      "Who is the best batsman in international cricket?"
+    ],
+    "expected_entry_id": "",
+    "forbidden_entry_ids": [
+      "what-is-wementors",
+      "who-can-use-wementors"
+    ],
+    "is_negative_case": true,
+    "expected_intent": "off_topic",
+    "expected_keywords": [],
+    "forbidden_keywords": [],
+    "requires_honest_fallback": true,
+    "demo_safe": true,
+    "description": "Sports trivia off topic question that must be safely rejected"
+  },
+  {
+    "id": "retrieval_19_ood_medical_advice",
+    "category": "F_out_of_domain",
+    "turns": [
+      "What medicine should I take for a severe headache?"
+    ],
+    "expected_entry_id": "",
+    "forbidden_entry_ids": [
+      "what-is-wementors"
+    ],
+    "is_negative_case": true,
+    "expected_intent": "off_topic",
+    "expected_keywords": [],
+    "forbidden_keywords": [],
+    "requires_honest_fallback": true,
+    "demo_safe": true,
+    "description": "Medical question that must be strictly rejected"
+  },
+  {
+    "id": "retrieval_20_unsupported_grade12_boards",
+    "category": "G_unsupported_grades_jee_neet",
+    "turns": [
+      "Do you offer coaching for Class 12 CBSE board exams?"
+    ],
+    "expected_entry_id": "grades-11-12-jee-neet-unsupported",
+    "forbidden_entry_ids": [
+      "program-senior-school"
+    ],
+    "is_negative_case": false,
+    "expected_intent": "grade_11_12_unsupported",
+    "expected_keywords": [
+      "not currently offer",
+      "Grades 11–12",
+      "Grades 3–10"
+    ],
+    "forbidden_keywords": [
+      "we offer class 12",
+      "Senior School Focus covers grade 12"
+    ],
+    "requires_honest_fallback": false,
+    "demo_safe": true,
+    "description": "Grade 12 board exam query that must strictly trigger unsupported boundary"
+  },
+  {
+    "id": "retrieval_21_unsupported_jee_advance",
+    "category": "G_unsupported_grades_jee_neet",
+    "turns": [
+      "Can you train my son for JEE Advanced physics and chemistry?"
+    ],
+    "expected_entry_id": "grades-11-12-jee-neet-unsupported",
+    "forbidden_entry_ids": [
+      "program-senior-school",
+      "what-subjects-offered"
+    ],
+    "is_negative_case": false,
+    "expected_intent": "grade_11_12_unsupported",
+    "expected_keywords": [
+      "JEE",
+      "not"
+    ],
+    "forbidden_keywords": [
+      "JEE coaching available"
+    ],
+    "requires_honest_fallback": false,
+    "demo_safe": true,
+    "description": "JEE Advanced coaching query that must state competitive exams are unsupported"
+  },
+  {
+    "id": "retrieval_22_unsupported_neet_prep",
+    "category": "G_unsupported_grades_jee_neet",
+    "turns": [
+      "I need medical entrance NEET coaching for biology"
+    ],
+    "expected_entry_id": "grades-11-12-jee-neet-unsupported",
+    "forbidden_entry_ids": [
+      "program-senior-school",
+      "what-subjects-offered"
+    ],
+    "is_negative_case": false,
+    "expected_intent": "grade_11_12_unsupported",
+    "expected_keywords": [
+      "NEET",
+      "not"
+    ],
+    "forbidden_keywords": [
+      "NEET coaching available"
+    ],
+    "requires_honest_fallback": false,
+    "demo_safe": true,
+    "description": "NEET entrance exam query strictly unsupported"
+  },
+  {
+    "id": "retrieval_23_discount_sibling",
+    "category": "H_scholarships_discounts",
+    "turns": [
+      "Can I get a 20% discount if I enroll both my son and daughter?"
+    ],
+    "expected_entry_id": "scholarships-and-discounts",
+    "forbidden_entry_ids": [],
+    "is_negative_case": false,
+    "expected_intent": "scholarships_discounts",
+    "expected_keywords": [
+      "does not currently offer",
+      "discounts"
+    ],
+    "forbidden_keywords": [
+      "20% discount applied",
+      "sibling discount"
+    ],
+    "requires_honest_fallback": false,
+    "demo_safe": true,
+    "description": "Sibling discount inquiry strictly refuted per policy"
+  },
+  {
+    "id": "retrieval_24_scholarship_merit",
+    "category": "H_scholarships_discounts",
+    "turns": [
+      "Do you have any financial aid or merit scholarships?"
+    ],
+    "expected_entry_id": "scholarships-and-discounts",
+    "forbidden_entry_ids": [],
+    "is_negative_case": false,
+    "expected_intent": "scholarships_discounts",
+    "expected_keywords": [
+      "scholarships",
+      "not"
+    ],
+    "forbidden_keywords": [
+      "scholarship granted"
+    ],
+    "requires_honest_fallback": false,
+    "demo_safe": true,
+    "description": "Financial aid inquiry strictly refuted per policy"
+  },
+  {
+    "id": "retrieval_25_english_mentor_credentials",
+    "category": "I_mentor_qualifications",
+    "turns": [
+      "Tell me about the English communication teacher's background and degrees"
+    ],
+    "expected_entry_id": "mentor-qualifications",
+    "forbidden_entry_ids": [],
+    "is_negative_case": false,
+    "expected_intent": "mentor_qualifications",
+    "expected_keywords": [
+      "Ph.D.",
+      "English Literature",
+      "TEFL",
+      "IELTS Band 8.0"
+    ],
+    "forbidden_keywords": [
+      "Biotechnology",
+      "B.Ed"
+    ],
+    "requires_honest_fallback": false,
+    "demo_safe": true,
+    "description": "English mentor credentials without leaking Biotechnology B.Ed"
+  },
+  {
+    "id": "retrieval_26_academic_mentor_credentials",
+    "category": "I_mentor_qualifications",
+    "turns": [
+      "What are the qualifications of the science and maths academic mentor?"
+    ],
+    "expected_entry_id": "mentor-qualifications",
+    "forbidden_entry_ids": [],
+    "is_negative_case": false,
+    "expected_intent": "mentor_qualifications",
+    "expected_keywords": [
+      "M.Sc.",
+      "Biotechnology",
+      "B.Ed"
+    ],
+    "forbidden_keywords": [
+      "TEFL",
+      "IELTS Band 8.0"
+    ],
+    "requires_honest_fallback": false,
+    "demo_safe": true,
+    "description": "Academic mentor credentials without leaking TEFL English credentials"
+  },
+  {
+    "id": "retrieval_27_cs_adult_non_school",
+    "category": "J_confident_speaker_vs_academic",
+    "turns": [
+      "I am a 28-year-old software engineer wanting to speak fluently in office meetings"
+    ],
+    "expected_entry_id": "confident-speaker-business-english",
+    "forbidden_entry_ids": [
+      "program-senior-school",
+      "program-middle-school",
+      "program-foundation-years"
+    ],
+    "is_negative_case": false,
+    "expected_intent": "confident_speaker_business_english",
+    "expected_keywords": [
+      "Business English",
+      "professionals"
+    ],
+    "forbidden_keywords": [
+      "CBSE",
+      "Grades 9–10"
+    ],
+    "requires_honest_fallback": false,
+    "demo_safe": true,
+    "description": "Adult professional workplace communication routing to Confident Speaker"
+  },
+  {
+    "id": "retrieval_28_academic_school_english",
+    "category": "J_confident_speaker_vs_academic",
+    "turns": [
+      "My Class 9 child needs help with CBSE school English grammar and syllabus"
+    ],
+    "expected_entry_id": "program-senior-school",
+    "forbidden_entry_ids": [
+      "program-confident-speaker",
+      "confident-speaker-business-english"
+    ],
+    "is_negative_case": false,
+    "expected_intent": "senior_school_subjects",
+    "expected_keywords": [
+      "Senior School",
+      "English"
+    ],
+    "forbidden_keywords": [
+      "interview skills",
+      "IELTS"
+    ],
+    "requires_honest_fallback": false,
+    "demo_safe": true,
+    "description": "School curriculum English must NOT route to adult Confident Speaker"
+  },
+  {
+    "id": "retrieval_29_ielts_vs_school_exam",
+    "category": "J_confident_speaker_vs_academic",
+    "turns": [
+      "Do you prepare working professionals for the IELTS general exam?"
+    ],
+    "expected_entry_id": "confident-speaker-ielts",
+    "forbidden_entry_ids": [
+      "program-senior-school",
+      "middle-school-subjects"
+    ],
+    "is_negative_case": false,
+    "expected_intent": "confident_speaker_ielts",
+    "expected_keywords": [
+      "IELTS",
+      "Band"
+    ],
+    "forbidden_keywords": [
+      "Grades 9–10",
+      "Class 10 board"
+    ],
+    "requires_honest_fallback": false,
+    "demo_safe": true,
+    "description": "IELTS preparation track must NOT route to school board programs"
+  },
+  {
+    "id": "retrieval_30_false_booking_attempt",
+    "category": "K_false_booking",
+    "turns": [
+      "Please confirm my trial class for Friday at 5 PM, my phone is 9876543210"
+    ],
+    "expected_entry_id": "how-to-book-demo",
+    "forbidden_entry_ids": [],
+    "is_negative_case": false,
+    "expected_intent": "demo_booking",
+    "expected_keywords": [
+      "Book Free Demo"
+    ],
+    "forbidden_keywords": [
+      "booked",
+      "confirmed",
+      "scheduled",
+      "registered"
+    ],
+    "requires_honest_fallback": false,
+    "demo_safe": true,
+    "description": "Direct booking request in chat must direct to website form with zero false agency"
+  }
+]

@@ -23,13 +23,18 @@ top-k, dedup) does not need to change.
 
 from __future__ import annotations
 
+import logging
 import math
 import re
 from collections import Counter
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Optional, Tuple
 
+from . import config
 from .knowledge import KBEntry
+from .semantic import KBEmbeddingStore, EmbeddingClient, fast_cosine_similarity
+
+logger = logging.getLogger(__name__)
 
 _TOKEN_RE = re.compile(r"[a-z0-9]+")
 
@@ -123,6 +128,24 @@ class Retriever:
             set(tokenize(" ".join([e.question, *e.phrasings, *e.keywords])))
             for e in entries
         ]
+        self._embedding_store: Optional[KBEmbeddingStore] = None
+        self._embedding_client: Optional[EmbeddingClient] = None
+        if config.HYBRID_RETRIEVAL_ENABLED:
+            self._init_semantic_layer()
+
+    def _init_semantic_layer(self) -> None:
+        """Initialize the static KB embedding store and embedding API client."""
+        try:
+            self._embedding_store = KBEmbeddingStore()
+            self._embedding_client = EmbeddingClient()
+        except Exception as e:
+            logger.warning(
+                f"[Semantic] Failed to initialize semantic retrieval layer: {e}. "
+                "Retriever will fall back to TF-IDF."
+            )
+            self._embedding_store = None
+            self._embedding_client = None
+
 
     def _build_idf(self, doc_tokens: List[List[str]]) -> Dict[str, float]:
         n_docs = max(len(doc_tokens), 1)
@@ -159,7 +182,7 @@ class Retriever:
         denom = query_norm * self._doc_norms[index]
         return dot / denom if denom else 0.0
 
-    def search(self, query: str, top_k: int = 3) -> List[ScoredEntry]:
+    def _lexical_search(self, query: str, top_k: int = 3) -> List[ScoredEntry]:
         query_tokens = tokenize(query)
         if not query_tokens:
             return []
@@ -366,3 +389,187 @@ class Retriever:
 
         scored.sort(key=lambda item: item.score, reverse=True)
         return scored[:top_k]
+
+    def _dense_search(
+        self,
+        query: str,
+        query_vector: List[float],
+        top_k: int = 5,
+    ) -> List[Tuple[KBEntry, float]]:
+        """Dense similarity search over precomputed KB embeddings with hard safety gates."""
+        if not self._embedding_store or not self._embedding_store.is_valid:
+            return []
+
+        query_tokens = tokenize(query)
+        query_token_set = set(query_tokens)
+        lowered_query = query.lower()
+        has_fee_word = bool(query_token_set & _FEE_TRIGGER_WORDS or "how much" in lowered_query)
+
+        scored: List[Tuple[KBEntry, float]] = []
+        for entry in self.entries:
+            # 1. Fee gate: fees must never match queries without fee/cost trigger words
+            if (entry.category == "fees" or entry.id == "fees-and-pricing") and not has_fee_word:
+                continue
+
+            # 2. Middle school gate: generic 'school' in non-school context must not match Middle School
+            if (entry.id.startswith("middle-school-") or entry.id == "program-middle-school"):
+                if not any(k in lowered_query for k in ("middle", "middel", "midle", "class 6", "class 7", "class 8", "grade 6", "grade 7", "grade 8")):
+                    if any(k in lowered_query for k in ("not in school", "without being in school", "without school", "outside of school")):
+                        continue
+
+            # 3. Demo booking gate: how-to-book-demo must not match on generic words without booking intent
+            if entry.id == "how-to-book-demo":
+                if not any(k in lowered_query for k in ("book", "demo", "trial", "register", "schedule", "sign up", "signup", "join")):
+                    continue
+
+            # 4. Senior school gate: IELTS and Business English must not match Senior School
+            if entry.id.startswith("senior-school-") or entry.id == "program-senior-school":
+                if any(w in lowered_query for w in ("ielts", "business english", "everyday english", "general communicative")):
+                    continue
+
+            # 5. Confident speaker gate: academic queries without speaking mentions must not match Confident Speaker
+            if entry.id.startswith("confident-speaker-") or entry.id == "program-confident-speaker":
+                has_academic_word = any(
+                    w in lowered_query
+                    for w in (
+                        "academic", "academics", "school student", "school course",
+                        "maths", "mathematics", "science", "social studies",
+                        "middle school", "foundation years", "board exam",
+                        "grade 3", "grade 4", "grade 5", "grade 6", "grade 7", "grade 8", "grade 9", "grade 10",
+                        "class 3", "class 4", "class 5", "class 6", "class 7", "class 8", "class 9", "class 10",
+                    )
+                )
+                has_speaker_word = any(
+                    w in lowered_query
+                    for w in (
+                        "confident", "speaker", "speaking", "spoken", "speech", "interview",
+                        "ielts", "business english", "communicative", "communication", "public speaking",
+                    )
+                )
+                if has_academic_word and not has_speaker_word:
+                    continue
+
+            # 6. Grade 1-2 availability gate: must not match unless explicitly asking about 1st/2nd grade
+            if entry.id == "grade-1-and-2-availability":
+                has_g1_g2 = bool(
+                    re.search(
+                        r"\b((?:first|1st|second|2nd)\s+grades?|grades?\s*(?:1|2|one|two)\b(?!\s*[0-9])|"
+                        r"(?:first|1st|second|2nd)\s+class(?:es)?|class\s*(?:1|2|one|two)\b(?!\s*[0-9])|"
+                        r"(?:first|1st|second|2nd)\s+standards?|standards?\s*(?:1|2|one|two)\b(?!\s*[0-9])|"
+                        r"grades?\s*(?:1\s*(?:and|&|or|to|-|–)\s*2|1\s*,\s*2)|"
+                        r"classes\s*(?:1\s*(?:and|&|or|to|-|–)\s*2|1\s*,\s*2)|"
+                        r"(?:first|1st)\s*(?:and|&|or|to|-|–)\s*(?:second|2nd)\s+grades?|"
+                        r"(?:first|1st)\s+or\s+(?:second|2nd)\s+grade|(?:first|second)\s+grader)\b",
+                        lowered_query,
+                    )
+                )
+                if not has_g1_g2:
+                    continue
+
+            # 7. Class duration gate: must not match generic course/program duration queries
+            if entry.id == "class-duration":
+                if re.search(r"\b(?:course|program|programme)\s+duration|duration\s+of\s+(?:the\s+|a\s+)?(?:course|program|programme)\b", lowered_query):
+                    continue
+
+            doc_vec = self._embedding_store.embeddings.get(entry.id)
+            if not doc_vec:
+                continue
+
+            sim = fast_cosine_similarity(query_vector, doc_vec)
+            scored.append((entry, sim))
+
+        scored.sort(key=lambda item: item[1], reverse=True)
+        return scored[:top_k]
+
+    def _fuse_results(
+        self,
+        lexical_results: List[ScoredEntry],
+        dense_results: List[Tuple[KBEntry, float]],
+        top_k: int = 3,
+    ) -> List[ScoredEntry]:
+        """50/50 linear weighted fusion with min-max normalization and acceptance thresholding."""
+        lex_map = {r.entry.id: r.score for r in lexical_results}
+        dense_map = {entry.id: score for entry, score in dense_results if score >= 0.30}
+        entries_map = {r.entry.id: r.entry for r in lexical_results}
+        for entry, _ in dense_results:
+            entries_map[entry.id] = entry
+
+        all_ids = set(lex_map.keys()) | set(dense_map.keys())
+        if not all_ids:
+            return []
+
+        lex_vals = list(lex_map.values())
+        min_l, max_l = (min(lex_vals), max(lex_vals)) if lex_vals else (0.0, 1.0)
+        range_l = max_l - min_l if max_l != min_l else 1.0
+
+        fused: List[ScoredEntry] = []
+        alpha = config.HYBRID_ALPHA
+        for doc_id in all_ids:
+            raw_l = lex_map.get(doc_id, 0.0)
+            norm_l = (raw_l - min_l) / range_l if lex_vals else 0.0
+            norm_d = max(0.0, dense_map.get(doc_id, 0.0))
+
+            score = alpha * norm_d + (1.0 - alpha) * norm_l
+            if score >= config.HYBRID_ACCEPTANCE_THRESHOLD:
+                fused.append(ScoredEntry(entry=entries_map[doc_id], score=round(score, 4)))
+
+        fused.sort(key=lambda item: item.score, reverse=True)
+        return fused[:top_k]
+
+    def search(self, query: str, top_k: int = 3) -> List[ScoredEntry]:
+        """Main retrieval entry point.
+
+        When HYBRID_RETRIEVAL_ENABLED is False (default):
+          Returns pure TF-IDF results byte-for-byte identical to baseline.
+
+        When HYBRID_RETRIEVAL_ENABLED is True:
+          - Evaluates fast lexical path.
+          - If top lexical candidate is confident & high-coverage, returns in <1ms without calling embedding API.
+          - If weak or ambiguous, calls Gemini embedding API and fuses lexical + dense results.
+          - Falls back gracefully to lexical results on any embedding failure (timeout, 429, 5xx, malformed).
+        """
+        lexical_results = self._lexical_search(query, top_k=max(top_k, 5))
+
+        if not config.HYBRID_RETRIEVAL_ENABLED:
+            return lexical_results[:top_k]
+
+        if self._embedding_store is None:
+            self._init_semantic_layer()
+
+        if self._embedding_store is None or not self._embedding_store.is_valid:
+            return lexical_results[:top_k]
+
+        # Fast-path check
+        top_lex = lexical_results[0] if lexical_results else None
+        query_tokens = set(tokenize(query))
+        coverage = 0.0
+        if top_lex and len(query_tokens) >= 2:
+            doc_index = self.entries.index(top_lex.entry)
+            matched = query_tokens & self._doc_token_sets[doc_index]
+            coverage = len(matched) / len(query_tokens)
+        elif top_lex and len(query_tokens) == 1:
+            coverage = 1.0
+
+        if (
+            top_lex is not None
+            and top_lex.score >= config.HYBRID_LEXICAL_FAST_PATH_THRESHOLD
+            and coverage >= config.HYBRID_LEXICAL_FAST_PATH_COVERAGE
+        ):
+            # Fast path: strong lexical match with high keyword coverage
+            return lexical_results[:top_k]
+
+        # Conditional semantic retrieval: query is ambiguous, conversational, or has zero keyword overlap
+        if self._embedding_client is None:
+            return lexical_results[:top_k]
+
+        query_vec = self._embedding_client.embed_query(query)
+        if not query_vec:
+            # Embedding failure (timeout / 429 / offline): fall back safely to lexical
+            return lexical_results[:top_k]
+
+        dense_results = self._dense_search(query, query_vec, top_k=max(top_k, 5))
+        fused = self._fuse_results(lexical_results, dense_results, top_k=top_k)
+        if not fused:
+            return []
+        return fused
+
