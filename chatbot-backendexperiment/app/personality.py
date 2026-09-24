@@ -237,15 +237,16 @@ ACADEMIC_SESSIONS_RESPONSE = (
 )
 
 SUBJECTS_OFFERED_RESPONSE = (
-    "**Academic Subjects**\n"
-    "- Mathematics\n"
-    "- Science\n"
-    "- English\n\n"
-    "**Confident Speaker**\n"
-    "- Public Speaking\n"
-    "- Business English\n"
-    "- General Communicative Skills\n"
-    "- IELTS Preparation"
+    "**Academic Subjects**\n\n"
+    "- **Mathematics**\n"
+    "- **Science**\n"
+    "- **English**\n"
+    "- **Any additional subjects included in the supported academic curriculum**\n\n"
+    "**Confident Speaker**\n\n"
+    "- **Public Speaking**\n"
+    "- **Business English**\n"
+    "- **General Communicative Skills**\n"
+    "- **IELTS Preparation**"
 )
 
 GRADES_SUPPORTED_RESPONSE = (
@@ -325,8 +326,12 @@ MIDDLE_SCHOOL_OVERVIEW_RESPONSE = (
 )
 
 MIDDLE_SCHOOL_SUBJECTS_RESPONSE = (
-    "The Middle School program (Grades 6–8) covers all core subjects — Mathematics, Science, English, "
-    "and Social Studies — along with dedicated doubt-solving clinics and practical labs designed for Grades 6–8."
+    "**Middle School (Grades 6–8)** covers all core subjects including Mathematics, Science, English, and Social Studies:\n\n"
+    "- **Mathematics**\n"
+    "- **Science**\n"
+    "- **English**\n"
+    "- **Social Studies**\n\n"
+    "Along with dedicated doubt-solving clinics and practical labs designed for Grades 6–8."
 )
 
 MIDDLE_SCHOOL_FEATURES_RESPONSE = (
@@ -400,8 +405,11 @@ SENIOR_SCHOOL_OVERVIEW_RESPONSE = (
 )
 
 SENIOR_SCHOOL_SUBJECTS_RESPONSE = (
-    "The Senior School Focus program (Grades 9–10) focuses primarily on Mathematics and Science, "
-    "along with dedicated board-exam preparation, mock tests, and revision."
+    "**Senior School Focus (Grades 9–10)** covers board-exam core subjects including Mathematics and Science:\n\n"
+    "- **Mathematics**\n"
+    "- **Science**\n"
+    "- **Board Exam Preparation**\n\n"
+    "Supported by weekly mock tests with review, priority doubt-clearing, and board-exam-precision coaching."
 )
 
 SENIOR_SCHOOL_GRADES_RESPONSE = (
@@ -431,12 +439,11 @@ CONFIDENT_SPEAKER_OVERVIEW_RESPONSE = (
 )
 
 CONFIDENT_SPEAKER_CURRICULUM_RESPONSE = (
-    "The Confident Speaker program is a communicative skills program with four distinct curriculum tracks:\n\n"
-    "- **Public Speaking**: For school and college students looking to improve communication skills, speaking confidence, and effective presentation.\n"
-    "- **Business English**: For businesspersons and working professionals focusing on English communication in professional and workplace contexts.\n"
-    "- **General Communicative Skills**: For learners who want to improve practical, everyday English communication in daily life.\n"
-    "- **IELTS Preparation**: For learners preparing for the IELTS exam with targeted speaking and communicative practice.\n\n"
-    "Each track provides personalized 1-on-1 mentoring. You can book a free 30-minute demo using the **Book Free Demo** button."
+    "**The program covers four curriculum areas:**\n\n"
+    "- **Public Speaking** — build confidence and speaking skills for school and college.\n"
+    "- **Business English** — improve professional and workplace communication.\n"
+    "- **General Communicative Skills** — develop practical English for everyday conversations.\n"
+    "- **IELTS Preparation** — prepare for IELTS with guided practice and mentoring."
 )
 
 PUBLIC_SPEAKING_TRACK_RESPONSE = (
@@ -504,8 +511,13 @@ FOUNDATION_YEARS_CLARIFICATION = (
 )
 
 FOUNDATION_YEARS_SUBJECTS_RESPONSE = (
-    "The Foundation Years program for Grades 3–5 covers Mathematics, Science, English, Environmental Studies, and other core subjects, "
-    "emphasizing fundamental concept clarity and active learning."
+    "**Foundation Years (Grades 3–5)** covers core fundamental subjects including Mathematics, Science, English, and Environmental Studies (EVS):\n\n"
+    "- **Mathematics**\n"
+    "- **Science**\n"
+    "- **English**\n"
+    "- **Environmental Studies (EVS)**\n"
+    "- **All Core Subjects**\n\n"
+    "Supported by a curiosity-first approach with concept games, visual learning, and weekly progress notes for parents."
 )
 
 FOUNDATION_YEARS_TEACHING_APPROACH_RESPONSE = (

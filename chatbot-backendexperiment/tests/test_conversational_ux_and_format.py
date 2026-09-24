@@ -78,8 +78,9 @@ check("Test C: Does not say 'You can ask about the program format'", "ask about 
 sess_d = f"test-d-{uuid.uuid4().hex[:6]}"
 res_d = send(sess_d, "What does Confident Speaker cover?")
 check("Test D: Intent is confident_speaker_scope", res_d.intent == "confident_speaker_scope", res_d.intent)
-check("Test D: Mentions Spoken English, Public Speaking, Interview Skills", "spoken english" in res_d.reply.lower() and "public speaking" in res_d.reply.lower() and "interview skills" in res_d.reply.lower(), res_d.reply)
-check("Test D: Practical development rather than rote grammar", "rote grammar" in res_d.reply.lower() or "practical development" in res_d.reply.lower(), res_d.reply)
+check("Test D: Mentions four curriculum areas", "The program covers four curriculum areas:" in res_d.reply, res_d.reply)
+check("Test D: Mentions Public Speaking and Business English", "Public Speaking" in res_d.reply and "Business English" in res_d.reply, res_d.reply)
+check("Test D: Concise without demo CTA", "book free demo" not in res_d.reply.lower(), res_d.reply)
 
 # Test E: Session activity question
 sess_e = f"test-e-{uuid.uuid4().hex[:6]}"

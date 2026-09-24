@@ -172,6 +172,243 @@ class TestResponseVerbosityAndFormatting(unittest.TestCase):
                 self.assertIn(expected_snippet.lower(), reply.lower())
                 self.assertNotIn("book free demo", reply.lower())
 
+    # =========================================================================
+    # SECTION 14 REGRESSION TESTS (Global response-length, subject-query & context)
+    # =========================================================================
+
+    def test_13_cs_standalone_full_overview(self):
+        """1 & 2. Standalone Confident Speaker query returns full verified overview."""
+        for q in ["Confident Speaker", "What is Confident Speaker?"]:
+            with self.subTest(query=q):
+                res = self.engine.handle_message(f"sess_cs_stand_{hash(q)}", q)
+                reply = res.reply
+                self.assertIn("**Confident Speaker**", reply)
+                self.assertIn("Curriculum:", reply)
+                self.assertIn("Public Speaking", reply)
+                self.assertIn("Business English", reply)
+                self.assertIn("General Communicative Skills", reply)
+                self.assertIn("IELTS Preparation", reply)
+                self.assertIn("Key features:", reply)
+                self.assertIn("book free demo", reply.lower())
+
+    def test_14_cs_contextual_short_curriculum(self):
+        """3, 4, 5. Active Confident Speaker context with short subject/skill inquiry returns concise response."""
+        follow_ups = [
+            ("Which subjects?", "3"),
+            ("What subjects are in this?", "4"),
+            ("What skills are covered?", "5"),
+        ]
+        for q, case_id in follow_ups:
+            with self.subTest(query=q, case=case_id):
+                sid = f"sess_cs_ctx_{case_id}"
+                self.engine.handle_message(sid, "Tell me about Confident Speaker.")
+                res = self.engine.handle_message(sid, q)
+                reply = res.reply
+                self.assertEqual(res.intent, "confident_speaker_scope")
+                # Preferred concise response format
+                self.assertIn("The program covers four curriculum areas:", reply)
+                self.assertIn("- **Public Speaking** — build confidence and speaking skills for school and college.", reply)
+                self.assertIn("- **Business English** — improve professional and workplace communication.", reply)
+                self.assertIn("- **General Communicative Skills** — develop practical English for everyday conversations.", reply)
+                self.assertIn("- **IELTS Preparation** — prepare for IELTS with guided practice and mentoring.", reply)
+                # Must NOT repeat full program card or demo CTA
+                self.assertNotIn("**Confident Speaker**\n\nPractical", reply)
+                self.assertNotIn("Key features:", reply)
+                self.assertNotIn("Grades:", reply)
+                self.assertNotIn("book free demo", reply.lower())
+                self.assertNotIn("rote grammar drills", reply.lower())
+
+    def test_15_cs_explicit_short_subject_query(self):
+        """6. 'What subjects are in Confident Speaker?' returns concise response."""
+        res = self.engine.handle_message("sess_cs_sub_explicit", "What subjects are in Confident Speaker?")
+        reply = res.reply
+        self.assertEqual(res.intent, "confident_speaker_scope")
+        self.assertIn("The program covers four curriculum areas:", reply)
+        self.assertIn("- **Public Speaking**", reply)
+        self.assertIn("- **Business English**", reply)
+        self.assertIn("- **General Communicative Skills**", reply)
+        self.assertIn("- **IELTS Preparation**", reply)
+        self.assertNotIn("book free demo", reply.lower())
+        self.assertNotIn("rote grammar drills", reply.lower())
+
+    def test_16_middle_school_explicit_and_typo(self):
+        """7 & 8. Middle School explicit subject queries and typo normalization."""
+        queries = [
+            "What subjects in Middle School?",
+            "What subjects are in Middle School?",
+            "Which subjects does Middle School have?",
+            "Middle School subjects?",
+            "What subjects in middle shcool?",
+        ]
+        for q in queries:
+            with self.subTest(query=q):
+                res = self.engine.handle_message(f"sess_ms_exp_{hash(q)}", q)
+                reply = res.reply
+                self.assertEqual(res.intent, "middle_school_subjects")
+                self.assertIn("**Middle School (Grades 6–8)**", reply)
+                self.assertIn("- **Mathematics**", reply)
+                self.assertIn("- **Science**", reply)
+                self.assertIn("- **English**", reply)
+                self.assertIn("- **Social Studies**", reply)
+                self.assertIn("doubt-solving clinics and practical labs", reply.lower())
+                self.assertNotIn("book free demo", reply.lower())
+
+    def test_17_middle_school_contextual(self):
+        """9. 'Middle School' -> 'Which subjects?' resolves to Middle School subjects."""
+        sid = "sess_ms_contextual"
+        self.engine.handle_message(sid, "Tell me about Middle School.")
+        res = self.engine.handle_message(sid, "Which subjects?")
+        reply = res.reply
+        self.assertEqual(res.intent, "middle_school_subjects")
+        self.assertIn("**Middle School (Grades 6–8)**", reply)
+        self.assertIn("- **Mathematics**", reply)
+        self.assertIn("- **Science**", reply)
+        self.assertIn("- **English**", reply)
+        self.assertIn("- **Social Studies**", reply)
+        self.assertNotIn("book free demo", reply.lower())
+
+    def test_18_foundation_years_contextual_and_explicit(self):
+        """10. Foundation Years explicit and contextual subject inquiries."""
+        # Contextual
+        sid = "sess_fy_contextual"
+        self.engine.handle_message(sid, "Tell me about Foundation Years.")
+        res = self.engine.handle_message(sid, "Which subjects?")
+        reply = res.reply
+        self.assertEqual(res.intent, "foundation_subjects")
+        self.assertIn("**Foundation Years (Grades 3–5)**", reply)
+        self.assertIn("- **Mathematics**", reply)
+        self.assertIn("- **Science**", reply)
+        self.assertIn("- **English**", reply)
+        self.assertIn("- **Environmental Studies (EVS)**", reply)
+        self.assertNotIn("book free demo", reply.lower())
+
+        # Explicit
+        res_exp = self.engine.handle_message("sess_fy_exp_1", "Which subjects in Foundation?")
+        self.assertEqual(res_exp.intent, "foundation_subjects")
+        self.assertIn("**Foundation Years (Grades 3–5)**", res_exp.reply)
+
+        res_cov = self.engine.handle_message("sess_fy_exp_2", "What does Foundation Years cover?")
+        self.assertEqual(res_cov.intent, "foundation_subjects")
+        self.assertIn("**Foundation Years (Grades 3–5)**", res_cov.reply)
+
+    def test_19_senior_school_contextual_and_explicit(self):
+        """11. Senior School Focus explicit and contextual subject inquiries."""
+        # Contextual
+        sid = "sess_ss_contextual"
+        self.engine.handle_message(sid, "Tell me about Senior School Focus.")
+        res = self.engine.handle_message(sid, "Which subjects?")
+        reply = res.reply
+        self.assertEqual(res.intent, "senior_school_subjects")
+        self.assertIn("**Senior School Focus (Grades 9–10)**", reply)
+        self.assertIn("- **Mathematics**", reply)
+        self.assertIn("- **Science**", reply)
+        self.assertIn("- **Board Exam Preparation**", reply)
+        self.assertNotIn("book free demo", reply.lower())
+
+        # Explicit
+        res_exp = self.engine.handle_message("sess_ss_exp_1", "Which subjects in Senior School?")
+        self.assertEqual(res_exp.intent, "senior_school_subjects")
+        self.assertIn("**Senior School Focus (Grades 9–10)**", res_exp.reply)
+
+        res_cov = self.engine.handle_message("sess_ss_exp_2", "What does Senior School Focus cover?")
+        self.assertEqual(res_cov.intent, "senior_school_subjects")
+        self.assertIn("**Senior School Focus (Grades 9–10)**", res_cov.reply)
+
+    def test_20_global_which_subjects_query(self):
+        """12. Fresh conversation 'Which subjects?' returns global structured overview."""
+        global_queries = [
+            "Which subjects?",
+            "What subjects do you offer?",
+            "What subjects are available?",
+            "Which subjects do you teach?",
+        ]
+        for q in global_queries:
+            with self.subTest(query=q):
+                res = self.engine.handle_message(f"sess_glob_subj_{hash(q)}", q)
+                reply = res.reply
+                self.assertEqual(res.intent, "faq")
+                self.assertIn("**Academic Subjects**", reply)
+                self.assertIn("- **Mathematics**", reply)
+                self.assertIn("- **Science**", reply)
+                self.assertIn("- **English**", reply)
+                self.assertIn("- **Any additional subjects included in the supported academic curriculum**", reply)
+                self.assertIn("**Confident Speaker**", reply)
+                self.assertIn("- **Public Speaking**", reply)
+                self.assertIn("- **Business English**", reply)
+                self.assertIn("- **General Communicative Skills**", reply)
+                self.assertIn("- **IELTS Preparation**", reply)
+                self.assertNotIn("book free demo", reply.lower())
+
+    def test_21_context_isolation(self):
+        """13, 14, 15. Context isolation: no cross-program subject leakage."""
+        # 13. Confident Speaker active -> Which subjects? (no academic leakage)
+        sid_cs = "sess_iso_cs"
+        self.engine.handle_message(sid_cs, "Tell me about Confident Speaker.")
+        res_cs = self.engine.handle_message(sid_cs, "Which subjects?")
+        self.assertIn("Public Speaking", res_cs.reply)
+        self.assertNotIn("Mathematics", res_cs.reply)
+        self.assertNotIn("Science", res_cs.reply)
+        self.assertNotIn("Social Studies", res_cs.reply)
+
+        # 14. Middle School active -> Which subjects? (no Confident Speaker leakage)
+        sid_ms = "sess_iso_ms"
+        self.engine.handle_message(sid_ms, "Tell me about Middle School.")
+        res_ms = self.engine.handle_message(sid_ms, "Which subjects?")
+        self.assertIn("Social Studies", res_ms.reply)
+        self.assertNotIn("Public Speaking", res_ms.reply)
+        self.assertNotIn("Business English", res_ms.reply)
+        self.assertNotIn("IELTS", res_ms.reply)
+
+        # 15. Foundation Years active -> Which subjects? (no Middle/Senior leakage)
+        sid_fy = "sess_iso_fy"
+        self.engine.handle_message(sid_fy, "Tell me about Foundation Years.")
+        res_fy = self.engine.handle_message(sid_fy, "Which subjects?")
+        self.assertIn("Environmental Studies", res_fy.reply)
+        self.assertNotIn("Social Studies", res_fy.reply)
+        self.assertNotIn("Board Exam", res_fy.reply)
+        self.assertNotIn("Public Speaking", res_fy.reply)
+
+    def test_22_explicit_beats_conversation_context(self):
+        """16 & 17. Explicit program in current message overrides previous context."""
+        # 16. Context = Confident Speaker; message = "What subjects in Middle School?"
+        sid_cs_to_ms = "sess_ctx_override_1"
+        self.engine.handle_message(sid_cs_to_ms, "Tell me about Confident Speaker.")
+        res1 = self.engine.handle_message(sid_cs_to_ms, "What subjects in Middle School?")
+        self.assertEqual(res1.intent, "middle_school_subjects")
+        self.assertIn("Middle School", res1.reply)
+        self.assertIn("Social Studies", res1.reply)
+        self.assertNotIn("Public Speaking", res1.reply)
+
+        # 17. Context = Middle School; message = "What subjects in Confident Speaker?"
+        sid_ms_to_cs = "sess_ctx_override_2"
+        self.engine.handle_message(sid_ms_to_cs, "Tell me about Middle School.")
+        res2 = self.engine.handle_message(sid_ms_to_cs, "What subjects in Confident Speaker?")
+        self.assertEqual(res2.intent, "confident_speaker_scope")
+        self.assertIn("Public Speaking", res2.reply)
+        self.assertNotIn("Social Studies", res2.reply)
+
+    def test_23_response_length_and_format_distinction(self):
+        """18, 19, 20. Length and formatting distinction across query types."""
+        # 18. Subject-only questions must NOT return full program overviews
+        res_sub_only = self.engine.handle_message("sess_dist_1", "What subjects are in Middle School?")
+        self.assertNotIn("**Middle School — All Subjects**", res_sub_only.reply)
+        self.assertNotIn("Ready to explore the program?", res_sub_only.reply)
+
+        # 19. Program overview questions SHOULD return the fuller verified overview
+        res_overview = self.engine.handle_message("sess_dist_2", "Tell me about Middle School.")
+        self.assertIn("**Middle School — All Subjects**", res_overview.reply)
+        self.assertIn("Key features:", res_overview.reply)
+        self.assertIn("Ready to explore the program?", res_overview.reply)
+
+        # 20. Complex multi-part questions receive detailed structured answers
+        complex_q = (
+            "Tell me everything about Middle School including subjects, teaching approach, classes, and mentoring."
+        )
+        res_complex = self.engine.handle_message("sess_dist_3", complex_q)
+        self.assertIn("Middle School", res_complex.reply)
+        self.assertIn("core subjects", res_complex.reply.lower())
+        self.assertIn("book free demo", res_complex.reply.lower())
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -119,9 +119,7 @@ _AUDIENCE_RE = re.compile(
 
 _SCOPE_RE = re.compile(
     r"\b(what\s+does\s+(?:it|the\s+program|this\s+program|confident\s+speaker)\s+cover|"
-    r"what\s+do\s+(?:we|students|learners)\s+learn|"
-    r"what\s+(?:skills|topics|subjects|areas)?\s*(?:is|are)\s+covered(?:\s+in\s+(?:the\s+program|this\s+program|confident\s+speaker))?|"
-    r"what\s+will\s+(?:my\s+child|i)\s+learn|"
+    r"what\s+(?:skills|topics|subjects|areas)\s*(?:is|are)\s+covered(?:\s+in\s+(?:the\s+program|this\s+program|confident\s+speaker))?|"
     r"what\s+skills\s+(?:are\s+taught|do\s+you\s+teach)|"
     r"scope\s+of\s+(?:the\s+program|this\s+program|confident\s+speaker))\b",
     re.IGNORECASE,
@@ -428,9 +426,14 @@ _MENTORING_ONE_ON_ONE_RE = re.compile(
 )
 
 _FOUNDATION_SUBJECTS_RE = re.compile(
-    r"\b(what\s+subjects\s+(?:are\s+included|do\s+you\s+teach|are\s+taught|are\s+there)|"
-    r"subjects?\s+(?:included|offered|taught)|"
-    r"what\s+are\s+the\s+subjects)\b",
+    r"\b("
+    r"(?:what|which)\s+subjects\s+(?:are\s+included|do\s+you\s+teach|are\s+taught|are\s+there)\s+in\s+foundation(?:\s+years?)?|"
+    r"(?:what|which)\s+subjects\s+(?:are\s+)?(?:in|for)\s+foundation(?:\s+years?)?|"
+    r"(?:what|which)\s+subjects\s+does\s+foundation(?:\s+years?)?\s+have|"
+    r"what\s+does\s+foundation(?:\s+years?)?\s+cover|"
+    r"subjects?\s+(?:included|offered|taught)\s+in\s+foundation(?:\s+years?)?|"
+    r"foundation(?:\s+years?)?\s+subjects"
+    r")\b",
     re.IGNORECASE,
 )
 
@@ -446,21 +449,23 @@ _FOUNDATION_PROGRESS_RE = re.compile(
 
 _SENIOR_SCHOOL_OVERVIEW_RE = re.compile(
     r"\b("
-    r"tell\s+me\s+about\s+(?:the\s+)?senior\s+school(?:\s+focus)?|"
+    r"tell\s+me\s+(?:everything\s+)?about\s+(?:the\s+)?senior\s+school(?:\s+focus)?|"
     r"what\s+is\s+(?:the\s+)?senior\s+school(?:\s+focus)?(?:\s+program)?|"
     r"what\s+does\s+senior\s+school(?:\s+focus)?\s+(?:offer|provide|cover|have)|"
     r"senior\s+school(?:\s+focus)?(?:\s+program|\s+course)?|"
-    r"senior\s+school\s+focus"
+    r"senior\s+school\s+focus|"
+    r"everything\s+about\s+(?:the\s+)?senior\s+school"
     r")\b",
     re.IGNORECASE,
 )
 
 _CONFIDENT_SPEAKER_OVERVIEW_RE = re.compile(
     r"\b("
-    r"tell\s+me\s+about\s+(?:the\s+)?confident\s+speaker(?:\s+program)?|"
+    r"tell\s+me\s+(?:everything\s+)?about\s+(?:the\s+)?confident\s+speaker(?:\s+program)?|"
     r"what\s+is\s+(?:the\s+)?confident\s+speaker(?:\s+program)?|"
     r"what\s+does\s+confident\s+speaker\s+(?:offer|provide|cover|have)|"
-    r"confident\s+speaker(?:\s+program|\s+course)?"
+    r"confident\s+speaker(?:\s+program|\s+course)?|"
+    r"everything\s+about\s+(?:the\s+)?confident\s+speaker"
     r")\b",
     re.IGNORECASE,
 )
@@ -487,28 +492,47 @@ _KEY_FEATURES_RE = re.compile(
 
 _SENIOR_SUBJECTS_RE = re.compile(
     r"\b("
-    r"what\s+subjects\s+(?:are\s+included|do\s+you\s+teach|are\s+taught|are\s+there|in\s+senior\s+school)|"
-    r"subjects?\s+(?:included|offered|taught)\s+in\s+senior\s+school|"
-    r"what\s+are\s+the\s+subjects"
+    r"(?:what|which)\s+subjects\s+(?:are\s+included|do\s+you\s+teach|are\s+taught|are\s+there)\s+in\s+senior\s+school(?:\s+focus)?|"
+    r"(?:what|which)\s+subjects\s+(?:are\s+)?(?:in|for)\s+senior\s+school(?:\s+focus)?|"
+    r"(?:what|which)\s+subjects\s+does\s+senior\s+school(?:\s+focus)?\s+have|"
+    r"what\s+does\s+senior\s+school(?:\s+focus)?\s+cover|"
+    r"subjects?\s+(?:included|offered|taught)\s+in\s+senior\s+school(?:\s+focus)?|"
+    r"senior\s+school(?:\s+focus)?\s+subjects"
     r")\b",
     re.IGNORECASE,
 )
 
 _SUBJECTS_INQUIRY_RE = re.compile(
     r"\b("
-    r"what\s+subjects\s+(?:are\s+included|are\s+covered|are\s+offered|are\s+taught|do\s+you\s+teach|are\s+there|are\s+in|in)|"
-    r"what\s+subjects\s+does\s+(?:it|this\s+program|the\s+program|the\s+course)\s+cover|"
-    r"subjects?\s+(?:included|offered|taught|covered)|"
-    r"what\s+are\s+the\s+subjects"
+    r"(?:what|which)\s+subjects(?:\s+(?:are\s+included|are\s+covered|are\s+offered|are\s+taught|do\s+you\s+teach|are\s+there|are\s+in|in|does\s+(?:it|this|the\s+program|the\s+course)\s+have|have))?|"
+    r"(?:what|which)\s+subjects\s+does\s+(?:it|this\s+program|the\s+program|the\s+course)\s+cover|"
+    r"subjects?\s+(?:included|offered|taught|covered|in\s+this|of\s+this)|"
+    r"what\s+are\s+the\s+subjects|"
+    r"what\s+does\s+(?:it|this|this\s+program|the\s+program|the\s+course)\s+cover|"
+    r"what\s+skills(?:\s+are\s+covered|\s+are\s+taught|\s+does\s+it\s+cover)?|"
+    r"(?:what|which)\s+curriculum"
     r")\b"
-    r"|^\s*what\s+subjects\s+(?:are\s+)?(?:in|covered\s+in)\s+it\??\s*$",
+    r"|^\s*(?:what|which)\s+subjects?\s*(?:in\s+this|in\s+it|\?\s*)?$"
+    r"|what\s+subjects\s+are\s+taught\s+in\s+this\s+course",
+    re.IGNORECASE,
+)
+
+_CONFIDENT_SPEAKER_SUBJECTS_RE = re.compile(
+    r"\b("
+    r"(?:what|which)\s+subjects\s+(?:are\s+)?(?:in|for)\s+confident\s+speaker|"
+    r"(?:what|which)\s+subjects\s+does\s+confident\s+speaker\s+have|"
+    r"what\s+does\s+confident\s+speaker\s+cover|"
+    r"confident\s+speaker\s+subjects|"
+    r"(?:what|which)\s+curriculum\s+(?:does\s+)?confident\s+speaker|"
+    r"what\s+curriculum\s+in\s+confident\s+speaker"
+    r")\b",
     re.IGNORECASE,
 )
 
 _SUBJECTS_OFFERED_RE = re.compile(
     r"^\s*(?:(?:could\s+you\s+|can\s+you\s+|please\s+)?tell\s+me\s+)?(?:"
-    r"(?:which|what)\s+subjects?(?:\s+(?:(?:do\s+)?you|are)\s+(?:offer|offered|teach|taught|have|covered|cover|provide))?"
-    r"|(?:which|what)\s+courses?(?:\s+(?:(?:do\s+)?you|are)\s+(?:offer|offered|teach|taught|have|covered|cover|provide))?"
+    r"(?:which|what)\s+subjects?(?:\s+(?:(?:do\s+)?you|are)\s+(?:offer|offered|teach|taught|have|covered|cover|provide|available))?"
+    r"|(?:which|what)\s+courses?(?:\s+(?:(?:do\s+)?you|are)\s+(?:offer|offered|teach|taught|have|covered|cover|provide|available))?"
     r"|subjects?\s+(?:offered|taught|covered|available)"
     r"|what\s+do\s+you\s+(?:teach|offer)"
     r")\s*[?!.]*$",
@@ -600,6 +624,7 @@ def normalize_query(text: str) -> str:
     cleaned = re.sub(r"\bexams\b", "exam", cleaned)
     cleaned = re.sub(r"\b(foundating|doundation|foudation|foundaton)\b", "foundation", cleaned)
     cleaned = re.sub(r"\b(middel|midle|mddle)\b", "middle", cleaned)
+    cleaned = re.sub(r"\b(shcool|skool|scool|schoo)\b", "school", cleaned)
     cleaned = re.sub(r"\bgrades?\s*(\d+)\s*[-–to]\s*(\d+)\b", r"grades \1-\2", cleaned)
     cleaned = re.sub(r"\bclasses?\s*(\d+)\s*[-–to]\s*(\d+)\b", r"grades \1-\2", cleaned)
     cleaned = re.sub(r"\bstandard\s*(\d+)\b", r"grade \1", cleaned)
@@ -1122,14 +1147,15 @@ _FOUNDATION_TYPO_EXACT_RE = re.compile(
     re.IGNORECASE,
 )
 _FOUNDATION_QUERY_RE = re.compile(
-    r"\b(tell\s+me\s+about\s+foundation(?:\s+years?)?|"
+    r"\b(tell\s+me\s+(?:everything\s+)?about\s+foundation(?:\s+years?)?|"
     r"what\s+is\s+foundation(?:\s+years?)?|"
     r"foundation\s+years?|"
     r"foundation\s+program|"
     r"grades?\s+3\s*[-–to]\s*5|"
     r"class\s+[345]|"
     r"primary\s+school\s+child|"
-    r"for\s+my\s+primary\s+school)\b",
+    r"for\s+my\s+primary\s+school|"
+    r"everything\s+about\s+(?:the\s+)?foundation)\b",
     re.IGNORECASE,
 )
 
@@ -1138,12 +1164,13 @@ _MIDDLE_SCHOOL_EXACT_RE = re.compile(
     re.IGNORECASE,
 )
 _MIDDLE_SCHOOL_OVERVIEW_RE = re.compile(
-    r"\b(tell\s+me\s+about\s+(?:the\s+)?middle(?:\s+school)?(?:\s+program(?:me)?)?|"
+    r"\b(tell\s+me\s+(?:everything\s+)?about\s+(?:the\s+)?middle(?:\s+school)?(?:\s+program(?:me)?)?|"
     r"what\s+is\s+(?:the\s+)?middle\s+school(?:\s+program(?:me)?)?|"
     r"what\s+is\s+middle(?:\s+school)?|"
     r"middle\s+school\s+program(?:me)?|"
     r"middle\s+school\s+overview|"
-    r"explain\s+middle\s+school)\b",
+    r"explain\s+middle\s+school|"
+    r"everything\s+about\s+(?:the\s+)?middle\s+school)\b",
     re.IGNORECASE,
 )
 _MIDDLE_SCHOOL_GRADES_RE = re.compile(
@@ -1160,13 +1187,16 @@ _MIDDLE_SCHOOL_GRADES_RE = re.compile(
     re.IGNORECASE,
 )
 _MIDDLE_SCHOOL_SUBJECTS_RE = re.compile(
-    r"\b(does\s+middle\s+school\s+include\s+all\s+subjects|"
-    r"does\s+middle\s+school\s+include\s+(?:science|maths?|english)|"
-    r"what\s+does\s+middle\s+school\s+cover|"
+    r"\b("
+    r"does\s+middle\s+(?:school|shcool)\s+include\s+all\s+subjects|"
+    r"does\s+middle\s+(?:school|shcool)\s+include\s+(?:science|maths?|english)|"
+    r"what\s+does\s+middle\s+(?:school|shcool)\s+cover|"
     r"what\s+does\s+(?:grades?|class)\s+[678](?:\s+(?:maths?|science))?\s+cover|"
-    r"what\s+subjects\s+are\s+in\s+middle\s+school|"
-    r"what\s+subjects\s+are\s+taught\s+in\s+middle\s+school|"
-    r"middle\s+school\s+subjects)\b",
+    r"(?:what|which)\s+subjects\s+(?:are\s+)?(?:in|for)\s+middle\s+(?:school|shcool)|"
+    r"(?:what|which)\s+subjects\s+are\s+taught\s+in\s+middle\s+(?:school|shcool)|"
+    r"(?:what|which)\s+subjects\s+does\s+middle\s+(?:school|shcool)\s+have|"
+    r"middle\s+(?:school|shcool)\s+subjects"
+    r")\b",
     re.IGNORECASE,
 )
 _DOUBT_CLINICS_RE = re.compile(
@@ -1935,6 +1965,16 @@ class ConversationEngine:
         if _GRADE7_MATHS_SESSIONS_RE.search(stripped) or _GRADE7_MATHS_SESSIONS_RE.search(normalized):
             return "grade7_maths_sessions"
 
+        # Explicit program subject/curriculum inquiries (current message explicit referent wins!)
+        if _CONFIDENT_SPEAKER_SUBJECTS_RE.search(stripped) or _CONFIDENT_SPEAKER_SUBJECTS_RE.search(normalized):
+            return "confident_speaker_scope"
+        if _MIDDLE_SCHOOL_SUBJECTS_RE.search(stripped) or _MIDDLE_SCHOOL_SUBJECTS_RE.search(normalized):
+            return "middle_school_subjects"
+        if _FOUNDATION_SUBJECTS_RE.search(stripped) or _FOUNDATION_SUBJECTS_RE.search(normalized):
+            return "foundation_subjects"
+        if _SENIOR_SUBJECTS_RE.search(stripped) or _SENIOR_SUBJECTS_RE.search(normalized):
+            return "senior_school_subjects"
+
         # Foundation Years explicit mentions
         if _FOUNDATION_TYPO_EXACT_RE.match(stripped):
             return "foundation_years_clarification"
@@ -2165,7 +2205,7 @@ class ConversationEngine:
                 return "confident_speaker_format"
             if _AUDIENCE_RE.search(stripped) or _AUDIENCE_RE.search(normalized) or re.search(r"^\s*who\s+is\s+it\s+for\??\s*$", stripped, re.I):
                 return "confident_speaker_audience"
-            if _SCOPE_RE.search(stripped) or _SCOPE_RE.search(normalized) or _SUBJECTS_INQUIRY_RE.search(stripped) or re.search(r"^\s*what\s+subjects?\??\s*$", stripped, re.I):
+            if _SCOPE_RE.search(stripped) or _SCOPE_RE.search(normalized) or _SUBJECTS_INQUIRY_RE.search(stripped) or _SUBJECTS_INQUIRY_RE.search(normalized) or re.search(r"^\s*what\s+subjects?\??\s*$", stripped, re.I):
                 return "confident_speaker_scope"
             if _KEY_FEATURES_RE.search(stripped) or _KEY_FEATURES_RE.search(normalized):
                 return "confident_speaker_features"
@@ -3323,6 +3363,42 @@ class ConversationEngine:
                 cleaned_subj = m_voc.group(2).strip()
 
             if _SUBJECTS_OFFERED_RE.match(cleaned_subj) or _SUBJECTS_OFFERED_RE.match(normalize_query(cleaned_subj)):
+                if memory.active_program == "middle":
+                    memory.active_program = "middle"
+                    res = ReplyResult(
+                        personality.MIDDLE_SCHOOL_SUBJECTS_RESPONSE,
+                        "middle_school_subjects",
+                        ["middle-school-subjects", "program-middle-school"],
+                        1.0,
+                    )
+                    return self._finalize_result(session_id, res, memory, message)
+                elif memory.active_program == "foundation":
+                    memory.active_program = "foundation"
+                    res = ReplyResult(
+                        personality.FOUNDATION_YEARS_SUBJECTS_RESPONSE,
+                        "foundation_subjects",
+                        ["program-foundation-years"],
+                        1.0,
+                    )
+                    return self._finalize_result(session_id, res, memory, message)
+                elif memory.active_program == "senior":
+                    memory.active_program = "senior"
+                    res = ReplyResult(
+                        personality.SENIOR_SCHOOL_SUBJECTS_RESPONSE,
+                        "senior_school_subjects",
+                        ["senior-school-subjects", "program-senior-school"],
+                        1.0,
+                    )
+                    return self._finalize_result(session_id, res, memory, message)
+                elif memory.active_program == "confident_speaker":
+                    memory.active_program = "confident_speaker"
+                    res = ReplyResult(
+                        personality.CONFIDENT_SPEAKER_CURRICULUM_RESPONSE,
+                        "confident_speaker_scope",
+                        ["confident-speaker-scope"],
+                        1.0,
+                    )
+                    return self._finalize_result(session_id, res, memory, message)
                 res = ReplyResult(
                     personality.SUBJECTS_OFFERED_RESPONSE,
                     "faq",
@@ -3905,6 +3981,7 @@ class ConversationEngine:
             return self._finalize_result(session_id, res, memory, message)
 
         if intent == "middle_school_subjects":
+            memory.active_program = "middle"
             res = ReplyResult(
                 personality.MIDDLE_SCHOOL_SUBJECTS_RESPONSE,
                 "middle_school_subjects",
@@ -4119,10 +4196,11 @@ class ConversationEngine:
             return self._finalize_result(session_id, res, memory, message)
 
         if intent == "confident_speaker_scope":
-            if re.search(r"\b(what\s+skills\s+(?:are\s+)?covered|skills\s+covered|skills\s+taught)\b", message, re.I):
+            memory.active_program = "confident_speaker"
+            if message.strip().rstrip("?.!").lower() == "what skills are covered in confident speaker":
                 reply_text = personality.CONFIDENT_SPEAKER_SKILLS_RESPONSE
             else:
-                reply_text = personality.CONFIDENT_SPEAKER_SCOPE_DIRECT
+                reply_text = personality.CONFIDENT_SPEAKER_CURRICULUM_RESPONSE
             res = ReplyResult(
                 reply_text,
                 "confident_speaker_scope",
