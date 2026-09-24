@@ -538,16 +538,19 @@ guard is present, and a source-tree scan confirms no hardcoded API keys,
 no real `.env` file, and that `.gitignore`/`.env.example` are safe.
 
 ```powershell
-# 1. Run the Full Unified Master Release Test Suite (all 20 test suites)
+# 1. Run all unit and regression tests with Pytest (158+ tests)
+pytest
+
+# 2. Run the Full Unified Master Release Test Suite (all 20 test suites)
 python chatbot-backendexperiment/tests/run_release_test_suite.py
 
-# 2. Run the RAG Evaluation Benchmark (126 test cases)
+# 3. Run the RAG Evaluation Benchmark (126 test cases)
 python evaluation/runners/run_benchmark.py
 
-# 3. Run Production Smoke Tests (10 high-speed end-to-end checks)
+# 4. Run Production Smoke Tests (11 high-speed end-to-end checks)
 python chatbot-backendexperiment/tests/test_production_smoke.py
 
-# 4. Run Fault Injection & Reliability Tests (20 failure paths)
+# 5. Run Fault Injection & Reliability Tests (20 failure paths)
 python chatbot-backendexperiment/tests/test_production_reliability.py
 ```
 
@@ -866,9 +869,7 @@ publicly:
   logging them
 - Swap `retrieval.py`'s lexical search for embeddings if the knowledge
   base grows significantly
-- Admin UI for editing `wementors_kb.json` without touching JSON by hand
-- Automated FastAPI `TestClient` suite (`pytest`) once dependencies can be
-  installed in CI
+- Automated CI pipeline execution for pytest and evaluation suites
 - Deploy frontend and backend, move `ALLOWED_ORIGINS` to the real domain
 
 ## Git Workflow
