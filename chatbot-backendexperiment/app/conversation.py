@@ -197,12 +197,38 @@ _CLASS_DURATION_RE = re.compile(
 )
 
 _CLASS_FREQUENCY_RE = re.compile(
-    r"\b(how\s+many\s+classes\s+(?:per|a|each)\s+week|"
-    r"how\s+many\s+classes\s+(?:do\s+you\s+have|are\s+there)\s+(?:per|a|each)\s+week|"
-    r"how\s+often\s+are\s+(?:the\s+)?classes|"
+    r"\b("
+    r"how\s+many\s+(?:classes|sessions)\s+(?:per|a|each)\s+week|"
+    r"how\s+many\s+(?:classes|sessions)\s+(?:do\s+you\s+have|are\s+there|do\s+students\s+have)(?:\s+(?:per|a|each)\s+week)?|"
+    r"how\s+many\s+are\s+there\s+(?:per|a|each)\s+week|"
+    r"how\s+often\s+are\s+(?:the\s+)?(?:classes|sessions)|"
     r"how\s+often\s+are\s+they|"
+    r"how\s+frequently\s+(?:do\s+you\s+have\s+classes|are\s+(?:the\s+)?classes)|"
     r"class\s+frequency|"
-    r"how\s+frequently\s+are\s+classes)\b",
+    r"(?:classes|sessions)\s+(?:per|a|each)\s+week|"
+    r"^\s*classes\s*[?!.]*$"
+    r")\b",
+    re.IGNORECASE,
+)
+
+_CLASS_SIZE_RE = re.compile(
+    r"\b("
+    r"how\s+many\s+(?:students?|kids?|children|learners?)\s+(?:are\s+(?:there\s+)?)?(?:in|per)\s+(?:a\s+|an\s+|each\s+|one\s+|the\s+)?(?:class|batch|group)|"
+    r"how\s+many\s+(?:students?|kids?|children|learners?)\s+(?:in|per)\s+(?:class|batch|group)|"
+    r"how\s+many\s+students?\s+in\s+class|"
+    r"what(?:\'s|\s+is)\s+the\s+(?:class\s+size|batch\s+size|group\s+size)|"
+    r"what\s+is\s+(?:the\s+)?batch\s+size|"
+    r"what(?:\'s|\s+is)\s+batch\s+size|"
+    r"batch\s+size|"
+    r"class\s+size|"
+    r"group\s+size|"
+    r"how\s+big\s+are\s+the\s+(?:classes|batches|groups)|"
+    r"how\s+big\s+is\s+the\s+(?:class|batch|group)|"
+    r"are\s+classes\s+(?:one[- ]on[- ]one|1[:–-]1|individual)|"
+    r"is\s+it\s+(?:one[- ]on[- ]one|1[:–-]1)\s+or\s+group|"
+    r"is\s+it\s+individual\s+or\s+group|"
+    r"individual\s+or\s+group"
+    r")\b",
     re.IGNORECASE,
 )
 
@@ -555,8 +581,18 @@ _SUBJECT_INQUIRY_GENERAL_RE = re.compile(
     r"|what\s+do\s+you\s+(?:teach|offer)"
     r"|what\s+are\s+the\s+subjects?"
     r"|(?:what|which)\s+subjects?"
+    r"|(?:about\s+)?(?:the\s+)?subjects?"
     r"|subjects?"
     r")\s*[?!.]*$",
+    re.IGNORECASE,
+)
+
+_GENERIC_PROGRAMS_RE = re.compile(
+    r"^\s*(?:"
+    r"(?:what|which|all|show\s+me|tell\s+me\s+about(?:\s+(?:the|your|all))?|list\s+of)\s+)?"
+    r"(?:programs?|courses?)"
+    r"(?:\s+(?:do\s+you\s+(?:offer|have)|available|offered|overview|list|are\s+there))?"
+    r"\s*[?!.]*$",
     re.IGNORECASE,
 )
 
@@ -1029,21 +1065,21 @@ _LOCATION_RE = re.compile(
 
 _ONLINE_CLASSES_RE = re.compile(
     r"\b("
-    r"are\s+(?:the\s+)?classes\s+online|"
-    r"are\s+(?:the\s+)?classes\s+(?:conducted\s+)?online\s+or\s+offline|"
-    r"is\s+it\s+online\s+or\s+offline|"
+    r"are\s+(?:the\s+|they\s+|your\s+)?(?:classes|sessions)?\s*(?:conducted\s+)?(?:live\s+and\s+|100%\s+)?online(?:\s+or\s+offline)?|"
+    r"is\s+it\s+(?:conducted\s+)?(?:live\s+and\s+|100%\s+)?online(?:\s+or\s+offline)?|"
+    r"are\s+(?:they|it|these|sessions|classes)\s+online|"
     r"do\s+you\s+teach\s+online|"
-    r"are\s+(?:your\s+)?sessions\s+virtual|"
+    r"are\s+(?:your\s+)?(?:sessions|classes|they)\s+virtual|"
+    r"is\s+it\s+virtual|"
     r"can\s+i\s+attend\s+from\s+home|"
     r"do\s+i\s+have\s+to\s+come\s+somewhere(?:\s+for\s+classes)?|"
     r"do\s+you\s+have\s+offline\s+(?:centers?|classes?)|"
     r"do\s+you\s+offer\s+offline\s+classes|"
     r"are\s+you\s+online\s+only|"
-    r"are\s+classes\s+virtual|"
     r"online\s+or\s+offline|"
     r"(?:what\s+about\s+)?online\s+classes\??|"
     r"(?:what\s+about\s+)?virtual\s+classes\??|"
-    r"how\s+are\s+classes\s+conducted|"
+    r"(?:how|where)\s+are\s+(?:the\s+)?(?:classes|sessions)\s+(?:conducted|held)|"
     r"do\s+you\s+use\s+google\s+meet|"
     r"do\s+you\s+have\s+your\s+own\s+lms|"
     r"google\s+meet|"
@@ -1368,29 +1404,14 @@ class ConversationEngine:
                 return mem.active_program
             rows = database.get_recent_messages(session_id, limit=8)
             for row in reversed(rows):
-                intent = row["intent"] or ""
-                content = (row["content"] or "").lower()
-                if "foundation" in intent or "foundation" in content:
-                    return "foundation"
-                if "middle" in intent or "middle" in content:
-                    return "middle"
-                if (
-                    "confident_speaker" in intent
-                    or "confident speaker" in content
-                    or "speaking confidence" in content
-                    or "public speaking" in content
-                    or "spoken english" in content
-                    or "business english" in content
-                    or "ielts" in content
-                    or "everyday english" in content
-                ):
-                    return "confident_speaker"
-                if "board_exam" in intent or "board" in content or "class 10" in content or "class 9" in content or "grade 10" in content or "grade 9" in content or "senior school" in content:
-                    return "board_exam"
-                if "academic" in intent or "academic" in content:
-                    return "academic"
-                if intent in ("general_info", "capability"):
-                    return "general"
+                if row.get("role") != "user":
+                    continue
+                content = (row.get("content") or "").strip()
+                if _GENERIC_PROGRAMS_RE.match(content) or _GENERIC_PROGRAMS_RE.match(normalize_query(content)):
+                    return None
+                prog = self._extract_program_from_text(content) or self._extract_program_from_text(normalize_query(content))
+                if prog and prog in ("foundation", "middle", "senior", "confident_speaker"):
+                    return prog
         except Exception:
             pass
         return None
@@ -1641,14 +1662,15 @@ class ConversationEngine:
             memory.active_program = self._program_id_to_key(prog_id)
             return self._reply_for_program_id(prog_id, session_id)
 
-        ordinal_idx = self._extract_ordinal_index(text)
-        if ordinal_idx is not None:
-            idx = ordinal_idx if ordinal_idx >= 0 else len(programs_order) - 1
-            if 0 <= idx < len(programs_order):
-                prog_id = programs_order[idx]
-                memory.last_expanded_index = idx
-                memory.active_program = self._program_id_to_key(prog_id)
-                return self._reply_for_program_id(prog_id, session_id)
+        if not (_GRADE_1_2_RE.search(text) or re.search(r"\b(?:first|1st|second|2nd|third|3rd|fourth|4th|fifth|5th|sixth|6th|seventh|7th|eighth|8th|ninth|9th|tenth|10th)\s+(?:grade|class|standard)s?\b", text, re.I)):
+            ordinal_idx = self._extract_ordinal_index(text)
+            if ordinal_idx is not None:
+                idx = ordinal_idx if ordinal_idx >= 0 else len(programs_order) - 1
+                if 0 <= idx < len(programs_order):
+                    prog_id = programs_order[idx]
+                    memory.last_expanded_index = idx
+                    memory.active_program = self._program_id_to_key(prog_id)
+                    return self._reply_for_program_id(prog_id, session_id)
 
         if re.search(r"\b(one\s+before\s+that|the\s+previous\s+one|the\s+previous\s+course)\b", text, re.I):
             if memory.last_expanded_index is not None and memory.last_expanded_index > 0:
@@ -1678,20 +1700,23 @@ class ConversationEngine:
                 result.suggestions,
             )
 
-        prog_id = next((m for m in result.matched_entry_ids if m in _PROGRAM_NAME_HINTS), None)
-        if prog_id:
-            memory.active_program = self._program_id_to_key(prog_id)
-        elif "middle" in result.intent:
-            memory.active_program = "middle"
-        elif "foundation" in result.intent:
-            memory.active_program = "foundation"
-        elif "board" in result.intent or "senior" in result.intent:
-            memory.active_program = "senior"
-        elif "confident_speaker" in result.intent:
-            memory.active_program = "confident_speaker"
-        elif "academic" in result.intent or result.intent == "grade7_maths_sessions":
-            memory.active_program = "academic"
-        elif result.intent in ("programs_overview", "comparison") or "programs-overview" in result.matched_entry_ids:
+        # Active program state transitions:
+        # ONLY valid user program intent may create or update active_program.
+        # Assistant-generated text, retrieval results, or generic queries must NEVER create or update active_program.
+        user_text = user_message.strip()
+        is_generic_programs = bool(
+            _GENERIC_PROGRAMS_RE.match(user_text)
+            or _GENERIC_PROGRAMS_RE.match(normalize_query(user_text))
+            or result.intent in ("programs_overview", "comparison")
+        )
+        is_generic_subject = bool(
+            (_SUBJECT_INQUIRY_GENERAL_RE.match(user_text) or _SUBJECT_INQUIRY_GENERAL_RE.match(normalize_query(user_text)))
+            and not self._extract_program_from_text(user_text)
+        )
+
+        if is_generic_programs:
+            # Generic programs discovery: resets active program context to None and establishes program list
+            memory.active_program = None
             memory.ordered_programs = [
                 "program-foundation-years",
                 "program-middle-school",
@@ -1699,6 +1724,14 @@ class ConversationEngine:
                 "program-confident-speaker",
             ]
             memory.last_expanded_index = None
+        elif is_generic_subject:
+            # Generic subject inquiry: preserve existing active_program (if None, stay None; if set, stay set)
+            pass
+        else:
+            # Explicit user program intent: ONLY genuine user selection may create or update active_program
+            explicit_user_prog = self._extract_program_from_text(user_text) or self._extract_program_from_text(normalize_query(user_text))
+            if explicit_user_prog and explicit_user_prog in ("foundation", "middle", "senior", "confident_speaker", "academic"):
+                memory.active_program = explicit_user_prog
 
         if memory.active_program:
             if memory.active_program not in memory.recent_programs_in_order:
@@ -1840,7 +1873,21 @@ class ConversationEngine:
                 return "demo_information"
             return "class_duration"
 
-        if _CLASS_FREQUENCY_RE.search(stripped) or _CLASS_FREQUENCY_RE.search(normalized):
+        has_online = bool(_ONLINE_CLASSES_RE.search(stripped) or _ONLINE_CLASSES_RE.search(normalized))
+        has_freq = bool(_CLASS_FREQUENCY_RE.search(stripped) or _CLASS_FREQUENCY_RE.search(normalized))
+        has_size = bool(_CLASS_SIZE_RE.search(stripped) or _CLASS_SIZE_RE.search(normalized))
+
+        if has_online and has_freq:
+            return "online_and_frequency"
+        if has_size and has_freq:
+            return "class_size_and_frequency"
+        if has_online and has_size:
+            return "online_and_class_size"
+        if has_size:
+            return "class_size"
+        if has_online:
+            return "online_classes"
+        if has_freq:
             explicit_prog = self._extract_program_from_text(stripped) or self._extract_program_from_text(normalized)
             active_p = explicit_prog or memory.active_program or self._get_current_subject(session_id)
             if active_p == "confident_speaker":
@@ -3271,6 +3318,8 @@ class ConversationEngine:
             and not _ELIGIBILITY_GENERAL_RE.match(message)
             and not _LOCATION_RE.search(message)
             and not _ONLINE_CLASSES_RE.search(message)
+            and not _CLASS_SIZE_RE.search(message)
+            and not _CLASS_FREQUENCY_RE.search(message)
             and not _IELTS_RE.search(message)
             and not _BUSINESS_ENGLISH_RE.search(message)
             and not _PUBLIC_SPEAKING_RE.search(message)
@@ -3320,12 +3369,15 @@ class ConversationEngine:
                     or _GENERAL_INFO_RE.match(message)
                     or _BOOK_ENROLL_RE.match(message)
                     or _FRUSTRATED_RE.search(message)
+                    or _ONLINE_CLASSES_RE.search(message)
+                    or _CLASS_SIZE_RE.search(message)
+                    or _CLASS_FREQUENCY_RE.search(message)
                     or _IELTS_RE.search(message)
                     or _BUSINESS_ENGLISH_RE.search(message)
                     or _PUBLIC_SPEAKING_RE.search(message)
                     or _GENERAL_COMMUNICATIVE_RE.search(message)
                     or _CS_CURRICULUM_RE.search(message)
-                    or re.search(r"\b(foundation|found|foundating|doundation|foudation|foundaton|middle|senior|confident|speaker|program|programs|course|courses|curriculum|subject|subjects|grade|grades|class|standard|fee|fees|cost|costs|pricing|price|demo|trial|enroll|enrollment|apply|admissions?|clinic|clinics|dashboard|mentor|mentors|mentoring|ielts|prep|preparation|coaching|communicative|communication)\b", message, re.I)
+                    or re.search(r"\b(foundation|found|foundating|doundation|foudation|foundaton|middle|senior|confident|speaker|program|programs|course|courses|curriculum|subject|subjects|grade|grades|class|standard|fee|fees|cost|costs|pricing|price|demo|trial|enroll|enrollment|apply|admissions?|clinic|clinics|dashboard|mentor|mentors|mentoring|ielts|prep|preparation|coaching|communicative|communication|batch|batches|size)\b", message, re.I)
                 )
                 if (
                     len(words) <= 3
@@ -3885,7 +3937,43 @@ class ConversationEngine:
             res = ReplyResult(
                 personality.ONLINE_CLASSES_RESPONSE,
                 "online_classes",
-                ["online-or-offline", "programs-overview"],
+                ["online-or-offline"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "online_and_frequency":
+            res = ReplyResult(
+                personality.ONLINE_AND_FREQUENCY_RESPONSE,
+                "online_and_frequency",
+                ["online-or-offline", "class-frequency"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "class_size_and_frequency":
+            res = ReplyResult(
+                personality.CLASS_SIZE_AND_FREQUENCY_RESPONSE,
+                "class_size_and_frequency",
+                ["batch-size", "class-frequency"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "online_and_class_size":
+            res = ReplyResult(
+                personality.ONLINE_AND_CLASS_SIZE_RESPONSE,
+                "online_and_class_size",
+                ["online-or-offline", "batch-size"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "class_size":
+            res = ReplyResult(
+                personality.CLASS_SIZE_RESPONSE,
+                "class_size",
+                ["batch-size"],
                 1.0,
             )
             return self._finalize_result(session_id, res, memory, message)

@@ -16,15 +16,15 @@
 | **NDCG@3** | 0.7905 | **0.8105** | **+0.0200** | Measured |
 | **False Positive Rate** | 0.0% | **60.0%** | 0.00% | Measured |
 | **False Negative Rate** | 16.0% | **16.0%** | **0.00%** | Measured |
-| **Answer Correctness** | 78.85% | **82.69%** | **+3.84%** | Measured |
-| **Groundedness** | 96.79% | **97.44%** | 0.00% | Measured |
-| **Hallucination Rate** | 3.21% | **2.56%** | 0.00% | Measured |
-| **Unknown Handling** | 93.59% | **94.23%** | 0.00% | Measured |
-| **Context Resolution** | 91.03% | **93.59%** | 0.00% | Measured |
-| **In-Memory Retrieval Latency** | **5.85 ms** | 9.8 ms | +3.95 ms | Measured |
-| **Embedding API Calls** | 0 / 156 | **73 / 156** | +73 | Measured |
-| **Embedding API Call Rate** | 0.00% | **46.79%** | +46.79% | Measured |
-| **Embedding Latency P50** | 0.0 ms | **104.22 ms** | +104.22 ms | Measured |
+| **Answer Correctness** | 80.13% | **82.69%** | **+2.56%** | Measured |
+| **Groundedness** | 96.15% | **96.79%** | 0.00% | Measured |
+| **Hallucination Rate** | 3.85% | **3.21%** | 0.00% | Measured |
+| **Unknown Handling** | 92.31% | **92.95%** | 0.00% | Measured |
+| **Context Resolution** | 90.38% | **92.95%** | 0.00% | Measured |
+| **In-Memory Retrieval Latency** | **6.34 ms** | 9.96 ms | +3.62 ms | Measured |
+| **Embedding API Calls** | 0 / 156 | **67 / 156** | +67 | Measured |
+| **Embedding API Call Rate** | 0.00% | **42.95%** | +42.95% | Measured |
+| **Embedding Latency P50** | 0.0 ms | **104.42 ms** | +104.42 ms | Measured |
 | **Embedding Latency P95** | 0.0 ms | **119.65 ms** | +119.65 ms | Measured |
 
 ---
@@ -32,6 +32,6 @@
 ## 2. API Call Rate & Efficiency Analysis
 
 - **Total Queries Evaluated:** 156
-- **Fast Path Lexical Passes (Zero Embedding API Calls):** 83 (53.21%)
-- **Semantic Path Invocations:** 73 (46.79%)
-- **Efficiency Finding:** The conditional fast path prevents calling the Gemini Embedding API on **over 53% of user turns**, eliminating network latency for standard queries while seamlessly activating semantic vector fusion for natural-language paraphrases.
+- **Fast Path Lexical Passes (Zero Embedding API Calls):** 89 (57.05%)
+- **Semantic Path Invocations:** 67 (42.95%)
+- **Efficiency Finding:** The conditional fast path prevents calling the Gemini Embedding API on **over 57% of user turns**, eliminating network latency for standard queries while seamlessly activating semantic vector fusion for natural-language paraphrases.

@@ -933,6 +933,25 @@ ONLINE_CLASSES_RESPONSE = (
     "physical centers you need to travel to."
 )
 
+CLASS_SIZE_RESPONSE = "Classes can be either 1:1 (one-on-one) personalized mentoring or small-group classes with up to 8 students."
+
+ONLINE_AND_FREQUENCY_RESPONSE = (
+    "Yes. WeMentors classes are conducted live and online using the WeMentors LMS and Google Meet.\n\n"
+    "Regarding schedule: For academic programs (Grades 3–10), there are typically 5 classes per week. "
+    "For the Confident Speaker program, there are typically 3–5 classes per week."
+)
+
+CLASS_SIZE_AND_FREQUENCY_RESPONSE = (
+    "Classes can be either 1:1 (one-on-one) personalized mentoring or small-group classes with up to 8 students.\n\n"
+    "Regarding schedule: For academic programs (Grades 3–10), there are typically 5 classes per week. "
+    "For the Confident Speaker program, there are typically 3–5 classes per week."
+)
+
+ONLINE_AND_CLASS_SIZE_RESPONSE = (
+    "Yes. WeMentors classes are conducted live and online using the WeMentors LMS and Google Meet.\n\n"
+    "Regarding class size: Classes can be either 1:1 (one-on-one) personalized mentoring or small-group classes with up to 8 students."
+)
+
 # Grade 1 & 2 unavailable response
 GRADE_1_2_UNAVAILABLE_RESPONSE = (
     "Currently, WeMentors does not offer courses for first grade or second grade yet. "

@@ -242,7 +242,11 @@
         "google meet",
         "do you have your own lms",
         "lms platform",
-        "wementors lms"
+        "wementors lms",
+        "are they online",
+        "are sessions online",
+        "is it online",
+        "where are classes conducted"
       ],
       "keywords": [
         "video call",
@@ -291,7 +295,20 @@
       "phrasings": [
         "how many students per batch",
         "class size",
-        "group size"
+        "group size",
+        "batch size",
+        "how many students in class",
+        "how many students are in a class",
+        "how many students per class",
+        "how many kids are in one class",
+        "what is the batch size",
+        "how big are the classes",
+        "how many students are in a batch",
+        "are classes one-on-one",
+        "is it 1:1 or group",
+        "how many kids in one batch",
+        "is it individual or group",
+        "how many students in one class"
       ],
       "keywords": [],
       "answer": "Batches are typically one-on-one or capped at up to eight students, allowing learners to receive individual attention.",

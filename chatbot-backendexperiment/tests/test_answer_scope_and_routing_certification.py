@@ -13,6 +13,7 @@ Evaluates and certifies:
 
 import sys
 import unittest
+import uuid
 from pathlib import Path
 
 TESTS_DIR = Path(__file__).resolve().parent
@@ -456,6 +457,319 @@ class TestAnswerScopeAndRoutingCertification(unittest.TestCase):
         lead = database.get_demo_lead(sid_inv9)
         self.assertIsNone(lead)
 
+    def test_17_active_program_isolation_regression(self):
+        """Certify that assistant responses, retrieval results, and generic discovery queries
+
+        never mutate or create active_program context across 15 canonical regression scenarios.
+        """
+        import uuid
+
+        def _turn(sid: str, msg: str):
+            database.log_message(sid, "user", msg)
+            res = self.engine.handle_message(sid, msg)
+            database.log_message(sid, "assistant", res.reply, intent=res.intent)
+            mem = database.get_conversation_memory(sid)
+            return res, mem
+
+        # 1. Fresh: subjects -> subjects => global -> global
+        sid1 = f"reg_01_{uuid.uuid4()}"
+        r1_1, m1_1 = _turn(sid1, "subjects")
+        self.assertEqual(r1_1.intent, "faq")
+        self.assertIsNone(m1_1.active_program)
+        self.assertIn("**Academic Subjects**", r1_1.reply)
+        self.assertIn("**Confident Speaker**", r1_1.reply)
+        r1_2, m1_2 = _turn(sid1, "subjects")
+        self.assertEqual(r1_2.intent, "faq")
+        self.assertIsNone(m1_2.active_program)
+        self.assertIn("**Academic Subjects**", r1_2.reply)
+        self.assertIn("**Confident Speaker**", r1_2.reply)
+
+        # 2. Fresh: subjects -> which subjects => global -> global
+        sid2 = f"reg_02_{uuid.uuid4()}"
+        _turn(sid2, "subjects")
+        r2_2, m2_2 = _turn(sid2, "which subjects")
+        self.assertEqual(r2_2.intent, "faq")
+        self.assertIsNone(m2_2.active_program)
+        self.assertIn("**Academic Subjects**", r2_2.reply)
+
+        # 3. Fresh: subjects -> what subjects do you offer? => global -> global
+        sid3 = f"reg_03_{uuid.uuid4()}"
+        _turn(sid3, "subjects")
+        r3_2, m3_2 = _turn(sid3, "what subjects do you offer?")
+        self.assertEqual(r3_2.intent, "faq")
+        self.assertIsNone(m3_2.active_program)
+        self.assertIn("**Academic Subjects**", r3_2.reply)
+
+        # 4. Fresh: subjects -> tell me about the subjects => global -> global
+        sid4 = f"reg_04_{uuid.uuid4()}"
+        _turn(sid4, "subjects")
+        r4_2, m4_2 = _turn(sid4, "tell me about the subjects")
+        self.assertEqual(r4_2.intent, "faq")
+        self.assertIsNone(m4_2.active_program)
+        self.assertIn("**Academic Subjects**", r4_2.reply)
+
+        # 5. Fresh: subjects -> programs -> subjects => global -> global
+        sid5 = f"reg_05_{uuid.uuid4()}"
+        _turn(sid5, "subjects")
+        r5_prog, m5_prog = _turn(sid5, "programs")
+        self.assertIsNone(m5_prog.active_program)
+        r5_3, m5_3 = _turn(sid5, "subjects")
+        self.assertEqual(r5_3.intent, "faq")
+        self.assertIsNone(m5_3.active_program)
+        self.assertIn("**Academic Subjects**", r5_3.reply)
+
+        # 6. Fresh: programs -> subjects => global
+        sid6 = f"reg_06_{uuid.uuid4()}"
+        _turn(sid6, "programs")
+        r6_2, m6_2 = _turn(sid6, "subjects")
+        self.assertEqual(r6_2.intent, "faq")
+        self.assertIsNone(m6_2.active_program)
+        self.assertIn("**Academic Subjects**", r6_2.reply)
+
+        # 7. Fresh: programs -> which subjects => global
+        sid7 = f"reg_07_{uuid.uuid4()}"
+        _turn(sid7, "programs")
+        r7_2, m7_2 = _turn(sid7, "which subjects")
+        self.assertEqual(r7_2.intent, "faq")
+        self.assertIsNone(m7_2.active_program)
+        self.assertIn("**Academic Subjects**", r7_2.reply)
+
+        # 8. Explicit context: Confident Speaker -> subjects -> subjects => CS -> CS -> CS
+        sid8 = f"reg_08_{uuid.uuid4()}"
+        _turn(sid8, "Confident Speaker")
+        r8_2, m8_2 = _turn(sid8, "subjects")
+        self.assertEqual(r8_2.intent, "confident_speaker_scope")
+        self.assertEqual(m8_2.active_program, "confident_speaker")
+        self.assertIn("The program covers four curriculum areas:", r8_2.reply)
+        r8_3, m8_3 = _turn(sid8, "subjects")
+        self.assertEqual(r8_3.intent, "confident_speaker_scope")
+        self.assertEqual(m8_3.active_program, "confident_speaker")
+
+        # 9. Explicit context: Middle School -> subjects -> subjects => MS -> MS -> MS
+        sid9 = f"reg_09_{uuid.uuid4()}"
+        _turn(sid9, "Middle School")
+        r9_2, m9_2 = _turn(sid9, "subjects")
+        self.assertEqual(r9_2.intent, "middle_school_subjects")
+        self.assertEqual(m9_2.active_program, "middle")
+        self.assertIn("Middle School", r9_2.reply)
+        r9_3, m9_3 = _turn(sid9, "subjects")
+        self.assertEqual(r9_3.intent, "middle_school_subjects")
+        self.assertEqual(m9_3.active_program, "middle")
+
+        # 10. Explicit context: Senior School -> subjects -> subjects => SS -> SS -> SS
+        sid10 = f"reg_10_{uuid.uuid4()}"
+        _turn(sid10, "Senior School")
+        r10_2, m10_2 = _turn(sid10, "subjects")
+        self.assertEqual(r10_2.intent, "senior_school_subjects")
+        self.assertEqual(m10_2.active_program, "senior")
+        self.assertIn("Senior School Focus", r10_2.reply)
+        r10_3, m10_3 = _turn(sid10, "subjects")
+        self.assertEqual(r10_3.intent, "senior_school_subjects")
+        self.assertEqual(m10_3.active_program, "senior")
+
+        # 11. Explicit context: Foundation Years -> subjects -> subjects => FY -> FY -> FY
+        sid11 = f"reg_11_{uuid.uuid4()}"
+        _turn(sid11, "Foundation Years")
+        r11_2, m11_2 = _turn(sid11, "subjects")
+        self.assertEqual(r11_2.intent, "foundation_subjects")
+        self.assertEqual(m11_2.active_program, "foundation")
+        self.assertIn("Foundation Years", r11_2.reply)
+        r11_3, m11_3 = _turn(sid11, "subjects")
+        self.assertEqual(r11_3.intent, "foundation_subjects")
+        self.assertEqual(m11_3.active_program, "foundation")
+
+        # 12. Assistant-content contamination:
+        # User: subjects -> Assistant: [global response containing Confident Speaker] -> User: subjects => GLOBAL SUBJECTS
+        sid12 = f"reg_12_{uuid.uuid4()}"
+        r12_1, _ = _turn(sid12, "subjects")
+        self.assertIn("Confident Speaker", r12_1.reply)
+        r12_2, m12_2 = _turn(sid12, "subjects")
+        self.assertEqual(r12_2.intent, "faq")
+        self.assertIsNone(m12_2.active_program)
+        self.assertIn("**Academic Subjects**", r12_2.reply)
+
+        # 13. Program-list contamination:
+        # User: programs -> Assistant: [all four programs] -> User: subjects => GLOBAL SUBJECTS
+        sid13 = f"reg_13_{uuid.uuid4()}"
+        r13_1, _ = _turn(sid13, "programs")
+        self.assertIn("Foundation Years", r13_1.reply)
+        self.assertIn("Middle School", r13_1.reply)
+        self.assertIn("Senior School", r13_1.reply)
+        self.assertIn("Confident Speaker", r13_1.reply)
+        r13_2, m13_2 = _turn(sid13, "subjects")
+        self.assertEqual(r13_2.intent, "faq")
+        self.assertIsNone(m13_2.active_program)
+        self.assertIn("**Academic Subjects**", r13_2.reply)
+
+        # 14. Retrieval contamination:
+        # User: subjects -> active_program MUST remain None regardless of retrieved entries
+        sid14 = f"reg_14_{uuid.uuid4()}"
+        r14_1, m14_1 = _turn(sid14, "subjects")
+        self.assertIsNone(m14_1.active_program)
+
+        # 15. Cross-session:
+        # Session A: Confident Speaker -> subjects (CS subjects)
+        # Session B: subjects => GLOBAL SUBJECTS
+        sid_a = f"reg_15a_{uuid.uuid4()}"
+        sid_b = f"reg_15b_{uuid.uuid4()}"
+        _turn(sid_a, "Confident Speaker")
+        ra_sub, ma_sub = _turn(sid_a, "subjects")
+        self.assertEqual(ra_sub.intent, "confident_speaker_scope")
+        self.assertEqual(ma_sub.active_program, "confident_speaker")
+
+        rb_sub, mb_sub = _turn(sid_b, "subjects")
+        self.assertEqual(rb_sub.intent, "faq")
+        self.assertIsNone(mb_sub.active_program)
+        self.assertIn("**Academic Subjects**", rb_sub.reply)
+        self.assertIn("**Confident Speaker**", rb_sub.reply)
+
+    # =========================================================================
+    # 18. DELIVERY MODE AND CLASS SIZE CERTIFICATION
+    # =========================================================================
+    def test_18_delivery_mode_and_class_size_certification(self):
+        """Certify distinct routing for delivery mode, class frequency, and class size."""
+        def _turn(sid, q):
+            res = self.engine.handle_message(sid, q)
+            mem = database.get_conversation_memory(sid)
+            return res, mem
+
+        # 1. Standalone online/delivery queries
+        online_queries = [
+            "are they online",
+            "Are classes online?",
+            "Do you teach online?",
+            "Are the classes online?",
+            "How are classes conducted?",
+            "Where are classes conducted?",
+            "Is it online?",
+            "Are classes virtual?",
+            "Do you use Google Meet?",
+        ]
+        for q in online_queries:
+            with self.subTest(query=q):
+                sid = f"sub_online_{uuid.uuid4()}"
+                r, _ = _turn(sid, q)
+                self.assertEqual(r.intent, "online_classes")
+                self.assertIn("online", r.reply.lower())
+                self.assertNotIn("5 classes per week", r.reply.lower())
+                self.assertNotIn("3–5 classes per week", r.reply.lower())
+
+        # 2. Standalone frequency queries
+        freq_queries = [
+            "classes",
+            "How many classes per week?",
+            "How often are classes?",
+            "How many classes are there?",
+            "How many classes are there per week?",
+        ]
+        for q in freq_queries:
+            with self.subTest(query=q):
+                sid = f"sub_freq_{uuid.uuid4()}"
+                r, _ = _turn(sid, q)
+                self.assertIn("class_frequency", r.intent)
+                self.assertIn("5 classes per week", r.reply)
+
+        # 3. Standalone class size / batch size queries
+        size_queries = [
+            "how many students in class",
+            "How many students are in a class?",
+            "How many students per class?",
+            "How many kids are in one class?",
+            "batch size",
+            "What is the batch size?",
+            "How big are the classes?",
+            "How many students are in a batch?",
+            "Are classes one-on-one?",
+            "Is it 1:1 or group?",
+        ]
+        for q in size_queries:
+            with self.subTest(query=q):
+                sid = f"sub_size_{uuid.uuid4()}"
+                r, _ = _turn(sid, q)
+                self.assertEqual(r.intent, "class_size")
+                self.assertIn("1:1", r.reply)
+                self.assertIn("8 students", r.reply)
+                self.assertNotIn("5 classes per week", r.reply)
+
+        # 4. Multi-part queries
+        sid_multi1 = f"sub_m1_{uuid.uuid4()}"
+        r_m1, _ = _turn(sid_multi1, "Are they online and how many classes per week?")
+        self.assertEqual(r_m1.intent, "online_and_frequency")
+        self.assertIn("online", r_m1.reply.lower())
+        self.assertIn("5 classes per week", r_m1.reply)
+
+        sid_multi2 = f"sub_m2_{uuid.uuid4()}"
+        r_m2, _ = _turn(sid_multi2, "How many students are in a class and how many classes per week?")
+        self.assertEqual(r_m2.intent, "class_size_and_frequency")
+        self.assertIn("8 students", r_m2.reply)
+        self.assertIn("5 classes per week", r_m2.reply)
+
+        # 5. Multi-turn: frequency -> online (MUST NOT inherit frequency)
+        sid_seq1 = f"sub_seq1_{uuid.uuid4()}"
+        r_seq1_1, _ = _turn(sid_seq1, "How many classes per week?")
+        self.assertIn("class_frequency", r_seq1_1.intent)
+        r_seq1_2, _ = _turn(sid_seq1, "Are they online?")
+        self.assertEqual(r_seq1_2.intent, "online_classes")
+        self.assertNotIn("5 classes per week", r_seq1_2.reply)
+
+        sid_seq2 = f"sub_seq2_{uuid.uuid4()}"
+        r_seq2_1, _ = _turn(sid_seq2, "classes")
+        self.assertIn("class_frequency", r_seq2_1.intent)
+        r_seq2_2, _ = _turn(sid_seq2, "are they online")
+        self.assertEqual(r_seq2_2.intent, "online_classes")
+        self.assertNotIn("5 classes per week", r_seq2_2.reply)
+
+        # 6. Multi-turn: program context preservation with online delivery
+        prog_online_pairs = [
+            ("Foundation Years", "foundation"),
+            ("Middle School", "middle"),
+            ("Senior School", "senior"),
+            ("Confident Speaker", "confident_speaker"),
+        ]
+        for prog_input, expected_prog in prog_online_pairs:
+            with self.subTest(program=prog_input):
+                sid_prog = f"sub_prog_{uuid.uuid4()}"
+                _turn(sid_prog, prog_input)
+                r_on, m_on = _turn(sid_prog, "Are they online?")
+                self.assertEqual(r_on.intent, "online_classes")
+                self.assertEqual(m_on.active_program, expected_prog)
+                self.assertIn("online", r_on.reply.lower())
+                self.assertNotIn("5 classes per week", r_on.reply)
+
+        # 7. Multi-turn: frequency -> class size, online -> batch size, class size -> frequency
+        sid_seq3 = f"sub_seq3_{uuid.uuid4()}"
+        _turn(sid_seq3, "How many classes per week?")
+        r_seq3_2, _ = _turn(sid_seq3, "How many students are in each class?")
+        self.assertEqual(r_seq3_2.intent, "class_size")
+
+        sid_seq4 = f"sub_seq4_{uuid.uuid4()}"
+        _turn(sid_seq4, "Are they online?")
+        r_seq4_2, _ = _turn(sid_seq4, "What's the batch size?")
+        self.assertEqual(r_seq4_2.intent, "class_size")
+
+        sid_seq5 = f"sub_seq5_{uuid.uuid4()}"
+        _turn(sid_seq5, "How many students are in a class?")
+        r_seq5_2, _ = _turn(sid_seq5, "How many classes per week?")
+        self.assertIn("class_frequency", r_seq5_2.intent)
+
+        # 8. Program context preservation with class size
+        prog_size_pairs = [
+            ("Foundation Years", "how many students in class", "foundation"),
+            ("Middle School", "batch size", "middle"),
+            ("Senior School", "are classes 1:1?", "senior"),
+            ("Confident Speaker", "how many students in a class?", "confident_speaker"),
+        ]
+        for prog_input, size_query, expected_prog in prog_size_pairs:
+            with self.subTest(program=prog_input, query=size_query):
+                sid_ps = f"sub_ps_{uuid.uuid4()}"
+                _turn(sid_ps, prog_input)
+                r_sz, m_sz = _turn(sid_ps, size_query)
+                self.assertEqual(r_sz.intent, "class_size")
+                self.assertEqual(m_sz.active_program, expected_prog)
+                self.assertIn("8 students", r_sz.reply)
+                self.assertNotIn("5 classes per week", r_sz.reply)
+
 
 if __name__ == "__main__":
     unittest.main()
+
