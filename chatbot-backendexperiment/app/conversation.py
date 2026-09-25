@@ -454,6 +454,7 @@ _SENIOR_SCHOOL_OVERVIEW_RE = re.compile(
     r"what\s+does\s+senior\s+school(?:\s+focus)?\s+(?:offer|provide|cover|have)|"
     r"senior\s+school(?:\s+focus)?(?:\s+program|\s+course)?|"
     r"senior\s+school\s+focus|"
+    r"tell\s+me\s+about\s+grades?\s*(?:9\s*[-–to]\s*10|9\s*(?:and|&)\s*10)|"
     r"everything\s+about\s+(?:the\s+)?senior\s+school"
     r")\b",
     re.IGNORECASE,
@@ -540,12 +541,22 @@ _SUBJECTS_OFFERED_RE = re.compile(
     re.IGNORECASE,
 )
 
-# Matches bare/standalone subject queries that should ALWAYS return the global
-# subject overview, regardless of active program context.  These forms are too
-# short/ambiguous to resolve within a single program and must not fall through
-# to retrieval (which may return stale or incorrect program-specific content).
-_BARE_SUBJECTS_GLOBAL_RE = re.compile(
-    r"^\s*(?:subjects?|what\s+are\s+the\s+subjects?)\s*[?!.]*$",
+# Matches standalone or general subject inquiries that should be resolved
+# context-sensitively:
+# Priority 1: explicit program in current message
+# Priority 2: valid active program in conversation memory
+# Priority 3: conversational reference
+# Priority 4: global subjects response
+_SUBJECT_INQUIRY_GENERAL_RE = re.compile(
+    r"^\s*(?:(?:could\s+you\s+|can\s+you\s+|please\s+)?tell\s+me\s+)?(?:"
+    r"(?:which|what)\s+subjects?(?:\s+(?:(?:do\s+)?you|are)\s+(?:offer|offered|teach|taught|have|covered|cover|provide|available))?"
+    r"|(?:which|what)\s+courses?(?:\s+(?:(?:do\s+)?you|are)\s+(?:offer|offered|teach|taught|have|covered|cover|provide|available))?"
+    r"|subjects?\s+(?:offered|taught|covered|available)"
+    r"|what\s+do\s+you\s+(?:teach|offer)"
+    r"|what\s+are\s+the\s+subjects?"
+    r"|(?:what|which)\s+subjects?"
+    r"|subjects?"
+    r")\s*[?!.]*$",
     re.IGNORECASE,
 )
 
@@ -633,8 +644,10 @@ def normalize_query(text: str) -> str:
     cleaned = re.sub(r"\bboards\b", "board", cleaned)
     cleaned = re.sub(r"\bexams\b", "exam", cleaned)
     cleaned = re.sub(r"\b(foundating|doundation|foudation|foundaton)\b", "foundation", cleaned)
-    cleaned = re.sub(r"\b(middel|midle|mddle)\b", "middle", cleaned)
+    cleaned = re.sub(r"\b(middel|midle|mddle|middl)\b", "middle", cleaned)
     cleaned = re.sub(r"\b(shcool|skool|scool|schoo)\b", "school", cleaned)
+    cleaned = re.sub(r"\b(senoir|senor|senir)\b", "senior", cleaned)
+    cleaned = re.sub(r"\b(confdent|confidant|confidnt)\b", "confident", cleaned)
     cleaned = re.sub(r"\bgrades?\s*(\d+)\s*[-–to]\s*(\d+)\b", r"grades \1-\2", cleaned)
     cleaned = re.sub(r"\bclasses?\s*(\d+)\s*[-–to]\s*(\d+)\b", r"grades \1-\2", cleaned)
     cleaned = re.sub(r"\bstandard\s*(\d+)\b", r"grade \1", cleaned)
@@ -844,7 +857,38 @@ _FOUNDATION_GRADES_NARROW_RE = re.compile(
 _MIDDLE_SCHOOL_GRADES_NARROW_RE = re.compile(
     r"^\s*(?:what\s+grades?\s+(?:is|are)\s+middle(?:\s+school)?\s+for\??|"
     r"what\s+grades?\s+does\s+middle(?:\s+school)?\s+cover\??|"
+    r"what\s+grades?\s+for\s+middle(?:\s+school)?\??|"
     r"which\s+grades?\s+(?:is|are)\s+middle(?:\s+school)?\s+for\??)\s*$",
+    re.IGNORECASE,
+)
+
+_SENIOR_SCHOOL_GRADES_NARROW_RE = re.compile(
+    r"^\s*(?:what\s+grades?\s+(?:is|are)\s+senior(?:\s+school)?(?:\s+focus)?\s+for\??|"
+    r"what\s+grades?\s+does\s+senior(?:\s+school)?(?:\s+focus)?\s+cover\??|"
+    r"what\s+grades?\s+for\s+senior(?:\s+school)?(?:\s+focus)?\??|"
+    r"which\s+grades?\s+(?:is|are)\s+senior(?:\s+school)?(?:\s+focus)?\s+for\??)\s*$",
+    re.IGNORECASE,
+)
+
+_CAPABILITY_QUERY_PREFIX_RE = re.compile(
+    r"^\s*(?:"
+    r"do\s+you\s+(?:support|teach|offer|have|cover|provide|conduct)|"
+    r"can\s+(?:you|i|we)\s+(?:study|learn|take|get|join)|"
+    r"is\s+(?:there|it\s+possible\s+to\s+(?:study|learn|take))|"
+    r"are\s+(?:there|grades?|classes?)|"
+    r"is\s+grade\s+\d+\s+supported|"
+    r"are\s+grades?\s+\d+.*supported|"
+    r"is\s+(?:grade|class)\s+\d+|"
+    r"are\s+(?:grades|classes)\s+\d+"
+    r")\b",
+    re.IGNORECASE,
+)
+
+_STANDALONE_OOD_RE = re.compile(
+    r"^\s*(?:middle\s+east(?:ern)?|senior\s+citizens?|foundation\s+(?:of\s+)?mathematics|confident\s+students?|"
+    r"football|basketball|cricket|sports|weather|temperature|recipe|cook|pizza|burger|movie|cinema|actor|"
+    r"president|prime\s+minister|politics|election|joke|medical\s+advice|medicine|doctor|car|university|laptop|"
+    r"xyz|asdf|hello123|\?+|random\s+words|i\s+don'?t\s+know)\s*[?!.]*$",
     re.IGNORECASE,
 )
 
@@ -1353,6 +1397,14 @@ class ConversationEngine:
 
     def _program_name_to_id(self, name: str) -> Optional[str]:
         n = name.strip().lower()
+        if "middle east" in n or "middle eastern" in n:
+            return None
+        if "senior citizen" in n or "senior citizens" in n:
+            return None
+        if "foundation of mathematics" in n or "foundation mathematics" in n:
+            return None
+        if "confident student" in n:
+            return None
         if any(w in n for w in ["foundation", "found", "3-5", "grades 3", "primary", "grade 3", "grade 4", "grade 5", "class 3", "class 4", "class 5"]):
             return "program-foundation-years"
         if any(w in n for w in ["middle", "6-8", "grades 6", "class 7", "grade 7", "class 6", "grade 6", "class 8", "grade 8"]):
@@ -1378,20 +1430,34 @@ class ConversationEngine:
 
     def _extract_program_from_text(self, text: str) -> Optional[str]:
         t = text.lower()
-        if re.search(r"\b(senior(?:\s+school)?(?:\s+focus)?|board(?:\s+exam)?s?|grades?\s*9\s*[-–to]\s*10|grades?\s*(?:9|10)\b|class\s*(?:9|10)\b|(?:9|10)th\s*(?:grade|class|standard)\b)\b", t):
+        if "senior citizen" in t or "senior citizens" in t:
+            pass
+        elif re.search(r"\b(senior(?:\s+school)?(?:\s+focus)?|board(?:\s+exam)?s?|grades?\s*9\s*[-–to]\s*10|grades?\s*(?:9|10)\b|class\s*(?:9|10)\b|(?:9|10)th\s*(?:grade|class|standard)\b)\b", t):
             return "senior"
-        if re.search(r"\b(foundation(?:\s+years?)?|primary|grades?\s*3\s*[-–to]\s*5|grades?\s*[345]\b|class\s*[345]\b|[345](?:th|rd|st)?\s*(?:grade|class|standard)\b)\b", t):
+
+        if "foundation of mathematics" in t or "foundation mathematics" in t:
+            pass
+        elif re.search(r"\b(foundation(?:\s+years?)?|primary|grades?\s*3\s*[-–to]\s*5|grades?\s*[345]\b|class\s*[345]\b|[345](?:th|rd|st)?\s*(?:grade|class|standard)\b)\b", t):
             return "foundation"
-        if re.search(r"\b(middle(?:\s+school)?(?:\s*[-—–]\s*all\s+subjects)?|grades?\s*6\s*[-–to]\s*8|grades?\s*[678]\b|class\s*[678]\b|[678]th\s*(?:grade|class|standard)\b)\b", t):
+
+        if "middle east" in t or "middle eastern" in t:
+            pass
+        elif re.search(r"\b(middle(?:\s+school)?(?:\s*[-—–]\s*all\s+subjects)?|grades?\s*6\s*[-–to]\s*8|grades?\s*[678]\b|class\s*[678]\b|[678]th\s*(?:grade|class|standard)\b)\b", t):
             return "middle"
-        if re.search(r"\b(confident\s+speaker|public\s+speaking|spoken\s+english|interview\s+skills?|speaking\s+practice|ielts|business\s+english|everyday\s+english|general\s+communicative)\b", t):
+
+        if "confident student" in t:
+            pass
+        elif re.search(r"\b(confident\s+speaker|public\s+speaking|spoken\s+english|interview\s+skills?|speaking\s+practice|ielts|business\s+english|everyday\s+english|general\s+communicative)\b", t):
             return "confident_speaker"
+
         if re.search(r"\b(academic\s+(?:courses?|classes|sessions?|programs?|subjects?|mentoring|learning)|classes\s+for\s+school\s+students|courses\s+for\s+school\s+students|school\s+students|school\s+courses|academics?)\b", t):
             return "academic"
         return None
 
     def _has_middle_school_explicit_context(self, text: str) -> bool:
         t = text.lower()
+        if "middle east" in t or "middle eastern" in t:
+            return False
         return bool(
             re.search(
                 r"\b(middle(?:\s+school)?|grades?\s*[678]\b|class\s*[678]\b|[678]th\s*(?:grade|class|standard)\b)\b",
@@ -1784,6 +1850,77 @@ class ConversationEngine:
             else:
                 return "class_frequency_general"
 
+        # Standalone OOD / Off-topic fast check
+        if _STANDALONE_OOD_RE.match(stripped) and not any(k in stripped.lower() for k in ["class", "mentor", "course", "subject", "demo", "wementors", "join", "enroll"]):
+            if "middle east" in stripped.lower() or "canada" in stripped.lower() or "usa" in stripped.lower():
+                return "international_eligibility"
+            return "off_topic"
+
+        # Multi-part capability + subjects inquiry
+        has_multi_grade_subj = bool(
+            re.search(r"\b(support|teach|offer|have)\b", stripped, re.I)
+            and re.search(r"\b(grades?\s*(?:9\s*[-–to]\s*10|9|10)|grades?\s*(?:6\s*[-–to]\s*8|6|7|8)|grades?\s*(?:3\s*[-–to]\s*5|3|4|5))\b", stripped, re.I)
+            and re.search(r"\b(and|what)\s+subjects\b", stripped, re.I)
+        )
+        if has_multi_grade_subj:
+            if re.search(r"\b(grades?\s*(?:9\s*[-–to]\s*10|9|10)|senior)\b", stripped, re.I):
+                return "senior_school_multipart"
+            if re.search(r"\b(grades?\s*(?:6\s*[-–to]\s*8|6|7|8)|middle)\b", stripped, re.I):
+                return "middle_school_multipart"
+            if re.search(r"\b(grades?\s*(?:3\s*[-–to]\s*5|3|4|5)|foundation)\b", stripped, re.I):
+                return "foundation_years_multipart"
+
+        # Narrow grades inquiries
+        if _SENIOR_SCHOOL_GRADES_NARROW_RE.match(stripped) or _SENIOR_SCHOOL_GRADES_NARROW_RE.match(normalized):
+            return "senior_school_grades"
+        if _MIDDLE_SCHOOL_GRADES_NARROW_RE.match(stripped) or _MIDDLE_SCHOOL_GRADES_NARROW_RE.match(normalized):
+            return "middle_school_grades"
+        if _FOUNDATION_GRADES_NARROW_RE.match(stripped) or _FOUNDATION_GRADES_NARROW_RE.match(normalized):
+            return "foundation_grades"
+
+        # Capability / YES-NO questions
+        is_cap_query = bool(
+            not self._is_mentor_inquiry(stripped)
+            and not _ELIGIBILITY_MIXED_ONLINE_RE.search(stripped)
+            and not _ELIGIBILITY_MIXED_ENGLISH_RE.search(stripped)
+            and not _ELIGIBILITY_MIXED_PROGRAMS_RE.search(stripped)
+            and (_CAPABILITY_QUERY_PREFIX_RE.search(stripped) or _CAPABILITY_QUERY_PREFIX_RE.search(normalized))
+        )
+        if is_cap_query:
+            if "senior secondary" not in stripped.lower() and re.search(r"\b(grades?\s*(?:9\s*[-–to]\s*10|9|10)|class\s*(?:9|10)|(?:9|10)th|senior(?:\s+school)?)\b", stripped, re.I):
+                return "senior_school_capability"
+            if "middle east" not in stripped.lower() and re.search(r"\b(grades?\s*(?:6\s*[-–to]\s*8|[678])|class\s*[678]|[678]th|middle(?:\s+school)?)\b", stripped, re.I):
+                return "middle_school_grades"
+            if "foundation of mathematics" not in stripped.lower() and re.search(r"\b(grades?\s*(?:3\s*[-–to]\s*5|[345])|class\s*[345]|[345](?:th|rd|st)|foundation(?:\s+years?)?)\b", stripped, re.I):
+                return "foundation_years_capability"
+            if re.search(r"\bconfident\s+speaker\b", stripped, re.I) and "confident student" not in stripped.lower():
+                return "confident_speaker_capability"
+            if re.search(r"\b(ielts|ietls)\b", stripped, re.I):
+                return "confident_speaker_ielts"
+            if re.search(r"\bpublic\s+speaking\b", stripped, re.I) and not re.search(r"\b(something\s+for|confidence|program|course)\b", stripped, re.I):
+                return "confident_speaker_public_speaking"
+            if re.search(r"\bbusiness\s+english\b", stripped, re.I) and not re.search(r"\b(something\s+for|program|course)\b", stripped, re.I):
+                return "confident_speaker_business_english"
+            if re.search(r"\b(state\s+boards?|state\s+syllabus)\b", stripped, re.I):
+                return "state_board_capability"
+            if re.search(r"\b(online(?:\s+classes)?|virtual(?:\s+classes)?)\b", stripped, re.I):
+                return "online_classes"
+
+        # General Subject inquiry (context-aware: explicit current > active memory > reference > global)
+        if _SUBJECT_INQUIRY_GENERAL_RE.match(stripped) or _SUBJECT_INQUIRY_GENERAL_RE.match(normalized):
+            explicit_p = self._extract_program_from_text(stripped) or self._extract_program_from_text(normalized)
+            p = explicit_p or memory.active_program or self._get_current_subject(session_id)
+            if p == "senior":
+                return "senior_school_subjects"
+            elif p == "middle":
+                return "middle_school_subjects"
+            elif p == "foundation":
+                return "foundation_subjects"
+            elif p == "confident_speaker":
+                return "confident_speaker_scope"
+            else:
+                return "faq"
+
         # First / Second Grade inquiry: explicitly handled so queries like
         # "courses for first grade", "what about second grade", "grade 1", "grade 2"
         # are accurately informed that there are no courses for them yet.
@@ -2007,7 +2144,7 @@ class ConversationEngine:
             return "foundation_years_overview"
 
         # Middle School explicit mentions
-        if _MIDDLE_SCHOOL_EXACT_RE.match(stripped):
+        if _MIDDLE_SCHOOL_EXACT_RE.match(stripped) or _MIDDLE_SCHOOL_EXACT_RE.match(normalized):
             return "middle_school_overview"
         if _MIDDLE_SCHOOL_OVERVIEW_RE.search(stripped) or _MIDDLE_SCHOOL_OVERVIEW_RE.search(normalized):
             has_fee_word = bool(
@@ -3116,7 +3253,7 @@ class ConversationEngine:
                 else:
                     res = ReplyResult(personality.DEMO_FIELD_CLARIFICATION_RESPONSE, "demo_field_clarification", ["how-to-book-demo"], 1.0)
                 return self._finalize_result(session_id, res, memory, message)
-            else:
+            elif field_word not in ("subject", "grade"):
                 res = ReplyResult("Could you clarify what you'd like to know about our programs or mentoring?", "clarify", [], None)
                 return self._finalize_result(session_id, res, memory, message)
 
@@ -3263,6 +3400,9 @@ class ConversationEngine:
             return self._finalize_result(session_id, res, memory, message)
 
         # Narrow grade questions: direct and concise without full program dump
+        if _SENIOR_SCHOOL_GRADES_NARROW_RE.match(message):
+            res = ReplyResult(personality.SENIOR_SCHOOL_GRADES_RESPONSE, "senior_school_grades", ["program-senior-school"], 1.0)
+            return self._finalize_result(session_id, res, memory, message)
         if _FOUNDATION_GRADES_NARROW_RE.match(message):
             res = ReplyResult(personality.FOUNDATION_YEARS_GRADES_RESPONSE, "foundation_grades", ["program-foundation-years"], 1.0)
             return self._finalize_result(session_id, res, memory, message)
@@ -3272,6 +3412,111 @@ class ConversationEngine:
         if _IS_ONE_TO_ONE_RE.match(message):
             res = ReplyResult(personality.IS_ONE_TO_ONE_RESPONSE, "one_on_one_general", ["program-senior-school", "program-confident-speaker"], 1.0)
             return self._finalize_result(session_id, res, memory, message)
+
+        # Multi-part capability + subjects inquiry:
+        has_multi_grade_subj = bool(
+            re.search(r"\b(support|teach|offer|have)\b", message, re.I)
+            and re.search(r"\b(grades?\s*(?:9\s*[-–to]\s*10|9|10)|grades?\s*(?:6\s*[-–to]\s*8|6|7|8)|grades?\s*(?:3\s*[-–to]\s*5|3|4|5))\b", message, re.I)
+            and re.search(r"\b(and|what)\s+subjects\b", message, re.I)
+        )
+        if has_multi_grade_subj:
+            if re.search(r"\b(grades?\s*(?:9\s*[-–to]\s*10|9|10)|senior)\b", message, re.I):
+                res = ReplyResult(personality.SENIOR_SCHOOL_MULTIPART_RESPONSE, "senior_school_multipart", ["program-senior-school"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+            if re.search(r"\b(grades?\s*(?:6\s*[-–to]\s*8|6|7|8)|middle)\b", message, re.I):
+                res = ReplyResult(personality.MIDDLE_SCHOOL_MULTIPART_RESPONSE, "middle_school_multipart", ["program-middle-school"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+            if re.search(r"\b(grades?\s*(?:3\s*[-–to]\s*5|3|4|5)|foundation)\b", message, re.I):
+                res = ReplyResult(personality.FOUNDATION_YEARS_MULTIPART_RESPONSE, "foundation_years_multipart", ["program-foundation-years"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+
+        # Grades 11-12 / JEE / NEET unsupported check before capability
+        if (_GRADE_11_12_JEE_NEET_RE.search(message) or _GRADE_11_12_JEE_NEET_RE.search(normalize_query(message))) and not (
+            _CONFIDENT_SPEAKER_RE.search(message) or _CONFIDENT_SPEAKER_RE.search(normalize_query(message)) or
+            _PUBLIC_SPEAKING_RE.search(message) or _PUBLIC_SPEAKING_RE.search(normalize_query(message)) or
+            _GENERAL_COMMUNICATIVE_RE.search(message) or _GENERAL_COMMUNICATIVE_RE.search(normalize_query(message)) or
+            _IELTS_RE.search(message) or _IELTS_RE.search(normalize_query(message))
+        ):
+            res = ReplyResult(personality.GRADE_11_12_UNSUPPORTED_RESPONSE, "grade_11_12_unsupported", ["curricula-supported"], 1.0)
+            return self._finalize_result(session_id, res, memory, message)
+
+        # Capability / YES-NO questions: direct and concise
+        if (
+            not self._is_mentor_inquiry(message)
+            and not _ELIGIBILITY_MIXED_ONLINE_RE.search(message)
+            and not _ELIGIBILITY_MIXED_ENGLISH_RE.search(message)
+            and not _ELIGIBILITY_MIXED_PROGRAMS_RE.search(message)
+            and (_CAPABILITY_QUERY_PREFIX_RE.search(message) or _CAPABILITY_QUERY_PREFIX_RE.search(normalize_query(message)))
+        ):
+            if "senior secondary" not in message.lower() and re.search(r"\b(grades?\s*(?:9\s*[-–to]\s*10|9|10)|class\s*(?:9|10)|(?:9|10)th|senior(?:\s+school)?)\b", message, re.I):
+                res = ReplyResult(personality.SENIOR_SCHOOL_CAPABILITY_RESPONSE, "senior_school_capability", ["program-senior-school"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+            if "middle east" not in message.lower() and re.search(r"\b(grades?\s*(?:6\s*[-–to]\s*8|[678])|class\s*[678]|[678]th|middle(?:\s+school)?)\b", message, re.I):
+                res = ReplyResult(personality.MIDDLE_SCHOOL_CAPABILITY_RESPONSE, "middle_school_grades", ["program-middle-school"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+            if "foundation of mathematics" not in message.lower() and re.search(r"\b(grades?\s*(?:3\s*[-–to]\s*5|[345])|class\s*[345]|[345](?:th|rd|st)|foundation(?:\s+years?)?)\b", message, re.I):
+                res = ReplyResult(personality.FOUNDATION_YEARS_CAPABILITY_RESPONSE, "foundation_years_capability", ["program-foundation-years"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+            if re.search(r"\bconfident\s+speaker\b", message, re.I) and "confident student" not in message.lower():
+                res = ReplyResult(personality.CONFIDENT_SPEAKER_CAPABILITY_RESPONSE, "confident_speaker_capability", ["program-confident-speaker"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+            if re.search(r"\b(ielts|ietls)\b", message, re.I):
+                res = ReplyResult(personality.IELTS_CAPABILITY_RESPONSE, "confident_speaker_ielts", ["program-confident-speaker"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+            if re.search(r"\bpublic\s+speaking\b", message, re.I) and not re.search(r"\b(something\s+for|confidence|program|course)\b", message, re.I):
+                res = ReplyResult(personality.PUBLIC_SPEAKING_CAPABILITY_RESPONSE, "confident_speaker_public_speaking", ["program-confident-speaker"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+            if re.search(r"\bbusiness\s+english\b", message, re.I) and not re.search(r"\b(something\s+for|program|course)\b", message, re.I):
+                res = ReplyResult(personality.BUSINESS_ENGLISH_CAPABILITY_RESPONSE, "confident_speaker_business_english", ["program-confident-speaker"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+            if re.search(r"\b(state\s+boards?|state\s+syllabus)\b", message, re.I):
+                res = ReplyResult(personality.STATE_BOARD_CAPABILITY_RESPONSE, "state_board_capability", ["curricula-supported"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+            if re.search(r"\b(online(?:\s+classes)?|virtual(?:\s+classes)?)\b", message, re.I):
+                res = ReplyResult(personality.ONLINE_CLASSES_RESPONSE, "online_classes", ["program-delivery-mode"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+
+        # Context-aware narrow follow-ups when a program is active
+        if memory.active_program == "senior":
+            if re.match(r"^\s*(?:what\s+)?grades?\??\s*$", message, re.I):
+                res = ReplyResult(personality.SENIOR_SCHOOL_GRADES_RESPONSE, "senior_school_grades", ["program-senior-school"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+            if re.match(r"^\s*(?:tell\s+me\s+more|more\s+info|more\s+details)\s*[?!.]*$", message, re.I):
+                res = ReplyResult(personality.SENIOR_SCHOOL_OVERVIEW_RESPONSE, "senior_school_overview", ["program-senior-school"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+            if re.match(r"^\s*(?:what\s+about\s+)?mentors?\??\s*$", message, re.I):
+                res = ReplyResult(personality.ONE_ON_ONE_GENERAL_RESPONSE, "board_mentoring", ["program-senior-school"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+            if re.search(r"\b(doubt\s+solving|doubt\s+clearing|doubts?)\b", message, re.I):
+                res = ReplyResult(
+                    "**Senior School Focus** provides priority doubt-clearing sessions alongside weekly mock tests and review "
+                    "to ensure students master key concepts and board-exam requirements.",
+                    "senior_school_features",
+                    ["program-senior-school"],
+                    1.0,
+                )
+                return self._finalize_result(session_id, res, memory, message)
+
+        if memory.active_program == "middle":
+            if re.match(r"^\s*(?:what\s+)?grades?\??\s*$", message, re.I):
+                res = ReplyResult(personality.MIDDLE_SCHOOL_GRADES_NARROW_RESPONSE, "middle_school_grades", ["program-middle-school"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+            if re.match(r"^\s*(?:tell\s+me\s+more|more\s+info|more\s+details)\s*[?!.]*$", message, re.I):
+                res = ReplyResult(personality.MIDDLE_SCHOOL_OVERVIEW_RESPONSE, "middle_school_overview", ["program-middle-school"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+
+        if memory.active_program == "foundation":
+            if re.match(r"^\s*(?:what\s+)?grades?\??\s*$", message, re.I):
+                res = ReplyResult(personality.FOUNDATION_YEARS_GRADES_RESPONSE, "foundation_grades", ["program-foundation-years"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+            if re.match(r"^\s*(?:tell\s+me\s+more|more\s+info|more\s+details)\s*[?!.]*$", message, re.I):
+                res = ReplyResult(personality.FOUNDATION_YEARS_OVERVIEW_RESPONSE, "foundation_years_overview", ["program-foundation-years"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+
+        if memory.active_program == "confident_speaker":
+            if re.match(r"^\s*(?:tell\s+me\s+more|more\s+info|more\s+details)\s*[?!.]*$", message, re.I):
+                res = ReplyResult(personality.CONFIDENT_SPEAKER_OVERVIEW_RESPONSE, "confident_speaker", ["program-confident-speaker"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
 
         # Where to book
         if _DEMO_WHERE_TO_BOOK_RE.search(message):
@@ -3373,20 +3618,15 @@ class ConversationEngine:
             if m_voc and m_voc.group(1).lower() not in ("how", "what", "why", "when", "where", "who", "which", "can", "do", "does", "is", "are"):
                 cleaned_subj = m_voc.group(2).strip()
 
-            # Bare standalone subject queries ("subjects", "subject",
-            # "what are the subjects") always return the global overview,
-            # regardless of active program context.
-            if _BARE_SUBJECTS_GLOBAL_RE.match(cleaned_subj) or _BARE_SUBJECTS_GLOBAL_RE.match(normalize_query(cleaned_subj)):
-                res = ReplyResult(
-                    personality.SUBJECTS_OFFERED_RESPONSE,
-                    "faq",
-                    ["what-subjects-offered", "programs-overview"],
-                    1.0,
-                )
-                return self._finalize_result(session_id, res, memory, message)
-
-            if _SUBJECTS_OFFERED_RE.match(cleaned_subj) or _SUBJECTS_OFFERED_RE.match(normalize_query(cleaned_subj)):
-                if memory.active_program == "middle":
+            # Context-sensitive subject inquiry:
+            # Priority 1: explicit program in current message
+            # Priority 2: valid active program in conversation memory
+            # Priority 3: conversational reference
+            # Priority 4: global subjects response
+            if _SUBJECT_INQUIRY_GENERAL_RE.match(cleaned_subj) or _SUBJECT_INQUIRY_GENERAL_RE.match(normalize_query(cleaned_subj)):
+                explicit_p = self._extract_program_from_text(cleaned_subj) or self._extract_program_from_text(normalize_query(cleaned_subj))
+                prog = explicit_p or memory.active_program or self._get_current_subject(session_id)
+                if prog == "middle":
                     memory.active_program = "middle"
                     res = ReplyResult(
                         personality.MIDDLE_SCHOOL_SUBJECTS_RESPONSE,
@@ -3395,7 +3635,7 @@ class ConversationEngine:
                         1.0,
                     )
                     return self._finalize_result(session_id, res, memory, message)
-                elif memory.active_program == "foundation":
+                elif prog == "foundation":
                     memory.active_program = "foundation"
                     res = ReplyResult(
                         personality.FOUNDATION_YEARS_SUBJECTS_RESPONSE,
@@ -3404,7 +3644,7 @@ class ConversationEngine:
                         1.0,
                     )
                     return self._finalize_result(session_id, res, memory, message)
-                elif memory.active_program == "senior":
+                elif prog == "senior":
                     memory.active_program = "senior"
                     res = ReplyResult(
                         personality.SENIOR_SCHOOL_SUBJECTS_RESPONSE,
@@ -3413,7 +3653,7 @@ class ConversationEngine:
                         1.0,
                     )
                     return self._finalize_result(session_id, res, memory, message)
-                elif memory.active_program == "confident_speaker":
+                elif prog == "confident_speaker":
                     memory.active_program = "confident_speaker"
                     res = ReplyResult(
                         personality.CONFIDENT_SPEAKER_CURRICULUM_RESPONSE,
@@ -3422,13 +3662,14 @@ class ConversationEngine:
                         1.0,
                     )
                     return self._finalize_result(session_id, res, memory, message)
-                res = ReplyResult(
-                    personality.SUBJECTS_OFFERED_RESPONSE,
-                    "faq",
-                    ["what-subjects-offered", "programs-overview"],
-                    1.0,
-                )
-                return self._finalize_result(session_id, res, memory, message)
+                else:
+                    res = ReplyResult(
+                        personality.SUBJECTS_OFFERED_RESPONSE,
+                        "faq",
+                        ["what-subjects-offered", "programs-overview"],
+                        1.0,
+                    )
+                    return self._finalize_result(session_id, res, memory, message)
 
             if _GRADES_SUPPORTED_RE.match(cleaned_subj) or _GRADES_SUPPORTED_RE.match(normalize_query(cleaned_subj)):
                 res = ReplyResult(
@@ -3481,6 +3722,64 @@ class ConversationEngine:
                     1.0,
                 )
                 return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "senior_school_multipart":
+            memory.active_program = "senior"
+            res = ReplyResult(personality.SENIOR_SCHOOL_MULTIPART_RESPONSE, "senior_school_multipart", ["program-senior-school"], 1.0)
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "middle_school_multipart":
+            memory.active_program = "middle"
+            res = ReplyResult(personality.MIDDLE_SCHOOL_MULTIPART_RESPONSE, "middle_school_multipart", ["program-middle-school"], 1.0)
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "foundation_years_multipart":
+            memory.active_program = "foundation"
+            res = ReplyResult(personality.FOUNDATION_YEARS_MULTIPART_RESPONSE, "foundation_years_multipart", ["program-foundation-years"], 1.0)
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "senior_school_capability":
+            memory.active_program = "senior"
+            res = ReplyResult(personality.SENIOR_SCHOOL_CAPABILITY_RESPONSE, "senior_school_capability", ["program-senior-school"], 1.0)
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "middle_school_capability":
+            memory.active_program = "middle"
+            res = ReplyResult(personality.MIDDLE_SCHOOL_CAPABILITY_RESPONSE, "middle_school_capability", ["program-middle-school"], 1.0)
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "foundation_years_capability":
+            memory.active_program = "foundation"
+            res = ReplyResult(personality.FOUNDATION_YEARS_CAPABILITY_RESPONSE, "foundation_years_capability", ["program-foundation-years"], 1.0)
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "confident_speaker_capability":
+            memory.active_program = "confident_speaker"
+            res = ReplyResult(personality.CONFIDENT_SPEAKER_CAPABILITY_RESPONSE, "confident_speaker_capability", ["program-confident-speaker"], 1.0)
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "confident_speaker_ielts_capability":
+            memory.active_program = "confident_speaker"
+            res = ReplyResult(personality.IELTS_CAPABILITY_RESPONSE, "confident_speaker_ielts_capability", ["program-confident-speaker"], 1.0)
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "confident_speaker_public_speaking_capability":
+            memory.active_program = "confident_speaker"
+            res = ReplyResult(personality.PUBLIC_SPEAKING_CAPABILITY_RESPONSE, "confident_speaker_public_speaking_capability", ["program-confident-speaker"], 1.0)
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "confident_speaker_business_english_capability":
+            memory.active_program = "confident_speaker"
+            res = ReplyResult(personality.BUSINESS_ENGLISH_CAPABILITY_RESPONSE, "confident_speaker_business_english_capability", ["program-confident-speaker"], 1.0)
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "state_board_capability":
+            res = ReplyResult(personality.STATE_BOARD_CAPABILITY_RESPONSE, "state_board_capability", ["curricula-supported"], 1.0)
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "online_classes_capability":
+            res = ReplyResult(personality.ONLINE_CLASSES_CAPABILITY_RESPONSE, "online_classes_capability", ["program-delivery-mode"], 1.0)
+            return self._finalize_result(session_id, res, memory, message)
 
         if intent == "personalized_mentoring_general":
             res = ReplyResult(

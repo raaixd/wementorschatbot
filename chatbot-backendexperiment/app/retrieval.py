@@ -284,10 +284,14 @@ class Retriever:
                     if re.search(r"\b(grades?\s*[345]\b|class\s*[345]\b|[345](?:th|rd|st)?\s*(?:grade|class|standard)\b|foundation(?:\s+years?)?)\b", lowered_query):
                         score += 0.5
                 elif entry.id == "program-middle-school":
-                    if re.search(r"\b(grades?\s*[678]\b|class\s*[678]\b|[678]th\s*(?:grade|class|standard)\b|middle(?:\s+school)?)\b", lowered_query):
+                    if "middle east" in lowered_query or "middle eastern" in lowered_query:
+                        pass
+                    elif re.search(r"\b(grades?\s*[678]\b|class\s*[678]\b|[678]th\s*(?:grade|class|standard)\b|middle(?:\s+school)?)\b", lowered_query):
                         score += 0.5
                 elif entry.id == "program-senior-school":
-                    if re.search(r"\b(grades?\s*(?:9|10)\b|class\s*(?:9|10)\b|(?:9|10)th\s*(?:grade|class|standard)\b|senior(?:\s+school(?:\s+focus)?)?)\b", lowered_query):
+                    if "senior citizen" in lowered_query or "senior citizens" in lowered_query:
+                        pass
+                    elif re.search(r"\b(grades?\s*(?:9|10)\b|class\s*(?:9|10)\b|(?:9|10)th\s*(?:grade|class|standard)\b|senior(?:\s+school(?:\s+focus)?)?)\b", lowered_query):
                         score += 0.5
                 elif entry.id == "program-confident-speaker":
                     is_specific_cs_track = any(w in lowered_query for w in ("ielts", "business english", "public speaking", "everyday english", "daily english", "general communicative"))
@@ -384,6 +388,19 @@ class Retriever:
             if matched_tokens and not (matched_tokens & self._intent_tokens[index]):
                 score *= 0.5
 
+            if (entry.id.startswith("middle-school-") or entry.id == "program-middle-school"):
+                if "middle east" in lowered_query or "middle eastern" in lowered_query:
+                    continue
+            if entry.id == "program-senior-school":
+                if "senior citizen" in lowered_query or "senior citizens" in lowered_query:
+                    continue
+            if entry.id == "program-foundation-years":
+                if "foundation of mathematics" in lowered_query or "foundation mathematics" in lowered_query:
+                    continue
+            if entry.id == "program-confident-speaker":
+                if "confident student" in lowered_query:
+                    continue
+
             if score > 0:
                 scored.append(ScoredEntry(entry=entry, score=round(score, 4)))
 
@@ -413,9 +430,21 @@ class Retriever:
 
             # 2. Middle school gate: generic 'school' in non-school context must not match Middle School
             if (entry.id.startswith("middle-school-") or entry.id == "program-middle-school"):
+                if "middle east" in lowered_query or "middle eastern" in lowered_query:
+                    continue
                 if not any(k in lowered_query for k in ("middle", "middel", "midle", "class 6", "class 7", "class 8", "grade 6", "grade 7", "grade 8")):
                     if any(k in lowered_query for k in ("not in school", "without being in school", "without school", "outside of school")):
                         continue
+
+            if entry.id == "program-senior-school":
+                if "senior citizen" in lowered_query or "senior citizens" in lowered_query:
+                    continue
+            if entry.id == "program-foundation-years":
+                if "foundation of mathematics" in lowered_query or "foundation mathematics" in lowered_query:
+                    continue
+            if entry.id == "program-confident-speaker":
+                if "confident student" in lowered_query:
+                    continue
 
             # 3. Demo booking gate: how-to-book-demo must not match on generic words without booking intent
             if entry.id == "how-to-book-demo":

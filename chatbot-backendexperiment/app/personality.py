@@ -413,7 +413,77 @@ SENIOR_SCHOOL_SUBJECTS_RESPONSE = (
 )
 
 SENIOR_SCHOOL_GRADES_RESPONSE = (
-    "The Senior School Focus program is dedicated for students in Grades 9–10."
+    "**Senior School Focus covers Grades 9–10.**"
+)
+
+SENIOR_SCHOOL_CAPABILITY_RESPONSE = (
+    "**Yes.** WeMentors supports Grades 9–10 through the **Senior School Focus** program, "
+    "with emphasis on Mathematics, Science, and board-exam preparation."
+)
+
+MIDDLE_SCHOOL_CAPABILITY_RESPONSE = (
+    "**Yes.** WeMentors supports Grades 6–8 through the **Middle School — All Subjects** program, "
+    "covering Mathematics, Science, English, and Social Studies."
+)
+
+FOUNDATION_YEARS_CAPABILITY_RESPONSE = (
+    "**Yes.** WeMentors supports Grades 3–5 through the **Foundation Years** program, "
+    "covering Mathematics, Science, English, and Environmental Studies (EVS)."
+)
+
+CONFIDENT_SPEAKER_CAPABILITY_RESPONSE = (
+    "**Yes.** WeMentors offers the **Confident Speaker** program for learners of all ages, "
+    "covering Public Speaking, Business English, General Communicative Skills, and IELTS Preparation."
+)
+
+IELTS_CAPABILITY_RESPONSE = (
+    "**Yes.** WeMentors offers IELTS preparation through the **Confident Speaker** program, "
+    "designed for learners of all ages."
+)
+
+STATE_BOARD_CAPABILITY_RESPONSE = (
+    "**Yes.** WeMentors supports State Board curricula alongside CBSE, ICSE, and Cambridge, "
+    "tailoring sessions to your state board syllabus."
+)
+
+ONLINE_CLASSES_CAPABILITY_RESPONSE = (
+    "**Yes.** All WeMentors sessions are conducted online with dedicated 1-on-1 personal mentors."
+)
+
+PUBLIC_SPEAKING_CAPABILITY_RESPONSE = (
+    "**Yes.** WeMentors offers Public Speaking coaching through the Confident Speaker program "
+    "to build speaking confidence and communicative skills."
+)
+
+BUSINESS_ENGLISH_CAPABILITY_RESPONSE = (
+    "**Yes.** WeMentors offers Business English coaching through the Confident Speaker program "
+    "for workplace and professional communication."
+)
+
+SENIOR_SCHOOL_MULTIPART_RESPONSE = (
+    "**Yes.** WeMentors supports Grades 9–10 through Senior School Focus.\n\n"
+    "**Subjects:**\n"
+    "- Mathematics\n"
+    "- Science\n"
+    "- Board Exam Preparation"
+)
+
+MIDDLE_SCHOOL_MULTIPART_RESPONSE = (
+    "**Yes.** WeMentors supports Grades 6–8 through Middle School — All Subjects.\n\n"
+    "**Subjects:**\n"
+    "- Mathematics\n"
+    "- Science\n"
+    "- English\n"
+    "- Social Studies"
+)
+
+FOUNDATION_YEARS_MULTIPART_RESPONSE = (
+    "**Yes.** WeMentors supports Grades 3–5 through Foundation Years.\n\n"
+    "**Subjects:**\n"
+    "- Mathematics\n"
+    "- Science\n"
+    "- English\n"
+    "- Environmental Studies (EVS)"
 )
 
 SENIOR_SCHOOL_FEATURES_RESPONSE = (
