@@ -3525,7 +3525,13 @@ class ConversationEngine:
                 res = ReplyResult(personality.STATE_BOARD_CAPABILITY_RESPONSE, "state_board_capability", ["curricula-supported"], 1.0)
                 return self._finalize_result(session_id, res, memory, message)
             if re.search(r"\b(online(?:\s+classes)?|virtual(?:\s+classes)?)\b", message, re.I):
-                res = ReplyResult(personality.ONLINE_CLASSES_RESPONSE, "online_classes", ["program-delivery-mode"], 1.0)
+                if _CLASS_SIZE_RE.search(message):
+                    res = ReplyResult(personality.ONLINE_AND_CLASS_SIZE_RESPONSE, "online_and_class_size", ["online-or-offline", "batch-size"], 1.0)
+                    return self._finalize_result(session_id, res, memory, message)
+                if _CLASS_FREQUENCY_RE.search(message):
+                    res = ReplyResult(personality.ONLINE_AND_FREQUENCY_RESPONSE, "online_and_frequency", ["online-or-offline", "class-frequency"], 1.0)
+                    return self._finalize_result(session_id, res, memory, message)
+                res = ReplyResult(personality.ONLINE_CLASSES_RESPONSE, "online_classes", ["online-or-offline"], 1.0)
                 return self._finalize_result(session_id, res, memory, message)
 
         # Context-aware narrow follow-ups when a program is active
