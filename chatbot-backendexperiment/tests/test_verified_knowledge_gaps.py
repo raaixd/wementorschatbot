@@ -67,8 +67,8 @@ class TestGrade11_12_JEE_NEET_Unsupported:
         # Preserves Grade 3–10 academic structure
         assert "grades 3–10" in reply or "grades 3-10" in reply or "foundation years" in reply
 
-        # Clarifies Confident Speaker is available to learners of all ages
-        assert "confident speaker" in reply
+        # Clarifies Confident Speaker / Communicative English is available to learners of all ages
+        assert "confident speaker" in reply or "communicative english" in reply
         assert "all ages" in reply
 
         # Must NOT imply they are planned or available
@@ -77,11 +77,11 @@ class TestGrade11_12_JEE_NEET_Unsupported:
         assert "planned" not in reply
 
     def test_confident_speaker_for_older_students_not_blocked(self, engine):
-        # A question specifically about Confident Speaker for a Grade 11 student
-        # should direct to Confident Speaker, not get confused with academic coaching
+        # A question specifically about Confident Speaker / Communicative English for a Grade 11 student
+        # should direct to the English program, not get confused with academic coaching
         res = engine.handle_message("sess_cs_11", "Can a class 11 student join Confident Speaker?")
-        assert "confident speaker" in res.reply.lower()
-        assert res.intent != "grade_11_12_unsupported" or "confident speaker" in res.reply.lower()
+        assert "confident speaker" in res.reply.lower() or "communicative english" in res.reply.lower()
+        assert res.intent != "grade_11_12_unsupported" or "confident speaker" in res.reply.lower() or "communicative english" in res.reply.lower()
 
 
 # ==============================================================================
@@ -291,4 +291,4 @@ class TestMentorQualifications:
 
 
 if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    sys.exit(pytest.main([__file__, "-v"]))
