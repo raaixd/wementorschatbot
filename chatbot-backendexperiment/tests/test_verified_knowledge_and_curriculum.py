@@ -20,6 +20,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.conversation import ConversationEngine
 from app.knowledge import load_entries
+from app import database
 
 
 @pytest.fixture(scope="module")
@@ -420,4 +421,71 @@ class TestVerifiedKnowledgeAndCurriculum:
         assert "- **IELTS Preparation** — prepare for IELTS with guided practice and mentoring." in res.reply
         assert "rote grammar drills" in res.reply
         assert "Book Free Demo" in res.reply
+
+    # 45. Verified IELTS knowledge retrieval & grounding coverage
+    def test_45_ielts_verified_knowledge_coverage(self, engine):
+        from app.retrieval import Retriever
+        retriever = Retriever(load_entries())
+
+        ielts_queries = [
+            "What is IELTS preparation?",
+            "Do you offer IELTS preparation?",
+            "Do you prepare for IELTS Academic?",
+            "Do you prepare for IELTS General?",
+            "What does IELTS preparation cover?",
+            "Do you offer band score training?",
+            "Do you have IELTS mock tests?",
+            "Do you offer speaking practice?",
+            "Do you help with Reading, Writing, Listening and Speaking?",
+            "Do you offer 1:1 IELTS speaking?",
+            "What is Band 7.5+ preparation?",
+        ]
+        for q in ielts_queries:
+            scored = retriever.search(q, top_k=3)
+            assert scored and scored[0].entry.id == "confident-speaker-ielts", f"Retriever failed for '{q}'"
+
+        detailed_queries = [
+            ("What is IELTS preparation?", ["IELTS", "Confident Speaker"]),
+            ("What does IELTS preparation cover?", ["IELTS", "Confident Speaker"]),
+            ("Do you offer band score training?", ["band score", "IELTS"]),
+            ("What is Band 7.5+ preparation?", ["Band 7.5+", "IELTS"]),
+            ("Do you help with Reading, Writing, Listening and Speaking?", ["Reading", "Writing", "Listening", "Speaking"]),
+        ]
+        for q, expected_terms in detailed_queries:
+            sess = f"sess_ielts_cov_{hash(q)}"
+            res = engine.handle_message(sess, q)
+            assert "confident-speaker-ielts" in res.matched_entry_ids or "IELTS" in res.reply, f"Failed for '{q}'"
+            reply_lower = res.reply.lower()
+            for term in expected_terms:
+                assert term.lower() in reply_lower, f"Missing term '{term}' in reply for '{q}': {res.reply}"
+            assert "guaranteed band" not in reply_lower
+            assert "guaranteed result" not in reply_lower
+            mem = database.get_conversation_memory(sess)
+            assert mem.active_program in (None, "confident_speaker"), f"Unexpected active_program: {mem.active_program}"
+
+    # 46. Verified Communicative English knowledge retrieval & grounding coverage
+    def test_46_communicative_english_verified_knowledge_coverage(self, engine):
+        queries = [
+            ("What is Communicative English?", ["confidence to speak", "communicate"]),
+            ("Do you offer Communicative English?", ["communicate", "English"]),
+            ("What does Communicative English cover?", ["Spoken English", "Public Speaking"]),
+            ("Do you teach Spoken English?", ["Spoken English"]),
+            ("Do you help with conversation?", ["conversation"]),
+            ("Is Communicative English for professionals?", ["professionals"]),
+            ("Is Communicative English for students?", ["students"]),
+            ("Is Communicative English for homemakers?", ["homemakers"]),
+        ]
+        for q, expected_terms in queries:
+            sess = f"sess_comm_cov_{hash(q)}"
+            res = engine.handle_message(sess, q)
+            assert "confident-speaker-general-communicative" in res.matched_entry_ids or "program-confident-speaker" in res.matched_entry_ids or "English" in res.reply, f"Failed for '{q}'"
+            reply_lower = res.reply.lower()
+            for term in expected_terms:
+                assert term.lower() in reply_lower, f"Missing term '{term}' in reply for '{q}': {res.reply}"
+            # Safety invariants: no unverified pricing, no academic program activation
+            assert "per month" not in reply_lower
+            assert "rs. " not in reply_lower
+            assert "inr" not in reply_lower
+            mem = database.get_conversation_memory(sess)
+            assert mem.active_program in (None, "confident_speaker"), f"Unexpected active_program: {mem.active_program}"
 

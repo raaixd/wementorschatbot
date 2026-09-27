@@ -16,12 +16,12 @@
 | **NDCG@3** | 0.7905 | **0.8105** | **+0.0200** | Measured |
 | **False Positive Rate** | 0.0% | **60.0%** | 0.00% | Measured |
 | **False Negative Rate** | 16.0% | **16.0%** | **0.00%** | Measured |
-| **Answer Correctness** | 80.13% | **82.69%** | **+2.56%** | Measured |
+| **Answer Correctness** | 79.49% | **82.05%** | **+2.56%** | Measured |
 | **Groundedness** | 96.15% | **96.79%** | 0.00% | Measured |
 | **Hallucination Rate** | 3.85% | **3.21%** | 0.00% | Measured |
 | **Unknown Handling** | 92.31% | **92.95%** | 0.00% | Measured |
-| **Context Resolution** | 90.38% | **92.95%** | 0.00% | Measured |
-| **In-Memory Retrieval Latency** | **6.34 ms** | 9.96 ms | +3.62 ms | Measured |
+| **Context Resolution** | 90.38% | **91.67%** | 0.00% | Measured |
+| **In-Memory Retrieval Latency** | **6.29 ms** | 10.71 ms | +4.42 ms | Measured |
 | **Embedding API Calls** | 0 / 156 | **67 / 156** | +67 | Measured |
 | **Embedding API Call Rate** | 0.00% | **42.95%** | +42.95% | Measured |
 | **Embedding Latency P50** | 0.0 ms | **104.42 ms** | +104.42 ms | Measured |
