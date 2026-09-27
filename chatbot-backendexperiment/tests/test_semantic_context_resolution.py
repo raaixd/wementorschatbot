@@ -32,7 +32,7 @@ class TestSemanticContextResolution:
         session_id = "test_sess_01"
         res1 = engine.handle_message(session_id, "Tell me about Confident Speaker")
         assert res1.intent == "confident_speaker"
-        assert "confident speaker" in res1.reply.lower()
+        assert ("confident speaker" in res1.reply.lower() or "communicative english" in res1.reply.lower())
 
         res2 = engine.handle_message(session_id, "What happens during practice sessions?")
         assert res2.intent == "confident_speaker_activities"
@@ -119,7 +119,7 @@ class TestSemanticContextResolution:
         engine.handle_message(session_id, "Tell me about Middle School")
         res = engine.handle_message(session_id, "Actually, tell me about Confident Speaker.")
         assert res.intent == "confident_speaker"
-        assert "confident speaker" in res.reply.lower()
+        assert ("confident speaker" in res.reply.lower() or "communicative english" in res.reply.lower())
         assert "spoken english" in res.reply.lower() or "public speaking" in res.reply.lower()
 
     def test_09_confident_speaker_to_academic_courses_switch(self, engine):

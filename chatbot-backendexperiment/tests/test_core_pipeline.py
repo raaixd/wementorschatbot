@@ -147,7 +147,7 @@ check("very long message handled without crash", isinstance(r.reply, str), r.rep
 sid5 = "test-session-6"
 database.ensure_session(sid5)
 r = ask(sid5, "What programs do you offer?")
-check("programs overview renders as bullet list", "- Foundation Years" in r.reply, r.reply)
+check("programs overview renders as bullet list", ("- Foundation Years" in r.reply or "- **Foundation Years" in r.reply), r.reply)
 
 r = ask(sid5, "How do I apply?")
 check("apply/admissions renders as numbered steps", "1. Book the free demo class" in r.reply, r.reply)

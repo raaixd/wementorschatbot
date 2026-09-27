@@ -143,6 +143,50 @@ _IELTS_RE = re.compile(
     re.IGNORECASE,
 )
 
+_COMMUNICATIVE_ENGLISH_INCLUDES_IELTS_RE = re.compile(
+    r"\b("
+    r"(?:does|do)\s+(?:communicative\s+english|confident\s+speaker)\s+(?:include|cover|have|teach)\s+ielts|"
+    r"is\s+ielts\s+(?:part\s+of|included\s+in|under|a\s+track\s+in|within)\s+(?:communicative\s+english|confident\s+speaker)|"
+    r"does\s+ielts\s+come\s+under\s+(?:communicative\s+english|confident\s+speaker)|"
+    r"(?:communicative\s+english|confident\s+speaker)\s+include\s+ielts|"
+    r"is\s+ielts\s+included\s+in\s+confident\s+speaker|"
+    r"does\s+confident\s+speaker\s+have\s+an\s+ielts\s+course"
+    r")\b",
+    re.IGNORECASE,
+)
+
+_IELTS_ACADEMIC_RE = re.compile(
+    r"\b(ielts\s+academic|academic\s+ielts|academic\s+module|prepare\s+for\s+ielts\s+academic|do\s+you\s+(?:offer|prepare\s+for)\s+ielts\s+academic)\b",
+    re.IGNORECASE,
+)
+
+_IELTS_GENERAL_RE = re.compile(
+    r"\b(ielts\s+general|general\s+ielts|general\s+training|prepare\s+for\s+ielts\s+general|do\s+you\s+(?:offer|prepare\s+for)\s+ielts\s+general)\b",
+    re.IGNORECASE,
+)
+
+_IELTS_MOCKS_RE = re.compile(
+    r"\b(mock\s+tests?|live\s+mock\s+evaluations?|ielts\s+mock|mock\s+evaluations?)\b",
+    re.IGNORECASE,
+)
+
+_IELTS_SPEAKING_NARROW_RE = re.compile(
+    r"\b(1:1\s+speaking|1-on-1\s+speaking|speaking\s+clinics?|ielts\s+speaking|speaking\s+practice\s+for\s+ielts)\b"
+    r"|^\s*(?:what\s+about\s+)?speaking\??\s*$",
+    re.IGNORECASE,
+)
+
+_IELTS_BAND_SCORE_RE = re.compile(
+    r"\b(band\s*7\.5\+?|target(?:ed)?\s+band\s*7\.5\+?|band\s+score\s+mastery|band\s+score\s+training|band\s+score)\b"
+    r"|^\s*(?:what\s+about\s+)?band\s*7\.5\+?\??\s*$",
+    re.IGNORECASE,
+)
+
+_IELTS_SKILLS_ALL_RE = re.compile(
+    r"\b(reading[,\s]+writing[,\s]+listening(?:\s+and\s+speaking)?|reading\s+writing\s+listening|detailed\s+essay\s+review)\b",
+    re.IGNORECASE,
+)
+
 _BUSINESS_ENGLISH_RE = re.compile(
     r"\b(business\s+english|english\s+for\s+(?:work|business|businesspeople|professionals?)|business\s+communication|english\s+training\s+for\s+businesspeople)\b",
     re.IGNORECASE,
@@ -178,11 +222,11 @@ _GENERAL_COMMUNICATIVE_RE = re.compile(
 )
 
 _CS_CURRICULUM_RE = re.compile(
-    r"\b(what\s+does\s+confident\s+speaker\s+teach|"
-    r"curriculum\s+(?:of\s+)?confident\s+speaker|"
-    r"confident\s+speaker\s+curriculum|"
+    r"\b(what\s+does\s+(?:confident\s+speaker|communicative\s+english)\s+teach|"
+    r"curriculum\s+(?:of\s+)?(?:confident\s+speaker|communicative\s+english)|"
+    r"(?:confident\s+speaker|communicative\s+english)\s+curriculum|"
     r"what\s+are\s+the\s+(?:four|4)?\s*(?:curriculum\s+)?areas|"
-    r"what\s+areas\s+does\s+confident\s+speaker\s+cover)\b",
+    r"what\s+areas\s+does\s+(?:confident\s+speaker|communicative\s+english)\s+cover)\b",
     re.IGNORECASE,
 )
 
@@ -488,11 +532,11 @@ _SENIOR_SCHOOL_OVERVIEW_RE = re.compile(
 
 _CONFIDENT_SPEAKER_OVERVIEW_RE = re.compile(
     r"\b("
-    r"tell\s+me\s+(?:everything\s+)?about\s+(?:the\s+)?confident\s+speaker(?:\s+program)?|"
-    r"what\s+is\s+(?:the\s+)?confident\s+speaker(?:\s+program)?|"
-    r"what\s+does\s+confident\s+speaker\s+(?:offer|provide|cover|have)|"
-    r"confident\s+speaker(?:\s+program|\s+course)?|"
-    r"everything\s+about\s+(?:the\s+)?confident\s+speaker"
+    r"tell\s+me\s+(?:everything\s+)?about\s+(?:the\s+)?(?:confident\s+speaker|communicative\s+english)(?:\s+program)?|"
+    r"what\s+is\s+(?:the\s+)?(?:confident\s+speaker|communicative\s+english)(?:\s+program)?|"
+    r"what\s+does\s+(?:confident\s+speaker|communicative\s+english)\s+(?:offer|provide|cover|have)|"
+    r"(?:confident\s+speaker|communicative\s+english)(?:\s+program|\s+course)?|"
+    r"everything\s+about\s+(?:the\s+)?(?:confident\s+speaker|communicative\s+english)"
     r")\b",
     re.IGNORECASE,
 )
@@ -546,13 +590,13 @@ _SUBJECTS_INQUIRY_RE = re.compile(
 
 _CONFIDENT_SPEAKER_SUBJECTS_RE = re.compile(
     r"\b("
-    r"(?:what|which)\s+subjects\s+(?:are\s+)?(?:in|for)\s+confident\s+speaker|"
-    r"(?:what|which)\s+subjects\s+does\s+confident\s+speaker\s+have|"
-    r"what\s+does\s+confident\s+speaker\s+cover|"
-    r"confident\s+speaker\s+subjects|"
-    r"(?:what|which)\s+curriculum\s+(?:does\s+)?confident\s+speaker|"
-    r"what\s+curriculum\s+in\s+confident\s+speaker|"
-    r"subjects?\s+in\s+confident\s+speaker"
+    r"(?:what|which)\s+subjects\s+(?:are\s+)?(?:in|for)\s+(?:confident\s+speaker|communicative\s+english)|"
+    r"(?:what|which)\s+subjects\s+does\s+(?:confident\s+speaker|communicative\s+english)\s+have|"
+    r"what\s+does\s+(?:confident\s+speaker|communicative\s+english)\s+cover|"
+    r"(?:confident\s+speaker|communicative\s+english)\s+subjects|"
+    r"(?:what|which)\s+curriculum\s+(?:does\s+)?(?:confident\s+speaker|communicative\s+english)|"
+    r"what\s+curriculum\s+in\s+(?:confident\s+speaker|communicative\s+english)|"
+    r"subjects?\s+in\s+(?:confident\s+speaker|communicative\s+english)"
     r")\b",
     re.IGNORECASE,
 )
@@ -766,16 +810,17 @@ _BOARD_EXAM_RE = re.compile(
 )
 
 _CONFIDENT_SPEAKER_RE = re.compile(
-    r"\b(tell\s+me\s+about\s+(?:the\s+)?confident\s+speaker(?:\s+program)?|"
-    r"what\s+is\s+(?:your\s+)?confident\s+speaker(?:\s+(?:course|program))?|"
-    r"how\s+does\s+(?:the\s+)?confident\s+speaker(?:\s+program)?\s+work|"
+    r"\b(tell\s+me\s+about\s+(?:the\s+)?(?:confident\s+speaker|communicative\s+english)(?:\s+program)?|"
+    r"what\s+is\s+(?:your\s+)?(?:confident\s+speaker|communicative\s+english)(?:\s+(?:course|program))?|"
+    r"how\s+does\s+(?:the\s+)?(?:confident\s+speaker|communicative\s+english)(?:\s+program)?\s+work|"
     r"can\s+you\s+help\s+(?:my\s+)?(?:child|student|son|daughter|kid|me)\s+become\s+(?:a\s+)?confident\s+speaker|"
-    r"what\s+do\s+students\s+learn\s+in\s+confident\s+speaker|"
-    r"is\s+there\s+personalized\s+mentoring\s+for\s+confident\s+speaking|"
+    r"what\s+do\s+students\s+learn\s+in\s+(?:confident\s+speaker|communicative\s+english)|"
+    r"is\s+there\s+personalized\s+mentoring\s+for\s+(?:confident\s+speaking|communicative\s+english)|"
     r"how\s+will\s+you\s+work\s+on\s+(?:my\s+)?(?:child'?s\s+|kid'?s\s+)?speaking\s+confidence|"
     r"how\s+can\s+(?:my\s+)?(?:child|student|son|daughter|kid|me)\s+become\s+better\s+at\s+speaking|"
     r"tell\s+me\s+about\s+your\s+speaking\s+confidence\s+program|"
     r"do\s+you\s+have\s+something\s+for\s+public\s+speaking\s+confidence|"
+    r"communicative\s+english|"
     r"confident\s+speaker|"
     r"speaking\s+confidence|"
     r"public\s+speaking\s+confidence|"
@@ -1410,7 +1455,7 @@ class ConversationEngine:
                 if _GENERIC_PROGRAMS_RE.match(content) or _GENERIC_PROGRAMS_RE.match(normalize_query(content)):
                     return None
                 prog = self._extract_program_from_text(content) or self._extract_program_from_text(normalize_query(content))
-                if prog and prog in ("foundation", "middle", "senior", "confident_speaker"):
+                if prog and prog in ("foundation", "middle", "senior", "confident_speaker", "ielts_preparation", "ielts"):
                     return prog
         except Exception:
             pass
@@ -1432,18 +1477,22 @@ class ConversationEngine:
             return "program-middle-school"
         if any(w in n for w in ["senior", "board", "9-10", "grades 9", "class 10", "grade 10", "class 9", "grade 9", "10th", "9th"]):
             return "program-senior-school"
-        if any(w in n for w in ["speaker", "confident", "spoken", "speaking", "all ages", "ielts", "business english", "public speaking", "everyday english", "general communicative"]):
+        if "ielts" in n:
+            return "confident-speaker-ielts"
+        if any(w in n for w in ["communicative", "speaker", "confident", "spoken", "speaking", "all ages", "business english", "public speaking", "everyday english", "general communicative"]):
             return "program-confident-speaker"
         return None
 
     def _program_id_to_key(self, prog_id: str) -> str:
+        if "ielts" in prog_id:
+            return "ielts_preparation"
         if "foundation" in prog_id:
             return "foundation"
         if "middle" in prog_id:
             return "middle"
         if "senior" in prog_id:
             return "senior"
-        if "confident" in prog_id:
+        if "confident" in prog_id or "communicative" in prog_id:
             return "confident_speaker"
         if "academic" in prog_id:
             return "academic"
@@ -1466,9 +1515,12 @@ class ConversationEngine:
         elif re.search(r"\b(middle(?:\s+school)?(?:\s*[-—–]\s*all\s+subjects)?|grades?\s*6\s*[-–to]\s*8|grades?\s*[678]\b|class\s*[678]\b|[678]th\s*(?:grade|class|standard)\b)\b", t):
             return "middle"
 
+        if _IELTS_RE.search(t):
+            return "ielts_preparation"
+
         if "confident student" in t:
             pass
-        elif re.search(r"\b(confident\s+speaker|public\s+speaking|spoken\s+english|interview\s+skills?|speaking\s+practice|ielts|business\s+english|everyday\s+english|general\s+communicative)\b", t):
+        elif re.search(r"\b(communicative\s+english|confident\s+speaker|public\s+speaking|spoken\s+english|interview\s+skills?|speaking\s+practice|business\s+english|everyday\s+english|general\s+communicative)\b", t):
             return "confident_speaker"
 
         if re.search(r"\b(academic\s+(?:courses?|classes|sessions?|programs?|subjects?|mentoring|learning)|classes\s+for\s+school\s+students|courses\s+for\s+school\s+students|school\s+students|school\s+courses|academics?)\b", t):
@@ -1824,7 +1876,11 @@ class ConversationEngine:
                 normalized = normalize_query(stripped)
                 word_count = len(stripped.split())
 
-        # Confident Speaker specific curriculum tracks checked early
+        # Relationship queries between Communicative English and IELTS checked first
+        if _COMMUNICATIVE_ENGLISH_INCLUDES_IELTS_RE.search(stripped) or _COMMUNICATIVE_ENGLISH_INCLUDES_IELTS_RE.search(normalized):
+            return "communicative_english_includes_ielts"
+
+        # Standalone IELTS checked early
         # (CRITICAL: IELTS must be checked before Senior School/Board preparation)
         if _IELTS_RE.search(stripped) or _IELTS_RE.search(normalized):
             return "confident_speaker_ielts"
@@ -1940,7 +1996,7 @@ class ConversationEngine:
                 return "middle_school_grades"
             if "foundation of mathematics" not in stripped.lower() and re.search(r"\b(grades?\s*(?:3\s*[-–to]\s*5|[345])|class\s*[345]|[345](?:th|rd|st)|foundation(?:\s+years?)?)\b", stripped, re.I):
                 return "foundation_years_capability"
-            if re.search(r"\bconfident\s+speaker\b", stripped, re.I) and "confident student" not in stripped.lower():
+            if re.search(r"\b(confident\s+speaker|communicative\s+english)\b", stripped, re.I) and "confident student" not in stripped.lower():
                 return "confident_speaker_capability"
             if re.search(r"\b(ielts|ietls)\b", stripped, re.I):
                 return "confident_speaker_ielts"
@@ -1965,6 +2021,8 @@ class ConversationEngine:
                 return "foundation_subjects"
             elif p == "confident_speaker":
                 return "confident_speaker_scope"
+            elif p in ("ielts_preparation", "ielts"):
+                return "confident_speaker_ielts"
             else:
                 return "faq"
 
@@ -2412,6 +2470,28 @@ class ConversationEngine:
                 return "demo_booking"
             if re.search(r"^\s*(tell\s+me\s+(?:more\s+)?about\s+(?:it|this\s+program|the\s+course)|what\s+is\s+(?:it|this\s+program|the\s+course)|what\s+does\s+(?:it|this\s+program|the\s+course)\s+offer)\s*[?!.]*$", stripped, re.I):
                 return "confident_speaker"
+
+        if active_prog in ("ielts_preparation", "ielts"):
+            if _IELTS_SPEAKING_NARROW_RE.search(stripped) or _IELTS_SPEAKING_NARROW_RE.search(normalized):
+                return "confident_speaker_ielts"
+            if _IELTS_BAND_SCORE_RE.search(stripped) or _IELTS_BAND_SCORE_RE.search(normalized):
+                return "confident_speaker_ielts"
+            if _IELTS_MOCKS_RE.search(stripped) or _IELTS_MOCKS_RE.search(normalized):
+                return "confident_speaker_ielts"
+            if _IELTS_ACADEMIC_RE.search(stripped) or _IELTS_ACADEMIC_RE.search(normalized):
+                return "confident_speaker_ielts"
+            if _IELTS_GENERAL_RE.search(stripped) or _IELTS_GENERAL_RE.search(normalized):
+                return "confident_speaker_ielts"
+            if _IELTS_SKILLS_ALL_RE.search(stripped) or _IELTS_SKILLS_ALL_RE.search(normalized):
+                return "confident_speaker_ielts"
+            if _SCOPE_RE.search(stripped) or _SCOPE_RE.search(normalized) or _SUBJECTS_INQUIRY_RE.search(stripped) or _SUBJECTS_INQUIRY_RE.search(normalized) or re.search(r"^\s*what\s+subjects?\??\s*$", stripped, re.I):
+                return "confident_speaker_ielts"
+            if _KEY_FEATURES_RE.search(stripped) or _KEY_FEATURES_RE.search(normalized):
+                return "confident_speaker_ielts"
+            if _DEMO_BOOKING_RE.search(stripped):
+                return "demo_booking"
+            if re.search(r"^\s*(tell\s+me\s+(?:more\s+)?about\s+(?:it|this\s+program|the\s+course)|what\s+is\s+(?:it|this\s+program|the\s+course)|what\s+does\s+(?:it|this\s+program|the\s+course)\s+offer)\s*[?!.]*$", stripped, re.I):
+                return "confident_speaker_ielts"
 
         has_board_mention = bool(_BOARD_EXAM_RE.search(stripped) or _BOARD_EXAM_RE.search(normalized))
         if has_board_mention:
@@ -3509,11 +3589,26 @@ class ConversationEngine:
             if "foundation of mathematics" not in message.lower() and re.search(r"\b(grades?\s*(?:3\s*[-–to]\s*5|[345])|class\s*[345]|[345](?:th|rd|st)|foundation(?:\s+years?)?)\b", message, re.I):
                 res = ReplyResult(personality.FOUNDATION_YEARS_CAPABILITY_RESPONSE, "foundation_years_capability", ["program-foundation-years"], 1.0)
                 return self._finalize_result(session_id, res, memory, message)
-            if re.search(r"\bconfident\s+speaker\b", message, re.I) and "confident student" not in message.lower():
-                res = ReplyResult(personality.CONFIDENT_SPEAKER_CAPABILITY_RESPONSE, "confident_speaker_capability", ["program-confident-speaker"], 1.0)
+            if re.search(r"\b(confident\s+speaker|communicative\s+english)\b", message, re.I) and "confident student" not in message.lower():
+                res = ReplyResult(personality.COMMUNICATIVE_ENGLISH_CAPABILITY_RESPONSE, "confident_speaker_capability", ["program-confident-speaker"], 1.0)
                 return self._finalize_result(session_id, res, memory, message)
             if re.search(r"\b(ielts|ietls)\b", message, re.I):
-                res = ReplyResult(personality.IELTS_CAPABILITY_RESPONSE, "confident_speaker_ielts", ["program-confident-speaker"], 1.0)
+                memory.active_program = "ielts_preparation"
+                if _IELTS_ACADEMIC_RE.search(message):
+                    ielts_rep = personality.IELTS_ACADEMIC_RESPONSE
+                elif _IELTS_GENERAL_RE.search(message):
+                    ielts_rep = personality.IELTS_GENERAL_RESPONSE
+                elif _IELTS_MOCKS_RE.search(message):
+                    ielts_rep = personality.IELTS_MOCK_TESTS_RESPONSE
+                elif _IELTS_SPEAKING_NARROW_RE.search(message):
+                    ielts_rep = personality.IELTS_SPEAKING_RESPONSE
+                elif _IELTS_BAND_SCORE_RE.search(message):
+                    ielts_rep = personality.IELTS_BAND_SCORE_RESPONSE
+                elif _IELTS_SKILLS_ALL_RE.search(message):
+                    ielts_rep = personality.IELTS_SKILLS_RESPONSE
+                else:
+                    ielts_rep = personality.IELTS_CAPABILITY_RESPONSE
+                res = ReplyResult(ielts_rep, "confident_speaker_ielts", ["confident-speaker-ielts"], 1.0)
                 return self._finalize_result(session_id, res, memory, message)
             if re.search(r"\bpublic\s+speaking\b", message, re.I) and not re.search(r"\b(something\s+for|confidence|program|course)\b", message, re.I):
                 res = ReplyResult(personality.PUBLIC_SPEAKING_CAPABILITY_RESPONSE, "confident_speaker_public_speaking", ["program-confident-speaker"], 1.0)
@@ -3574,6 +3669,32 @@ class ConversationEngine:
         if memory.active_program == "confident_speaker":
             if re.match(r"^\s*(?:tell\s+me\s+more|more\s+info|more\s+details)\s*[?!.]*$", message, re.I):
                 res = ReplyResult(personality.CONFIDENT_SPEAKER_OVERVIEW_RESPONSE, "confident_speaker", ["program-confident-speaker"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+
+        if memory.active_program in ("ielts_preparation", "ielts"):
+            if re.match(r"^\s*(?:tell\s+me\s+more|more\s+info|more\s+details)\s*[?!.]*$", message, re.I):
+                res = ReplyResult(personality.IELTS_BROAD_OVERVIEW_RESPONSE, "confident_speaker_ielts", ["confident-speaker-ielts"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+            if _IELTS_SPEAKING_NARROW_RE.search(message):
+                res = ReplyResult(personality.IELTS_SPEAKING_RESPONSE, "confident_speaker_ielts", ["confident-speaker-ielts"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+            if _IELTS_BAND_SCORE_RE.search(message):
+                res = ReplyResult(personality.IELTS_BAND_SCORE_RESPONSE, "confident_speaker_ielts", ["confident-speaker-ielts"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+            if _IELTS_MOCKS_RE.search(message):
+                res = ReplyResult(personality.IELTS_MOCK_TESTS_RESPONSE, "confident_speaker_ielts", ["confident-speaker-ielts"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+            if _IELTS_ACADEMIC_RE.search(message):
+                res = ReplyResult(personality.IELTS_ACADEMIC_RESPONSE, "confident_speaker_ielts", ["confident-speaker-ielts"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+            if _IELTS_GENERAL_RE.search(message):
+                res = ReplyResult(personality.IELTS_GENERAL_RESPONSE, "confident_speaker_ielts", ["confident-speaker-ielts"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+            if _IELTS_SKILLS_ALL_RE.search(message):
+                res = ReplyResult(personality.IELTS_SKILLS_RESPONSE, "confident_speaker_ielts", ["confident-speaker-ielts"], 1.0)
+                return self._finalize_result(session_id, res, memory, message)
+            if _SCOPE_RE.search(message) or _SUBJECTS_INQUIRY_RE.search(message) or _SUBJECT_INQUIRY_GENERAL_RE.match(message):
+                res = ReplyResult(personality.IELTS_SUBJECTS_RESPONSE, "confident_speaker_ielts", ["confident-speaker-ielts"], 1.0)
                 return self._finalize_result(session_id, res, memory, message)
 
         # Where to book
@@ -3720,6 +3841,15 @@ class ConversationEngine:
                         1.0,
                     )
                     return self._finalize_result(session_id, res, memory, message)
+                elif prog in ("ielts_preparation", "ielts"):
+                    memory.active_program = "ielts_preparation"
+                    res = ReplyResult(
+                        personality.IELTS_SUBJECTS_RESPONSE,
+                        "confident_speaker_ielts",
+                        ["confident-speaker-ielts"],
+                        1.0,
+                    )
+                    return self._finalize_result(session_id, res, memory, message)
                 else:
                     res = ReplyResult(
                         personality.SUBJECTS_OFFERED_RESPONSE,
@@ -3734,6 +3864,15 @@ class ConversationEngine:
                     personality.GRADES_SUPPORTED_RESPONSE,
                     "faq",
                     ["which-grades-supported"],
+                    1.0,
+                )
+                return self._finalize_result(session_id, res, memory, message)
+
+            if _GENERIC_PROGRAMS_RE.match(cleaned_subj) or _GENERIC_PROGRAMS_RE.match(normalize_query(cleaned_subj)):
+                res = ReplyResult(
+                    personality.PROGRAMS_OVERVIEW_RESPONSE,
+                    "faq",
+                    ["programs-overview"],
                     1.0,
                 )
                 return self._finalize_result(session_id, res, memory, message)
@@ -3817,8 +3956,8 @@ class ConversationEngine:
             return self._finalize_result(session_id, res, memory, message)
 
         if intent == "confident_speaker_ielts_capability":
-            memory.active_program = "confident_speaker"
-            res = ReplyResult(personality.IELTS_CAPABILITY_RESPONSE, "confident_speaker_ielts_capability", ["program-confident-speaker"], 1.0)
+            memory.active_program = "ielts_preparation"
+            res = ReplyResult(personality.IELTS_CAPABILITY_RESPONSE, "confident_speaker_ielts_capability", ["confident-speaker-ielts"], 1.0)
             return self._finalize_result(session_id, res, memory, message)
 
         if intent == "confident_speaker_public_speaking_capability":
@@ -3984,12 +4123,36 @@ class ConversationEngine:
             )
             return self._finalize_result(session_id, res, memory, message)
 
-        if intent == "confident_speaker_ielts":
-            memory.active_program = "confident_speaker"
+        if intent == "communicative_english_includes_ielts":
             res = ReplyResult(
-                personality.IELTS_PREPARATION_TRACK_RESPONSE,
+                personality.COMMUNICATIVE_ENGLISH_INCLUDES_IELTS_RESPONSE,
+                "communicative_english_includes_ielts",
+                ["confident-speaker-ielts", "confident-speaker-general-communicative"],
+                1.0,
+            )
+            return self._finalize_result(session_id, res, memory, message)
+
+        if intent == "confident_speaker_ielts":
+            memory.active_program = "ielts_preparation"
+            if _IELTS_ACADEMIC_RE.search(message):
+                ielts_reply = personality.IELTS_ACADEMIC_RESPONSE
+            elif _IELTS_GENERAL_RE.search(message):
+                ielts_reply = personality.IELTS_GENERAL_RESPONSE
+            elif _IELTS_MOCKS_RE.search(message):
+                ielts_reply = personality.IELTS_MOCK_TESTS_RESPONSE
+            elif _IELTS_SPEAKING_NARROW_RE.search(message):
+                ielts_reply = personality.IELTS_SPEAKING_RESPONSE
+            elif _IELTS_BAND_SCORE_RE.search(message):
+                ielts_reply = personality.IELTS_BAND_SCORE_RESPONSE
+            elif _IELTS_SKILLS_ALL_RE.search(message):
+                ielts_reply = personality.IELTS_SKILLS_RESPONSE
+            else:
+                ielts_reply = personality.IELTS_BROAD_OVERVIEW_RESPONSE
+
+            res = ReplyResult(
+                ielts_reply,
                 "confident_speaker_ielts",
-                ["confident-speaker-ielts", "program-confident-speaker"],
+                ["confident-speaker-ielts"],
                 1.0,
             )
             return self._finalize_result(session_id, res, memory, message)

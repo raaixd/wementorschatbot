@@ -416,24 +416,27 @@
         "offerings",
         "classes"
       ],
-      "answer": "WeMentors offers four programs:",
+      "answer": "WeMentors offers these programs/courses:",
       "follow_ups": [
         "Tell me more about the first one.",
-        "What is the Confident Speaker program?"
+        "What is Communicative English?",
+        "What is IELTS Preparation?"
       ],
       "confidence": "verified",
       "list_ids": [
         "program-foundation-years",
         "program-middle-school",
         "program-senior-school",
-        "program-confident-speaker"
+        "program-confident-speaker",
+        "confident-speaker-ielts"
       ],
       "format": "bullets",
       "items": [
         "Foundation Years (Grades 3-5) — core subjects with a focus on strong fundamentals",
         "Middle School (Grades 6-8) — core subjects, doubt-solving, and practical labs",
         "Senior School Focus (Grades 9-10) — Maths, Science, and board-exam preparation",
-        "Confident Speaker — Spoken English, Public Speaking, and Interview Skills"
+        "Communicative English — Spoken English, Public Speaking, and Interview Skills",
+        "IELTS Preparation — Academic & General IELTS preparation with targeted band score training and live mock evaluations"
       ]
     },
     {
@@ -811,7 +814,7 @@
     {
       "id": "program-confident-speaker",
       "category": "programs",
-      "question": "What is the Confident Speaker program?",
+      "question": "What is the Communicative English program?",
       "phrasings": [
         "confident speaker",
         "spoken english program",
@@ -858,7 +861,13 @@
         "communicative skills program",
         "communication skills program",
         "public speaking and business english",
-        "ielts preparation in confident speaker"
+        "communicative english",
+        "what is communicative english",
+        "tell me about communicative english",
+        "communicative english program",
+        "communicative english course",
+        "what does communicative english cover",
+        "communicative english curriculum"
       ],
       "keywords": [
         "communication",
@@ -880,10 +889,10 @@
         "demo",
         "business english",
         "general communicative skills",
-        "ielts preparation",
-        "curriculum"
+        "curriculum",
+        "communicative english"
       ],
-      "answer": "**Confident Speaker**\n\nPractical, conversation-driven communicative skills coaching for school life, careers and everyday confidence through personalized mentoring and individual attention.\n\n**Grades:** All Ages (students, college learners, professionals, and homemakers)\n\n**Curriculum:**\n- Public Speaking\n- Business English\n- General Communicative Skills\n- IELTS Preparation\n\n**Key features:**\n- Conversation-first method, no rote grammar drills\n- Small batches with individual attention for maximum speaking time\n- Guided speaking practice & practical conversation with regular feedback\n- Dedicated tracks for students, professionals & homemakers\n\nReady to explore the program? You can book a free 30-minute demo using the **Book Free Demo** button.",
+      "answer": "**Communicative English**\n\nBuild the confidence to speak, present, interact and communicate effectively in English.\n\n**Grades:** All Ages (students, college learners, professionals, and homemakers)\n\n**Curriculum & Areas:**\n- Spoken English\n- Conversation\n- Public Speaking\n- Business English\n\n**Key features:**\n- Real-world communication & fluency\n- Speaking, listening & vocabulary development\n- Pathways for students, professionals & homemakers\n- Small batches with individual attention for maximum speaking time\n\nReady to explore the program? You can book a free 30-minute demo using the **Book Free Demo** button.",
       "follow_ups": [
         "Is a demo class available?",
         "How can I contact WeMentors?"
@@ -892,16 +901,15 @@
       "program": "confident_speaker",
       "grade_range": "all_ages",
       "subjects": [
+        "Spoken English",
+        "Conversation",
         "Public Speaking",
-        "Business English",
-        "General Communicative Skills",
-        "IELTS Preparation"
+        "Business English"
       ],
       "features": [
-        "Conversation-first method, no rote grammar drills",
-        "Small batches with individual attention for maximum speaking time",
-        "Guided speaking practice & practical conversation with regular feedback",
-        "Dedicated tracks for students, professionals & homemakers"
+        "Real-world communication & fluency",
+        "Speaking, listening & vocabulary development",
+        "Pathways for students, professionals & homemakers"
       ]
     },
     {
@@ -1521,8 +1529,6 @@
         "do you teach public speaking in communicative english",
         "do you teach business english in communicative english",
         "do you help with conversation",
-        "does communicative english include ielts",
-        "does it include ielts",
         "is communicative english for professionals",
         "is communicative english for students",
         "is communicative english for homemakers",
@@ -1550,7 +1556,6 @@
         "conversation",
         "public speaking",
         "business english",
-        "ielts",
         "fluency",
         "real-world communication",
         "vocabulary development",
@@ -1560,14 +1565,13 @@
         "all ages",
         "pathways"
       ],
-      "answer": "Build the confidence to speak, present, interact and communicate effectively in English.\n\n**Curriculum & Areas:**\n- Spoken English\n- Conversation\n- Public Speaking\n- Business English\n- IELTS\n\n**Key details:**\n- Real-world communication & fluency\n- Speaking, listening & vocabulary development\n- Pathways for students, professionals & homemakers\n\nGeneral Communicative Skills focuses on practical daily conversation and guided speaking practice with individual attention from a personal mentor, rather than rote grammar drills.\n\nReady to explore the program? You can book a free 30-minute demo using the **Book Free Demo** button.",
+      "answer": "Build the confidence to speak, present, interact and communicate effectively in English.\n\n**Curriculum & Areas:**\n- Spoken English\n- Conversation\n- Public Speaking\n- Business English\n\n**Key details:**\n- Real-world communication & fluency\n- Speaking, listening & vocabulary development\n- Pathways for students, professionals & homemakers\n\nGeneral Communicative Skills focuses on practical daily conversation and guided speaking practice with individual attention from a personal mentor, rather than rote grammar drills.\n\nReady to explore the program? You can book a free 30-minute demo using the **Book Free Demo** button.",
       "confidence": "verified",
       "subjects": [
         "Spoken English",
         "Conversation",
         "Public Speaking",
-        "Business English",
-        "IELTS"
+        "Business English"
       ],
       "features": [
         "Real-world communication & fluency",
@@ -1580,21 +1584,17 @@
     {
       "id": "confident-speaker-ielts",
       "category": "programs",
-      "question": "What is the IELTS Preparation program?",
+      "question": "What is the IELTS Preparation course?",
       "phrasings": [
         "do you offer ielts preparation",
         "ielts preparation",
         "prepare for ielts",
         "i want to prepare for ielts",
-        "is ielts included in confident speaker",
-        "does confident speaker have an ielts course",
         "ielts course",
         "english for ielts",
-        "confident speaker ielts",
         "ielts coaching",
         "ielts",
         "i need english preparation for ielts",
-        "is ielts preparation included",
         "what is ielts preparation",
         "what is the ielts preparation program",
         "do you prepare for ielts academic",
@@ -1644,7 +1644,7 @@
         "diagnostic assessment",
         "strategies"
       ],
-      "answer": "Comprehensive preparation for Academic & General IELTS with targeted band score training and live mock evaluations.\n\n**Curriculum & Areas:**\n- IELTS Academic\n- IELTS General\n- Band Score Mastery\n- Mock Tests\n- 1:1 Speaking\n\n**Key details:**\n- Targeted Band 7.5+ strategies & diagnostic assessment\n- Extensive practice across Reading, Writing, Listening & Speaking\n- 1-on-1 speaking clinics and detailed essay review\n\nReady to explore the program? You can book a free 30-minute demo using the **Book Free Demo** button.",
+      "answer": "## IELTS Preparation\n\nComprehensive preparation for **Academic & General IELTS** with targeted band score training and **live mock evaluations**.\n\n### What it covers\n\n- **IELTS Academic**\n- **IELTS General**\n- **Band Score Mastery**\n- **Mock Tests**\n- **1:1 Speaking**\n\n### Key preparation\n\n- **Targeted Band 7.5+ strategies & diagnostic assessment**\n- Practice across **Reading, Writing, Listening & Speaking**\n- **1-on-1 speaking clinics**\n- **Detailed essay review**\n\nReady to explore the program? You can book a free 30-minute demo using the **Book Free Demo** button.",
       "confidence": "verified",
       "subjects": [
         "IELTS Academic",
@@ -1658,7 +1658,7 @@
         "Extensive practice across Reading, Writing, Listening & Speaking",
         "1-on-1 speaking clinics and detailed essay review"
       ],
-      "program": "confident_speaker",
+      "program": "ielts_preparation",
       "grade_range": "all_ages"
     },
     {

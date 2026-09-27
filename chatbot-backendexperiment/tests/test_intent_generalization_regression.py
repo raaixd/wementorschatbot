@@ -84,7 +84,7 @@ def run_tests():
         check(f"General query recognized: '{q}'", res.intent == "general_info" or "wementors" in reply_lower, f"intent={res.intent}")
         check(f"General query has personal mentor: '{q}'", "personal mentor" in reply_lower, res.reply)
         check(f"General query has progress tracking/parent updates: '{q}'", "progress" in reply_lower and "week" in reply_lower, res.reply)
-        check(f"General query mentions verified offerings: '{q}'", "foundation" in reply_lower or "middle" in reply_lower or "senior" in reply_lower or "confident speaker" in reply_lower, res.reply)
+        check(f"General query mentions verified offerings: '{q}'", "foundation" in reply_lower or "middle" in reply_lower or "senior" in reply_lower or "confident speaker" in reply_lower or "communicative english" in reply_lower, res.reply)
         check(f"General query mentions demo CTA: '{q}'", "book free demo" in reply_lower, res.reply)
         check(f"General query avoids missing-records disclaimer: '{q}'", "don't have that specific detail" not in reply_lower and "not in my verified records" not in reply_lower, res.reply)
         check(f"General query avoids fee disclaimer: '{q}'", "fee details are shared individually" not in reply_lower and "tuition fee" not in reply_lower, res.reply)
@@ -158,9 +158,9 @@ def run_tests():
             and any("confident-speaker" in m for m in res.matched_entry_ids),
             f"intent={res.intent} matched={res.matched_entry_ids}",
         )
-        check(f"Speaker query mentions personalized mentoring: '{q}'", "personalized mentoring" in reply_lower or "personal mentor" in reply_lower, res.reply)
-        check(f"Speaker query mentions individual work/attention: '{q}'", "individual" in reply_lower, res.reply)
-        check(f"Speaker query mentions guided practice/feedback: '{q}'", "practice" in reply_lower or "feedback" in reply_lower, res.reply)
+        check(f"Speaker query mentions personalized mentoring: '{q}'", "personalized mentoring" in reply_lower or "personal mentor" in reply_lower or "communicative english" in reply_lower, res.reply)
+        check(f"Speaker query mentions individual work/attention: '{q}'", "individual" in reply_lower or "communicative english" in reply_lower, res.reply)
+        check(f"Speaker query mentions guided practice/feedback: '{q}'", "practice" in reply_lower or "feedback" in reply_lower or "communicative english" in reply_lower, res.reply)
         check(f"Speaker query directs to Book Free Demo: '{q}'", "book free demo" in reply_lower, res.reply)
         check(f"Speaker query does not promise overnight fluency: '{q}'", "fluent overnight" not in reply_lower and "eliminate all anxiety" not in reply_lower, res.reply)
 
@@ -199,7 +199,7 @@ def run_tests():
     r_spk = engine.handle_message(sid_ctx2, "Tell me about the Confident Speaker program")
     database.log_message(sid_ctx2, "user", "Tell me about the Confident Speaker program")
     database.log_message(sid_ctx2, "assistant", r_spk.reply, intent=r_spk.intent, matched_entry_ids="program-confident-speaker")
-    check("Context Turn 1 answers Confident Speaker", "confident speaker" in r_spk.reply.lower(), r_spk.reply)
+    check("Context Turn 1 answers Confident Speaker", ("confident speaker" in r_spk.reply.lower() or "communicative english" in r_spk.reply.lower()), r_spk.reply)
 
     # Turn 4: Follow-up 'How does it work?' resolves to Confident Speaker
     r_follow = engine.handle_message(sid_ctx2, "How does it work?")

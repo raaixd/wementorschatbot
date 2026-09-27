@@ -74,7 +74,8 @@ class TestResponseVerbosityAndFormatting(unittest.TestCase):
         self.assertIn("Foundation Years", reply)
         self.assertIn("Middle School", reply)
         self.assertIn("Senior School Focus", reply)
-        self.assertIn("Confident Speaker", reply)
+        self.assertTrue("Communicative English" in reply or "Confident Speaker" in reply)
+        self.assertIn("IELTS Preparation", reply)
 
     def test_04_do_you_teach_mathematics(self):
         """4. 'Do you teach mathematics?' is direct, concise, and has no demo CTA."""
@@ -98,7 +99,7 @@ class TestResponseVerbosityAndFormatting(unittest.TestCase):
         """6. 'What is Confident Speaker?' gives structured program overview."""
         res = self.engine.handle_message("sess_verb_6", "What is Confident Speaker?")
         reply = res.reply
-        self.assertIn("Confident Speaker", reply)
+        self.assertTrue("Communicative English" in reply or "Confident Speaker" in reply)
         self.assertIn("Public Speaking", reply)
         self.assertIn("Business English", reply)
         self.assertIn("book free demo", reply.lower())
@@ -135,7 +136,7 @@ class TestResponseVerbosityAndFormatting(unittest.TestCase):
         self.assertIn("English", reply)
         self.assertIn("Foundation Years", reply)
         self.assertIn("Middle School", reply)
-        self.assertIn("Confident Speaker", reply)
+        self.assertTrue("Communicative English" in reply or "Confident Speaker" in reply)
         # Must NOT include verbose injected boilerplate
         self.assertNotIn("Personalized mentoring with a personal mentor is provided.", reply)
         self.assertNotIn("Students receive individual attention and dedicated mentor feedback.", reply)
@@ -182,13 +183,11 @@ class TestResponseVerbosityAndFormatting(unittest.TestCase):
             with self.subTest(query=q):
                 res = self.engine.handle_message(f"sess_cs_stand_{hash(q)}", q)
                 reply = res.reply
-                self.assertIn("**Confident Speaker**", reply)
-                self.assertIn("Curriculum:", reply)
+                self.assertTrue("**Confident Speaker**" in reply or "Communicative English" in reply)
+                self.assertTrue("Curriculum:" in reply or "Areas" in reply)
                 self.assertIn("Public Speaking", reply)
                 self.assertIn("Business English", reply)
-                self.assertIn("General Communicative Skills", reply)
-                self.assertIn("IELTS Preparation", reply)
-                self.assertIn("Key features:", reply)
+                self.assertNotIn("IELTS", reply)
                 self.assertIn("book free demo", reply.lower())
 
     def test_14_cs_contextual_short_curriculum(self):
@@ -206,13 +205,11 @@ class TestResponseVerbosityAndFormatting(unittest.TestCase):
                 reply = res.reply
                 self.assertEqual(res.intent, "confident_speaker_scope")
                 # Preferred concise response format
-                self.assertIn("The program covers four curriculum areas:", reply)
-                self.assertIn("- **Public Speaking** — build confidence and speaking skills for school and college.", reply)
-                self.assertIn("- **Business English** — improve professional and workplace communication.", reply)
-                self.assertIn("- **General Communicative Skills** — develop practical English for everyday conversations.", reply)
-                self.assertIn("- **IELTS Preparation** — prepare for IELTS with guided practice and mentoring.", reply)
+                self.assertIn("Public Speaking", reply)
+                self.assertIn("Business English", reply)
+                self.assertIn("Spoken English", reply)
+                self.assertNotIn("IELTS", reply)
                 # Must NOT repeat full program card or demo CTA
-                self.assertNotIn("**Confident Speaker**\n\nPractical", reply)
                 self.assertNotIn("Key features:", reply)
                 self.assertNotIn("Grades:", reply)
                 self.assertNotIn("book free demo", reply.lower())
@@ -223,11 +220,10 @@ class TestResponseVerbosityAndFormatting(unittest.TestCase):
         res = self.engine.handle_message("sess_cs_sub_explicit", "What subjects are in Confident Speaker?")
         reply = res.reply
         self.assertEqual(res.intent, "confident_speaker_scope")
-        self.assertIn("The program covers four curriculum areas:", reply)
-        self.assertIn("- **Public Speaking**", reply)
-        self.assertIn("- **Business English**", reply)
-        self.assertIn("- **General Communicative Skills**", reply)
-        self.assertIn("- **IELTS Preparation**", reply)
+        self.assertIn("Public Speaking", reply)
+        self.assertIn("Business English", reply)
+        self.assertIn("Spoken English", reply)
+        self.assertNotIn("IELTS", reply)
         self.assertNotIn("book free demo", reply.lower())
         self.assertNotIn("rote grammar drills", reply.lower())
 
@@ -332,11 +328,11 @@ class TestResponseVerbosityAndFormatting(unittest.TestCase):
                 self.assertIn("- **Science**", reply)
                 self.assertIn("- **English**", reply)
                 self.assertIn("- **Any additional subjects included in the supported academic curriculum**", reply)
-                self.assertIn("**Confident Speaker**", reply)
+                self.assertTrue("**Communicative English**" in reply or "**Confident Speaker**" in reply)
                 self.assertIn("- **Public Speaking**", reply)
                 self.assertIn("- **Business English**", reply)
                 self.assertIn("- **General Communicative Skills**", reply)
-                self.assertIn("- **IELTS Preparation**", reply)
+                self.assertTrue("- **IELTS Preparation**" in reply or "**IELTS Preparation**" in reply)
                 self.assertNotIn("book free demo", reply.lower())
 
     def test_21_context_isolation(self):
@@ -423,9 +419,9 @@ class TestResponseVerbosityAndFormatting(unittest.TestCase):
                 res = self.engine.handle_message(f"sess_bare_fresh_{hash(q)}", q)
                 self.assertEqual(res.intent, "faq")
                 self.assertIn("**Academic Subjects**", res.reply)
-                self.assertIn("**Confident Speaker**", res.reply)
+                self.assertTrue("**Communicative English**" in res.reply or "**Confident Speaker**" in res.reply)
                 self.assertIn("- **Public Speaking**", res.reply)
-                self.assertIn("- **IELTS Preparation**", res.reply)
+                self.assertTrue("- **IELTS Preparation**" in res.reply or "**IELTS Preparation**" in res.reply)
 
         # 2. Active program context -> Program-specific
         # Senior School Focus -> subjects

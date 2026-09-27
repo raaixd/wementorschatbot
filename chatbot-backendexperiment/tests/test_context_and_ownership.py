@@ -238,7 +238,7 @@ res_d = client.post("/chat", json={
     "session_id": ctx_sid,
 })
 check("Explicit switch to Confident Speaker updates program context",
-      "Confident Speaker" in res_d.json()["reply"] and ("speaking" in res_d.json()["reply"].lower() or "communication" in res_d.json()["reply"].lower()))
+      ("Communicative English" in res_d.json()["reply"] or "Confident Speaker" in res_d.json()["reply"]) and ("speaking" in res_d.json()["reply"].lower() or "communication" in res_d.json()["reply"].lower()))
 ctx_mem = database.get_conversation_memory(ctx_sid)
 check("Memory active_program is now 'confident_speaker'", ctx_mem.active_program == "confident_speaker")
 

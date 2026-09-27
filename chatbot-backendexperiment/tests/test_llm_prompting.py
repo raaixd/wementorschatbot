@@ -42,7 +42,7 @@ scored = retrieve("What programs do you offer?")
 check("retrieval finds the programs overview entry", scored and scored[0].entry.id == "programs-overview")
 
 context = llm.build_context(scored)
-for name in ["Foundation Years", "Middle School", "Senior School Focus", "Confident Speaker"]:
+for name in ["Foundation Years", "Middle School", "Senior School Focus", "Communicative English", "IELTS Preparation"]:
     check(f"model context names the program: {name}", name in context, context)
 check("model context includes grade ranges, not just program names", "Grades 3-5" in context and "Grades 9-10" in context, context)
 

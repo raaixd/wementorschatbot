@@ -414,7 +414,7 @@ def run_tests():
     s18 = f"t18-{uuid.uuid4()}"
     database.ensure_session(s18)
     r_t18 = ask(engine, s18, "Tell me about Confident Speaker.")
-    check("TEST 18: Confident Speaker gives program details", "confident speaker" in r_t18.reply.lower() and "speaking" in r_t18.reply.lower(), r_t18.reply)
+    check("TEST 18: Confident Speaker gives program details", ("confident speaker" in r_t18.reply.lower() or "communicative english" in r_t18.reply.lower()) and ("speaking" in r_t18.reply.lower() or "speak" in r_t18.reply.lower()), r_t18.reply)
 
     # TEST 19: personalized mentoring conversation
     s19 = f"t19-{uuid.uuid4()}"

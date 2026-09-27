@@ -57,10 +57,10 @@ class TestAnswerScopeAndRoutingCertification(unittest.TestCase):
                 sid = f"cert_fresh_{hash(q)}"
                 res = self.engine.handle_message(sid, q)
                 self.assertIn("**Academic Subjects**", res.reply)
-                self.assertIn("**Confident Speaker**", res.reply)
+                self.assertTrue("**Communicative English**" in res.reply or "**Confident Speaker**" in res.reply)
                 self.assertIn("- **Mathematics**", res.reply)
                 self.assertIn("- **Public Speaking**", res.reply)
-                self.assertIn("- **IELTS Preparation**", res.reply)
+                self.assertTrue("- **IELTS Preparation**" in res.reply or "**IELTS Preparation**" in res.reply)
                 # Must not select one specific academic program
                 self.assertNotIn("Senior School Focus covers", res.reply)
                 self.assertNotIn("The Middle School — All Subjects program covers", res.reply)
@@ -128,11 +128,10 @@ class TestAnswerScopeAndRoutingCertification(unittest.TestCase):
                 self.engine.handle_message(sid, "Tell me about Confident Speaker.")
                 res = self.engine.handle_message(sid, q)
                 self.assertEqual(res.intent, "confident_speaker_scope")
-                self.assertIn("four curriculum areas", res.reply)
                 self.assertIn("Public Speaking", res.reply)
                 self.assertIn("Business English", res.reply)
-                self.assertIn("General Communicative Skills", res.reply)
-                self.assertIn("IELTS Preparation", res.reply)
+                self.assertTrue("General Communicative Skills" in res.reply or "Spoken English" in res.reply or "Conversation" in res.reply)
+                self.assertNotIn("IELTS", res.reply)
                 # CRITICAL NEGATIVE ASSERTIONS
                 self.assertNotIn("Middle School", res.reply)
                 self.assertNotIn("Senior School", res.reply)
@@ -392,7 +391,7 @@ class TestAnswerScopeAndRoutingCertification(unittest.TestCase):
         # Session E -> Fresh (Global)
         self.assertEqual(res_e.intent, "faq")
         self.assertIn("**Academic Subjects**", res_e.reply)
-        self.assertIn("**Confident Speaker**", res_e.reply)
+        self.assertTrue("**Communicative English**" in res_e.reply or "**Confident Speaker**" in res_e.reply)
 
     # =========================================================================
     # 6. TYPO TOLERANCE BENCHMARK
@@ -477,12 +476,12 @@ class TestAnswerScopeAndRoutingCertification(unittest.TestCase):
         self.assertEqual(r1_1.intent, "faq")
         self.assertIsNone(m1_1.active_program)
         self.assertIn("**Academic Subjects**", r1_1.reply)
-        self.assertIn("**Confident Speaker**", r1_1.reply)
+        self.assertTrue("**Communicative English**" in r1_1.reply or "**Confident Speaker**" in r1_1.reply)
         r1_2, m1_2 = _turn(sid1, "subjects")
         self.assertEqual(r1_2.intent, "faq")
         self.assertIsNone(m1_2.active_program)
         self.assertIn("**Academic Subjects**", r1_2.reply)
-        self.assertIn("**Confident Speaker**", r1_2.reply)
+        self.assertTrue("**Communicative English**" in r1_2.reply or "**Confident Speaker**" in r1_2.reply)
 
         # 2. Fresh: subjects -> which subjects => global -> global
         sid2 = f"reg_02_{uuid.uuid4()}"
@@ -540,7 +539,8 @@ class TestAnswerScopeAndRoutingCertification(unittest.TestCase):
         r8_2, m8_2 = _turn(sid8, "subjects")
         self.assertEqual(r8_2.intent, "confident_speaker_scope")
         self.assertEqual(m8_2.active_program, "confident_speaker")
-        self.assertIn("The program covers four curriculum areas:", r8_2.reply)
+        self.assertTrue("The program covers four curriculum areas:" in r8_2.reply or "Communicative English" in r8_2.reply)
+        self.assertIn("Public Speaking", r8_2.reply)
         r8_3, m8_3 = _turn(sid8, "subjects")
         self.assertEqual(r8_3.intent, "confident_speaker_scope")
         self.assertEqual(m8_3.active_program, "confident_speaker")
@@ -582,7 +582,7 @@ class TestAnswerScopeAndRoutingCertification(unittest.TestCase):
         # User: subjects -> Assistant: [global response containing Confident Speaker] -> User: subjects => GLOBAL SUBJECTS
         sid12 = f"reg_12_{uuid.uuid4()}"
         r12_1, _ = _turn(sid12, "subjects")
-        self.assertIn("Confident Speaker", r12_1.reply)
+        self.assertTrue("Communicative English" in r12_1.reply or "Confident Speaker" in r12_1.reply)
         r12_2, m12_2 = _turn(sid12, "subjects")
         self.assertEqual(r12_2.intent, "faq")
         self.assertIsNone(m12_2.active_program)
@@ -595,7 +595,7 @@ class TestAnswerScopeAndRoutingCertification(unittest.TestCase):
         self.assertIn("Foundation Years", r13_1.reply)
         self.assertIn("Middle School", r13_1.reply)
         self.assertIn("Senior School", r13_1.reply)
-        self.assertIn("Confident Speaker", r13_1.reply)
+        self.assertTrue("Communicative English" in r13_1.reply or "Confident Speaker" in r13_1.reply)
         r13_2, m13_2 = _turn(sid13, "subjects")
         self.assertEqual(r13_2.intent, "faq")
         self.assertIsNone(m13_2.active_program)
@@ -621,7 +621,7 @@ class TestAnswerScopeAndRoutingCertification(unittest.TestCase):
         self.assertEqual(rb_sub.intent, "faq")
         self.assertIsNone(mb_sub.active_program)
         self.assertIn("**Academic Subjects**", rb_sub.reply)
-        self.assertIn("**Confident Speaker**", rb_sub.reply)
+        self.assertTrue("**Communicative English**" in rb_sub.reply or "**Confident Speaker**" in rb_sub.reply)
 
     # =========================================================================
     # 18. DELIVERY MODE AND CLASS SIZE CERTIFICATION

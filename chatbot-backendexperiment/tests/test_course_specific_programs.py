@@ -87,18 +87,12 @@ class TestCourseSpecificPrograms:
         res = engine.handle_message("test_cs_01", "Tell me about Confident Speaker")
         assert res.intent == "confident_speaker"
         assert res.matched_entry_ids == ["program-confident-speaker"]
-        assert "**Confident Speaker**" in res.reply
-        assert "**Grades:** All Ages" in res.reply
-        assert "**Curriculum:**" in res.reply
-        assert "- Public Speaking" in res.reply
-        assert "- Business English" in res.reply
-        assert "- General Communicative Skills" in res.reply
-        assert "- IELTS Preparation" in res.reply
-        assert "**Key features:**" in res.reply
-        assert "- Conversation-first method, no rote grammar drills" in res.reply
-        assert "- Small batches with individual attention for maximum speaking time" in res.reply
-        assert "- Guided speaking practice & practical conversation with regular feedback" in res.reply
-        assert "- Dedicated tracks for students, professionals & homemakers" in res.reply
+        assert ("**Confident Speaker**" in res.reply or "Communicative English" in res.reply)
+        assert "- **Spoken English**" in res.reply or "- Spoken English" in res.reply
+        assert "- **Conversation**" in res.reply or "- Conversation" in res.reply
+        assert "- **Public Speaking**" in res.reply or "- Public Speaking" in res.reply
+        assert "- **Business English**" in res.reply or "- Business English" in res.reply
+        assert "IELTS" not in res.reply
         assert "Ready to explore the program? You can book a free 30-minute demo using the **Book Free Demo** button." in res.reply
 
     def test_05_grade_4_routing(self, engine):
@@ -195,8 +189,8 @@ class TestCourseSpecificPrograms:
         assert "**Confident Speaker**" not in res_cs_scope.reply
         assert "Public Speaking" in res_cs_scope.reply
         assert "Business English" in res_cs_scope.reply
-        assert "General Communicative Skills" in res_cs_scope.reply
-        assert "IELTS Preparation" in res_cs_scope.reply
+        assert ("General Communicative Skills" in res_cs_scope.reply or "Spoken English" in res_cs_scope.reply or "Conversation" in res_cs_scope.reply)
+        assert "IELTS" not in res_cs_scope.reply
 
     def test_11_multiturn_pronoun_it_resolution(self, engine):
         # Foundation Years -> What grades is it for?

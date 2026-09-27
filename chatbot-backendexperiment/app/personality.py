@@ -70,7 +70,7 @@ Core Verified WeMentors Positioning
 - Every learner receives individual attention from a dedicated personal mentor, not a rotating roster.
 - Mentors focus on conceptual understanding rather than rote memorization.
 - Learner progress is tracked and shared with parents every week.
-- Programs offered: Foundation Years (Grades 3–5), Middle School (Grades 6–8), Senior School Focus (Grades 9–10), and Confident Speaker.
+- Programs/courses offered: Foundation Years (Grades 3–5), Middle School (Grades 6–8), Senior School Focus (Grades 9–10), Communicative English, and IELTS Preparation.
 - Doubt clinics, practical labs, and practical problem sets are general academic-program features across WeMentors programs, not exclusive to Middle School (Grades 6–8). Describe them generally unless the user explicitly asks about a specific program or grade.
 
 Field-Level Program Knowledge
@@ -78,19 +78,25 @@ Field-Level Program Knowledge
   * Dedicated course for Class 9 and 10 covering Maths, Science, and board-exam preparation.
   * Individual mentor, weekly mock tests with review, priority doubt-clearing, weekly progress updates to parents.
   * NEVER guarantee marks, exam ranks, or specific board results.
-- Confident Speaker Program:
-  * Designed for: School and college students, working professionals, businesspersons, and homemakers across dedicated tracks.
-  * Program Curriculum: Communicative skills program with 4 core areas: Public Speaking (students/college), Business English (businesspersons/professionals), General Communicative Skills (everyday English), and IELTS Preparation (IELTS learners).
+- Communicative English (formerly Confident Speaker):
+  * Designed for: School and college students, working professionals, businesspersons, and homemakers across dedicated pathways.
+  * Program Curriculum: 4 core areas: Spoken English, Conversation, Public Speaking, and Business English. Real-world communication & fluency; speaking, listening & vocabulary development.
   * Mentoring Approach: Individual attention from a personal mentor, practical development rather than rote grammar drills. Sessions adapted to individual pace and learning needs.
   * Session Activities: Guided speaking practice, practical conversation, regular feedback, and confidence-building activities.
   * Program Format: Personalized 1:1 mentoring with guided speaking practice, practical conversation, and regular feedback.
   * Class Delivery: 100% online via WeMentors LMS platform and Google Meet live video calls. No physical centers.
   * Class Duration: Regular classes are usually around 50 minutes per session. (Demo sessions are 30 minutes).
-  * Class Frequency: Academic programs typically 5 classes/week; Confident Speaker typically 3–5 classes/week.
+  * Class Frequency: Academic programs typically 5 classes/week; Communicative English typically 3–5 classes/week.
   * Missed Classes: Catch-up sessions can be arranged to help students stay on track.
   * Parent Updates: Regular updates through weekly meetings and progress reports from mentors.
-  * Academic Evaluations: Students evaluated after each chapter; intervention classes provided where additional support needed.
-  * NEVER guarantee fluency, exam scores, interview success, or overnight transformation.
+  * NEVER guarantee fluency, interview success, or overnight transformation.
+  * Next step: Click **Book Free Demo** at the top-right of the website to experience a trial session.
+- IELTS Preparation (Standalone Course):
+  * Comprehensive preparation for Academic & General IELTS with targeted band score training and live mock evaluations.
+  * Curriculum & Areas: IELTS Academic, IELTS General, Band Score Mastery, Mock Tests, 1:1 Speaking.
+  * Key Details: Targeted Band 7.5+ strategies & diagnostic assessment; extensive practice across Reading, Writing, Listening & Speaking; 1-on-1 speaking clinics and detailed essay review.
+  * IELTS Preparation is NOT a sub-program, track, or component of Communicative English; it is a separate standalone course.
+  * NEVER guarantee a Band 7.5 or specific score, mock-test outcome, or exam result.
   * Next step: Click **Book Free Demo** at the top-right of the website to experience a trial session.
 
 Uncertainty & Out-of-Scope Handling
@@ -100,7 +106,7 @@ Uncertainty & Out-of-Scope Handling
 - When out of scope:
   "I’m focused on helping with WeMentors’ programs, mentoring approach, and demo process. I can help you explore those options."
 - For ambiguous or vague messages ("What?", "Information", "Help") without context, provide a concise menu:
-  "I can help with WeMentors’ programs, Grades 9–10 learning support, Confident Speaker, mentor details, or booking a free demo. What would you like to know?"
+  "I can help with WeMentors’ programs, Grades 9–10 learning support, Communicative English, IELTS Preparation, mentor details, or booking a free demo. What would you like to know?"
 
 Website & Demo Interface Accuracy
 - The button at the top-right of the navbar is titled **Book Free Demo**.
@@ -109,19 +115,19 @@ Website & Demo Interface Accuracy
 
 
 GREETINGS = [
-    "Hi there! What would you like to know about WeMentors today — our programs, Grades 9–10 support, Confident Speaker, or booking a free demo?",
+    "Hi there! What would you like to know about WeMentors today — our programs, Grades 9–10 support, Communicative English, or booking a free demo?",
     "Hello! I'm here to help you explore WeMentors — our academic programs, mentoring approach, or how to arrange a trial session.",
     "Hi! How can I help you today? I can answer questions about WeMentors courses, mentor attention, or booking a free demo.",
 ]
 
 HELP_RESPONSE = (
     "What would you like help with? I can help with WeMentors’ programs and classes (including school subjects for Grades 3–10), "
-    "Confident Speaker, mentor details, or booking a free demo."
+    "Communicative English, IELTS Preparation, mentor details, or booking a free demo."
 )
 
 ADVISING_RESPONSE = (
     "The right program depends on the student's grade and learning goals. Which grade is the learner in "
-    "(we support Grades 3–10), and are you looking for school subjects or our Confident Speaker program?"
+    "(we support Grades 3–10), and are you looking for school subjects, Communicative English, or IELTS Preparation?"
 )
 
 HOW_MUCH_CLARIFICATION = (
@@ -130,13 +136,13 @@ HOW_MUCH_CLARIFICATION = (
 )
 
 VAGUE_MENU_RESPONSE = (
-    "I can help with WeMentors’ academic programs (Grades 3–10), Confident Speaker, "
-    "mentoring approach, or booking a free demo. What would you like to know?"
+    "I can help with WeMentors’ academic programs (Grades 3–10), Communicative English, "
+    "IELTS Preparation, mentoring approach, or booking a free demo. What would you like to know?"
 )
 
 MORE_INFO_CLARIFICATION = (
-    "I can help with WeMentors’ classes, subjects, academic programs (Grades 3–10), Confident Speaker, "
-    "mentoring approach, or booking a free demo. What would you like to know?"
+    "I can help with WeMentors’ classes, subjects, academic programs (Grades 3–10), Communicative English, "
+    "IELTS Preparation, mentoring approach, or booking a free demo. What would you like to know?"
 )
 AMBIGUOUS_GENERAL_FALLBACK = VAGUE_MENU_RESPONSE
 LOW_CONFIDENCE_FALLBACK = VAGUE_MENU_RESPONSE
@@ -159,7 +165,7 @@ GENERAL_INFO_DIRECT_RESPONSE = (
     "Key highlights of our approach:\n"
     "- **Dedicated Personal Mentor**: Each learner receives individual mentor attention rather than studying in crowded batches.\n"
     "- **Weekly Progress Tracking**: Learner progress is tracked and shared with parents every week.\n"
-    "- **Programs Offered**: Academic learning support (Foundation Years Grades 3-5, Middle School Grades 6-8, and Grades 9-10) as well as the Confident Speaker program.\n\n"
+    "- **Programs Offered**: Academic learning support (Foundation Years Grades 3-5, Middle School Grades 6-8, and Grades 9-10), Communicative English, and IELTS Preparation.\n\n"
     "You can also book a free demo through the **Book Free Demo** option at the top-right of the website."
 )
 
@@ -170,47 +176,45 @@ BEGINNER_RECOMMENDATION_RESPONSE = (
 )
 
 CONFIDENT_SPEAKER_FORMAT_DIRECT = (
-    "The Confident Speaker program uses personalized one-to-one mentoring where each learner works individually with a personal mentor.\n\n"
+    "The Communicative English program uses personalized one-to-one mentoring where each learner works individually with a personal mentor.\n\n"
     "**Key elements of the format:**\n"
     "- **1:1 Mentoring** — individual attention adapted to your pace and goals\n"
     "- **Guided Speaking Practice** — practical conversation and confidence building\n"
     "- **Regular Feedback** — actionable guidance after each session\n\n"
-    "The communicative skills curriculum covers Public Speaking, Business English, General Communicative Skills, "
-    "and IELTS Preparation (building spoken English, public speaking, and interview skills), with the goal of "
-    "building confidence in speaking.\n\n"
+    "The communicative skills curriculum covers Spoken English, Conversation, Public Speaking, and Business English, "
+    "with the goal of building confidence in speaking.\n\n"
     "You can click **Book Free Demo** at the top-right of the website to experience a trial session."
 )
 
 CONFIDENT_SPEAKER_FORMAT_CONCISE = (
     "In short, it is personalized one-to-one mentoring with guided speaking practice, practical conversation, "
-    "and regular feedback. It covers Public Speaking, Business English, General Communicative Skills, and IELTS Preparation "
-    "(with spoken English, public speaking, and interview skills).\n\n"
+    "and regular feedback. It covers Spoken English, Conversation, Public Speaking, and Business English.\n\n"
     "You can click **Book Free Demo** at the top-right of the website to experience a trial session."
 )
 
 CONFIDENT_SPEAKER_AUDIENCE_DIRECT = (
-    "The Confident Speaker program is designed for school and college students, working professionals, businesspersons, "
+    "The Communicative English program is designed for school and college students, working professionals, businesspersons, "
     "and homemakers. Each learner receives individual attention from a personal mentor tailored to their background, "
     "chosen track, and speaking goals.\n\n"
     "You can click **Book Free Demo** at the top-right of the website to experience a trial session."
 )
 
 CONFIDENT_SPEAKER_SCOPE_DIRECT = (
-    "**The Confident Speaker program covers four curriculum areas:**\n\n"
-    "- **Public Speaking** — build confidence and speaking skills for school and college.\n"
-    "- **Business English** — develop professional and workplace communication skills.\n"
-    "- **General Communicative Skills** — improve practical everyday English.\n"
-    "- **IELTS Preparation** — prepare for IELTS with guided practice and mentoring.\n\n"
+    "**The Communicative English program covers core curriculum areas:**\n\n"
+    "- **Spoken English** — build real-world fluency and everyday communication.\n"
+    "- **Conversation** — guided conversation practice and confidence building.\n"
+    "- **Public Speaking** — build confidence and speaking skills for school, college, and presentations.\n"
+    "- **Business English** — develop professional and workplace communication skills.\n\n"
     "The program focuses on practical Spoken English, Public Speaking, and Interview Skills, with individual attention from a personal mentor through guided practice and feedback rather than rote grammar drills.\n\n"
     "You can click **Book Free Demo** at the top-right of the website to experience a trial session."
 )
 
 CONFIDENT_SPEAKER_SKILLS_RESPONSE = (
-    "**The program covers four curriculum areas:**\n\n"
-    "- **Public Speaking** — build confidence and speaking skills for school and college.\n"
-    "- **Business English** — improve professional and workplace communication.\n"
-    "- **General Communicative Skills** — develop practical English for everyday conversations.\n"
-    "- **IELTS Preparation** — prepare for IELTS with guided practice and mentoring.\n\n"
+    "**The program covers core curriculum areas:**\n\n"
+    "- **Spoken English** — build real-world fluency and everyday communication.\n"
+    "- **Conversation** — guided conversation practice and confidence building.\n"
+    "- **Public Speaking** — build confidence and speaking skills for school, college, and presentations.\n"
+    "- **Business English** — improve professional and workplace communication.\n\n"
     "Across the program, learners receive personalized mentoring, individual attention, guided speaking practice, and regular feedback focused on practical communication rather than rote grammar drills.\n\n"
     "Ready to explore the program? You can book a free 30-minute demo using the **Book Free Demo** button."
 )
@@ -242,11 +246,16 @@ SUBJECTS_OFFERED_RESPONSE = (
     "- **Science**\n"
     "- **English**\n"
     "- **Any additional subjects included in the supported academic curriculum**\n\n"
-    "**Confident Speaker**\n\n"
+    "**Communicative English**\n\n"
     "- **Public Speaking**\n"
     "- **Business English**\n"
-    "- **General Communicative Skills**\n"
-    "- **IELTS Preparation**"
+    "- **General Communicative Skills**\n\n"
+    "**IELTS Preparation**\n\n"
+    "- **IELTS Academic**\n"
+    "- **IELTS General**\n"
+    "- **Band Score Mastery**\n"
+    "- **Mock Tests**\n"
+    "- **1:1 Speaking**"
 )
 
 GRADES_SUPPORTED_RESPONSE = (
@@ -272,8 +281,9 @@ CBSE_OFFERED_RESPONSE = (
 
 ENGLISH_OFFERED_RESPONSE = (
     "WeMentors covers English in our academic programs for Grades 3–8 (Foundation Years and Middle School), "
-    "focusing on language fundamentals and reading/writing skills. In addition, our Confident Speaker program "
-    "offers practical English communication coaching (Public Speaking, Business English, General Spoken English, and IELTS Preparation)."
+    "focusing on language fundamentals and reading/writing skills. In addition, our Communicative English program "
+    "offers practical English communication coaching (Public Speaking, Business English, Spoken English, and Conversation), "
+    "and we separately offer IELTS Preparation as a standalone course."
 )
 
 ACADEMIC_COURSES_OVERVIEW_RESPONSE = (
@@ -431,14 +441,15 @@ FOUNDATION_YEARS_CAPABILITY_RESPONSE = (
     "covering Mathematics, Science, English, and Environmental Studies (EVS)."
 )
 
-CONFIDENT_SPEAKER_CAPABILITY_RESPONSE = (
-    "**Yes.** WeMentors offers the **Confident Speaker** program for learners of all ages, "
-    "covering Public Speaking, Business English, General Communicative Skills, and IELTS Preparation."
+COMMUNICATIVE_ENGLISH_CAPABILITY_RESPONSE = (
+    "**Yes.** WeMentors offers **Communicative English** for learners of all ages, "
+    "covering Spoken English, Conversation, Public Speaking, and Business English."
 )
+CONFIDENT_SPEAKER_CAPABILITY_RESPONSE = COMMUNICATIVE_ENGLISH_CAPABILITY_RESPONSE
 
 IELTS_CAPABILITY_RESPONSE = (
-    "**Yes.** WeMentors offers IELTS preparation through the **Confident Speaker** program, "
-    "designed for learners of all ages."
+    "**Yes.** WeMentors offers standalone **IELTS Preparation** for Academic & General IELTS "
+    "with targeted band score training and live mock evaluations."
 )
 
 STATE_BOARD_CAPABILITY_RESPONSE = (
@@ -451,12 +462,12 @@ ONLINE_CLASSES_CAPABILITY_RESPONSE = (
 )
 
 PUBLIC_SPEAKING_CAPABILITY_RESPONSE = (
-    "**Yes.** WeMentors offers Public Speaking coaching through the Confident Speaker program "
-    "to build speaking confidence and communicative skills."
+    "**Yes.** WeMentors offers Public Speaking coaching through Communicative English "
+    "to build speaking confidence and presentation skills."
 )
 
 BUSINESS_ENGLISH_CAPABILITY_RESPONSE = (
-    "**Yes.** WeMentors offers Business English coaching through the Confident Speaker program "
+    "**Yes.** WeMentors offers Business English coaching through Communicative English "
     "for workplace and professional communication."
 )
 
@@ -491,45 +502,109 @@ SENIOR_SCHOOL_FEATURES_RESPONSE = (
     "weekly mock tests with revision, and priority doubt resolution."
 )
 
-CONFIDENT_SPEAKER_OVERVIEW_RESPONSE = (
-    "**Confident Speaker**\n\n"
-    "Practical, conversation-driven spoken English and communicative skills coaching for school life, careers and everyday confidence through personalized mentoring and individual attention.\n\n"
-    "**Grades:** All Ages (students, college learners, professionals, businesspersons, and other learners depending on the track)\n\n"
-    "**Curriculum:**\n"
-    "- Public Speaking\n"
-    "- Business English\n"
-    "- General Communicative Skills\n"
-    "- IELTS Preparation\n\n"
-    "**Key features:**\n"
-    "- Conversation-first method, no rote grammar drills\n"
-    "- Small batches with individual attention for maximum speaking time\n"
-    "- Guided speaking practice & practical conversation with regular feedback\n"
-    "- Dedicated tracks for students, professionals & homemakers\n\n"
+COMMUNICATIVE_ENGLISH_OVERVIEW_RESPONSE = (
+    "## Communicative English\n\n"
+    "Build the confidence to **speak, present, interact and communicate effectively in English.**\n\n"
+    "### Areas\n\n"
+    "- **Spoken English**\n"
+    "- **Conversation**\n"
+    "- **Public Speaking**\n"
+    "- **Business English**\n\n"
+    "### Details\n\n"
+    "- Real-world communication & fluency\n"
+    "- Speaking, listening & vocabulary development\n"
+    "- Pathways for students, professionals & homemakers\n\n"
     "Ready to explore the program? You can book a free 30-minute demo using the **Book Free Demo** button."
 )
+CONFIDENT_SPEAKER_OVERVIEW_RESPONSE = COMMUNICATIVE_ENGLISH_OVERVIEW_RESPONSE
 
-CONFIDENT_SPEAKER_CURRICULUM_RESPONSE = (
-    "**The program covers four curriculum areas:**\n\n"
-    "- **Public Speaking** — build confidence and speaking skills for school and college.\n"
-    "- **Business English** — improve professional and workplace communication.\n"
-    "- **General Communicative Skills** — develop practical English for everyday conversations.\n"
-    "- **IELTS Preparation** — prepare for IELTS with guided practice and mentoring."
+COMMUNICATIVE_ENGLISH_CURRICULUM_RESPONSE = (
+    "**Communicative English**\n\n"
+    "- **Spoken English**\n"
+    "- **Conversation**\n"
+    "- **Public Speaking**\n"
+    "- **Business English**"
 )
+CONFIDENT_SPEAKER_CURRICULUM_RESPONSE = COMMUNICATIVE_ENGLISH_CURRICULUM_RESPONSE
 
 PUBLIC_SPEAKING_TRACK_RESPONSE = (
-    "Public Speaking is a core curriculum track in our Confident Speaker program, designed primarily for school and college students as well as learners looking to build speaking confidence and effective communication skills. Learners receive individual attention from a personal mentor through guided speaking practice and feedback on practical presentation, speech clarity, and speaking confidence.\n\nYou can book a free 30-minute demo using the **Book Free Demo** button."
+    "Public Speaking is a core curriculum track in our Communicative English program, designed primarily for school and college students as well as learners looking to build speaking confidence and effective communication skills. Learners receive individual attention from a personal mentor through guided speaking practice and feedback on practical presentation, speech clarity, and speaking confidence.\n\nYou can book a free 30-minute demo using the **Book Free Demo** button."
 )
 
 BUSINESS_ENGLISH_TRACK_RESPONSE = (
-    "Business English is a dedicated curriculum track in our Confident Speaker program for businesspersons and working professionals. It focuses on practical English communication in professional and workplace contexts through personalized one-to-one mentoring with individual attention, guided practice, and feedback.\n\nYou can book a free 30-minute demo using the **Book Free Demo** button."
+    "Business English is a dedicated curriculum track in our Communicative English program for businesspersons and working professionals. It focuses on practical English communication in professional and workplace contexts through personalized one-to-one mentoring with individual attention, guided practice, and feedback.\n\nYou can book a free 30-minute demo using the **Book Free Demo** button."
 )
 
 GENERAL_COMMUNICATIVE_TRACK_RESPONSE = (
-    "General Communicative Skills is a Confident Speaker curriculum track intended for learners who want to improve their everyday English communication. It focuses on practical daily conversation and guided speaking practice with individual attention from a personal mentor, rather than rote grammar drills.\n\nYou can book a free 30-minute demo using the **Book Free Demo** button."
+    "General Communicative Skills is part of our Communicative English program intended for learners who want to improve their everyday English communication. It focuses on practical daily conversation and guided speaking practice with individual attention from a personal mentor, rather than rote grammar drills.\n\nYou can book a free 30-minute demo using the **Book Free Demo** button."
 )
 
-IELTS_PREPARATION_TRACK_RESPONSE = (
-    "IELTS Preparation is offered as a distinct learning track within our Confident Speaker program for learners preparing for the IELTS exam. It provides targeted communicative and speaking practice with individual attention from a personal mentor to build fluency and confidence.\n\nYou can book a free 30-minute demo using the **Book Free Demo** button."
+IELTS_BROAD_OVERVIEW_RESPONSE = (
+    "## IELTS Preparation\n\n"
+    "Comprehensive preparation for **Academic & General IELTS** with targeted band score training and **live mock evaluations**.\n\n"
+    "### What it covers\n\n"
+    "- **IELTS Academic**\n"
+    "- **IELTS General**\n"
+    "- **Band Score Mastery**\n"
+    "- **Mock Tests**\n"
+    "- **1:1 Speaking**\n\n"
+    "### Key preparation\n\n"
+    "- **Targeted Band 7.5+ strategies & diagnostic assessment**\n"
+    "- Practice across **Reading, Writing, Listening & Speaking**\n"
+    "- **1-on-1 speaking clinics**\n"
+    "- **Detailed essay review**\n\n"
+    "Ready to explore the program? You can book a free 30-minute demo using the **Book Free Demo** button."
+)
+IELTS_PREPARATION_TRACK_RESPONSE = IELTS_BROAD_OVERVIEW_RESPONSE
+
+IELTS_SUBJECTS_RESPONSE = (
+    "**IELTS Preparation**\n\n"
+    "- **IELTS Academic**\n"
+    "- **IELTS General**\n"
+    "- **Band Score Mastery**\n"
+    "- **Mock Tests**\n"
+    "- **1:1 Speaking**"
+)
+
+IELTS_ACADEMIC_RESPONSE = (
+    "**Yes.** WeMentors offers dedicated preparation for **IELTS Academic**, with targeted training for university admissions and academic reading, writing, listening, and speaking."
+)
+
+IELTS_GENERAL_RESPONSE = (
+    "**Yes.** WeMentors offers comprehensive training for **IELTS General**, focusing on everyday and workplace English, letter writing, and general reading and listening."
+)
+
+IELTS_MOCK_TESTS_RESPONSE = (
+    "**Yes.** WeMentors includes **live mock evaluations** and regular practice tests in our IELTS Preparation course to assess readiness and build exam confidence."
+)
+
+IELTS_SPEAKING_RESPONSE = (
+    "**Yes.** WeMentors provides **1:1 Speaking** clinics and personalized speaking practice with personal mentors for the IELTS speaking test."
+)
+
+IELTS_BAND_SCORE_RESPONSE = (
+    "WeMentors provides **targeted Band 7.5+ strategies & diagnostic assessment** in our IELTS Preparation course to help you identify strengths and target higher band scores across Reading, Writing, Listening, and Speaking."
+)
+
+IELTS_SKILLS_RESPONSE = (
+    "**Yes.** WeMentors provides comprehensive practice across all four modules: **Reading, Writing, Listening, and Speaking**, along with 1-on-1 speaking clinics and detailed essay review."
+)
+
+COMMUNICATIVE_ENGLISH_INCLUDES_IELTS_RESPONSE = (
+    "**No.** IELTS Preparation is offered separately as its own standalone course, not as part of Communicative English. Communicative English covers Spoken English, Conversation, Public Speaking, and Business English, whereas IELTS Preparation is an independent, dedicated course."
+)
+
+IELTS_PART_OF_COMMUNICATIVE_ENGLISH_RESPONSE = (
+    "**No.** IELTS Preparation is a standalone offering separate from Communicative English. WeMentors offers IELTS Preparation as an independent course covering IELTS Academic, IELTS General, Band Score Mastery, Mock Tests, and 1:1 Speaking."
+)
+
+PROGRAMS_OVERVIEW_RESPONSE = (
+    "WeMentors offers these programs/courses:\n\n"
+    "- **Foundation Years (Grades 3-5)** — core subjects with a focus on strong fundamentals\n\n"
+    "- **Middle School (Grades 6-8)** — core subjects, doubt-solving, and practical labs\n\n"
+    "- **Senior School Focus (Grades 9-10)** — Maths, Science, and board-exam preparation\n\n"
+    "- **Communicative English** — Spoken English, Public Speaking, and Interview Skills\n\n"
+    "- **IELTS Preparation** — Academic & General IELTS preparation with targeted band score training and live mock evaluations"
 )
 
 CLASS_DURATION_RESPONSE = (
@@ -541,11 +616,11 @@ CLASS_FREQUENCY_ACADEMIC_RESPONSE = (
 )
 
 CLASS_FREQUENCY_CONFIDENT_SPEAKER_RESPONSE = (
-    "For the Confident Speaker program, there are typically 3–5 classes per week."
+    "For Communicative English (formerly Confident Speaker), there are typically 3–5 classes per week."
 )
 
 CLASS_FREQUENCY_GENERAL_RESPONSE = (
-    "For our academic programs (Grades 3–10), there are typically 5 classes per week. For the Confident Speaker program, there are typically 3–5 classes per week."
+    "For our academic programs (Grades 3–10), there are typically 5 classes per week. For Communicative English (formerly Confident Speaker), there are typically 3–5 classes per week."
 )
 
 MISSED_CLASSES_RESPONSE = (
@@ -570,7 +645,7 @@ PERSONALIZED_LEARNING_PACE_RESPONSE = (
 )
 
 CONFIDENT_SPEAKER_FEATURES_RESPONSE = (
-    "Key features of Confident Speaker include guided speaking practice, practical conversation, regular feedback, "
+    "Key features of Communicative English include guided speaking practice, practical conversation, regular feedback, "
     "and confidence-building activities with a dedicated personal mentor."
 )
 
@@ -621,13 +696,13 @@ SENIOR_SCHOOL_ENROLLMENT_RESPONSE = (
 )
 
 CONFIDENT_SPEAKER_ENROLLMENT_RESPONSE = (
-    "To get started with the Confident Speaker program, click the **Book Free Demo** button at the top-right of the website "
+    "To get started with the Communicative English program, click the **Book Free Demo** button at the top-right of the website "
     "and submit the required details. The team can then guide you through the next steps for enrollment."
 )
 
 GENERAL_ENROLLMENT_CLARIFICATION = (
     "Which program would you like to enroll in: Foundation Years (Grades 3–5), Middle School (Grades 6–8), "
-    "Grades 9–10, or Confident Speaker? You can also click the **Book Free Demo** button at the top-right of the website to get started."
+    "Grades 9–10, Communicative English, or IELTS Preparation? You can also click the **Book Free Demo** button at the top-right of the website to get started."
 )
 
 CONFIRMATION_WITHOUT_CLARIFICATION_RESPONSE = (
@@ -650,12 +725,12 @@ SENIOR_SCHOOL_CONFIRMATION_RESPONSE = (
 )
 
 CONFIDENT_SPEAKER_CONFIRMATION_RESPONSE = (
-    "Great — I’ll use Confident Speaker as the program we’re discussing. You can ask about its format, scope, "
+    "Great — I’ll use Communicative English (Confident Speaker) as the program we’re discussing. You can ask about its format, scope, "
     "practice sessions, or booking a free trial."
 )
 
 CONFIRMATION_NEGATIVE_RESPONSE = (
-    "Understood. What would you like to explore instead — Foundation Years, Middle School, Grades 9–10, or Confident Speaker?"
+    "Understood. What would you like to explore instead — Foundation Years, Middle School, Grades 9–10, Communicative English, or IELTS Preparation?"
 )
 
 PERSONALIZED_MENTORING_GENERAL_RESPONSE = (
@@ -670,7 +745,7 @@ MENTORING_APPROACH_RESPONSE = (
 
 OKAY_CONFIRMATION_RESPONSE = (
     "I'm here when you're ready. What would you like to explore next — our academic programs (Grades 3–10), "
-    "Confident Speaker, or booking a free demo?"
+    "Communicative English, IELTS Preparation, or booking a free demo?"
 )
 
 DEMO_BOOKING_RESPONSE = (
@@ -735,7 +810,7 @@ FRUSTRATED_RESPONSES = [
 ]
 
 CONFUSED_RESPONSES = [
-    "Let me clarify: WeMentors offers personalized 1-on-1 mentoring for school students (Grades 3–10) and a Confident Speaker program for all ages. Let me know which grade or program you are interested in exploring.",
+    "Let me clarify: WeMentors offers personalized 1-on-1 mentoring for school students (Grades 3–10), Communicative English, and IELTS Preparation. Let me know which grade or program you are interested in exploring.",
     "Sorry if that was confusing! WeMentors provides individual online classes with personal mentors. What specific detail can I help you with?",
     "Let's simplify: I can help you learn about our programs, teaching format, or how to book a free demo. Which of those sounds most helpful?",
 ]
@@ -752,8 +827,8 @@ CAPABILITY_RESPONSE = (
 )
 
 VAGUE_INFO_CLARIFICATION = (
-    "I can help with WeMentors’ academic programs (Foundation Years, Middle School, Senior School), Confident Speaker, "
-    "mentoring approach, or booking a free demo. What would you like to know?"
+    "I can help with WeMentors’ academic programs (Foundation Years, Middle School, Senior School), Communicative English, "
+    "IELTS Preparation, mentoring approach, or booking a free demo. What would you like to know?"
 )
 
 HOW_TO_BOOK_RESPONSE = (
@@ -780,7 +855,7 @@ CONFUSION_CLARIFICATION_RESPONSE = VAGUE_INFO_CLARIFICATION
 
 UNVERIFIED_COURSE_RESPONSE = (
     "I don’t have confirmed details for that course in our verified records. "
-    "WeMentors specializes in school academics (Grades 3–10 in Maths, Science, English, and other core subjects) and the Confident Speaker program.\n\n"
+    "WeMentors specializes in school academics (Grades 3–10 in Maths, Science, English, and other core subjects), Communicative English, and IELTS Preparation.\n\n"
     "You can click **Book Free Demo** at the top-right of the website or contact our team directly at **+91 76111 92227** to enquire about specialized subjects."
 )
 
@@ -869,49 +944,49 @@ CANCELLATION_RESPONSES = [
 
 # Eligibility & Audience responses
 ELIGIBILITY_ADULT_RESPONSE = (
-    "Yes. WeMentors' Confident Speaker program is open to students, working professionals, and homemakers of any age. "
-    "It focuses on Spoken English, Public Speaking, and Interview Skills through personalized one-to-one mentoring."
+    "Yes. WeMentors' Communicative English (formerly Confident Speaker) program is open to students, working professionals, and homemakers of any age. "
+    "It focuses on Spoken English, Conversation, Public Speaking, and Business English through personalized one-to-one mentoring."
 )
 
 ELIGIBILITY_NON_SCHOOL_RESPONSE = (
     "Yes! Being out of school does not prevent you from joining. While our academic curriculum programs are designed "
-    "for school students in Grades 3–10, WeMentors' Confident Speaker program is open to adults, working professionals, "
-    "and homemakers. It provides personalized one-to-one mentoring in Spoken English, Public Speaking, and Interview Skills."
+    "for school students in Grades 3–10, WeMentors' Communicative English (formerly Confident Speaker) program is open to adults, working professionals, "
+    "and homemakers. It provides personalized one-to-one mentoring in Spoken English, Conversation, Public Speaking, and Business English."
 )
 
 ELIGIBILITY_COLLEGE_RESPONSE = (
     "College students are not eligible for the academic curriculum programs (which are grade-banded for Grades 3–10). "
-    "However, the Confident Speaker program (Spoken English, Public Speaking, and Interview Skills) is open to everyone, "
+    "However, the Communicative English (formerly Confident Speaker) program (Spoken English, Conversation, Public Speaking, and Business English) is open to everyone, "
     "including college students, through personalized one-to-one mentoring."
 )
 
 ELIGIBILITY_GENERAL_RESPONSE = (
     "WeMentors supports school students in Grades 3–10 across our academic programs (Foundation Years, Middle School, "
     "and Board Exam Preparation), as well as learners of any background — including students, working professionals, "
-    "and homemakers — in our Confident Speaker program (Spoken English, Public Speaking, and Interview Skills)."
+    "and homemakers — in our Communicative English (formerly Confident Speaker) program (Spoken English, Conversation, Public Speaking, and Business English)."
 )
 
 ELIGIBILITY_ENGLISH_RESPONSE = (
-    "Yes! WeMentors' Confident Speaker program is specifically designed for learners of all backgrounds, including adults, "
-    "working professionals, and homemakers. It covers Spoken English, Public Speaking, and Interview Skills with "
+    "Yes! WeMentors' Communicative English (formerly Confident Speaker) program is specifically designed for learners of all backgrounds, including adults, "
+    "working professionals, and homemakers. It covers Spoken English, Conversation, Public Speaking, and Business English with "
     "personalized 1-on-1 mentoring, practical conversation, and regular feedback."
 )
 
 ELIGIBILITY_ONLINE_RESPONSE = (
-    "Yes! Adults and learners who are not in school can join our Confident Speaker program (covering Spoken English, "
-    "Public Speaking, and Interview Skills). Additionally, all WeMentors classes are conducted live and online via "
+    "Yes! Adults and learners who are not in school can join our Communicative English (formerly Confident Speaker) program (covering Spoken English, "
+    "Conversation, Public Speaking, and Business English). Additionally, all WeMentors classes are conducted live and online via "
     "interactive video calls with digital whiteboard support, so you can attend from home anywhere."
 )
 
 ELIGIBILITY_PROGRAMS_RESPONSE = (
-    "As a non-student or adult, you can join our **Confident Speaker** program, which is open to learners of all backgrounds "
+    "As a non-student or adult, you can join our **Communicative English** (formerly Confident Speaker) program, which is open to learners of all backgrounds "
     "(including working professionals and homemakers). It offers personalized 1-on-1 mentoring in Spoken English, "
-    "Public Speaking, and Interview Skills. (Our academic subject programs in Math and Science are structured specifically "
+    "Conversation, Public Speaking, and Business English. (Our academic subject programs in Math and Science are structured specifically "
     "for school students in Grades 3–10.)"
 )
 
 ELIGIBILITY_FEES_RESPONSE = (
-    "Yes, adults can join our Confident Speaker program for Spoken English, Public Speaking, and Interview Skills. "
+    "Yes, adults can join our Communicative English (formerly Confident Speaker) program for Spoken English, Conversation, Public Speaking, and Business English. "
     "Regarding fees, WeMentors provides customized 1-on-1 mentoring, and fee details are shared individually based on the "
     "learner's personalized learning plan and session frequency. You can connect with the WeMentors team to get detailed "
     "fee information."
@@ -959,7 +1034,7 @@ GRADE_1_2_UNAVAILABLE_RESPONSE = (
     "- **Foundation Years**: Grades 3–5 (Mathematics, Science, English, Environmental Studies)\n"
     "- **Middle School**: Grades 6–8 (all core subjects with practical labs and doubt clinics)\n"
     "- **Senior School Focus**: Grades 9–10 (Board exam preparation and mock tests)\n\n"
-    "We also offer our **Confident Speaker** program for learners looking to build communication and public speaking skills. "
+    "We also offer our **Communicative English** (formerly Confident Speaker) program and standalone **IELTS Preparation** course for learners looking to build communication or exam skills. "
     "Feel free to ask if you'd like to explore any of these programs!"
 )
 
@@ -968,7 +1043,7 @@ INTERNATIONAL_ELIGIBILITY_RESPONSE = (
     "Yes! Anyone globally can join from any country. "
     "All WeMentors classes and mentoring sessions are conducted 1-on-1 live and online, so learners can join from Saudi Arabia, the UAE, the US, the UK, India, or anywhere else in the world. "
     "Sessions and schedules are flexible and can be coordinated to fit your local time zone.\n\n"
-    "You can explore our academic mentoring programs for Grades 3–10 or our Confident Speaker program for communication skills, or click **Book Free Demo** at the top-right of the website to experience an online session."
+    "You can explore our academic mentoring programs for Grades 3–10, our Communicative English program (formerly Confident Speaker), or our IELTS Preparation course, or click **Book Free Demo** at the top-right of the website to experience an online session."
 )
 
 # State Board curricula response
@@ -986,7 +1061,7 @@ GRADE_11_12_UNSUPPORTED_RESPONSE = (
     "- **Foundation Years**: Grades 3–5\n"
     "- **Middle School**: Grades 6–8\n"
     "- **Senior School Focus**: Grades 9–10\n\n"
-    "Learners of all ages can join our **Confident Speaker** communicative skills program."
+    "Learners of all ages can join our **Communicative English** (formerly Confident Speaker) communicative skills program or our **IELTS Preparation** course."
 )
 
 # Scholarships and Discounts response
