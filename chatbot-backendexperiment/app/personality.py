@@ -1056,7 +1056,7 @@ STATE_BOARD_CURRICULUM_RESPONSE = (
 # Grades 11-12 / JEE / NEET unsupported response
 GRADE_11_12_UNSUPPORTED_RESPONSE = (
     "WeMentors does not currently offer academic programs or coaching for Grades 11–12 (Class 11 and Class 12), "
-    "nor do we provide preparation for competitive exams such as JEE or NEET.\n\n"
+    "nor do we provide preparation for competitive exams such as JEE or NEET, and there are no plans to offer them at the moment.\n\n"
     "Our academic mentoring programs support students in Grades 3–10:\n"
     "- **Foundation Years**: Grades 3–5\n"
     "- **Middle School**: Grades 6–8\n"

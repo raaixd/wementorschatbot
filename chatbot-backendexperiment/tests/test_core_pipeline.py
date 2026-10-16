@@ -245,7 +245,7 @@ for query, why in [
     ("Do you offer hostel or transport facilities?", "shares only the generic word 'offer'"),
     ("Can you help me?", "matches only incidental prose ('help') in an answer"),
     ("What is the duration of the course?", "shares only 'duration' with the demo-class entry"),
-    ("Do you offer a refund policy?", "shares only 'offer'"),
+    ("Do you offer a swimming pool?", "shares only 'offer'"),
     ("Do you offer placement or job help?", "shares only generic words"),
 ]:
     entry_id, score = top_score(query)
