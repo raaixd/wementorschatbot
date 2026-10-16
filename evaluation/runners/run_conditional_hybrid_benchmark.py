@@ -185,6 +185,38 @@ def evaluate_run(
     }
 
 
+# (label, report key, unit, higher_is_better, decimals)
+_COMPARISON_METRICS = [('Recall@1', 'recall_at_1', '%', True, 2), ('Recall@3', 'recall_at_3', '%', True, 2), ('MRR', 'mrr', '', True, 4), ('NDCG@3', 'ndcg_at_3', '', True, 4), ('False Positive Rate', 'false_positive_rate', '%', False, 2), ('False Negative Rate', 'false_negative_rate', '%', False, 2), ('Answer Correctness', 'answer_correctness', '%', True, 2), ('Groundedness', 'groundedness', '%', True, 2), ('Hallucination Rate', 'hallucination_rate', '%', False, 2), ('Unknown Handling', 'unknown_handling', '%', True, 2), ('Context Resolution', 'context_resolution', '%', True, 2), ('In-Memory Retrieval Latency', 'avg_retrieval_latency_ms', ' ms', False, 2)]
+
+
+def _comparison_rows(tfidf, hybrid):
+    """Table rows with the delta and verdict computed from the data."""
+    rows = []
+    for label, key, unit, higher_better, dp in _COMPARISON_METRICS:
+        t, h = tfidf[key], hybrid[key]
+        delta = h - t
+        if abs(delta) < 10 ** -dp:
+            verdict = "Same"
+        elif (delta > 0) == higher_better:
+            verdict = "Better"
+        else:
+            verdict = "**Worse**"
+        rows.append(f"| **{label}** | {t}{unit} | **{h}{unit}** | {delta:+.{dp}f}{unit} | {verdict} |")
+    return "\n".join(rows)
+
+
+def _regression_note(tfidf, hybrid):
+    """Call out every metric where hybrid is worse than TF-IDF."""
+    worse = []
+    for label, key, unit, higher_better, dp in _COMPARISON_METRICS:
+        delta = hybrid[key] - tfidf[key]
+        if abs(delta) >= 10 ** -dp and (delta > 0) != higher_better:
+            worse.append(f"**{label}** ({tfidf[key]}{unit} -> {hybrid[key]}{unit})")
+    if not worse:
+        return "No metric regressed against the TF-IDF baseline."
+    return "**Regressions vs TF-IDF:** " + "; ".join(worse) + "."
+
+
 def main():
     print("=" * 70)
     print("WeMentors Conditional Hybrid vs. TF-IDF Full Benchmark Runner")
@@ -282,22 +314,13 @@ def main():
 
 | Metric | Current TF-IDF | New Conditional Hybrid | Delta | Status |
 | :--- | :---: | :---: | :---: | :---: |
-| **Recall@1** | {tfidf_report['recall_at_1']}% | **{hybrid_report['recall_at_1']}%** | **+{hybrid_report['recall_at_1'] - tfidf_report['recall_at_1']:.2f}%** | Measured |
-| **Recall@3** | {tfidf_report['recall_at_3']}% | **{hybrid_report['recall_at_3']}%** | **+{hybrid_report['recall_at_3'] - tfidf_report['recall_at_3']:.2f}%** | Measured |
-| **MRR** | {tfidf_report['mrr']} | **{hybrid_report['mrr']}** | **+{hybrid_report['mrr'] - tfidf_report['mrr']:.4f}** | Measured |
-| **NDCG@3** | {tfidf_report['ndcg_at_3']} | **{hybrid_report['ndcg_at_3']}** | **+{hybrid_report['ndcg_at_3'] - tfidf_report['ndcg_at_3']:.4f}** | Measured |
-| **False Positive Rate** | {tfidf_report['false_positive_rate']}% | **{hybrid_report['false_positive_rate']}%** | 0.00% | Measured |
-| **False Negative Rate** | {tfidf_report['false_negative_rate']}% | **{hybrid_report['false_negative_rate']}%** | **{hybrid_report['false_negative_rate'] - tfidf_report['false_negative_rate']:.2f}%** | Measured |
-| **Answer Correctness** | {tfidf_report['answer_correctness']}% | **{hybrid_report['answer_correctness']}%** | **+{hybrid_report['answer_correctness'] - tfidf_report['answer_correctness']:.2f}%** | Measured |
-| **Groundedness** | {tfidf_report['groundedness']}% | **{hybrid_report['groundedness']}%** | 0.00% | Measured |
-| **Hallucination Rate** | {tfidf_report['hallucination_rate']}% | **{hybrid_report['hallucination_rate']}%** | 0.00% | Measured |
-| **Unknown Handling** | {tfidf_report['unknown_handling']}% | **{hybrid_report['unknown_handling']}%** | 0.00% | Measured |
-| **Context Resolution** | {tfidf_report['context_resolution']}% | **{hybrid_report['context_resolution']}%** | 0.00% | Measured |
-| **In-Memory Retrieval Latency** | **{tfidf_report['avg_retrieval_latency_ms']} ms** | {hybrid_report['avg_retrieval_latency_ms']} ms | +{hybrid_report['avg_retrieval_latency_ms'] - tfidf_report['avg_retrieval_latency_ms']:.2f} ms | Measured |
-| **Embedding API Calls** | 0 / {len(all_cases)} | **{hybrid_report['embedding_api_calls']} / {len(all_cases)}** | +{hybrid_report['embedding_api_calls']} | Measured |
-| **Embedding API Call Rate** | 0.00% | **{hybrid_report['embedding_call_rate_pct']}%** | +{hybrid_report['embedding_call_rate_pct']:.2f}% | Measured |
-| **Embedding Latency P50** | 0.0 ms | **{hybrid_report['embedding_p50_latency_ms']} ms** | +{hybrid_report['embedding_p50_latency_ms']} ms | Measured |
-| **Embedding Latency P95** | 0.0 ms | **{hybrid_report['embedding_p95_latency_ms']} ms** | +{hybrid_report['embedding_p95_latency_ms']} ms | Measured |
+{_comparison_rows(tfidf_report, hybrid_report)}
+| **Embedding API Calls** | 0 / {len(all_cases)} | **{hybrid_report['embedding_api_calls']} / {len(all_cases)}** | +{hybrid_report['embedding_api_calls']} | Cost |
+| **Embedding API Call Rate** | 0.00% | **{hybrid_report['embedding_call_rate_pct']}%** | +{hybrid_report['embedding_call_rate_pct']:.2f}% | Cost |
+| **Embedding Latency P50** | 0.0 ms | **{hybrid_report['embedding_p50_latency_ms']} ms** | +{hybrid_report['embedding_p50_latency_ms']} ms | Cost |
+| **Embedding Latency P95** | 0.0 ms | **{hybrid_report['embedding_p95_latency_ms']} ms** | +{hybrid_report['embedding_p95_latency_ms']} ms | Cost |
+
+{_regression_note(tfidf_report, hybrid_report)}
 
 ---
 

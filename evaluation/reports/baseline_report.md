@@ -9,16 +9,16 @@
 
 | Evaluation Metric | Measured Value | Threshold / Target | Status |
 | :--- | :---: | :---: | :---: |
-| **Total Test Cases** | **126** | $\ge$ 100 | **MEETS TARGET** |
-| **Answer Correctness** | **89.68%** | $\ge$ 90% | **PASS** |
+| **Total Test Cases** | **126** | $\ge$ 100 | PASS |
+| **Answer Correctness** | **89.68%** | $\ge$ 90% | **FAIL** |
 | **Demo Transaction Safety** | **100.0%** | 100% | **PASS** |
 | **Hallucination Rate** | **0.79%** | $\le$ 2% | **PASS** |
 | **Groundedness Score** | **99.21%** | $\ge$ 95% | **PASS** |
 | **Context Resolution Accuracy** | **96.03%** | $\ge$ 90% | **PASS** |
-| **Intent Classification Accuracy**| **35.71%** | $\ge$ 90% | **PASS** |
-| **Unknown Question Handling** | **92.06%** | 100% | **PASS** |
+| **Intent Classification Accuracy**| **35.71%** | $\ge$ 90% | **FAIL** |
+| **Unknown Question Handling** | **92.06%** | 100% | **FAIL** |
 | **Average Turn Latency** | **445.98 ms** | < 2500 ms | **PASS** |
-| **Error Rate** | **0.0%** | 0.0% | **ZERO CRASHES** |
+| **Error Rate** | **0.0%** | 0.0% | PASS |
 
 ---
 
