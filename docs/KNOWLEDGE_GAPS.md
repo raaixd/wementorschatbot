@@ -10,12 +10,12 @@ In adherence to the **Zero Invention Invariant**, the chatbot strictly refuses t
 
 | Gap ID | Category | Priority | Area / Topic | Status | Impact on User Journey |
 |---|---|---|---|---|---|
-| **GAP-01** | Commercial | **HIGH** | Exact Tuition Fee Structure & Ranges | Verified Policy / Explicit Fallback | Users asking for exact numbers are informed fees are personalized. |
-| **GAP-02** | Operations | **HIGH** | Demo Session Scheduling & Availability Window | **REQUIRES HUMAN INPUT** | Bot directs to web form; cannot confirm same-day/weekend slot lead times. |
-| **GAP-03** | Academic | **HIGH** | Grade 11 & 12 (Senior Secondary / JEE / NEET) Support | **REQUIRES HUMAN INPUT** | Current KB only covers Grades 3–10. Inquiries for 11–12 trigger out-of-scope fallback. |
+| **GAP-01** | Commercial | **HIGH** | Exact Tuition Fee Structure & Ranges | Owner confirmed 2026-10-16: keep as is | Users asking for exact numbers are informed fees are personalized. |
+| **GAP-02** | Operations | **HIGH** | Demo Session Scheduling & Availability Window | **PARTIAL** (owner: team reaches out after sign-up; slot timing still unknown) | Bot directs to web form; cannot confirm same-day/weekend slot lead times. |
+| **GAP-03** | Academic | **HIGH** | Grade 11 & 12 (Senior Secondary / JEE / NEET) Support | **RESOLVED** (owner: not offered, no plans) | Current KB only covers Grades 3–10. Inquiries for 11–12 trigger out-of-scope fallback. |
 | **GAP-04** | Academic | **MEDIUM** | State Board Curricula Explicit Alignment | **REQUIRES HUMAN INPUT** | CBSE, ICSE, and Cambridge/IB are verified; specific State Boards (e.g. Maharashtra, Karnataka) unverified. |
 | **GAP-05** | Academic | **MEDIUM** | Foreign / Regional Language Courses | Verified Negative | French, German, Hindi, Sanskrit inquiries explicitly clarified as unlisted. |
-| **GAP-06** | Operations | **MEDIUM** | Refund, Rescheduling, & Missed Class Policy | **REQUIRES HUMAN INPUT** | Bot clarifies policies are unverified and directs to administration. |
+| **GAP-06** | Operations | **MEDIUM** | Refund, Rescheduling, & Missed Class Policy | **RESOLVED** (owner: case by case; rescheduling is mentor-led) | Bot clarifies policies are unverified and directs to administration. |
 | **GAP-07** | Commercial | **LOW** | Scholarships, Sibling Discounts, Financial Aid | Verified Fallback | Unverified; bot directs to official counseling team without inventing discounts. |
 | **GAP-08** | Operations | **LOW** | Mentor Qualifications & Hiring Criteria Details | **REQUIRES HUMAN INPUT** | High-level 1-on-1 mentorship verified; formal mentor academic credentials/vetting unlisted. |
 | **GAP-09** | Operations | **LOW** | International Time Zone Flexibility for NRI / Global Students | **REQUIRES HUMAN INPUT** | Online global delivery is verified; specific time zone slot commitments require confirmation. |
