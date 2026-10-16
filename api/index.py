@@ -17,6 +17,9 @@ if str(root_dir) not in sys.path:
 if "DATABASE_PATH" not in os.environ:
     os.environ["DATABASE_PATH"] = "/tmp/chatbot.db"
 
+# Vercel's edge sets X-Real-IP / X-Forwarded-For, so the rate limiter can key on the real visitor
+os.environ.setdefault("TRUST_PROXY_HEADERS", "true")
+
 # Point knowledge base to local packaged copy
 local_kb = current_dir / "wementors_kb.json"
 if local_kb.exists():

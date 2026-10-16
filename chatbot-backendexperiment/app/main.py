@@ -178,6 +178,13 @@ class FeedbackRequest(BaseModel):
 
 # --- helpers ---------------------------------------------------------------
 def _client_key(request: Request) -> str:
+    if config.TRUST_PROXY_HEADERS:
+        real_ip = request.headers.get("x-real-ip", "").strip()
+        if real_ip:
+            return real_ip
+        forwarded = request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+        if forwarded:
+            return forwarded
     if request.client:
         return request.client.host
     return "unknown"
