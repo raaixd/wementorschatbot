@@ -25,6 +25,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r chatbot-backendexperiment/requirements.txt
 
+      - name: Check duplicated files are in sync
+        run: python scripts/sync_duplicates.py --check
+
       - name: Run pytest suite
         run: |
           pytest -v --tb=short

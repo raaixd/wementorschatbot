@@ -119,6 +119,6 @@ In adherence to the **Zero Invention Invariant**, the chatbot strictly refuses t
 
 When stakeholder input is provided for any gap above, follow this strict 4-step ingestion protocol:
 1. **Draft Entry in Canonical Format:** Question, unique semantic ID, category, list of 10+ realistic phrasings, concise factual answer, 2 relevant follow-ups, and `confidence: "verified"`.
-2. **Synchronize All 3 Copies:** Update `knowledge/wementors_kb.json`, `chatbot-backendexperiment/app/wementors_kb.json`, and `api/wementors_kb.json` simultaneously.
+2. **Synchronize All 3 Copies:** Edit only `knowledge/wementors_kb.json`, then run `python scripts/sync_duplicates.py` to update the copies in `chatbot-backendexperiment/app/` and `api/` (CI fails if they drift).
 3. **Run Regression & Benchmark:** Execute `run_release_test_suite.py` and `run_benchmark.py` to confirm zero regression on existing intents and zero hallucination.
 4. **Update Evaluation Baseline:** Record changes in `docs/RAG_EVALUATION.md` and commit atomically.
