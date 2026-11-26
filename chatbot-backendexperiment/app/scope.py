@@ -95,6 +95,25 @@ def _misleading_combination(question: str) -> bool:
     return bool(words & _ADULT_WORDS and words & _SCHOOL_SUBJECTS)
 
 
+# Answers that read as a "yes" without saying it: a subject list in reply to
+# "do you teach French?", or degrees in reply to "are mentors background checked?"
+_IMPLIED_YES_ENTRIES = frozenset(["what-subjects-offered", "mentor-qualifications"])
+_LISTING_WORDS = frozenset("""
+qualification qualifications qualified credentials degree degrees education educated
+experience experienced certified who which what are your tefl list kind kinds type types
+university degrees hold holds background certification certifications guys
+""".split())
+
+
+def qualify_listing(question: str, reply: str, matched_ids: list) -> str:
+    """Add the caveat when such a list answers a question it may not cover."""
+    if not matched_ids or matched_ids[0] not in _IMPLIED_YES_ENTRIES or reply.startswith(CAVEAT):
+        return reply
+    if _covered(_INTRO_RE.sub("", question), _ALLOWED_GENERAL | _LISTING_WORDS):
+        return reply
+    return f"{CAVEAT}\n\n{reply}"
+
+
 def qualify_affirmation(question: str, reply: str) -> str:
     """Withdraw a leading "Yes" when the question mentions something unknown.
 
