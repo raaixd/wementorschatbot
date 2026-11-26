@@ -3302,10 +3302,10 @@ class ConversationEngine:
         # Standalone subjects
         if _MATHS_STANDALONE_RE.match(message):
             reply = (
-                "WeMentors provides personalized 1-on-1 mentoring in **Mathematics** across all school stages:\n\n"
-                "- **Foundation Years (Grades 3–5)**: Builds strong number sense, mental math, and problem-solving confidence.\n"
-                "- **Middle School (Grades 6–8)**: Deepens conceptual understanding with weekly doubt clinics and practical labs.\n"
-                "- **Grades 9–10 Board Preparation**: Focused board exam prep, past paper practice, and score improvement.\n\n"
+                "WeMentors offers mentoring in **Mathematics** for Grades 3–10:\n\n"
+                "- **Foundation Years (Grades 3–5)**: Curiosity-first teaching with concept games and visual learning.\n"
+                "- **Middle School (Grades 6–8)**: Concept-first, practical problem sets and fortnightly doubt clinics.\n"
+                "- **Grades 9–10 Board Preparation**: Board-exam coaching, weekly mock tests with review, and priority doubt-clearing.\n\n"
                 "Which grade or program would you like to know more about?"
             )
             res = ReplyResult(reply, "subject_maths", ["subjects-offered", "programs-overview"], 1.0)
@@ -3313,10 +3313,10 @@ class ConversationEngine:
 
         if _SCIENCE_STANDALONE_RE.match(message):
             reply = (
-                "WeMentors provides personalized 1-on-1 mentoring in **Science** across all school stages:\n\n"
-                "- **Foundation Years (Grades 3–5)**: Hands-on exploration and core scientific curiosity.\n"
-                "- **Middle School (Grades 6–8)**: Physics, Chemistry, and Biology concepts with weekly doubt clinics.\n"
-                "- **Grades 9–10 Board Preparation**: Rigorous syllabus coverage and exam-focused mentorship.\n\n"
+                "WeMentors offers mentoring in **Science** for Grades 3–10:\n\n"
+                "- **Foundation Years (Grades 3–5)**: Curiosity-first teaching with concept games and visual learning.\n"
+                "- **Middle School (Grades 6–8)**: Concept-first, practical problem sets and fortnightly doubt clinics.\n"
+                "- **Grades 9–10 Board Preparation**: Board-exam coaching, weekly mock tests with review, and priority doubt-clearing.\n\n"
                 "Which grade or program would you like to know more about?"
             )
             res = ReplyResult(reply, "subject_science", ["subjects-offered", "programs-overview"], 1.0)
