@@ -16,6 +16,25 @@ Under the hood it's a conversational RAG pipeline: deterministic intent routing,
 
 The project also treats evaluation as a first-class concern — retrieval changes are benchmarked against a fixed query set before they ship, not shipped on the assumption that "embeddings are better."
 
+## How It Answers Today
+
+1. **Fixed rules** run first, in code: possible self-harm, a distressed child, additional needs, child safety, data privacy, mentor personal details, outcome guarantees, "are you a person?", prompt injection and booking requests.
+2. **With a model available** (`ANSWER_MODE=full_kb`, the default), it receives the whole knowledge base (about 4,500 tokens) and the recent conversation. It can reply `NOT_CONFIRMED`. Its output is filtered for false booking claims, prices, unknown contacts and outcome promises.
+3. **If the model fails or its reply is rejected**, the routed engine described below answers from stored text, without calling the model again.
+
+### Why it changed
+
+Both designs answered the same messy, multi-turn parent questions, including traps meant to get a false "yes". Answers were graded pass or fail without labels showing which design wrote them.
+
+| Design | Round 1 | Round 2 | Total |
+|---|---:|---:|---:|
+| Routing and retrieval, then the model | 30/43 | 20/35 | **50/78 (64%)** |
+| Fixed rules, then the model with the whole knowledge base | 37/43 | 32/35 | **69/78 (88%)** |
+
+Limits: the questions were written and graded by the same AI assistant that worked on the code, not collected from real parents or graded by an independent person. The two styles are sometimes recognisable, so the blinding was imperfect. Treat this as a strong hint, and rerun it on real questions with `evaluation/runners/compare_real_questions.py`.
+
+The sections below on routing and hybrid retrieval describe the backup path, which `ANSWER_MODE=routed` also makes the main one.
+
 ## At a Glance
 
 | | |

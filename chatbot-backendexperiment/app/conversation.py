@@ -3194,13 +3194,61 @@ class ConversationEngine:
         fixed = policy_reply(message) if role == "user" else None
         if fixed and (fixed[0] == "crisis" or self.detect_intent(message, session_id) != "injection_attempt"):
             return ReplyResult(fixed[1], fixed[0], ["contact-info"], 1.0)
-        result = self._route_message(session_id, without_declined_clause(message), source=source, role=role)
+
+        routed_message = without_declined_clause(message)
+        if self._uses_full_kb(message, source, role):
+            result = self._answer_from_whole_kb(session_id, message.strip())
+            if result is not None:
+                result.reply = use_current_program_name(message, hide_internal_terms(result.reply))
+                return result
+            with llm.model_disabled():  # the model just failed; use stored answers
+                result = self._route_message(session_id, routed_message, source=source, role=role)
+        else:
+            result = self._route_message(session_id, routed_message, source=source, role=role)
         if result.reply.startswith(llm.NOT_CONFIRMED_REPLY):
             return result
         reply = qualify_affirmation(message, result.reply)
         reply = qualify_listing(message, reply, result.matched_entry_ids)
         result.reply = use_current_program_name(message, hide_internal_terms(reply))
         return result
+
+    @staticmethod
+    def _uses_full_kb(message: str, source: str, role: str) -> bool:
+        # Invalid requests go to the router, which owns their error handling.
+        return (
+            config.LLM_ENABLED
+            and config.ANSWER_MODE == "full_kb"
+            and role == "user"
+            and source in ("text_input", "explicit_suggestion_click", "form_submission")
+            and 0 < len(message.strip()) <= 2000
+        )
+
+    def _answer_from_whole_kb(self, session_id: str, message: str) -> Optional[ReplyResult]:
+        """Hard rules, then the model with every knowledge base entry.
+
+        Returns None when the model fails or its reply is rejected."""
+        memory = database.get_conversation_memory(session_id)
+        intent = self.detect_intent(message, session_id)
+        if intent == "injection_attempt":
+            result = ReplyResult(personality.INJECTION_DEFLECTION, intent, [], None)
+        elif intent == "demo_transaction_request":
+            result = ReplyResult(
+                personality.DEMO_TRANSACTION_REQUEST_RESPONSE, intent, ["how-to-book-demo", "contact-info"], 1.0
+            )
+        else:
+            history = self._recent_turns(session_id)
+            if history and history[-1]["role"] == "user" and history[-1]["content"].strip() == message:
+                history = history[:-1]  # the current message is added by build_messages
+            answer = llm.generate_answer(message, [ScoredEntry(e, 1.0) for e in self.entries], history)
+            if answer is None:
+                return None
+            if answer == llm.NOT_CONFIRMED_REPLY:
+                answer = self._unanswered(message)
+                intent = "not_confirmed" if answer == llm.NOT_CONFIRMED_REPLY else "partial_answer"
+            else:
+                intent = "llm_answer"
+            result = ReplyResult(answer, intent, [], None)
+        return self._finalize_result(session_id, result, memory, message)
 
     def _route_message(
         self,
