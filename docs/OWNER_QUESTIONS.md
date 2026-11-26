@@ -46,6 +46,31 @@ Source: [KNOWLEDGE_GAPS.md](KNOWLEDGE_GAPS.md) (GAP-01 to GAP-09).
 10. Do any exist? If yes, the exact terms. If not, may the bot say "none are currently offered"?
     **Answer:**
 
+## Conflicts to resolve (found 2026-11-26)
+
+The website, the knowledge base and the bot's built-in text disagree on these. Knowledge base edits also need new embeddings, so these are best answered together.
+
+**C-01. Is IELTS its own course?** The website and `programs-overview` list IELTS Preparation as a separate course. `confident-speaker-format` and `confident-speaker-scope` call it part of Confident Speaker.
+   **Answer:**
+
+**C-02. Program name.** The website says "Communicative English". Many knowledge base entries and bot replies still say "Confident Speaker". Is the old name retired?
+   **Answer:**
+
+**C-03. Communicative English class size.** `confident-speaker-format` says one-to-one. `program-confident-speaker` says small batches. The general answer is 1-on-1 or up to 8 students. What applies to this course?
+   **Answer:**
+
+**C-04. Social Studies.** The website's demo form and some bot replies list it. `middle-school-subjects` and the website's course cards do not name it. Is it taught, and for which grades?
+   **Answer:**
+
+**C-05. State Boards.** `curricula-supported` includes State Board. The website FAQ lists only CBSE, ICSE, IGCSE and IB. Which is right?
+   **Answer:**
+
+**C-06. 24-hour reply.** The website and `demo-response-time` promise contact within 24 hours. The 2026-10-16 answers gave no timeframe. Is the 24-hour promise still accurate?
+   **Answer:**
+
+**C-07. Changing mentor or timing.** The website FAQ says families can ask to change mentor, batch or timing. The knowledge base has no entry, so the bot says it does not know. May this be added?
+   **Answer:**
+
 ## After answers are in
 
 1. Edit only `knowledge/wementors_kb.json`, adding or updating entries and marking the new facts as verified.

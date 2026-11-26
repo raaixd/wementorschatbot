@@ -87,7 +87,7 @@ Field-Level Program Knowledge
   * Class Delivery: 100% online via WeMentors LMS platform and Google Meet live video calls. No physical centers.
   * Class Duration: Regular classes are usually around 50 minutes per session. (Demo sessions are 30 minutes).
   * Class Frequency: Academic programs typically 5 classes/week; Communicative English typically 3–5 classes/week.
-  * Missed Classes: Catch-up sessions can be arranged to help students stay on track.
+  * Missed Classes: If a class is missed for a genuine reason, mentors can arrange a catch-up session on that topic.
   * Parent Updates: Regular updates through weekly meetings and progress reports from mentors.
   * NEVER guarantee fluency, interview success, or overnight transformation.
   * Next step: Click **Book Free Demo** at the top-right of the website to experience a trial session.

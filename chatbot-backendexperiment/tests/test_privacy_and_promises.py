@@ -84,6 +84,14 @@ def test_llm_output_with_published_details_is_kept(published):
     assert llm.sanitize_llm_output(published) == published
 
 
+@pytest.mark.parametrize("subject", ["maths", "science"])
+def test_one_word_subject_reply_sticks_to_published_facts(engine, subject):
+    reply = _ask(engine, str(uuid.uuid4()), subject).lower()
+    assert "fortnightly doubt clinics" in reply
+    for unpublished in ("weekly doubt", "past paper", "mental math", "score improvement", "1-on-1"):
+        assert unpublished not in reply
+
+
 def test_only_the_offending_line_changes_and_llm_output_is_covered():
     text = "## Board prep\n\n- Weekly practice.\n- We guarantee full marks.\n- Doubt clinics."
     expected = f"## Board prep\n\n- Weekly practice.\n- {llm.NO_GUARANTEE_SENTENCE}\n- Doubt clinics."
