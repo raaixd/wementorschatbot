@@ -220,6 +220,13 @@ LLM_FALLBACK_PROVIDER = os.getenv(
     "groq" if (GROQ_API_KEY and LLM_PROVIDER != "groq") else "none"
 ).strip().lower()
 LLM_ENABLED = LLM_PROVIDER != "none"
+
+# How questions are answered when a model is available:
+#   full_kb - fixed safety rules, then the model with the whole knowledge base
+#             (passed 69/78 graded test questions, against 50/78 for routed)
+#   routed  - keyword routing and retrieval choose what the model sees
+# The routed engine is also the backup whenever the model fails.
+ANSWER_MODE = os.getenv("ANSWER_MODE", "full_kb").strip().lower()
 LLM_TIMEOUT_SECONDS = _get_int("LLM_TIMEOUT_SECONDS", 4)
 LLM_MAX_TOKENS = _get_int("LLM_MAX_TOKENS", 1000)
 LLM_TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", "0.3"))
