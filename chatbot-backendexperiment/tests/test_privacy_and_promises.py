@@ -9,7 +9,7 @@ BACKEND_ROOT = Path(__file__).resolve().parents[1]
 if str(BACKEND_ROOT) not in sys.path:
     sys.path.insert(0, str(BACKEND_ROOT))
 
-from app import config, database, llm, personality
+from app import config, database, llm, personality, scope
 from app.conversation import ConversationEngine
 from app.knowledge import load_entries
 
@@ -142,3 +142,33 @@ def test_only_the_offending_line_changes_and_llm_output_is_covered():
     text = "## Board prep\n\n- Weekly practice.\n- We guarantee full marks.\n- Doubt clinics."
     expected = f"## Board prep\n\n- Weekly practice.\n- {llm.NO_GUARANTEE_SENTENCE}\n- Doubt clinics."
     assert llm.sanitize_llm_output(text) == expected
+
+
+@pytest.mark.parametrize("question", [
+    "do you offer online french classes",
+    "do you teach german online",
+    "are online classes free",
+    "do you offer SAT classes online",
+    "can adults learn maths here",
+    "My name is Priya, do you offer online french classes",
+])
+def test_no_bare_yes_when_the_question_mentions_something_unknown(engine, question):
+    reply = _ask(engine, str(uuid.uuid4()), question)
+    assert not reply.lower().lstrip("*").startswith("yes")
+    assert "Yes," not in reply[:60]
+
+
+@pytest.mark.parametrize("question", [
+    "do you offer online classes?",
+    "are class timings flexible",
+    "do you use google meet",
+    "can i join from saudi arabia",
+    "My name is Priya, do you offer online classes",
+])
+def test_ordinary_questions_get_no_caveat(engine, question):
+    assert scope.CAVEAT not in _ask(engine, str(uuid.uuid4()), question)
+
+
+def test_joining_alone_does_not_trigger_the_international_answer(engine):
+    reply = _ask(engine, str(uuid.uuid4()), "can my son with autism join")
+    assert "Anyone globally" not in reply

@@ -103,6 +103,13 @@ class ScoredEntry:
     score: float
 
 
+_LOCATION_RE = re.compile(
+    r"\b(countr(?:y|ies)|international(?:ly)?|abroad|overseas|outside|global(?:ly)?|worldwide|anywhere|"
+    r"foreign|nri|time\s*zones?|live\s+in|living\s+in|based\s+in|from|saudi|arabia|uae|dubai|qatar|oman|"
+    r"kuwait|bahrain|middle\s+east|usa?|america|uk|england|london|canada|australia|singapore|europe|india)\b"
+)
+
+
 class Retriever:
     """Builds a TF-IDF index over a list of KBEntry objects at startup
     (or whenever the knowledge base is reloaded) and answers similarity
@@ -254,6 +261,11 @@ class Retriever:
                 )
                 if not has_g1_g2:
                     continue
+
+            # International gate: "join" alone must not promise a place, e.g. to
+            # a parent asking whether a child with additional needs can join.
+            if entry.id == "international-students-eligibility" and not _LOCATION_RE.search(lowered_query):
+                continue
 
             # Class duration gate: must not match generic course/program duration queries
             if entry.id == "class-duration":
@@ -494,6 +506,10 @@ class Retriever:
                 )
                 if not has_g1_g2:
                     continue
+
+            # International gate (same rule as lexical search)
+            if entry.id == "international-students-eligibility" and not _LOCATION_RE.search(lowered_query):
+                continue
 
             # 7. Class duration gate: must not match generic course/program duration queries
             if entry.id == "class-duration":
