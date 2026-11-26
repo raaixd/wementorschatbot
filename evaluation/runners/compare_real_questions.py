@@ -1,8 +1,8 @@
 """Compare the current bot with a simpler design on real visitor questions.
 
   current: the production ConversationEngine (routing + retrieval + LLM)
-  simple : two hard rules (injection, booking requests), then the LLM with
-           the whole knowledge base as context
+  simple : the hard rules (safety policy, injection, booking requests), then
+           the LLM with the whole knowledge base as context
 
 A person grades the answers without being told which system wrote which.
 
@@ -62,12 +62,12 @@ def _load_app():
     # A throwaway database keeps test traffic out of the real one.
     os.environ["DATABASE_PATH"] = str(Path(tempfile.mkdtemp()) / "compare.db")
     sys.path.insert(0, str(ROOT / "chatbot-backendexperiment"))
-    from app import config, database, llm, personality
+    from app import config, database, llm, personality, policy
     from app.conversation import ConversationEngine
     from app.knowledge import load_entries
     from app.retrieval import ScoredEntry
 
-    return config, database, llm, personality, ConversationEngine, load_entries, ScoredEntry
+    return config, database, llm, personality, ConversationEngine, load_entries, ScoredEntry, policy
 
 
 def run(questions: Path, out: Path, delay: float, seed: int | None) -> int:
@@ -75,7 +75,7 @@ def run(questions: Path, out: Path, delay: float, seed: int | None) -> int:
     if not conversations:
         print("No questions found.", file=sys.stderr)
         return 1
-    config, database, llm, personality, Engine, load_entries, ScoredEntry = _load_app()
+    config, database, llm, personality, Engine, load_entries, ScoredEntry, policy = _load_app()
     if isinstance(llm.get_active_provider(), llm.NullProvider):
         print("No LLM provider is configured. Set GEMINI_API_KEY (or GROQ_API_KEY) in .env.", file=sys.stderr)
         return 1
@@ -102,7 +102,8 @@ def run(questions: Path, out: Path, delay: float, seed: int | None) -> int:
         # One order per conversation, so each column stays one system across follow-ups.
         order = rng.sample(SYSTEMS, 2)
         for t_index, question in enumerate(turns, 1):
-            rule = hard_rules.get(engine.detect_intent(question))
+            fixed = policy.policy_reply(question)
+            rule = fixed[1] if fixed else hard_rules.get(engine.detect_intent(question))
             simple = rule or llm.generate_answer(question, everything, history[-config.LLM_HISTORY_TURNS:])
             if simple is None:
                 simple, failures = LLM_FAILED, failures + 1

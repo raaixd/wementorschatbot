@@ -29,6 +29,8 @@ import logging
 import re
 import time
 from abc import ABC, abstractmethod
+from contextlib import contextmanager
+from contextvars import ContextVar
 from functools import lru_cache
 from typing import Any, Dict, List, Optional, Sequence
 
@@ -665,6 +667,20 @@ def reset_provider_cache() -> None:
     GeminiProvider._model_cooldowns.clear()
 
 
+_model_off: ContextVar[bool] = ContextVar("model_off", default=False)
+
+
+@contextmanager
+def model_disabled():
+    """Skip the model for this request only, so that falling back after a
+    failed call does not call it again and double the visitor's wait."""
+    token = _model_off.set(True)
+    try:
+        yield
+    finally:
+        _model_off.reset(token)
+
+
 def generate_answer(
     user_message: str,
     scored: Sequence[ScoredEntry],
@@ -700,7 +716,7 @@ def generate_answer(
     }
 
     provider = get_active_provider()
-    if isinstance(provider, NullProvider):
+    if isinstance(provider, NullProvider) or _model_off.get():
         return None
 
     messages = build_messages(user_message, scored, history)
