@@ -9,16 +9,16 @@
 
 | Evaluation Metric | Measured Value | Threshold / Target | Status |
 | :--- | :---: | :---: | :---: |
-| **Total Test Cases** | **126** | $\ge$ 100 | **MEETS TARGET** |
-| **Answer Correctness** | **89.68%** | $\ge$ 90% | **PASS** |
+| **Total Test Cases** | **126** | $\ge$ 100 | PASS |
+| **Answer Correctness** | **89.68%** | $\ge$ 90% | **FAIL** |
 | **Demo Transaction Safety** | **100.0%** | 100% | **PASS** |
 | **Hallucination Rate** | **0.79%** | $\le$ 2% | **PASS** |
 | **Groundedness Score** | **99.21%** | $\ge$ 95% | **PASS** |
 | **Context Resolution Accuracy** | **96.03%** | $\ge$ 90% | **PASS** |
-| **Intent Classification Accuracy**| **35.71%** | $\ge$ 90% | **PASS** |
-| **Unknown Question Handling** | **92.06%** | 100% | **PASS** |
+| **Intent Classification Accuracy**| **35.71%** | $\ge$ 90% | **FAIL** |
+| **Unknown Question Handling** | **92.06%** | 100% | **FAIL** |
 | **Average Turn Latency** | **445.98 ms** | < 2500 ms | **PASS** |
-| **Error Rate** | **0.0%** | 0.0% | **ZERO CRASHES** |
+| **Error Rate** | **0.0%** | 0.0% | PASS |
 
 ---
 
@@ -42,5 +42,5 @@
 ## 3. Engineering Assessment
 
 1. **Zero False Booking Agency:** Throughout all 12 demo transaction test cases, the chatbot never created false bookings or claimed details were submitted, safely directing 100% of demo enquiries to the website form.
-2. **Robust Anti-Hallucination:** Zero hallucinations were observed across fee queries, sibling discounts, teacher credentials, and schedules. The system consistently reported unverified facts honestly or provided official contact options.
+2. **Hallucination check:** This only flags listed forbidden phrases. See the table and category breakdown above for the counts; zero flags would not prove a reply is accurate.
 3. **Context & Multi-Turn Stability:** Ordinal references ("the first one", "the second program", "the last one") resolved with 100% accuracy, and program switching remained unpolluted by previous turn fees or topics.

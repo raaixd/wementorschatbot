@@ -123,6 +123,11 @@ ALLOWED_ORIGINS = _get_list(
 RATE_LIMIT_ENABLED = _get_bool("RATE_LIMIT_ENABLED", True)
 RATE_LIMIT_MAX_REQUESTS = _get_int("RATE_LIMIT_MAX_REQUESTS", 20)
 RATE_LIMIT_WINDOW_SECONDS = _get_int("RATE_LIMIT_WINDOW_SECONDS", 60)
+# Behind a reverse proxy (Vercel, nginx) request.client.host is the proxy,
+# so every visitor would share one rate-limit bucket. Enable this only when
+# the proxy overwrites X-Real-IP / X-Forwarded-For; otherwise clients could
+# spoof the headers to dodge the limiter. api/index.py turns it on for Vercel.
+TRUST_PROXY_HEADERS = _get_bool("TRUST_PROXY_HEADERS", False)
 
 # --- Conversation management ---------------------------------------------
 # How many recent messages the engine reads back when resolving a

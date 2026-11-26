@@ -66,6 +66,45 @@ _LEAKED_INSTRUCTION_RE = re.compile(
 )
 
 
+_OUTCOME_PROMISE_RE = re.compile(
+    r"\bguarantee[sd]?\s+(?:that|you|your|a|an|to|full|top|better|higher|\d|marks|results?|ranks?|success|grades?|scores?)"
+    r"|\b(?:marks|results?|ranks?|success|grades?|scores?)\s+(?:(?:is|are)\s+)?guaranteed\b"
+    r"|\b100%\s+(?:guaranteed|success|pass)"
+    r"|\bpromises?\s+(?:\w+\s+){0,3}?(?:marks|ranks?|scores?|grades|results)\b"
+    r"|\bwill\s+(?:definitely|surely|certainly)\s+(?:pass|score|top|rank|achieve)\b"
+    r"|\beliminate\s+all\s+(?:anxiety|fear)\b"
+    r"|\bbecome\s+(?:completely\s+)?fluent\s+overnight\b",
+    re.IGNORECASE,
+)
+_NEGATION_RE = re.compile(r"\b(?:no|not|never|cannot|without)\b|n['\u2019]t\b", re.IGNORECASE)
+# A denial only counts if it sits in the same clause as the promise.
+_CLAUSE_BREAK_RE = re.compile(r"[,;:]|\bbut\b", re.IGNORECASE)
+NO_GUARANTEE_SENTENCE = "WeMentors does not guarantee specific results; progress depends on each student."
+
+
+def _is_outcome_promise(sentence: str) -> bool:
+    if sentence.rstrip().endswith("?"):
+        return False
+    return any(
+        not _NEGATION_RE.search(_CLAUSE_BREAK_RE.split(sentence[: m.start()])[-1])
+        for m in _OUTCOME_PROMISE_RE.finditer(sentence)
+    )
+
+
+def remove_outcome_promises(text: str) -> str:
+    """Swap any sentence that promises an outcome for a plain denial.
+
+    This is a narrow phrase filter, not hallucination detection. Whole
+    sentences are replaced so the remaining text stays grammatical."""
+    # Odd-numbered parts are the separators, so formatting survives.
+    parts = re.split(r"((?<=[.!?])[ \t]+|\n+)", text)
+    for i in range(0, len(parts), 2):
+        if _is_outcome_promise(parts[i]):
+            bullet = re.match(r"\s*(?:[-*]\s+|\d+\.\s+)?", parts[i]).group(0)
+            parts[i] = bullet + NO_GUARANTEE_SENTENCE
+    return "".join(parts)
+
+
 def sanitize_llm_output(text: str) -> Optional[str]:
     """Validate and clean a raw provider response. Returns None if the
     response should not be shown as-is."""
@@ -86,6 +125,7 @@ def sanitize_llm_output(text: str) -> Optional[str]:
     if _LEAKED_INSTRUCTION_RE.search(cleaned):
         logger.warning("Discarding LLM output that leaked internal instructions or context")
         return None
+    cleaned = remove_outcome_promises(cleaned)
     if len(cleaned) > _MAX_OUTPUT_CHARS:
         cleaned = cleaned[:_MAX_OUTPUT_CHARS].rsplit(" ", 1)[0] + "..."
     return cleaned
