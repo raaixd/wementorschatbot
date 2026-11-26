@@ -55,7 +55,7 @@ The project also treats evaluation as a first-class concern — retrieval change
 - Honest fallback on unsupported questions instead of invented answers
 - Prompt-injection detection and deflection
 - Hard demo-transaction boundary — no fake bookings or leads
-- LLM output sanitization (blocks false completion claims, strips raw HTML, replaces outcome promises)
+- LLM output sanitization (blocks false completion claims, prices and unknown phone numbers or emails; strips raw HTML; replaces outcome promises)
 - Client-side request deduplication and in-flight request cancellation
 - Per-IP rate limiting
 - Session isolation via validated session tokens
