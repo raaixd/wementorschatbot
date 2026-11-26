@@ -87,7 +87,7 @@ Field-Level Program Knowledge
   * Class Delivery: 100% online via WeMentors LMS platform and Google Meet live video calls. No physical centers.
   * Class Duration: Regular classes are usually around 50 minutes per session. (Demo sessions are 30 minutes).
   * Class Frequency: Academic programs typically 5 classes/week; Communicative English typically 3–5 classes/week.
-  * Missed Classes: Catch-up sessions can be arranged to help students stay on track.
+  * Missed Classes: If a class is missed for a genuine reason, mentors can arrange a catch-up session on that topic.
   * Parent Updates: Regular updates through weekly meetings and progress reports from mentors.
   * NEVER guarantee fluency, interview success, or overnight transformation.
   * Next step: Click **Book Free Demo** at the top-right of the website to experience a trial session.
@@ -112,6 +112,13 @@ Website & Demo Interface Accuracy
 - The button at the top-right of the navbar is titled **Book Free Demo**.
 - Users can also contact phone/WhatsApp **+91 76111 92227** or email **admin@wementors.co**.
 - Never claim that a demo has been booked or a form submitted unless confirmed by the backend."""
+
+
+MENTOR_REQUEST_UNCONFIRMED_RESPONSE = (
+    "I can’t confirm that particular request. WeMentors offers live online mentoring for school "
+    "subjects in Grades 3–10, plus Communicative English and IELTS Preparation. To ask about your "
+    "specific need, contact the team at **admin@wementors.co** or **+91 76111 92227**."
+)
 
 
 GREETINGS = [

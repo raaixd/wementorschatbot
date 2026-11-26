@@ -240,8 +240,10 @@ def build_messages(
         if is_mentor_inquiry:
             task_instruction += (
                 "\n\nFor this mentor matching/inquiry request, format your response in exactly two concise, natural paragraphs:\n"
-                "- Paragraph 1 (2–3 sentences): Always start directly with 'Yes, ' (NEVER use 'Yes!', 'Yes! We', 'Absolutely!', 'Definitely!', or exclamation marks). "
-                "Confirm that WeMentors provides dedicated 1:1 mentoring tailored to the learner's curriculum and needs. Sessions focus on personalized concept mastery, doubt clearing, and ongoing progress support. "
+                "- Paragraph 1 (2–3 sentences): Start with 'Yes, ' ONLY if the verified facts cover everything the visitor asked for, "
+                "including subject, grade, language, location, mentor attributes and timing. If any part is not covered, do NOT say yes: "
+                "say plainly that it is not confirmed and suggest contacting the team. When it is covered, confirm without exclamation marks "
+                "that WeMentors offers mentoring for it. "
                 "If grade, curriculum/board, or subject information was explicitly provided (e.g. Grade 5, Grade 7, ICSE, CBSE, Math, Science), naturally weave it into this concise explanation without reciting the entire program overview. "
                 "Do NOT repeat program descriptions or demo details in this paragraph.\n"
                 "- Paragraph 2 (exactly 1 sentence): 'Ready to experience a session? You can book a free 30-minute demo using the Book Free Demo button.'\n"

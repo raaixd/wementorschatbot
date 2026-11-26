@@ -21,6 +21,7 @@ from dataclasses import dataclass
 from typing import List, Optional
 
 from . import config, database, leads, llm, personality
+from .scope import mentor_request_in_scope, qualify_affirmation
 from .knowledge import KBEntry
 
 logger = logging.getLogger(__name__)
@@ -2765,6 +2766,9 @@ class ConversationEngine:
         return turns[-config.LLM_HISTORY_TURNS:] if config.LLM_HISTORY_TURNS > 0 else []
 
     def _generate_answer(self, user_message: str, scored: List[ScoredEntry], session_id: str) -> str:
+        # Never confirm a request that mentions something we do not publish.
+        if self._is_mentor_inquiry(user_message) and not mentor_request_in_scope(user_message):
+            return personality.MENTOR_REQUEST_UNCONFIRMED_RESPONSE
         if config.LLM_ENABLED:
             turns = self._recent_turns(session_id)
             has_fee_word = bool(
@@ -2780,10 +2784,8 @@ class ConversationEngine:
             answer = llm.generate_answer(user_message, scored, turns)
             if answer:
                 if self._is_mentor_inquiry(user_message):
-                    # Clean up opening affirmative to strictly "Yes, "
-                    answer = re.sub(r"^\s*(?:\*\*)?(?:yes!|yes\.|yes,|yes|absolutely!|definitely!|great!)(?:\*\*)?[,!\s]*", "Yes, ", answer, flags=re.IGNORECASE)
-                    if not answer.startswith("Yes,"):
-                        answer = "Yes, " + answer.lstrip()
+                    # Tidy an affirmative the model chose; never add one.
+                    answer = re.sub(r"^\s*(?:\*\*)?(?:yes\b[.!,]?|absolutely!|definitely!|great!)(?:\*\*)?[,!\s]*", "Yes, ", answer, flags=re.IGNORECASE)
                     # Ensure demo CTA is concise
                     demo_cta = "Ready to experience a session? You can book a free 30-minute demo using the Book Free Demo button."
                     if re.search(r"ready to experience a session\?.*", answer, re.IGNORECASE):
@@ -2797,7 +2799,7 @@ class ConversationEngine:
         if self._is_mentor_inquiry(user_message):
             return self._format_mentor_inquiry_answer(user_message)
         template_ans = self._format_template_answer(scored)
-        if any(e.entry.id == "personalized-mentoring-concept" for e in scored) and not re.search(r"^\s*yes\b", template_ans, re.I):
+        if any(e.entry.id == "personalized-mentoring-concept" for e in scored) and mentor_request_in_scope(user_message) and not re.search(r"^\s*yes\b", template_ans, re.I):
             template_ans = "Yes, WeMentors provides dedicated 1-on-1 personal mentors for students across school boards and subjects.\n\n" + template_ans
         if any(e.entry.id == "middle-school-practical-labs" for e in scored) and not self._has_middle_school_explicit_context(user_message):
             template_ans = personality.GENERAL_PRACTICAL_LABS_RESPONSE
@@ -2981,6 +2983,8 @@ class ConversationEngine:
         """
         if not reply:
             return personality.AMBIGUOUS_GENERAL_FALLBACK
+        if reply == personality.MENTOR_REQUEST_UNCONFIRMED_RESPONSE:
+            return reply  # must not pick up the mentor "yes" formatting below
 
         reply = (
             reply.replace("\u2011", "-")
@@ -3095,10 +3099,8 @@ class ConversationEngine:
 
         # Dedicated quality checks and formatting for mentor inquiries
         if intent == "mentor_matching" or self._is_mentor_inquiry(query):
-            # Normalize opening affirmative to strictly "Yes, "
-            reply = re.sub(r"^\s*(?:\*\*)?(?:yes!|yes\.|yes,|yes|absolutely!|definitely!|great!)(?:\*\*)?[,!\s]*", "Yes, ", reply, flags=re.IGNORECASE)
-            if not reply.startswith("Yes,"):
-                reply = "Yes, " + reply.lstrip()
+            # Tidy an affirmative that is already there; never add one.
+            reply = re.sub(r"^\s*(?:\*\*)?(?:yes\b[.!,]?|absolutely!|definitely!|great!)(?:\*\*)?[,!\s]*", "Yes, ", reply, flags=re.IGNORECASE)
             # Strip any leaked Confident Speaker or Senior School boilerplate
             reply = re.sub(r"Personalized mentoring with a personal mentor is provided\.\s*", "", reply, flags=re.IGNORECASE)
             reply = re.sub(r"\s*Students receive individual attention and dedicated mentor feedback\.\s*", "", reply, flags=re.IGNORECASE)
@@ -3152,6 +3154,18 @@ class ConversationEngine:
 
     # ---- main entry point ---------------------------------------------------
     def handle_message(
+        self,
+        session_id: str,
+        message: str,
+        source: str = "text_input",
+        role: str = "user",
+    ) -> ReplyResult:
+        # Single exit point, so the check covers every route that can say "Yes".
+        result = self._route_message(session_id, message, source=source, role=role)
+        result.reply = qualify_affirmation(message, result.reply)
+        return result
+
+    def _route_message(
         self,
         session_id: str,
         message: str,
@@ -3302,10 +3316,10 @@ class ConversationEngine:
         # Standalone subjects
         if _MATHS_STANDALONE_RE.match(message):
             reply = (
-                "WeMentors provides personalized 1-on-1 mentoring in **Mathematics** across all school stages:\n\n"
-                "- **Foundation Years (Grades 3–5)**: Builds strong number sense, mental math, and problem-solving confidence.\n"
-                "- **Middle School (Grades 6–8)**: Deepens conceptual understanding with weekly doubt clinics and practical labs.\n"
-                "- **Grades 9–10 Board Preparation**: Focused board exam prep, past paper practice, and score improvement.\n\n"
+                "WeMentors offers mentoring in **Mathematics** for Grades 3–10:\n\n"
+                "- **Foundation Years (Grades 3–5)**: Curiosity-first teaching with concept games and visual learning.\n"
+                "- **Middle School (Grades 6–8)**: Concept-first, practical problem sets and fortnightly doubt clinics.\n"
+                "- **Grades 9–10 Board Preparation**: Board-exam coaching, weekly mock tests with review, and priority doubt-clearing.\n\n"
                 "Which grade or program would you like to know more about?"
             )
             res = ReplyResult(reply, "subject_maths", ["subjects-offered", "programs-overview"], 1.0)
@@ -3313,10 +3327,10 @@ class ConversationEngine:
 
         if _SCIENCE_STANDALONE_RE.match(message):
             reply = (
-                "WeMentors provides personalized 1-on-1 mentoring in **Science** across all school stages:\n\n"
-                "- **Foundation Years (Grades 3–5)**: Hands-on exploration and core scientific curiosity.\n"
-                "- **Middle School (Grades 6–8)**: Physics, Chemistry, and Biology concepts with weekly doubt clinics.\n"
-                "- **Grades 9–10 Board Preparation**: Rigorous syllabus coverage and exam-focused mentorship.\n\n"
+                "WeMentors offers mentoring in **Science** for Grades 3–10:\n\n"
+                "- **Foundation Years (Grades 3–5)**: Curiosity-first teaching with concept games and visual learning.\n"
+                "- **Middle School (Grades 6–8)**: Concept-first, practical problem sets and fortnightly doubt clinics.\n"
+                "- **Grades 9–10 Board Preparation**: Board-exam coaching, weekly mock tests with review, and priority doubt-clearing.\n\n"
                 "Which grade or program would you like to know more about?"
             )
             res = ReplyResult(reply, "subject_science", ["subjects-offered", "programs-overview"], 1.0)
