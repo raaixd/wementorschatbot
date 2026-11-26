@@ -28,7 +28,7 @@ The project also treats evaluation as a first-class concern — retrieval change
 | **Primary LLM** | Gemini 3.5 Flash-Lite |
 | **Fallback LLM** | Groq (Llama / GPT-OSS models) |
 | **Final fail-safe** | Deterministic knowledge-base answer (no LLM call) |
-| **Knowledge base** | 52 verified entries |
+| **Knowledge base** | 54 entries |
 | **Deployment** | Vercel (serverless) |
 | **CI** | GitHub Actions — pytest on every push/PR to `main` |
 
@@ -55,6 +55,8 @@ The project also treats evaluation as a first-class concern — retrieval change
 - Fallback for unsupported questions (pattern-based, so some slip through)
 - Mentor requests are confirmed only when every word maps to ordinary phrasing or a published offering; other replies drop a leading "Yes" and add a caveat when the question contains unrecognised words. This is a word list, so misleading combinations of known words can still slip through
 - Prompt-injection detection and deflection
+- Fixed replies, written in code and never by a model, for possible self-harm, a distressed child, additional needs, child safety, data privacy, mentor personal details, outcome guarantees and "are you a person?"
+- The model can answer `NOT_CONFIRMED`; visitors then see an honest reply with the team's contacts
 - Hard demo-transaction boundary — no fake bookings or leads
 - LLM output sanitization (blocks false completion claims, prices and unknown phone numbers or emails; strips raw HTML; replaces outcome promises)
 - Client-side request deduplication and in-flight request cancellation
@@ -230,7 +232,7 @@ wementorschatbot/
 │   │   └── config.py         # Environment-driven configuration
 │   └── tests/                # pytest files + release/smoke runners
 ├── knowledge/
-│   ├── wementors_kb.json     # Verified knowledge base (52 entries)
+│   ├── wementors_kb.json     # Knowledge base (54 entries)
 │   └── kb_embeddings.json    # Precomputed KB embeddings
 ├── scripts/
 │   └── generate_kb_embeddings.py
@@ -296,7 +298,7 @@ python tests/run_50_validation_tests.py # live-API end-to-end checks
 
 ## Current Limitations
 
-- Knowledge base is small and curated (52 entries) — coverage, not scale, is the design goal
+- Knowledge base is small and curated (54 entries) — coverage, not scale, is the design goal
 - Semantic retrieval depends on an external embedding API; it degrades gracefully to lexical-only on failure, but adds latency when invoked
 - SQLite is single-instance; horizontal scaling would need a shared database
 - Rate limiting is in-memory and per-process — a multi-worker or multi-instance deployment would need a shared store (e.g. Redis)
