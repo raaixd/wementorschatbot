@@ -64,6 +64,26 @@ def test_denials_and_ordinary_text_are_untouched(safe):
     assert llm.remove_outcome_promises(safe) == safe
 
 
+@pytest.mark.parametrize("invented", [
+    "Fees are \u20b92,500 per month.",
+    "It costs Rs. 900 a class.",
+    "About 3000 rupees monthly.",
+    "Email us at sales@wementors.in.",
+    "Call +91 99999 11111 today.",
+])
+def test_llm_output_with_invented_price_or_contact_is_discarded(invented):
+    assert llm.sanitize_llm_output(invented) is None
+
+
+@pytest.mark.parametrize("published", [
+    "Email admin@wementors.co or call +91 76111 92227.",
+    "WhatsApp +91-90398-03526 is the alternate number.",
+    "Classes run about 50 minutes, 3 to 5 times a week, for Grades 3-10.",
+])
+def test_llm_output_with_published_details_is_kept(published):
+    assert llm.sanitize_llm_output(published) == published
+
+
 def test_only_the_offending_line_changes_and_llm_output_is_covered():
     text = "## Board prep\n\n- Weekly practice.\n- We guarantee full marks.\n- Doubt clinics."
     expected = f"## Board prep\n\n- Weekly practice.\n- {llm.NO_GUARANTEE_SENTENCE}\n- Doubt clinics."

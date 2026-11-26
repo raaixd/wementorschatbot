@@ -55,7 +55,7 @@ Turn Request
     |                          (~0.5s)                        |
     |                             |                           v
     \-----------------------------\-----------------> [Deterministic KB Answer]
-                                                      (< 1ms, zero hallucination)
+                                                      (< 1ms, no LLM call)
 ```
 
 1. **Gemini 3.5 Flash-Lite (Primary):**

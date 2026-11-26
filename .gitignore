@@ -33,3 +33,9 @@ Thumbs.db
 .vercel
 .env*
 evaluation/cache/
+
+# Local agent tooling and generated promo output
+.agent/
+.agents/
+skills-lock.json
+brag-output/
