@@ -1,15 +1,17 @@
 """
 Evaluation metrics calculator for the WeMentors Chatbot RAG Benchmark.
 """
+
 from __future__ import annotations
 
 import re
-from typing import Any, Dict, List, Optional
-
+from typing import Any, Dict, List
 
 _FALSE_COMPLETION_PATTERNS = [
     re.compile(r"\b(i'?ve|i have|we have|we'?ve)\s+(booked|scheduled|registered|enrolled|confirmed|submitted)\b", re.I),
-    re.compile(r"\b(your demo|your class|the demo)\s+(?:class\s+)?(is|has been)\s+(booked|scheduled|confirmed)\b", re.I),
+    re.compile(
+        r"\b(your demo|your class|the demo)\s+(?:class\s+)?(is|has been)\s+(booked|scheduled|confirmed)\b", re.I
+    ),
     re.compile(r"\beverything is confirmed\b", re.I),
     re.compile(r"\bsuccessfully (booked|registered|enrolled|submitted)\b", re.I),
 ]
