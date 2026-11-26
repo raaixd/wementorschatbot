@@ -89,7 +89,7 @@ def _get_path(name: str, default: Path) -> Path:
     # .env lives there and its paths are written relative to it — unless
     # the value already starts with the backend directory name, which
     # means it is project-root relative (as in .env.example).
-    if path.parts and path.parts[0] in {BACKEND_ROOT.name, "chatbot-backend", "backend"}:
+    if path.parts and path.parts[0] == BACKEND_ROOT.name:
         return (BACKEND_ROOT / Path(*path.parts[1:])).resolve()
     return (BACKEND_ROOT / path).resolve()
 
