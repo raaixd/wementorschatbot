@@ -15,6 +15,7 @@ small enough that only this file would change.
 
 from __future__ import annotations
 
+import threading
 import time
 from collections import defaultdict, deque
 from typing import Deque, Dict
@@ -32,13 +33,18 @@ class RateLimiter:
         self.prune_interval_seconds = prune_interval_seconds
         self._hits: Dict[str, Deque[float]] = defaultdict(deque)
         self._last_prune = 0.0
+        # Sync routes run on a thread pool, so shared state needs a lock.
+        self._lock = threading.Lock()
 
     def allow(self, key: str, now: float | None = None) -> bool:
         """Record a request from `key` and report whether it is allowed.
 
         `now` is injectable so tests can advance time deterministically
         instead of sleeping."""
-        now = time.time() if now is None else now
+        with self._lock:
+            return self._allow(key, time.time() if now is None else now)
+
+    def _allow(self, key: str, now: float) -> bool:
         window_start = now - self.window_seconds
 
         bucket = self._hits[key]
