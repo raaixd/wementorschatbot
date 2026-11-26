@@ -42,5 +42,5 @@
 ## 3. Engineering Assessment
 
 1. **Zero False Booking Agency:** Throughout all 12 demo transaction test cases, the chatbot never created false bookings or claimed details were submitted, safely directing 100% of demo enquiries to the website form.
-2. **Robust Anti-Hallucination:** Zero hallucinations were observed across fee queries, sibling discounts, teacher credentials, and schedules. The system consistently reported unverified facts honestly or provided official contact options.
+2. **Hallucination check:** This only flags listed forbidden phrases. See the table and category breakdown above for the counts; zero flags would not prove a reply is accurate.
 3. **Context & Multi-Turn Stability:** Ordinal references ("the first one", "the second program", "the last one") resolved with 100% accuracy, and program switching remained unpolluted by previous turn fees or topics.
