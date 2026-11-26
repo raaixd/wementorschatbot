@@ -21,7 +21,7 @@ from dataclasses import dataclass
 from typing import List, Optional
 
 from . import config, database, leads, llm, personality
-from .scope import mentor_request_in_scope
+from .scope import mentor_request_in_scope, qualify_affirmation
 from .knowledge import KBEntry
 
 logger = logging.getLogger(__name__)
@@ -3154,6 +3154,18 @@ class ConversationEngine:
 
     # ---- main entry point ---------------------------------------------------
     def handle_message(
+        self,
+        session_id: str,
+        message: str,
+        source: str = "text_input",
+        role: str = "user",
+    ) -> ReplyResult:
+        # Single exit point, so the check covers every route that can say "Yes".
+        result = self._route_message(session_id, message, source=source, role=role)
+        result.reply = qualify_affirmation(message, result.reply)
+        return result
+
+    def _route_message(
         self,
         session_id: str,
         message: str,
