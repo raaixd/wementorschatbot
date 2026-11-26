@@ -22,14 +22,13 @@ from unittest.mock import patch
 
 # Setup paths
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(PROJECT_ROOT / "chatbot-backendexperiment"))
+sys.path.insert(0, str(PROJECT_ROOT / "backend"))
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from app import config, database
 from app.conversation import ConversationEngine
 from app.knowledge import load_entries
-from app.retrieval import Retriever, ScoredEntry
-from app.semantic import EmbeddingClient, KBEmbeddingStore
+from app.semantic import EmbeddingClient
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("benchmark")
@@ -58,7 +57,7 @@ def evaluate_run(
     cached_query_latencies: Dict[str, float],
 ) -> Dict:
     # Set feature flag
-    is_hybrid = (mode == "Conditional_Hybrid")
+    is_hybrid = mode == "Conditional_Hybrid"
     config.HYBRID_RETRIEVAL_ENABLED = is_hybrid
 
     # Use offline template evaluation
@@ -75,7 +74,6 @@ def evaluate_run(
     for tc in focused_cases:
         query = tc["turns"][-1]
         exp_id = tc.get("expected_entry_id")
-        forbid_ids = tc.get("forbidden_entry_ids", [])
         is_neg = tc.get("is_negative_case", False)
 
         def mock_embed_retrieval(text: str) -> Optional[List[float]]:
@@ -186,7 +184,20 @@ def evaluate_run(
 
 
 # (label, report key, unit, higher_is_better, decimals)
-_COMPARISON_METRICS = [('Recall@1', 'recall_at_1', '%', True, 2), ('Recall@3', 'recall_at_3', '%', True, 2), ('MRR', 'mrr', '', True, 4), ('NDCG@3', 'ndcg_at_3', '', True, 4), ('False Positive Rate', 'false_positive_rate', '%', False, 2), ('False Negative Rate', 'false_negative_rate', '%', False, 2), ('Answer Correctness', 'answer_correctness', '%', True, 2), ('Groundedness', 'groundedness', '%', True, 2), ('Hallucination Rate', 'hallucination_rate', '%', False, 2), ('Unknown Handling', 'unknown_handling', '%', True, 2), ('Context Resolution', 'context_resolution', '%', True, 2), ('In-Memory Retrieval Latency', 'avg_retrieval_latency_ms', ' ms', False, 2)]
+_COMPARISON_METRICS = [
+    ("Recall@1", "recall_at_1", "%", True, 2),
+    ("Recall@3", "recall_at_3", "%", True, 2),
+    ("MRR", "mrr", "", True, 4),
+    ("NDCG@3", "ndcg_at_3", "", True, 4),
+    ("False Positive Rate", "false_positive_rate", "%", False, 2),
+    ("False Negative Rate", "false_negative_rate", "%", False, 2),
+    ("Answer Correctness", "answer_correctness", "%", True, 2),
+    ("Groundedness", "groundedness", "%", True, 2),
+    ("Hallucination Rate", "hallucination_rate", "%", False, 2),
+    ("Unknown Handling", "unknown_handling", "%", True, 2),
+    ("Context Resolution", "context_resolution", "%", True, 2),
+    ("In-Memory Retrieval Latency", "avg_retrieval_latency_ms", " ms", False, 2),
+]
 
 
 def _comparison_rows(tfidf, hybrid):
@@ -195,7 +206,7 @@ def _comparison_rows(tfidf, hybrid):
     for label, key, unit, higher_better, dp in _COMPARISON_METRICS:
         t, h = tfidf[key], hybrid[key]
         delta = h - t
-        if abs(delta) < 10 ** -dp:
+        if abs(delta) < 10**-dp:
             verdict = "Same"
         elif (delta > 0) == higher_better:
             verdict = "Better"
@@ -210,7 +221,7 @@ def _regression_note(tfidf, hybrid):
     worse = []
     for label, key, unit, higher_better, dp in _COMPARISON_METRICS:
         delta = hybrid[key] - tfidf[key]
-        if abs(delta) >= 10 ** -dp and (delta > 0) != higher_better:
+        if abs(delta) >= 10**-dp and (delta > 0) != higher_better:
             worse.append(f"**{label}** ({tfidf[key]}{unit} -> {hybrid[key]}{unit})")
     if not worse:
         return "No metric regressed against the TF-IDF baseline."
@@ -252,7 +263,9 @@ def main():
     tfidf_report = evaluate_run("Current_TFIDF", focused_cases, all_cases, entries, cached_vectors, cached_latencies)
 
     print("[2/2] Running Benchmark in Conditional Hybrid Mode (50/50 Weighted Fusion)...")
-    hybrid_report = evaluate_run("Conditional_Hybrid", focused_cases, all_cases, entries, cached_vectors, cached_latencies)
+    hybrid_report = evaluate_run(
+        "Conditional_Hybrid", focused_cases, all_cases, entries, cached_vectors, cached_latencies
+    )
 
     # Print Comparison Table
     print("\n" + "=" * 90)
@@ -306,7 +319,7 @@ def main():
 
 **Scope:** 156 Total Evaluation Queries (30 Focused Retrieval Cases + 126 Standard Benchmark Cases)  
 **Embedding Model:** `gemini-embedding-001` (3072 dimensions)  
-**Configuration:** 50/50 Weighted Fusion ($\alpha=0.5$), Fast-path Lexical $\ge 0.35$ & Coverage $\ge 0.75$, Hybrid Acceptance $\ge 0.28$  
+**Configuration:** 50/50 Weighted Fusion ($\alpha=0.5$), Fast-path Lexical $\\ge 0.35$ & Coverage $\\ge 0.75$, Hybrid Acceptance $\\ge 0.28$  
 
 ---
 
@@ -315,10 +328,10 @@ def main():
 | Metric | Current TF-IDF | New Conditional Hybrid | Delta | Status |
 | :--- | :---: | :---: | :---: | :---: |
 {_comparison_rows(tfidf_report, hybrid_report)}
-| **Embedding API Calls** | 0 / {len(all_cases)} | **{hybrid_report['embedding_api_calls']} / {len(all_cases)}** | +{hybrid_report['embedding_api_calls']} | Cost |
-| **Embedding API Call Rate** | 0.00% | **{hybrid_report['embedding_call_rate_pct']}%** | +{hybrid_report['embedding_call_rate_pct']:.2f}% | Cost |
-| **Embedding Latency P50** | 0.0 ms | **{hybrid_report['embedding_p50_latency_ms']} ms** | +{hybrid_report['embedding_p50_latency_ms']} ms | Cost |
-| **Embedding Latency P95** | 0.0 ms | **{hybrid_report['embedding_p95_latency_ms']} ms** | +{hybrid_report['embedding_p95_latency_ms']} ms | Cost |
+| **Embedding API Calls** | 0 / {len(all_cases)} | **{hybrid_report["embedding_api_calls"]} / {len(all_cases)}** | +{hybrid_report["embedding_api_calls"]} | Cost |
+| **Embedding API Call Rate** | 0.00% | **{hybrid_report["embedding_call_rate_pct"]}%** | +{hybrid_report["embedding_call_rate_pct"]:.2f}% | Cost |
+| **Embedding Latency P50** | 0.0 ms | **{hybrid_report["embedding_p50_latency_ms"]} ms** | +{hybrid_report["embedding_p50_latency_ms"]} ms | Cost |
+| **Embedding Latency P95** | 0.0 ms | **{hybrid_report["embedding_p95_latency_ms"]} ms** | +{hybrid_report["embedding_p95_latency_ms"]} ms | Cost |
 
 {_regression_note(tfidf_report, hybrid_report)}
 
@@ -327,9 +340,9 @@ def main():
 ## 2. API Call Rate & Efficiency Analysis
 
 - **Total Queries Evaluated:** {len(all_cases)}
-- **Fast Path Lexical Passes (Zero Embedding API Calls):** {len(all_cases) - hybrid_report['embedding_api_calls']} ({100.0 - hybrid_report['embedding_call_rate_pct']:.2f}%)
-- **Semantic Path Invocations:** {hybrid_report['embedding_api_calls']} ({hybrid_report['embedding_call_rate_pct']}%)
-- **Efficiency Finding:** The conditional fast path prevents calling the Gemini Embedding API on **over {100.0 - hybrid_report['embedding_call_rate_pct']:.0f}% of user turns**, eliminating network latency for standard queries while seamlessly activating semantic vector fusion for natural-language paraphrases.
+- **Fast Path Lexical Passes (Zero Embedding API Calls):** {len(all_cases) - hybrid_report["embedding_api_calls"]} ({100.0 - hybrid_report["embedding_call_rate_pct"]:.2f}%)
+- **Semantic Path Invocations:** {hybrid_report["embedding_api_calls"]} ({hybrid_report["embedding_call_rate_pct"]}%)
+- **Efficiency Finding:** The conditional fast path prevents calling the Gemini Embedding API on **over {100.0 - hybrid_report["embedding_call_rate_pct"]:.0f}% of user turns**, eliminating network latency for standard queries while seamlessly activating semantic vector fusion for natural-language paraphrases.
 """
     md_path = rep_dir / "conditional_hybrid_benchmark_report.md"
     with open(md_path, "w", encoding="utf-8") as f:

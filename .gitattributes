@@ -1,9 +1,2 @@
-# GitHub Linguist overrides
-*.cjs linguist-vendored
-*.js linguist-vendored
-
-# Treat standalone HTML and graphs as documentation/undetected so Python is the primary language
-*.html linguist-detectable=false
-
-# Normalize line endings for JSON files to LF across all platforms
-*.json text eol=lf
+* text=auto eol=lf
+*.png binary

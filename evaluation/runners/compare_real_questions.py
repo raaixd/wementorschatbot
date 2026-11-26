@@ -17,6 +17,7 @@ Questions are sent to the configured LLM provider. Emails and long numbers
 are redacted first, but names are NOT: remove those yourself. Output is
 written under the gitignored evaluation/cache/.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -61,7 +62,7 @@ def read_conversations(path: Path) -> list[list[str]]:
 def _load_app():
     # A throwaway database keeps test traffic out of the real one.
     os.environ["DATABASE_PATH"] = str(Path(tempfile.mkdtemp()) / "compare.db")
-    sys.path.insert(0, str(ROOT / "chatbot-backendexperiment"))
+    sys.path.insert(0, str(ROOT / "backend"))
     from app import config, database, llm, personality, policy
     from app.conversation import ConversationEngine
     from app.knowledge import load_entries
@@ -104,7 +105,7 @@ def run(questions: Path, out: Path, delay: float, seed: int | None) -> int:
         for t_index, question in enumerate(turns, 1):
             fixed = policy.policy_reply(question)
             rule = fixed[1] if fixed else hard_rules.get(engine.detect_intent(question))
-            simple = rule or llm.generate_answer(question, everything, history[-config.LLM_HISTORY_TURNS:])
+            simple = rule or llm.generate_answer(question, everything, history[-config.LLM_HISTORY_TURNS :])
             if simple is None:
                 simple, failures = LLM_FAILED, failures + 1
             history += [{"role": "user", "content": question}, {"role": "assistant", "content": simple}]
@@ -116,11 +117,19 @@ def run(questions: Path, out: Path, delay: float, seed: int | None) -> int:
             answers = {"current": result.reply, "simple": simple}
             row_id = f"c{c_index:03d}t{t_index:02d}"
             key[row_id] = {"A": order[0], "B": order[1]}
-            rows.append({
-                "id": row_id, "conversation": c_index, "turn": t_index, "question": question,
-                "answer_A": answers[order[0]], "answer_B": answers[order[1]],
-                "grade_A": "", "grade_B": "", "notes": "",
-            })
+            rows.append(
+                {
+                    "id": row_id,
+                    "conversation": c_index,
+                    "turn": t_index,
+                    "question": question,
+                    "answer_A": answers[order[0]],
+                    "answer_B": answers[order[1]],
+                    "grade_A": "",
+                    "grade_B": "",
+                    "notes": "",
+                }
+            )
             time.sleep(delay)
 
     out.mkdir(parents=True, exist_ok=True)
