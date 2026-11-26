@@ -114,6 +114,17 @@ def qualify_listing(question: str, reply: str, matched_ids: list) -> str:
     return f"{CAVEAT}\n\n{reply}"
 
 
+_EITHER_MODE_RE = re.compile(r"\b(?:online\s+or\s+offline|offline\s+or\s+online)\b", re.IGNORECASE)
+
+
+def needs_caveat(question: str, answer: str, entry_ids: list) -> bool:
+    """True when this answer would be shown under the caveat."""
+    return (
+        qualify_affirmation(question, answer) != answer
+        or qualify_listing(question, answer, entry_ids) != answer
+    )
+
+
 def qualify_affirmation(question: str, reply: str) -> str:
     """Withdraw a leading "Yes" when the question mentions something unknown.
 
@@ -123,6 +134,10 @@ def qualify_affirmation(question: str, reply: str) -> str:
     match = _LEADING_YES_RE.match(reply)
     if not match:
         return reply
+    if _EITHER_MODE_RE.search(question):
+        # "Online or offline?" is not a yes/no question; the facts answer it.
+        rest = reply[match.end():]
+        return f"{match.group('greeting') or ''}{rest[:1].upper()}{rest[1:]}"
     asked = _INTRO_RE.sub("", question)
     if _covered(asked, _ALLOWED_GENERAL) and not _misleading_combination(asked):
         return reply

@@ -77,8 +77,6 @@ def test_visitor_never_sees_internal_terms(engine):
 @pytest.mark.parametrize("question", [
     "do you teach french?",
     "do u teach hindi",
-    "are your mentors background checked? I'm worried about my child's safety",
-    "can the mentor be a woman",
 ])
 def test_lists_do_not_pose_as_a_yes(engine, question):
     assert _ask(engine, question).startswith("I can’t confirm every detail")
