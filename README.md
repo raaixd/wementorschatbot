@@ -1,6 +1,6 @@
 # WeMentors AI Chatbot
 
-> Production-oriented conversational RAG system for grounded, context-aware student and parent support.
+> Conversational FAQ assistant with retrieval, built for student and parent support.
 
 [![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://wementors.vercel.app)
 [![Python](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/)
@@ -10,9 +10,9 @@
 
 **[Live Demo](https://wementors.vercel.app)** · **[Repository](https://github.com/raaixd/wementorschatbot)**
 
-WeMentors AI is the conversational assistant embedded in the [WeMentors](https://wementors.vercel.app) website, answering student and parent questions about programs, curricula, mentoring, class logistics, and demo bookings. It doesn't generate freely — every factual claim is grounded in a verified knowledge base, and the system is built to say "I don't know, here's who to ask" rather than guess.
+WeMentors AI is the conversational assistant embedded in the [WeMentors](https://wementors.vercel.app) website, answering student and parent questions about programs, curricula, mentoring, class logistics, and demo bookings. Most answers come from deterministic routing or from a curated knowledge base, and when it lacks a confirmed answer it aims to point the visitor to the team. This is a design goal, not a guarantee: some LLM replies are generated without retrieved facts (see below).
 
-Under the hood it's a conversational RAG pipeline: deterministic intent routing, contextual query rewriting for follow-ups ("what about the second one?"), hybrid lexical + semantic retrieval over a curated knowledge base, bounded LLM generation constrained to retrieved evidence, and a response-validation layer that strips hallucinated claims before anything reaches the user.
+Under the hood it's a conversational RAG pipeline: deterministic intent routing, contextual query rewriting for follow-ups ("what about the second one?"), hybrid lexical + semantic retrieval over a curated knowledge base, optional LLM phrasing, and output filters that block false booking claims, leaked instructions, raw HTML and outcome promises. These are pattern checks; they do not detect hallucinations in general.
 
 The project also treats evaluation as a first-class concern — retrieval changes are benchmarked against a fixed query set before they ship, not shipped on the assumption that "embeddings are better."
 
@@ -35,7 +35,7 @@ The project also treats evaluation as a first-class concern — retrieval change
 ## Key Features
 
 ### Conversational Intelligence
-- Multi-turn state read from persistent session history (correct across restarts/workers, not an in-process dict)
+- Multi-turn state stored in SQLite per session (on Vercel the database is in `/tmp`, so it is not shared between instances and does not survive restarts)
 - Contextual query rewriting for follow-ups
 - Pronoun and reference resolution ("its fees", "that one")
 - Ordinal references — "the first one" / "the second program"
@@ -51,11 +51,11 @@ The project also treats evaluation as a first-class concern — retrieval change
 - Category- and topic-specific negative gates to prevent cross-program false matches
 
 ### Reliability & Safety
-- Grounding: generation is bounded to retrieved, verified KB content
+- Grounding: answers to matched questions are generated from retrieved KB entries. Unmatched, playful, frustrated or confused messages can reach the LLM with no retrieved entries, limited only by the system prompt
 - Honest fallback on unsupported questions instead of invented answers
 - Prompt-injection detection and deflection
 - Hard demo-transaction boundary — no fake bookings or leads
-- LLM output sanitization (strips false completion claims, raw HTML)
+- LLM output sanitization (blocks false completion claims, strips raw HTML, replaces outcome promises)
 - Client-side request deduplication and in-flight request cancellation
 - Per-IP rate limiting
 - Session isolation via validated session tokens
@@ -136,11 +136,24 @@ Hybrid retrieval wasn't adopted on the assumption that embeddings are strictly b
 | MRR | 0.7733 | 0.8000 | +0.0267 |
 | NDCG@3 | 0.7905 | 0.8105 | +0.0200 |
 | Answer correctness | 78.85% | 82.69% | +3.84 pp |
-| Groundedness | 96.79% | 97.44% | +0.65 pp |
-| Hallucination | 3.21% | 2.56% | −0.65 pp |
-| Context resolution | 91.03% | 93.59% | +2.56 pp |
+| Groundedness | 96.79% | 96.79% | — |
+| Hallucination | 3.21% | 3.21% | — |
+| Context resolution | 90.38% | 92.95% | +2.57 pp |
+| Unknown handling | 92.31% | 92.95% | +0.64 pp |
+| **False positive rate** | 0.0% | **60.0%** | **worse** |
+| In-memory retrieval latency | 8.81 ms | 10.22 ms | +1.41 ms (worse) |
 
 Lexical retrieval was kept as the baseline and fast path rather than replaced. Dense retrieval was tested standalone, then swept across fusion strategies (weighted linear, reciprocal rank fusion) and gating configurations; weighted fusion at the fast-path thresholds above performed best on this set. The clearest gains were in top-1 retrieval accuracy and answer correctness, driven by paraphrased queries the lexical matcher had no shared vocabulary with. In this same run, the fast path resolved the majority of queries without ever calling the embedding API — semantic retrieval was invoked only for the harder minority.
+
+**How to read these numbers:**
+
+- **Hybrid accepted answers it should have rejected.** The false positive rate covers only 5 negative cases, so 60% means 3 of 5. That sample is too small to measure the rate well, but it is a real regression.
+- The retrieval metrics come from a 30-case focused set within the 156; the other 126 are the standard benchmark.
+- The scoring is crude. A "hallucination" means a listed forbidden phrase appeared in the reply, and an answer counts as correct if it contains at least half of its expected keywords. Neither is a human judgement.
+- The cases were written for this project and are not an independent, held-out sample of real visitor questions.
+- In the separate [lexical baseline report](evaluation/reports/baseline_report.md), intent accuracy is 35.71% against a 90% target, and answer correctness (89.68%) and unknown handling (92.06%) also miss their targets.
+
+Source: [`conditional_hybrid_benchmark_report.md`](evaluation/reports/conditional_hybrid_benchmark_report.md).
 
 ## Example: Semantic Recovery
 
@@ -150,7 +163,7 @@ The lexical retriever finds almost no shared vocabulary between this query and t
 
 ## LLM & Generation Architecture
 
-Generation is bounded, not open-ended: the model only receives retrieved, verified knowledge-base content as context and is not free to answer from general world knowledge about WeMentors.
+For matched questions, the model is given the retrieved knowledge-base entries as context. When nothing matches, and for some playful, frustrated or confused messages, it is called with recent conversation turns and no entries. In that path, only the system prompt and the output filters stop it from stating unverified things.
 
 - **Provider abstraction** — a common interface over Gemini, Groq, and Anthropic providers, plus a null provider for template-only mode
 - **Primary:** Gemini (`gemini-3.5-flash-lite`)
@@ -165,9 +178,9 @@ The chatbot answers questions — it does not take actions. `DEMO_TRANSACTION_EN
 
 | Control | Implementation |
 |---|---|
-| Prompt injection | Regex-based deflection + generation bounded to retrieved context |
+| Prompt injection | Regex-based deflection + system prompt + output filter for leaked instructions |
 | Secrets | Environment variables only, never logged or echoed |
-| Output safety | LLM output sanitization strips false action claims and raw HTML |
+| Output safety | Pattern filters for false action claims, leaked instructions, raw HTML and outcome promises |
 | Demo safety | No transactional capability; `DEMO_TRANSACTION_ENABLED = False` |
 | Rate limiting | Per-client sliding-window limiter (in-memory) |
 | Session isolation | Session IDs, validated by format before use |
