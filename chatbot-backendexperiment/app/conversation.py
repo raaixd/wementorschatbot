@@ -2787,7 +2787,7 @@ class ConversationEngine:
                 ]
             answer = llm.generate_answer(user_message, scored, turns)
             if answer == llm.NOT_CONFIRMED_REPLY:
-                return answer
+                return self._unanswered(user_message)
             if answer and needs_caveat(user_message, answer, [item.entry.id for item in scored]):
                 # The caveat introduces "published information", so what
                 # follows must be our stored text, not the model's wording.
@@ -2973,21 +2973,29 @@ class ConversationEngine:
         if not config.LLM_ENABLED:
             return None
         answer = llm.generate_answer(user_message, [], self._recent_turns(session_id))
-        if answer and needs_caveat(user_message, answer, []):
-            return llm.NOT_CONFIRMED_REPLY
+        if answer and (answer == llm.NOT_CONFIRMED_REPLY or needs_caveat(user_message, answer, [])):
+            return self._unanswered(user_message)
         return answer
 
-    def _get_fallback_reply(self, message: str) -> str:
-        msg_norm = normalize_query(message)
-        # Fees and a clearly stated grade are worth answering even when
-        # nothing else in the message was understood.
-        if re.search(r"\b(fee|fees|price|prices|pricing|tuition)\b", msg_norm):
+    def _known_part_reply(self, message: str) -> Optional[str]:
+        """Fees and a clearly stated grade are worth answering even when
+        nothing else in the message was understood."""
+        text = normalize_query(message)
+        if re.search(r"\b(fee|fees|price|prices|pricing|tuition)\b|^\W*(?:and\s+)?how\s+much\W*$", text):
             fees = next((e for e in self.entries if e.id == "fees-and-pricing"), None)
             if fees:
                 return fees.answer
         grade = stated_grade(message)
-        if grade is not None:
-            return grade_fallback(grade)
+        return grade_fallback(grade) if grade is not None else None
+
+    def _unanswered(self, message: str) -> str:
+        return self._known_part_reply(message) or llm.NOT_CONFIRMED_REPLY
+
+    def _get_fallback_reply(self, message: str) -> str:
+        msg_norm = normalize_query(message)
+        known = self._known_part_reply(message)
+        if known:
+            return known
         if re.search(r"\b(board|boards|exam|exams|grade\s*9|grade\s*10|class\s*9|class\s*10|10th|9th)\b", msg_norm):
             return personality.UNCLEAR_BOARD_FALLBACK
         if re.search(r"\b(duration|schedule|hours|timing|timings|frequency|material|materials|books|notes|syllabus|guarantee|rank|marks|score|teacher|teachers|faculty|software|platform|apps?|tools?|tech|technology|equipment|laptop|devices?|portal)\b", msg_norm):
@@ -3184,7 +3192,7 @@ class ConversationEngine:
     ) -> ReplyResult:
         # Single entry and exit point: fixed rules first, honesty checks last.
         fixed = policy_reply(message) if role == "user" else None
-        if fixed and self.detect_intent(message, session_id) != "injection_attempt":
+        if fixed and (fixed[0] == "crisis" or self.detect_intent(message, session_id) != "injection_attempt"):
             return ReplyResult(fixed[1], fixed[0], ["contact-info"], 1.0)
         result = self._route_message(session_id, without_declined_clause(message), source=source, role=role)
         if result.reply.startswith(llm.NOT_CONFIRMED_REPLY):

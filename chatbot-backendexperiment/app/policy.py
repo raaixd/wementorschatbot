@@ -62,8 +62,50 @@ NO_GUARANTEE_REPLY = (
 )
 
 
+# Checked first: nothing else matters if someone may be in danger.
+_CRISIS_RE = re.compile(
+    r"\b(suicid\w*|self[\s-]?harm\w*|(?:hurt|hurting|harm|harming|cut|cutting|kill|killing)\s+"
+    r"(?:him|her|my|them|your)\s?sel(?:f|ves)|(?:want|wants|wanted|wanting)\s+to\s+die|"
+    r"(?:end|ending|take|taking)\s+(?:my|his|her|their)\s+(?:own\s+)?life|not\s+want(?:ing)?\s+to\s+live|"
+    r"(?:don[’']?t|doesn[’']?t)\s+want\s+to\s+live)\b",
+    re.IGNORECASE,
+)
+_DISTRESS_RE = re.compile(
+    r"\b(crying|cries|cried|panic(?:king|\s+attacks?)?|depress(?:ed|ion)|breaking\s+down|break(?:s)?\s+down|"
+    r"(?:really|very|so|extremely|too)\s+(?:stressed|anxious|scared|worried\s+about\s+(?:his|her|their)\s+exams?))\b",
+    re.IGNORECASE,
+)
+_IDENTITY_RE = re.compile(
+    r"\b(?:are\s+(?:you|u)|r\s+u|am\s+i\s+(?:talking|chatting|speaking)\s+(?:to|with))\s+(?:an?\s+)?"
+    r"(?:(?:real|actual)\s+)?(?:person|human|bot|robot|chatbot|ai|machine)\b",
+    re.IGNORECASE,
+)
+
+CRISIS_REPLY = (
+    "I’m really sorry. This is serious and needs a person right now, not a chatbot.\n\n"
+    "- If anyone is in immediate danger, call your local emergency number (**112** in India) now.\n"
+    "- In India, **Tele-MANAS** offers free mental health support, day and night: **14416** or **1-800-891-4416**.\n"
+    "- Stay with the person if you can, and tell a trusted adult or a doctor today."
+)
+DISTRESS_REPLY = (
+    "I’m sorry, that sounds hard for both of you. I’m an automated assistant, so I can’t judge how your child "
+    "is doing. If the distress is strong, keeps happening or goes beyond schoolwork, please speak with a doctor, "
+    "school counsellor or other qualified professional.\n\n"
+    "For help with studies, WeMentors offers mentoring at the learner’s own pace. To talk it through with a "
+    "person, contact **admin@wementors.co** or **+91 76111 92227** (call or WhatsApp)."
+)
+IDENTITY_REPLY = (
+    "No, I’m the WeMentors automated assistant, not a person. To speak with someone on the team, contact "
+    "**admin@wementors.co** or **+91 76111 92227** (call or WhatsApp)."
+)
+
+
 def policy_reply(message: str) -> Optional[Tuple[str, str]]:
     """Return (intent, reply) when a fixed rule applies, else None."""
+    if _CRISIS_RE.search(message):
+        return "crisis", CRISIS_REPLY
+    if _IDENTITY_RE.search(message):
+        return "identity", IDENTITY_REPLY
     if _ADDITIONAL_NEEDS_RE.search(message):
         return "additional_needs", NEEDS_REPLY
     if _CHILD_SAFETY_RE.search(message):
@@ -74,6 +116,8 @@ def policy_reply(message: str) -> Optional[Tuple[str, str]]:
         return "mentor_attribute", ATTRIBUTE_REPLY
     if _PROMISE_RE.search(message) and _OUTCOME_RE.search(message):
         return "marks_guarantee", NO_GUARANTEE_REPLY
+    if _DISTRESS_RE.search(message):
+        return "distress", DISTRESS_REPLY
     return None
 
 
