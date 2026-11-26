@@ -21,8 +21,9 @@ from dataclasses import dataclass
 from typing import List, Optional
 
 from . import config, database, leads, llm, personality
-from .presentation import grade_fallback, hide_internal_terms, stated_grade
-from .scope import mentor_request_in_scope, qualify_affirmation, qualify_listing
+from .presentation import grade_fallback, hide_internal_terms, stated_grade, use_current_program_name
+from .policy import policy_reply, without_declined_clause
+from .scope import mentor_request_in_scope, needs_caveat, qualify_affirmation, qualify_listing
 from .knowledge import KBEntry
 
 logger = logging.getLogger(__name__)
@@ -1557,6 +1558,8 @@ class ConversationEngine:
         t = text.lower()
         if not re.search(r"\b(mentors?|mentoring|tutoring|tutors?)\b", t):
             return False
+        if re.search(r"\b(chang\w*|switch\w*|replace\w*)\b", t):
+            return False  # an existing family asking to change, not to be matched
         if re.search(r"\b(who\s+are|qualification|background|approach|methodology|how\s+will\s+the\s+mentor|confident\s+(?:speaker|speaking)|public\s+speaking|spoken\s+english|board\s+exams?|board\s+prep)\b", t):
             return False
         has_action = bool(re.search(r"\b(find|get|need|want|have|provide|assign|match|allocate|book|look(?:ing)?\s+for|can\s+(?:you|i)|could\s+(?:you|i)|do\s+you|is\s+there|available)\b", t))
@@ -2783,6 +2786,12 @@ class ConversationEngine:
                     if not re.search(r"\b(fee|fees|pricing|cost|costs|price|prices|charge|scholarship)\b", t.get("content", ""), re.IGNORECASE)
                 ]
             answer = llm.generate_answer(user_message, scored, turns)
+            if answer == llm.NOT_CONFIRMED_REPLY:
+                return self._unanswered(user_message)
+            if answer and needs_caveat(user_message, answer, [item.entry.id for item in scored]):
+                # The caveat introduces "published information", so what
+                # follows must be our stored text, not the model's wording.
+                answer = None
             if answer:
                 if self._is_mentor_inquiry(user_message):
                     # Tidy an affirmative the model chose; never add one.
@@ -2963,19 +2972,30 @@ class ConversationEngine:
         real answer when possible, never a fabricated WeMentors fact."""
         if not config.LLM_ENABLED:
             return None
-        return llm.generate_answer(user_message, [], self._recent_turns(session_id))
+        answer = llm.generate_answer(user_message, [], self._recent_turns(session_id))
+        if answer and (answer == llm.NOT_CONFIRMED_REPLY or needs_caveat(user_message, answer, [])):
+            return self._unanswered(user_message)
+        return answer
 
-    def _get_fallback_reply(self, message: str) -> str:
-        msg_norm = normalize_query(message)
-        # Fees and a clearly stated grade are worth answering even when
-        # nothing else in the message was understood.
-        if re.search(r"\b(fee|fees|price|prices|pricing|tuition)\b", msg_norm):
+    def _known_part_reply(self, message: str) -> Optional[str]:
+        """Fees and a clearly stated grade are worth answering even when
+        nothing else in the message was understood."""
+        text = normalize_query(message)
+        if re.search(r"\b(fee|fees|price|prices|pricing|tuition)\b|^\W*(?:and\s+)?how\s+much\W*$", text):
             fees = next((e for e in self.entries if e.id == "fees-and-pricing"), None)
             if fees:
                 return fees.answer
         grade = stated_grade(message)
-        if grade is not None:
-            return grade_fallback(grade)
+        return grade_fallback(grade) if grade is not None else None
+
+    def _unanswered(self, message: str) -> str:
+        return self._known_part_reply(message) or llm.NOT_CONFIRMED_REPLY
+
+    def _get_fallback_reply(self, message: str) -> str:
+        msg_norm = normalize_query(message)
+        known = self._known_part_reply(message)
+        if known:
+            return known
         if re.search(r"\b(board|boards|exam|exams|grade\s*9|grade\s*10|class\s*9|class\s*10|10th|9th)\b", msg_norm):
             return personality.UNCLEAR_BOARD_FALLBACK
         if re.search(r"\b(duration|schedule|hours|timing|timings|frequency|material|materials|books|notes|syllabus|guarantee|rank|marks|score|teacher|teachers|faculty|software|platform|apps?|tools?|tech|technology|equipment|laptop|devices?|portal)\b", msg_norm):
@@ -2993,7 +3013,7 @@ class ConversationEngine:
         """
         if not reply:
             return personality.AMBIGUOUS_GENERAL_FALLBACK
-        if reply == personality.MENTOR_REQUEST_UNCONFIRMED_RESPONSE:
+        if reply in (personality.MENTOR_REQUEST_UNCONFIRMED_RESPONSE, llm.NOT_CONFIRMED_REPLY):
             return reply  # must not pick up the mentor "yes" formatting below
 
         reply = (
@@ -3170,11 +3190,16 @@ class ConversationEngine:
         source: str = "text_input",
         role: str = "user",
     ) -> ReplyResult:
-        # Single exit point, so the check covers every route that can say "Yes".
-        result = self._route_message(session_id, message, source=source, role=role)
+        # Single entry and exit point: fixed rules first, honesty checks last.
+        fixed = policy_reply(message) if role == "user" else None
+        if fixed and (fixed[0] == "crisis" or self.detect_intent(message, session_id) != "injection_attempt"):
+            return ReplyResult(fixed[1], fixed[0], ["contact-info"], 1.0)
+        result = self._route_message(session_id, without_declined_clause(message), source=source, role=role)
+        if result.reply.startswith(llm.NOT_CONFIRMED_REPLY):
+            return result
         reply = qualify_affirmation(message, result.reply)
         reply = qualify_listing(message, reply, result.matched_entry_ids)
-        result.reply = hide_internal_terms(reply)
+        result.reply = use_current_program_name(message, hide_internal_terms(reply))
         return result
 
     def _route_message(

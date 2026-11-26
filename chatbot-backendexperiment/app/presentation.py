@@ -21,6 +21,18 @@ def hide_internal_terms(reply: str) -> str:
     return _INTERNAL_SOURCE_RE.sub("in the information we have published", reply)
 
 
+_FORMERLY_RE = re.compile(r"\s*\((?:formerly\s+)?Confident Speaker\)")
+_OLD_NAME_RE = re.compile(r"\bConfident Speaker\b")
+
+
+def use_current_program_name(question: str, reply: str) -> str:
+    """The website calls the course Communicative English. Parents who use the
+    old name still see it, so they can tell it is the same course."""
+    if "confident speaker" in question.lower():
+        return reply
+    return _OLD_NAME_RE.sub("Communicative English", _FORMERLY_RE.sub("", reply))
+
+
 # A grade counts only when it is clearly a school grade, so that "on the 7th"
 # or "5 classes" are ignored.
 _GRADE_RE = re.compile(

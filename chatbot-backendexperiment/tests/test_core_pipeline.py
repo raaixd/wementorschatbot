@@ -245,7 +245,7 @@ for query, why in [
     ("Do you offer hostel or transport facilities?", "shares only the generic word 'offer'"),
     ("Can you help me?", "matches only incidental prose ('help') in an answer"),
     ("What is the duration of the course?", "shares only 'duration' with the demo-class entry"),
-    ("Do you offer a refund policy?", "shares only 'offer'"),
+    ("Do you offer a swimming pool?", "shares only 'offer'"),
     ("Do you offer placement or job help?", "shares only generic words"),
 ]:
     entry_id, score = top_score(query)
@@ -396,7 +396,7 @@ check(
 for query in ["Can a college student apply?", "can college students apply", "is this for university students"]:
     r = ask(sid7, query)
     check(f"college-student eligibility question answered correctly: {query!r}", r.matched_entry_ids == ["college-students-eligibility"], r.matched_entry_ids)
-    check("answer distinguishes academic programs (no) from Confident Speaker (yes)", "aren't eligible for the academic programs" in r.reply and "Confident Speaker" in r.reply, r.reply)
+    check("answer distinguishes academic programs (no) from Confident Speaker (yes)", "aren't eligible for the academic programs" in r.reply and "Communicative English" in r.reply, r.reply)
 
 # The nationality question must NOT be answered from the college-student
 # entry, and must NOT assert any invented eligibility rule -- it isn't in
