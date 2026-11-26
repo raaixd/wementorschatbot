@@ -343,151 +343,163 @@
 </style>
 
 <style id="chatbot-styles">
+/* Chat window: "Clean Minimal" */
 :root{
-  --glass-950:#0a0a12; --glass-900:#0f0e1a; --glass-850:#141225; --glass-800:#1a1830;
-  --glass-surface:rgba(255,255,255,.055); --glass-surface-hi:rgba(255,255,255,.09);
-  --glass-border:rgba(255,255,255,.10); --glass-border-hi:rgba(255,255,255,.18);
-  --glass-text:#f3f1fb; --glass-text-dim:#a9a3c4; --glass-text-faint:#7d7897;
-  --glass-accent-1:#8b6bff; --glass-accent-2:#5b7fff; --glass-accent-3:#c79bff;
-  --glass-gold-1:#d99318; --glass-gold-2:#f5b92b;
-  --glass-accent-grad:linear-gradient(135deg,var(--glass-accent-1),var(--glass-accent-2));
-  --glass-shadow:0 24px 70px -20px rgba(5,4,20,.65), 0 2px 10px -2px rgba(5,4,20,.4);
-  --glass-radius:20px;
-  --ease-premium:cubic-bezier(.19,1,.22,1);
+  --chat-ink:#1d1b26; --chat-muted:#6f6a7c; --chat-line:#ececf0; --chat-field:#d9d8df;
+  --chat-purple:#4a2a8c; --chat-purple-deep:#26134a; --chat-tint:#f5f0fb; --chat-mine:#f1eef7; --chat-gold:#a97f14;
+  --chat-origin:calc(100% - 29px) calc(100% + 41px);
 }
 
-#chatbotToggle{position:fixed;right:22px;bottom:22px;z-index:1000;border:0;border-radius:999px;width:58px;height:58px;display:flex;align-items:center;justify-content:center;background:#ffffff;color:#fff;cursor:pointer;box-shadow:0 10px 30px -4px rgba(91,63,255,.4),0 2px 8px -1px rgba(15,14,26,.12);transition:transform .24s var(--ease-premium),box-shadow .24s var(--ease-premium),background .24s ease;padding:0}
-#chatbotToggle:hover{transform:translateY(-2px) scale(1.04);box-shadow:0 16px 40px -6px rgba(91,63,255,.52),0 4px 12px -2px rgba(15,14,26,.16)}
-#chatbotToggle:active{transform:translateY(0) scale(.96)}
-#chatbotToggle:focus-visible{outline:2px solid var(--glass-accent-3);outline-offset:3px}
-#chatbotToggle .chatbot-logo-svg{width:100%;height:100%;display:block;border-radius:999px;position:relative;z-index:1}
-#chatbotToggle .icon-close{display:none;color:#fff;width:22px;height:22px;position:relative;z-index:1}
-#chatbotToggle[aria-expanded="true"]{background:var(--glass-accent-grad);box-shadow:0 12px 36px -8px rgba(91,63,255,.6)}
+#chatbotToggle{position:fixed;right:22px;bottom:22px;z-index:1000;border:0;border-radius:999px;width:58px;height:58px;display:flex;align-items:center;justify-content:center;background:#fff;color:#fff;cursor:pointer;box-shadow:0 10px 30px -6px rgba(38,19,74,.45),0 0 0 1px #e8def5;transition:transform .2s ease,background .2s ease;padding:0}
+#chatbotToggle:hover{transform:translateY(-2px) scale(1.04)}
+#chatbotToggle:active{transform:scale(.96)}
+#chatbotToggle:focus-visible{outline:2px solid var(--chat-purple);outline-offset:3px}
+#chatbotToggle .chatbot-logo-svg{width:100%;height:100%;display:block;border-radius:999px}
+#chatbotToggle .icon-close{display:none;color:#fff;width:22px;height:22px}
+#chatbotToggle[aria-expanded="true"]{background:var(--chat-purple)}
 #chatbotToggle[aria-expanded="true"] .icon-chat{display:none}
-#chatbotToggle[aria-expanded="true"] .icon-close{display:block;animation:chatbot-msg-in .2s ease}
-#chatbotToggle .chatbot-badge{position:absolute;top:1px;right:1px;width:13px;height:13px;border-radius:999px;background:#22c55e;border:2.5px solid #ffffff;box-shadow:0 2px 5px rgba(0,0,0,0.18),0 0 0 2px rgba(34,197,94,.28);z-index:3;pointer-events:none;animation:chatbot-status-pulse 3s ease-in-out infinite}
+#chatbotToggle[aria-expanded="true"] .icon-close{display:block}
+#chatbotToggle .chatbot-badge{position:absolute;top:1px;right:1px;width:12px;height:12px;border-radius:999px;background:#22c55e;border:2.5px solid #fff;pointer-events:none}
 #chatbotToggle[aria-expanded="true"] .chatbot-badge{display:none}
-@keyframes chatbot-status-pulse{0%,100%{transform:scale(1);box-shadow:0 2px 5px rgba(0,0,0,0.18),0 0 0 2px rgba(34,197,94,.28)}50%{transform:scale(1.08);box-shadow:0 2px 6px rgba(0,0,0,0.22),0 0 0 4px rgba(34,197,94,.42)}}
+.chatbot-logo-highlight{opacity:.45}
 
-#chatbotPanel{position:fixed;right:22px;bottom:92px;width:min(400px,calc(100vw - 24px));height:min(620px,calc(100vh - 120px));z-index:1000;background:var(--glass-900);border:1px solid var(--glass-border);border-radius:var(--glass-radius);box-shadow:var(--glass-shadow);display:flex;flex-direction:column;overflow:hidden;font-family:var(--font-body);opacity:0;transform:translateY(14px) scale(.97);transform-origin:bottom right;pointer-events:none;transition:opacity .26s cubic-bezier(.16,1,.3,1),transform .26s cubic-bezier(.16,1,.3,1)}
-#chatbotPanel.open{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
-@media (max-width:640px){
-  #chatbotPanel{right:8px;left:8px;bottom:8px;width:auto;height:min(82vh,620px);border-radius:16px}
-  #chatbotToggle{right:16px;bottom:16px}
-}
-@media (max-width:320px){
-  #chatbotPanel{right:4px;left:4px;bottom:4px;height:min(86vh,580px);border-radius:12px}
-}
+/* The window grows out of the round button. visibility keeps a closed chat out of the tab order. */
+#chatbotPanel{position:fixed;right:22px;bottom:92px;width:min(400px,calc(100vw - 24px));height:min(620px,calc(100vh - 120px));z-index:1000;background:#fff;color:var(--chat-ink);border-radius:16px;box-shadow:0 20px 60px -24px rgba(20,18,30,.45),0 0 0 1px #e6e6ea;display:flex;flex-direction:column;overflow:hidden;font-family:var(--font-body);transform-origin:var(--chat-origin);opacity:0;transform:scale(.25);visibility:hidden;pointer-events:none;transition:opacity .18s ease,transform .22s ease,visibility 0s linear .22s}
+#chatbotPanel.open{opacity:1;transform:scale(1);visibility:visible;pointer-events:auto;transition:opacity .2s ease,transform .42s cubic-bezier(.2,1.15,.35,1),visibility 0s}
 
-#chatbotHeader{position:relative;padding:14px 16px;background:linear-gradient(180deg,var(--glass-850),var(--glass-900));border-bottom:1px solid var(--glass-border);color:var(--glass-text);display:flex;align-items:center;gap:11px;flex-shrink:0}
-#chatbotHeaderAvatar{width:36px;height:36px;flex-shrink:0;position:relative;border-radius:999px;box-shadow:0 0 0 1px var(--glass-border-hi);overflow:hidden}
-#chatbotHeaderTitle{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
-#chatbotHeaderTitle strong{font-family:var(--font-display);font-weight:600;font-size:1rem;letter-spacing:.01em;color:var(--glass-text)}
-#chatbotHeaderTitle span{font-size:.72rem;color:var(--glass-text-dim);display:flex;align-items:center;gap:5px}
-#chatbotHeaderTitle .status-dot{width:6px;height:6px;border-radius:999px;background:#4ade80;display:inline-block;box-shadow:0 0 0 3px rgba(74,222,128,.18)}
-#chatbotHeaderActions{display:flex;align-items:center;gap:6px;flex-shrink:0}
-#chatbotClear,#chatbotClose{padding:7px 11px;border:1px solid var(--glass-border);border-radius:999px;background:var(--glass-surface);color:var(--glass-text-dim);font-size:.72rem;cursor:pointer;transition:background .18s ease,border-color .18s ease,color .18s ease}
-#chatbotClose{padding:7px;display:grid;place-items:center}
-#chatbotClose svg{width:14px;height:14px}
-#chatbotClear:hover,#chatbotClose:hover{background:var(--glass-surface-hi);border-color:var(--glass-border-hi);color:var(--glass-text)}
-#chatbotClear:focus-visible,#chatbotClose:focus-visible{outline:2px solid var(--glass-accent-3);outline-offset:2px}
+#chatbotHeader{position:relative;padding:13px 14px;border-bottom:1px solid var(--chat-line);display:flex;align-items:center;gap:11px;flex-shrink:0;background:#fff}
+#chatbotHeader::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:linear-gradient(90deg,transparent,var(--chat-purple),transparent);background-size:200% 100%;opacity:0;transition:opacity .2s}
+#chatbotPanel.busy #chatbotHeader::after{opacity:1;animation:chatbot-sweep 1.3s linear infinite}
+@keyframes chatbot-sweep{from{background-position:200% 0}to{background-position:-200% 0}}
+#chatbotHeaderAvatar{width:38px;height:38px;flex-shrink:0;border-radius:999px;box-shadow:0 0 0 1px #e6e6ea}
+#chatbotHeaderTitle{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0}
+#chatbotHeaderTitle strong{font-family:var(--font-display);font-weight:600;font-size:1rem;color:var(--chat-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#chatbotHeaderTitle span{font-size:.74rem;color:var(--chat-muted)}
+#chatbotHeaderActions{display:flex;gap:6px;flex-shrink:0}
+#chatbotClear,#chatbotClose{width:36px;height:36px;padding:0;border:0;border-radius:999px;background:#f2f2f5;color:#44414d;display:grid;place-items:center;cursor:pointer;transition:background .18s ease}
+#chatbotClear svg,#chatbotClose svg{width:15px;height:15px}
+#chatbotClear:hover,#chatbotClose:hover{background:#e8e6ee}
+#chatbotClear:focus-visible,#chatbotClose:focus-visible{outline:2px solid var(--chat-purple);outline-offset:2px}
 
-#chatbotMessages{
-  flex:1;
-  overflow-y:auto;
-  overflow-x:hidden;
-  padding:16px 16px 20px 16px;
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-  background:
-    radial-gradient(circle at 15% 0%, rgba(139,107,255,.10), transparent 45%),
-    radial-gradient(circle at 90% 30%, rgba(91,127,255,.08), transparent 50%),
-    var(--glass-900);
-  overscroll-behavior:contain;
-}
-#chatbotMessages::-webkit-scrollbar{width:7px}
-#chatbotMessages::-webkit-scrollbar-thumb{background:var(--glass-border-hi);border-radius:999px}
-
+#chatbotMessages{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:16px;display:flex;flex-direction:column;gap:14px;background:#fff;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#d3c4ec transparent}
 .chatbot-scroll-anchor{height:4px;width:100%;flex-shrink:0;pointer-events:none}
 
-.chatbot-message{max-width:88%;padding:11px 14px;border-radius:16px;line-height:1.52;font-size:.875rem;word-break:break-word;overflow-wrap:anywhere}
-.chatbot-user{align-self:flex-end;background:var(--glass-accent-grad);color:#fff;border-bottom-right-radius:5px;box-shadow:0 6px 18px -8px rgba(91,63,255,.5);white-space:pre-wrap;animation:chatbot-user-in .20s cubic-bezier(.16,1,.3,1) both}
-.chatbot-assistant{align-self:flex-start;background:var(--glass-surface);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:var(--glass-text);border:1px solid var(--glass-border);border-bottom-left-radius:5px;white-space:normal;animation:chatbot-assistant-in .32s cubic-bezier(0.22,1,0.36,1) both}
-.chatbot-assistant p{margin:0 0 8px 0;line-height:1.52}
+.chatbot-message{font-size:.89rem;line-height:1.55;word-break:break-word;overflow-wrap:anywhere;flex-shrink:0}
+.chatbot-user{align-self:flex-end;max-width:84%;padding:10px 14px;border-radius:16px 16px 5px 16px;background:var(--chat-mine);color:var(--chat-purple-deep);white-space:pre-wrap;transform-origin:100% 100%;animation:chatbot-pop .28s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes chatbot-pop{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+
+/* Replies sit beside the logo with no bubble */
+.chatbot-assistant,.chatbot-typing{align-self:stretch;position:relative;padding:3px 0 0 38px;min-height:28px;color:var(--chat-ink)}
+.chatbot-assistant::before,.chatbot-typing::before{content:"";position:absolute;left:0;top:0;width:28px;height:28px;border-radius:999px;background:var(--chat-tint) url("wm_brand_logo.png") center/22px no-repeat}
+.chatbot-assistant>*{animation:chatbot-rise .38s cubic-bezier(.2,.8,.2,1) both}
+.chatbot-assistant>:nth-child(2){animation-delay:.07s}.chatbot-assistant>:nth-child(3){animation-delay:.14s}.chatbot-assistant>:nth-child(4){animation-delay:.21s}.chatbot-assistant>:nth-child(n+5){animation-delay:.28s}
+.chatbot-assistant li{animation:chatbot-rise .38s both}
+.chatbot-assistant li:nth-child(2){animation-delay:.08s}.chatbot-assistant li:nth-child(3){animation-delay:.16s}.chatbot-assistant li:nth-child(4){animation-delay:.24s}.chatbot-assistant li:nth-child(n+5){animation-delay:.3s}
+@keyframes chatbot-rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.chatbot-assistant p{margin:0 0 8px}
 .chatbot-assistant p:last-child{margin-bottom:0}
 .chatbot-assistant ul,.chatbot-assistant ol{margin:6px 0 8px 18px;padding:0}
-.chatbot-assistant li{margin-bottom:4px;line-height:1.48}
-.chatbot-assistant blockquote{margin:6px 0;padding:4px 10px;border-left:3px solid var(--glass-accent-3);color:var(--glass-text-dim);font-style:italic;background:rgba(255,255,255,.03);border-radius:0 6px 6px 0}
-.chatbot-assistant strong{font-weight:600;color:#fff}
-.chatbot-assistant em{font-style:italic;color:var(--glass-text-dim)}
-.chatbot-assistant code{font-family:monospace;font-size:.84em;background:rgba(255,255,255,.08);padding:2px 5px;border-radius:4px}
-.chatbot-assistant a{color:var(--glass-accent-3);text-decoration:underline;text-underline-offset:2px}
-.chatbot-assistant a:hover{color:#fff}
-.chatbot-assistant .chatbot-msg-h{margin:10px 0 6px 0;font-size:.95rem;font-weight:600;color:#fff}
-.chatbot-error{align-self:flex-start;background:rgba(239,68,68,.12);color:#ffb4b4;border:1px solid rgba(239,68,68,.3);border-bottom-left-radius:5px}
+.chatbot-assistant li{margin-bottom:4px}
+.chatbot-assistant li::marker{color:var(--chat-gold)}
+.chatbot-assistant blockquote{margin:6px 0;padding:4px 10px;border-left:3px solid var(--chat-purple);color:var(--chat-muted);background:var(--chat-tint);border-radius:0 6px 6px 0}
+.chatbot-assistant strong{font-weight:600;color:var(--chat-purple-deep)}
+.chatbot-assistant em{font-style:italic;color:var(--chat-muted)}
+.chatbot-assistant code{font-family:monospace;font-size:.86em;background:#f2f2f5;padding:2px 5px;border-radius:4px}
+.chatbot-assistant a{color:var(--chat-purple);text-decoration:underline;text-underline-offset:2px}
+.chatbot-assistant .chatbot-msg-h{margin:8px 0 6px;font-size:.95rem;font-weight:600;color:var(--chat-purple-deep)}
+.chatbot-error{color:#9f1d1d}
 
-@keyframes chatbot-user-in{
-  from{opacity:0;transform:translateY(6px)}
-  to{opacity:1;transform:translateY(0)}
-}
+/* Tap to message, call or email */
+.chatbot-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.chatbot-assistant a.chatbot-action{display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:8px 13px;border:1px solid #d3c4ec;border-radius:999px;background:var(--chat-tint);color:var(--chat-purple);font-size:.78rem;font-weight:600;text-decoration:none;transition:background .18s,color .18s}
+.chatbot-assistant a.chatbot-action:hover{background:var(--chat-purple);color:#fff}
+.chatbot-action svg{width:14px;height:14px}
+.chatbot-toast{position:absolute;left:50%;bottom:76px;transform:translate(-50%,8px);width:max-content;max-width:calc(100% - 32px);padding:9px 15px;border-radius:12px;background:var(--chat-purple-deep);color:#fff;font-size:.78rem;text-align:center;opacity:0;pointer-events:none;transition:.22s;z-index:3}
+.chatbot-toast.visible{opacity:1;transform:translate(-50%,0)}
 
-@keyframes chatbot-assistant-in{
-  from{opacity:0;transform:translateY(10px)}
-  to{opacity:1;transform:translateY(0)}
-}
+/* Welcome cards */
+.chatbot-start{display:flex;flex-direction:column;gap:9px;margin-top:auto;flex-shrink:0}
+.chatbot-card{display:flex;align-items:center;gap:11px;width:100%;min-height:46px;padding:11px 13px;border:1px solid #e6e1f0;border-radius:11px;background:#fff;color:var(--chat-purple-deep);font:500 .84rem var(--font-body);text-align:left;cursor:pointer;animation:chatbot-rise .4s both;transition:border-color .18s,box-shadow .18s,transform .18s}
+.chatbot-card:nth-child(2){animation-delay:.07s}.chatbot-card:nth-child(3){animation-delay:.14s}.chatbot-card:nth-child(4){animation-delay:.21s}
+.chatbot-card:hover{transform:translateY(-1px);border-color:var(--chat-gold);box-shadow:0 8px 18px -12px rgba(38,19,74,.45)}
+.chatbot-card:focus-visible{outline:2px solid var(--chat-purple);outline-offset:2px}
+.chatbot-card svg{width:19px;height:19px;flex-shrink:0;color:var(--chat-gold)}
 
-.chatbot-typing{align-self:flex-start;display:inline-flex;align-items:center;justify-content:center;padding:12px 18px;min-height:38px;min-width:54px;background:var(--glass-surface);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--glass-border);border-radius:16px;border-bottom-left-radius:5px;animation:chatbot-assistant-in .22s cubic-bezier(.16,1,.3,1) both;transition:opacity .14s ease-out,transform .14s ease-out;will-change:opacity,transform}
-.chatbot-typing.chatbot-typing-exiting{opacity:0;transform:scale(.92) translateY(2px);pointer-events:none}
-.chatbot-typing-track{display:flex;align-items:center;justify-content:center;gap:6px;height:16px}
-.chatbot-typing-track span{width:6px;height:6px;border-radius:50%;background:var(--glass-accent-3);animation:chatbot-dot-wave 1.3s cubic-bezier(.45,.05,.55,.95) infinite;will-change:transform,opacity}
-.chatbot-typing-track span:nth-child(1){animation-delay:0s}
-.chatbot-typing-track span:nth-child(2){animation-delay:.18s}
-.chatbot-typing-track span:nth-child(3){animation-delay:.36s}
-
-@keyframes chatbot-dot-wave{
-  0%,100%{transform:translateY(0) scale(.92);opacity:.35}
-  50%{transform:translateY(-4px) scale(1.15);opacity:1}
-}
+.chatbot-typing{display:flex;align-items:center;gap:9px;padding-top:0;font-size:.78rem;color:var(--chat-muted);flex-shrink:0;animation:chatbot-rise .22s both;transition:opacity .14s,transform .14s}
+.chatbot-typing.chatbot-typing-exiting{opacity:0;transform:scale(.97)}
+.chatbot-typing-track{display:flex;align-items:center;gap:5px;height:16px}
+.chatbot-typing-track span{width:6px;height:6px;border-radius:50%;background:var(--chat-purple);animation:chatbot-dot-wave 1.2s ease-in-out infinite}
+.chatbot-typing-track span:nth-child(2){animation-delay:.16s}
+.chatbot-typing-track span:nth-child(3){animation-delay:.32s}
+@keyframes chatbot-dot-wave{0%,100%{transform:translateY(0);opacity:.3}50%{transform:translateY(-4px);opacity:1}}
 
 .chatbot-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
-.chatbot-jump-latest{position:absolute;bottom:72px;left:50%;transform:translateX(-50%) translateY(8px);background:rgba(20,18,36,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--glass-border-hi);border-radius:999px;padding:6px 14px;font-size:.74rem;font-weight:500;color:var(--glass-text);box-shadow:0 8px 24px rgba(0,0,0,.45);display:inline-flex;align-items:center;gap:6px;cursor:pointer;z-index:25;opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s cubic-bezier(.16,1,.3,1),background .16s ease,border-color .16s ease}
-.chatbot-jump-latest:hover{background:var(--glass-surface-hi);color:#fff;border-color:var(--glass-accent-3)}
-.chatbot-jump-latest:focus-visible{outline:2px solid var(--glass-accent-3);outline-offset:2px}
+.chatbot-jump-latest{position:absolute;bottom:76px;left:50%;transform:translateX(-50%) translateY(8px);background:#fff;border:1px solid var(--chat-field);border-radius:999px;padding:7px 14px;font-size:.75rem;font-weight:500;color:var(--chat-purple);box-shadow:0 8px 24px -8px rgba(20,18,30,.35);display:inline-flex;align-items:center;gap:6px;cursor:pointer;opacity:0;pointer-events:none;transition:.2s;z-index:2}
+.chatbot-jump-latest:focus-visible{outline:2px solid var(--chat-purple);outline-offset:2px}
 .chatbot-jump-latest.visible{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}
 
-.chatbot-suggestions{display:flex;flex-wrap:wrap;gap:7px;padding:0 16px 12px;flex-shrink:0}
-.chatbot-suggestion{border:1px solid var(--glass-border);background:var(--glass-surface);color:var(--glass-text-dim);font-size:.76rem;padding:7px 12px;border-radius:999px;cursor:pointer;transition:background .18s ease,border-color .18s ease,color .18s ease,transform .12s ease}
-.chatbot-suggestion:hover{background:var(--glass-surface-hi);border-color:var(--glass-border-hi);color:var(--glass-text)}
-.chatbot-suggestion:active{transform:scale(.96)}
-.chatbot-suggestion:focus-visible{outline:2px solid var(--glass-accent-3);outline-offset:2px}
+/* Suggestions: one row that scrolls sideways */
+.chatbot-suggestions{display:flex;gap:7px;padding:2px 14px 10px;flex-shrink:0;overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain}
+.chatbot-suggestions::-webkit-scrollbar{display:none}
+.chatbot-suggestion{flex-shrink:0;white-space:nowrap;min-height:36px;border:1px solid #d3c4ec;background:#fff;color:var(--chat-purple);font:500 .78rem var(--font-body);padding:8px 13px;border-radius:999px;cursor:pointer;animation:chatbot-rise .35s both;transition:background .18s}
+.chatbot-suggestion:nth-child(2){animation-delay:.09s}
+.chatbot-suggestion:hover{background:var(--chat-tint)}
+.chatbot-suggestion:focus-visible{outline:2px solid var(--chat-purple);outline-offset:1px}
 
-#chatbotForm{display:flex;gap:9px;padding:13px;padding-bottom:max(13px,env(safe-area-inset-bottom));border-top:1px solid var(--glass-border);background:var(--glass-850);flex-shrink:0}
+#chatbotForm{display:flex;gap:9px;padding:10px 12px;padding-bottom:max(12px,env(safe-area-inset-bottom));background:#fff;flex-shrink:0}
 #chatbotInputLabel{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-#chatbotInput{min-width:0;flex:1;padding:11px 14px;border:1px solid var(--glass-border);border-radius:999px;font-family:inherit;font-size:.875rem;color:var(--glass-text);background:var(--glass-surface);transition:border-color .18s ease,box-shadow .18s ease,background .18s ease}
-#chatbotInput::placeholder{color:var(--glass-text-faint)}
-#chatbotInput:focus-visible{outline:none;border-color:var(--glass-accent-3);box-shadow:0 0 0 3px rgba(199,155,255,.18);background:var(--glass-surface-hi)}
-#chatbotInput:disabled{opacity:.6}
-#chatbotSend{flex-shrink:0;width:42px;height:42px;display:grid;place-items:center;padding:0;border:0;border-radius:999px;background:var(--glass-accent-grad);color:#fff;cursor:pointer;transition:transform .15s var(--ease-premium),box-shadow .15s ease,opacity .15s ease;box-shadow:0 6px 18px -8px rgba(91,63,255,.55)}
-#chatbotSend:hover:not(:disabled){transform:scale(1.05)}
-#chatbotSend:active:not(:disabled){transform:scale(.92)}
-#chatbotSend:focus-visible{outline:2px solid var(--glass-accent-3);outline-offset:2px}
-#chatbotSend:disabled{opacity:.45;cursor:not-allowed}
-#chatbotSend svg{width:17px;height:17px}
+#chatbotInput{min-width:0;flex:1;height:44px;padding:0 14px;border:1px solid var(--chat-field);border-radius:12px;font-family:inherit;font-size:.9rem;color:var(--chat-ink);background:#fff}
+#chatbotInput::placeholder{color:#8a8696}
+#chatbotInput:focus-visible{outline:none;border-color:var(--chat-purple);box-shadow:0 0 0 3px rgba(74,42,140,.14)}
+#chatbotInput:disabled{background:#f7f7f9}
+#chatbotSend{flex-shrink:0;width:44px;height:44px;display:grid;place-items:center;padding:0;border:0;border-radius:12px;background:var(--chat-purple);color:#fff;cursor:pointer;overflow:hidden;transition:transform .15s ease,opacity .15s ease}
+#chatbotSend:active:not(:disabled){transform:scale(.93)}
+#chatbotSend:focus-visible{outline:2px solid var(--chat-purple);outline-offset:2px}
+#chatbotSend:disabled{opacity:.55;cursor:not-allowed}
+#chatbotSend svg{width:18px;height:18px}
+#chatbotSend.fly svg{animation:chatbot-fly .45s ease}
+@keyframes chatbot-fly{45%{transform:translate(18px,-18px);opacity:0}46%{transform:translate(-18px,18px);opacity:0}}
 
-@keyframes chatbot-logo-shimmer{0%,100%{opacity:.45;transform:translate(-8%,-8%) rotate(0deg)}50%{opacity:.8;transform:translate(4%,4%) rotate(8deg)}}
-.chatbot-logo-highlight{animation:chatbot-logo-shimmer 6s ease-in-out infinite}
+/* One-time hello bubble beside the button */
+.chatbot-teaser{position:fixed;right:90px;bottom:28px;z-index:999;display:none;align-items:flex-start;gap:4px;max-width:min(250px,calc(100vw - 180px));min-width:170px;background:#fff;border:1px solid #e8def5;border-radius:16px 16px 4px 16px;box-shadow:0 14px 34px -16px rgba(38,19,74,.5);font-family:var(--font-body)}
+.chatbot-teaser.visible{display:flex;animation:chatbot-rise .45s both}
+.chatbot-teaser button{border:0;background:none;cursor:pointer;font-family:inherit;color:var(--chat-purple-deep)}
+#chatbotTeaserOpen{padding:11px 4px 11px 13px;font-size:.8rem;line-height:1.4;text-align:left}
+#chatbotTeaserClose{width:30px;height:30px;flex-shrink:0;font-size:1.1rem;color:var(--chat-muted)}
 
-@supports not (backdrop-filter: blur(14px)){
-  .chatbot-assistant, .chatbot-typing, #chatbotPanel{background:#110f22!important}
+/* Phones: the chat takes the whole screen and follows the keyboard */
+@media (max-width:640px), (max-height:500px) and (pointer:coarse){
+  #chatbotPanel{left:0;right:0;top:var(--chat-top,0px);bottom:auto;width:100%;height:100vh;height:var(--chat-height,100dvh);border-radius:0;box-shadow:none;--chat-origin:calc(100% - 45px) calc(100% - 45px)}
+  #chatbotToggle{right:16px;bottom:16px}
+  body.chatbot-open{overflow:hidden}
+  body.chatbot-open #chatbotToggle,body.chatbot-open .float-btn{display:none}
+  #chatbotClear,#chatbotClose{width:44px;height:44px}
+  #chatbotInput{font-size:16px} /* smaller text makes iPhones zoom in */
+  .chatbot-suggestion{min-height:40px}
+  .chatbot-message{font-size:.94rem}
+  .chatbot-assistant a.chatbot-action{min-height:44px}
+  .chatbot-teaser{right:16px;bottom:86px;max-width:min(250px,calc(100vw - 32px));border-radius:16px 16px 4px 16px}
+}
+
+/* Landscape phones: fit all four welcome cards */
+@media (max-height:500px) and (pointer:coarse){
+  #chatbotHeader{padding-top:6px;padding-bottom:6px}
+  #chatbotMessages{padding:10px 14px;gap:8px}
+  .chatbot-start{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+}
+
+/* Very narrow phones: keep the full title */
+@media (max-width:360px){
+  #chatbotHeader{padding:10px 8px 10px 10px;gap:8px}
+  #chatbotHeaderAvatar{width:32px;height:32px}
+  #chatbotHeaderTitle strong{font-size:.86rem}
+  #chatbotHeaderActions{gap:4px}
 }
 
 @media (prefers-reduced-motion:reduce){
-  #chatbotPanel,#chatbotToggle,.chatbot-message,.chatbot-user,.chatbot-assistant,.chatbot-typing,.chatbot-typing span,.chatbot-typing-track span,.chatbot-logo-highlight,.chatbot-suggestion,.chatbot-badge,#chatbotSend,.chatbot-jump-latest{animation:none!important;transition:none!important}
-  #chatbotPanel{transform:none!important}
-  .chatbot-typing-track span{transform:none!important;opacity:.7!important}
-  .chatbot-jump-latest.visible{transform:translateX(-50%)!important}
+  #chatbotPanel,#chatbotPanel *,#chatbotToggle,.chatbot-teaser{animation:none!important;transition:none!important}
+  #chatbotPanel,#chatbotPanel.open{transform:none!important}
 }
 </style>
 </head>
@@ -966,6 +978,12 @@
   </defs>
 </svg>
 
+<template id="chatbotIcons"><span data-icon="whatsapp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 21l2.1-5.6A8.4 8.4 0 1 1 21 11.500z"/></svg></span><span data-icon="phone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.800 19.800 0 0 1-8.6-3.100 19.500 19.500 0 0 1-6-6A19.8 19.8 0 0 1 2.100 4.200 2 2 0 0 1 4.100 2h3a2 2 0 0 1 2 1.700c.100 1 .400 1.900.700 2.800a2 2 0 0 1-.500 2.100L8.100 9.900a16 16 0 0 0 6 6l1.300-1.300a2 2 0 0 1 2.100-.400c.900.300 1.800.600 2.800.700a2 2 0 0 1 1.700 2z"/></svg></span><span data-icon="email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg></span></template>
+
+<div id="chatbotTeaser" class="chatbot-teaser">
+  <button type="button" id="chatbotTeaserOpen">👋 Questions about classes or the free demo? Ask me.</button>
+  <button type="button" id="chatbotTeaserClose" aria-label="Dismiss message">&times;</button>
+</div>
 <button id="chatbotToggle" type="button" aria-expanded="false" aria-controls="chatbotPanel" aria-label="Open WeMentors Assistant chat">
   <svg class="icon-chat chatbot-logo-svg" viewBox="0 0 48 48" aria-hidden="true">
     <circle cx="24" cy="24" r="23" fill="#ffffff"/>
@@ -990,30 +1008,33 @@
     </svg>
     <div id="chatbotHeaderTitle">
       <strong>WeMentors Assistant</strong>
-      <span><span class="status-dot" aria-hidden="true"></span>Ready to help</span>
+      <span>Automated helper</span>
     </div>
     <div id="chatbotHeaderActions">
-      <button id="chatbotClear" type="button">Clear chat</button>
+      <button id="chatbotClear" type="button" aria-label="Clear chat and start over" title="Start over">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+      </button>
       <button id="chatbotClose" type="button" aria-label="Close chat">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
       </button>
     </div>
   </div>
   <div id="chatbotMessages" aria-live="polite" role="log">
-    <div class="chatbot-message chatbot-assistant"><p>Hi! I'm the WeMentors Assistant. I can help you explore our programs, understand how mentoring works, answer course questions, and guide you toward booking a free demo.</p></div>
+    <div class="chatbot-message chatbot-assistant"><p>Hi! 👋 I'm the WeMentors Assistant, an automated helper. What would you like to know?</p></div>
+    <div class="chatbot-start" id="chatbotStart">
+      <button type="button" class="chatbot-card" data-question="What programs do you offer?"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10 12 5 2 10l10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg><span>Programs for my child</span></button>
+      <button type="button" class="chatbot-card" data-question="How does the free demo work?"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span>How the free demo works</span></button>
+      <button type="button" class="chatbot-card" data-question="Tell me about Communicative English"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5"/></svg><span>Spoken English</span></button>
+      <button type="button" class="chatbot-card" data-question="Tell me about IELTS Preparation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></svg><span>IELTS preparation</span></button>
+    </div>
     <div id="chatbotScrollAnchor" class="chatbot-scroll-anchor" aria-hidden="true"></div>
   </div>
   <button id="chatbotJumpLatest" type="button" class="chatbot-jump-latest" aria-label="Jump to latest message">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
     <span>Jump to latest</span>
   </button>
-  <div id="chatbotSuggestions" class="chatbot-suggestions">
-    <button type="button" class="chatbot-suggestion">Tell me about WeMentors</button>
-    <button type="button" class="chatbot-suggestion">What programs do you offer?</button>
-    <button type="button" class="chatbot-suggestion">How does the free demo work?</button>
-    <button type="button" class="chatbot-suggestion">Do you support Grades 9–10?</button>
-    <button type="button" class="chatbot-suggestion">Tell me about Communicative English</button>
-  </div>
+  <div id="chatbotSuggestions" class="chatbot-suggestions" style="display:none"></div>
+  <div id="chatbotToast" class="chatbot-toast" role="status"></div>
   <form id="chatbotForm">
     <label id="chatbotInputLabel" for="chatbotInput">Type your question for the WeMentors Assistant</label>
     <input id="chatbotInput" type="text" placeholder="Ask a question..." autocomplete="off" maxlength="2000" required>
@@ -1414,7 +1435,7 @@ document.querySelectorAll('[data-counter]').forEach(el=>counterIO.observe(el));
   const chatbotJumpLatest = document.getElementById('chatbotJumpLatest');
   const chatbotScrollAnchor = document.getElementById('chatbotScrollAnchor');
 
-  const WELCOME_MESSAGE = "Hi! I'm the WeMentors Assistant. I can help you explore our programs, understand how mentoring works, answer course questions, and guide you toward booking a free demo.";
+  const WELCOME_MESSAGE = "Hi! 👋 I'm the WeMentors Assistant, an automated helper. What would you like to know?";
   const SESSION_KEY = 'wementorsChatSessionId';
 
   function getSessionId() {
@@ -1526,6 +1547,82 @@ document.querySelectorAll('[data-counter]').forEach(el=>counterIO.observe(el));
     }
   }
 
+  const chatbotToast = document.getElementById('chatbotToast');
+  const chatbotTeaser = document.getElementById('chatbotTeaser');
+  const startTemplate = document.getElementById('chatbotStart').cloneNode(true);
+  // Same query as the full-screen rules in the stylesheet.
+  const phoneLayout = window.matchMedia('(max-width:640px), (max-height:500px) and (pointer:coarse)');
+  const hasMouse = window.matchMedia('(hover: hover) and (pointer: fine)');
+
+  // On touch screens, focusing the box opens the keyboard over the answer.
+  function focusInputIfDesktop() {
+    if (hasMouse.matches) chatbotInput.focus();
+  }
+
+  const CONTACT = {
+    phone: '+917611192227',
+    phoneShown: '+91 76111 92227',
+    email: 'admin@wementors.co',
+    whatsappText: "Hi WeMentors Academy, I'd like to know more about your programs."
+  };
+
+  let toastTimer = null;
+  function showToast(text) {
+    if (!chatbotToast) return;
+    chatbotToast.textContent = text;
+    chatbotToast.classList.add('visible');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => chatbotToast.classList.remove('visible'), 3500);
+  }
+
+  // Many computers have no app for tel: or mailto:, so also copy the value.
+  function copyOnDesktop(value, label) {
+    if (!hasMouse.matches) return;
+    const fallback = () => showToast(`${label}: ${value}`);
+    if (!navigator.clipboard) return fallback();
+    navigator.clipboard.writeText(value).then(() => showToast(`${label} copied: ${value}`), fallback);
+  }
+
+  function contactActionsFor(text) {
+    if (text.includes('14416')) {
+      return [
+        { icon: 'phone', label: 'Call 112', href: 'tel:112' },
+        { icon: 'phone', label: 'Call Tele-MANAS 14416', href: 'tel:14416' }
+      ];
+    }
+    if (!/76111\s?92227|admin@wementors\.co/.test(text)) return [];
+    return [
+      { icon: 'whatsapp', label: 'WhatsApp', newTab: true,
+        href: `https://wa.me/${CONTACT.phone.slice(1)}?text=${encodeURIComponent(CONTACT.whatsappText)}` },
+      { icon: 'phone', label: 'Call', href: `tel:${CONTACT.phone}`, copy: [CONTACT.phoneShown, 'Number'] },
+      { icon: 'email', label: 'Email', href: `mailto:${CONTACT.email}`, copy: [CONTACT.email, 'Email address'] }
+    ];
+  }
+
+  // Built with DOM calls from fixed values only; nothing from the reply becomes markup.
+  function addContactActions(element, text) {
+    const actions = contactActionsFor(text);
+    if (!actions.length) return;
+    const row = document.createElement('div');
+    row.className = 'chatbot-actions';
+    const icons = document.getElementById('chatbotIcons');
+    actions.forEach((action) => {
+      const link = document.createElement('a');
+      link.className = 'chatbot-action';
+      link.href = action.href;
+      if (action.newTab) {
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+      }
+      const icon = icons && icons.content.querySelector(`[data-icon="${action.icon}"] svg`);
+      if (icon) link.appendChild(icon.cloneNode(true));
+      link.appendChild(document.createTextNode(action.label));
+      if (action.copy) link.addEventListener('click', () => copyOnDesktop(action.copy[0], action.copy[1]));
+      row.appendChild(link);
+    });
+    element.appendChild(row);
+  }
+
   const SCROLL_NEAR_BOTTOM_THRESHOLD = 110;
 
   function isNearBottom(threshold = SCROLL_NEAR_BOTTOM_THRESHOLD) {
@@ -1604,6 +1701,7 @@ document.querySelectorAll('[data-counter]').forEach(el=>counterIO.observe(el));
       element.textContent = message;
     } else {
       element.innerHTML = renderAssistantMarkdown(message);
+      addContactActions(element, message);
     }
     if (chatbotScrollAnchor && chatbotScrollAnchor.parentNode === chatbotMessages) {
       chatbotMessages.insertBefore(element, chatbotScrollAnchor);
@@ -1618,7 +1716,8 @@ document.querySelectorAll('[data-counter]').forEach(el=>counterIO.observe(el));
     wrapper.className = 'chatbot-typing';
     wrapper.setAttribute('role', 'status');
     wrapper.setAttribute('aria-label', 'WeMentors Assistant is responding');
-    wrapper.innerHTML = '<div class="chatbot-typing-track" aria-hidden="true"><span></span><span></span><span></span></div><span class="chatbot-sr-only">WeMentors Assistant is responding</span>';
+    wrapper.innerHTML = '<div class="chatbot-typing-track" aria-hidden="true"><span></span><span></span><span></span></div><span aria-hidden="true">Checking…</span><span class="chatbot-sr-only">WeMentors Assistant is responding</span>';
+    chatbotPanel.classList.add('busy');
     if (chatbotScrollAnchor && chatbotScrollAnchor.parentNode === chatbotMessages) {
       chatbotMessages.insertBefore(wrapper, chatbotScrollAnchor);
     } else {
@@ -1628,6 +1727,7 @@ document.querySelectorAll('[data-counter]').forEach(el=>counterIO.observe(el));
   }
 
   function removeTypingSmoothly(typingEl) {
+    chatbotPanel.classList.remove('busy');
     return new Promise((resolve) => {
       if (!typingEl || !typingEl.parentNode) {
         resolve();
@@ -1660,6 +1760,11 @@ document.querySelectorAll('[data-counter]').forEach(el=>counterIO.observe(el));
   }
 
   function submitUserMessage(text, source = 'text_input') {
+    const startCards = document.getElementById('chatbotStart');
+    if (startCards) startCards.remove();
+    chatbotSend.classList.remove('fly');
+    void chatbotSend.offsetWidth; // restart the animation
+    chatbotSend.classList.add('fly');
     handleUserMessage(text, source);
   }
 
@@ -1797,7 +1902,7 @@ document.querySelectorAll('[data-counter]').forEach(el=>counterIO.observe(el));
       currentTypingEl = null;
       chatbotInput.disabled = false;
       chatbotSend.disabled = false;
-      chatbotInput.focus();
+      if (chatbotPanel.classList.contains('open')) focusInputIfDesktop();
     }
   }
 
@@ -1825,18 +1930,14 @@ document.querySelectorAll('[data-counter]').forEach(el=>counterIO.observe(el));
     chatbotSend.disabled = false;
     hideJumpToLatest();
 
+    chatbotPanel.classList.remove('busy');
     chatbotMessages.innerHTML = '';
     addChatbotMessage(WELCOME_MESSAGE, 'assistant');
+    chatbotMessages.appendChild(startTemplate.cloneNode(true));
     if (chatbotScrollAnchor) {
       chatbotMessages.appendChild(chatbotScrollAnchor);
     }
-    displaySuggestions([
-      "Tell me about WeMentors",
-      "What programs do you offer?",
-      "How does the free demo work?",
-      "Do you support Grades 9–10?",
-      "Tell me about Communicative English"
-    ]);
+    displaySuggestions([]);
     chatbotMessages.scrollTop = 0;
     try {
       await fetch(`${API_BASE}/chat/clear`, {
@@ -1848,7 +1949,12 @@ document.querySelectorAll('[data-counter]').forEach(el=>counterIO.observe(el));
       // Clearing server-side history is best-effort; the visible chat is
       // already cleared either way.
     }
-    chatbotInput.focus();
+    focusInputIfDesktop();
+  });
+
+  chatbotMessages.addEventListener('click', (event) => {
+    const card = event.target.closest('.chatbot-card');
+    if (card && !isProcessing) onSuggestionClick(card.dataset.question);
   });
 
   chatbotToggle.addEventListener('click', () => {
@@ -1864,17 +1970,72 @@ document.querySelectorAll('[data-counter]').forEach(el=>counterIO.observe(el));
     });
   }
 
+  // Keep the full-screen chat inside the part of the screen the keyboard leaves free.
+  function fitToVisibleScreen() {
+    const view = window.visualViewport;
+    if (view && phoneLayout.matches && chatbotPanel.classList.contains('open')) {
+      chatbotPanel.style.setProperty('--chat-height', `${view.height}px`);
+      chatbotPanel.style.setProperty('--chat-top', `${view.offsetTop}px`);
+    } else {
+      chatbotPanel.style.removeProperty('--chat-height');
+      chatbotPanel.style.removeProperty('--chat-top');
+    }
+  }
+
+  if (window.visualViewport) {
+    ['resize', 'scroll'].forEach((name) => window.visualViewport.addEventListener(name, () => {
+      if (!chatbotPanel.classList.contains('open')) return;
+      const wasNear = isNearBottom(160);
+      fitToVisibleScreen();
+      if (wasNear) scrollToLatest({ behavior: 'auto', force: true });
+    }));
+  }
+
   function setPanelOpen(open) {
     chatbotPanel.classList.toggle('open', open);
     chatbotToggle.setAttribute('aria-expanded', String(open));
+    document.body.classList.toggle('chatbot-open', open);
+    fitToVisibleScreen();
     if (open) {
+      hideTeaser();
+      rememberTeaser();
       requestAnimationFrame(() => {
-        chatbotInput.focus();
-        scrollToLatest({ behavior: 'auto', force: true });
+        focusInputIfDesktop();
+        // Leave the welcome screen at the top so the greeting is read first.
+        if (!document.getElementById('chatbotStart')) {
+          scrollToLatest({ behavior: 'auto', force: true });
+        }
       });
     } else {
       hideJumpToLatest();
     }
+  }
+
+  // Hello bubble: at most once per visit, and never after the chat has been opened.
+  const TEASER_KEY = 'wementorsChatTeaserSeen';
+  let teaserTimers = [];
+
+  function rememberTeaser() {
+    sessionStorage.setItem(TEASER_KEY, '1');
+    teaserTimers.forEach(clearTimeout);
+  }
+
+  function hideTeaser() {
+    if (chatbotTeaser) chatbotTeaser.classList.remove('visible');
+  }
+
+  if (chatbotTeaser && !sessionStorage.getItem(TEASER_KEY)) {
+    teaserTimers.push(setTimeout(() => {
+      if (chatbotPanel.classList.contains('open')) return;
+      sessionStorage.setItem(TEASER_KEY, '1');
+      chatbotTeaser.classList.add('visible');
+      teaserTimers.push(setTimeout(hideTeaser, 12000));
+    }, 3000));
+    document.getElementById('chatbotTeaserOpen').addEventListener('click', () => setPanelOpen(true));
+    document.getElementById('chatbotTeaserClose').addEventListener('click', () => {
+      rememberTeaser();
+      hideTeaser();
+    });
   }
 
   window.addEventListener('resize', () => {
