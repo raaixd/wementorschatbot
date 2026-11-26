@@ -21,7 +21,8 @@ from dataclasses import dataclass
 from typing import List, Optional
 
 from . import config, database, leads, llm, personality
-from .scope import mentor_request_in_scope, qualify_affirmation
+from .presentation import grade_fallback, hide_internal_terms, stated_grade
+from .scope import mentor_request_in_scope, qualify_affirmation, qualify_listing
 from .knowledge import KBEntry
 
 logger = logging.getLogger(__name__)
@@ -2966,6 +2967,15 @@ class ConversationEngine:
 
     def _get_fallback_reply(self, message: str) -> str:
         msg_norm = normalize_query(message)
+        # Fees and a clearly stated grade are worth answering even when
+        # nothing else in the message was understood.
+        if re.search(r"\b(fee|fees|price|prices|pricing|tuition)\b", msg_norm):
+            fees = next((e for e in self.entries if e.id == "fees-and-pricing"), None)
+            if fees:
+                return fees.answer
+        grade = stated_grade(message)
+        if grade is not None:
+            return grade_fallback(grade)
         if re.search(r"\b(board|boards|exam|exams|grade\s*9|grade\s*10|class\s*9|class\s*10|10th|9th)\b", msg_norm):
             return personality.UNCLEAR_BOARD_FALLBACK
         if re.search(r"\b(duration|schedule|hours|timing|timings|frequency|material|materials|books|notes|syllabus|guarantee|rank|marks|score|teacher|teachers|faculty|software|platform|apps?|tools?|tech|technology|equipment|laptop|devices?|portal)\b", msg_norm):
@@ -3162,7 +3172,9 @@ class ConversationEngine:
     ) -> ReplyResult:
         # Single exit point, so the check covers every route that can say "Yes".
         result = self._route_message(session_id, message, source=source, role=role)
-        result.reply = qualify_affirmation(message, result.reply)
+        reply = qualify_affirmation(message, result.reply)
+        reply = qualify_listing(message, reply, result.matched_entry_ids)
+        result.reply = hide_internal_terms(reply)
         return result
 
     def _route_message(

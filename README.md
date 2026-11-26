@@ -63,7 +63,7 @@ The project also treats evaluation as a first-class concern — retrieval change
 
 ### Production Engineering
 - LLM provider fallback chain (primary → secondary → deterministic KB)
-- 25 automated regression/test suites
+- Automated regression tests, run by pytest
 - Offline retrieval benchmarking with measured deltas, not assumptions
 - GitHub Actions CI on every push and PR
 - Vercel serverless deployment
@@ -148,6 +148,7 @@ Lexical retrieval was kept as the baseline and fast path rather than replaced. D
 
 **How to read these numbers:**
 
+- These figures come from the committed report, which was produced before the fixes of 26 November 2026. The hybrid benchmark has not been rerun since, because it needs an embedding API key.
 - **Hybrid accepted answers it should have rejected.** The false positive rate covers only 5 negative cases, so 60% means 3 of 5. That sample is too small to measure the rate well, but it is a real regression.
 - The retrieval metrics come from a 30-case focused set within the 156; the other 126 are the standard benchmark.
 - The scoring is crude. A "hallucination" means a listed forbidden phrase appeared in the reply, and an answer counts as correct if it contains at least half of its expected keywords. Neither is a human judgement.
@@ -194,14 +195,16 @@ The chatbot answers questions — it does not take actions. `DEMO_TRANSACTION_EN
 
 The guiding rule: **observed failures were converted into regression tests.** The suite isn't a checklist written in advance — most of it exists because something broke once and got locked down.
 
-25 automated test suites cover:
+36 test files cover:
 - Retrieval (lexical, semantic, and hybrid fusion)
 - Conversation state and contextual follow-ups
 - Unsupported/out-of-scope questions
 - Prompt injection
 - LLM provider failure and fallback
 - Demo-transaction safety
-- Message ownership and request deduplication
+- Message ownership, request deduplication and thread safety
+- Visitor privacy between sessions
+- False "Yes" answers to requests that are not offered
 - Frontend and security behavior
 - Production smoke testing
 
@@ -225,7 +228,7 @@ wementorschatbot/
 │   │   ├── database.py       # SQLite persistence
 │   │   ├── ratelimit.py      # Per-client rate limiter
 │   │   └── config.py         # Environment-driven configuration
-│   └── tests/                # 25 pytest suites + release/smoke runners
+│   └── tests/                # pytest files + release/smoke runners
 ├── knowledge/
 │   ├── wementors_kb.json     # Verified knowledge base (52 entries)
 │   └── kb_embeddings.json    # Precomputed KB embeddings
@@ -290,7 +293,6 @@ python tests/run_50_validation_tests.py # live-API end-to-end checks
 | [`docs/SECURITY_REVIEW.md`](docs/SECURITY_REVIEW.md) | OWASP-mapped security analysis |
 | [`docs/KNOWLEDGE_GAPS.md`](docs/KNOWLEDGE_GAPS.md) | Verified knowledge gaps |
 | [`docs/PERFORMANCE.md`](docs/PERFORMANCE.md) | Performance measurements |
-| [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) | Release validation gates |
 
 ## Current Limitations
 
