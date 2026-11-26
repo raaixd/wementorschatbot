@@ -1055,7 +1055,7 @@
         "i want to enroll my child"
       ],
       "keywords": [],
-      "answer": "Yes, WeMentors offers a free demo class with no obligation to continue. To request one, click the **Book Free Demo** option at the top-right of the website and submit your details. The WeMentors team can then coordinate the demo with you.",
+      "answer": "Yes, WeMentors offers a free demo class with no obligation to continue. To request one, click the **Book Free Demo** option at the top-right of the website and submit your details. Once you sign up, someone from the WeMentors team will reach out and connect with you accordingly to arrange the demo.",
       "follow_ups": [
         "How long is the demo class?",
         "How can I book a demo class?"
@@ -1276,7 +1276,6 @@
       ],
       "keywords": [
         "guarantee",
-        "refund",
         "discount",
         "marks",
         "admission",
@@ -1284,7 +1283,7 @@
         "names",
         "policy"
       ],
-      "answer": "I can't confirm or invent details about fees, discounts, exact class schedules, seat availability, admission policies, specific teacher assignments or names, refunds, or guarantees of marks or college admissions. WeMentors focuses on personalized mentoring, concept clarity, and building foundational skills; please contact the WeMentors team or book a free demo to confirm specific policies.",
+      "answer": "I can't confirm or invent details about fees, discounts, exact class schedules, seat availability, admission policies, specific teacher assignments or names, or guarantees of marks or college admissions. WeMentors focuses on personalized mentoring, concept clarity, and building foundational skills; please contact the WeMentors team or book a free demo to confirm specific policies.",
       "follow_ups": [
         "How can I contact WeMentors?"
       ],
@@ -1755,7 +1754,7 @@
         "makeup class",
         "specific topic"
       ],
-      "answer": "If a student misses a class for a genuine reason, our mentors can arrange a rescheduled class (catch-up session) for the student covering that specific topic.",
+      "answer": "If a student misses a class for a genuine reason, our mentors can arrange a rescheduled class (catch-up session) for the student covering that specific topic. Rescheduling depends on the reason being genuine and is up to the mentors, but classes are rescheduled so that the child does not fall behind or suffer.",
       "confidence": "verified"
     },
     {
@@ -1820,7 +1819,7 @@
         "unsupported",
         "not offered"
       ],
-      "answer": "WeMentors does not currently offer academic programs or coaching for Grades 11-12 (Class 11 and Class 12), nor do we provide preparation for competitive exams such as JEE or NEET. Our academic mentoring programs support students in Grades 3-10 (Foundation Years for Grades 3-5, Middle School for Grades 6-8, and Senior School Focus for Grades 9-10). Learners of all ages can join our Confident Speaker communicative skills program.",
+      "answer": "WeMentors does not currently offer academic programs or coaching for Grades 11-12 (Class 11 and Class 12), nor do we provide preparation for competitive exams such as JEE or NEET, and there are no plans to offer them at the moment. Our academic mentoring programs support students in Grades 3-10 (Foundation Years for Grades 3-5, Middle School for Grades 6-8, and Senior School Focus for Grades 9-10). Learners of all ages can join our Confident Speaker communicative skills program.",
       "follow_ups": [
         "Which grades are supported?",
         "What is the Senior School Focus program?",
@@ -1898,6 +1897,35 @@
       "follow_ups": [
         "How does 1-on-1 personalized mentoring work?",
         "How can I book a free demo class?"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "id": "refund-policy",
+      "category": "policies",
+      "question": "What is the refund policy?",
+      "phrasings": [
+        "do you offer refunds",
+        "can i get a refund",
+        "is there a refund policy",
+        "what is your refund policy",
+        "refund policy",
+        "will i get my money back",
+        "can i get my money back if i stop",
+        "what if i want a refund",
+        "do you refund fees",
+        "money back policy"
+      ],
+      "keywords": [
+        "refund",
+        "money back",
+        "reimbursement",
+        "refund policy"
+      ],
+      "answer": "Refunds are handled case by case and depend on the individual situation, so there is no single fixed rule I can quote. Please contact the WeMentors team directly (Email: admin@wementors.co, Phone/WhatsApp: +91 76111 92227) to discuss your specific case.",
+      "follow_ups": [
+        "How can I contact WeMentors?",
+        "What happens if a student misses a class?"
       ],
       "confidence": "verified"
     }
