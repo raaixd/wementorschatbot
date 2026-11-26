@@ -278,6 +278,10 @@ python tests/run_release_test_suite.py  # aggregated release scorecard
 python tests/run_50_validation_tests.py # live-API end-to-end checks
 ```
 
+### Compare Designs on Real Questions
+
+`evaluation/runners/compare_real_questions.py` runs the current bot and a simpler design (two hard rules, then the LLM with the whole knowledge base) on real visitor questions, hides which wrote which answer, and counts your pass/fail grades. It needs an LLM key. Usage is in the file's docstring.
+
 ## Documentation
 
 | Document | Purpose |
