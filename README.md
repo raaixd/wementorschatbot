@@ -55,7 +55,7 @@ The project also treats evaluation as a first-class concern — retrieval change
 - Honest fallback on unsupported questions instead of invented answers
 - Prompt-injection detection and deflection
 - Hard demo-transaction boundary — no fake bookings or leads
-- LLM output sanitization (blocks false completion claims, strips raw HTML, replaces outcome promises)
+- LLM output sanitization (blocks false completion claims, prices and unknown phone numbers or emails; strips raw HTML; replaces outcome promises)
 - Client-side request deduplication and in-flight request cancellation
 - Per-IP rate limiting
 - Session isolation via validated session tokens
@@ -278,14 +278,15 @@ python tests/run_release_test_suite.py  # aggregated release scorecard
 python tests/run_50_validation_tests.py # live-API end-to-end checks
 ```
 
+### Compare Designs on Real Questions
+
+`evaluation/runners/compare_real_questions.py` runs the current bot and a simpler design (two hard rules, then the LLM with the whole knowledge base) on real visitor questions, hides which wrote which answer, and counts your pass/fail grades. It needs an LLM key. Usage is in the file's docstring.
+
 ## Documentation
 
 | Document | Purpose |
 |---|---|
-| [`docs/PROJECT_REPORT.md`](docs/PROJECT_REPORT.md) | Full engineering case study |
-| [`docs/RAG_EVALUATION.md`](docs/RAG_EVALUATION.md) | Retrieval methodology and benchmark results |
 | [`docs/SECURITY_REVIEW.md`](docs/SECURITY_REVIEW.md) | OWASP-mapped security analysis |
-| [`docs/PRODUCTION_AUDIT.md`](docs/PRODUCTION_AUDIT.md) | Architecture / codebase audit |
 | [`docs/KNOWLEDGE_GAPS.md`](docs/KNOWLEDGE_GAPS.md) | Verified knowledge gaps |
 | [`docs/PERFORMANCE.md`](docs/PERFORMANCE.md) | Performance measurements |
 | [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) | Release validation gates |
@@ -311,4 +312,4 @@ python tests/run_50_validation_tests.py # live-API end-to-end checks
 
 ## License
 
-This project is a portfolio / engineering case study. See the repository for license details.
+This project is a portfolio / engineering case study. No license file is included.

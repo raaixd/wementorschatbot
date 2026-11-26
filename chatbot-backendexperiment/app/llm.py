@@ -29,10 +29,11 @@ import logging
 import re
 import time
 from abc import ABC, abstractmethod
+from functools import lru_cache
 from typing import Any, Dict, List, Optional, Sequence
 
 from . import config, personality
-from .knowledge import KBEntry
+from .knowledge import KBEntry, load_entries
 from .retrieval import ScoredEntry
 
 logger = logging.getLogger("wementors.llm")
@@ -105,6 +106,37 @@ def remove_outcome_promises(text: str) -> str:
     return "".join(parts)
 
 
+_MONEY_RE = re.compile(
+    r"[\u20b9$\u20ac\u00a3]\s?\d|\b(?:rs\.?|inr)\s?\d|\b\d[\d,]*\s?(?:rupees|inr|dollars)\b",
+    re.IGNORECASE,
+)
+_EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
+_PHONE_RE = re.compile(r"\+?\d(?:[ ().-]{0,2}\d){9,}")
+
+
+def _phone_key(raw: str) -> str:
+    return re.sub(r"\D", "", raw)[-10:]
+
+
+@lru_cache(maxsize=1)
+def _published_contacts() -> frozenset:
+    """Emails and phone numbers that appear in the KB or the persona prompt."""
+    source = repr(load_entries()) + personality.PERSONA_SYSTEM_PROMPT
+    return frozenset(
+        [e.lower() for e in _EMAIL_RE.findall(source)]
+        + [_phone_key(p) for p in _PHONE_RE.findall(source)]
+    )
+
+
+def has_invented_details(text: str) -> bool:
+    """True for a price (none are published) or an unknown email or phone."""
+    if _MONEY_RE.search(text):
+        return True
+    found = [e.lower() for e in _EMAIL_RE.findall(text)]
+    found += [_phone_key(p) for p in _PHONE_RE.findall(text)]
+    return any(item not in _published_contacts() for item in found)
+
+
 def sanitize_llm_output(text: str) -> Optional[str]:
     """Validate and clean a raw provider response. Returns None if the
     response should not be shown as-is."""
@@ -124,6 +156,9 @@ def sanitize_llm_output(text: str) -> Optional[str]:
         return None
     if _LEAKED_INSTRUCTION_RE.search(cleaned):
         logger.warning("Discarding LLM output that leaked internal instructions or context")
+        return None
+    if has_invented_details(cleaned):
+        logger.warning("Discarding LLM output with an unpublished price or contact detail")
         return None
     cleaned = remove_outcome_promises(cleaned)
     if len(cleaned) > _MAX_OUTPUT_CHARS:
