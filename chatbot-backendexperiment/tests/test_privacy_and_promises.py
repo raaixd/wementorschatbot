@@ -9,7 +9,7 @@ BACKEND_ROOT = Path(__file__).resolve().parents[1]
 if str(BACKEND_ROOT) not in sys.path:
     sys.path.insert(0, str(BACKEND_ROOT))
 
-from app import database, llm
+from app import config, database, llm, personality
 from app.conversation import ConversationEngine
 from app.knowledge import load_entries
 
@@ -90,6 +90,52 @@ def test_one_word_subject_reply_sticks_to_published_facts(engine, subject):
     assert "fortnightly doubt clinics" in reply
     for unpublished in ("weekly doubt", "past paper", "mental math", "score improvement", "1-on-1"):
         assert unpublished not in reply
+
+
+@pytest.mark.parametrize("request_text", [
+    "can I get a mentor for guitar",
+    "I need a tutor for French",
+    "can i get a home tutor in Pune",
+    "can you assign a female mentor",
+    "do you have a mentor for my 4 year old",
+    "can I get a mentor for SAT prep",
+    "do you have a mentor who speaks Tamil",
+    "can you arrange a mentor at midnight",
+])
+def test_unpublished_mentor_requests_are_not_confirmed(engine, request_text):
+    reply = _ask(engine, str(uuid.uuid4()), request_text)
+    assert reply == personality.MENTOR_REQUEST_UNCONFIRMED_RESPONSE
+
+
+@pytest.mark.parametrize("request_text", [
+    "find me a mentor for maths grade 7",
+    "Can you find a mentor for Grade 7 ICSE Math & Science?",
+    "Can my child get a mentor?",
+    "do you have mentors for grade 9 cbse math",
+])
+def test_published_mentor_requests_are_still_confirmed(engine, request_text):
+    assert _ask(engine, str(uuid.uuid4()), request_text).startswith("Yes,")
+
+
+@pytest.mark.parametrize("model_reply", [
+    "No, WeMentors does not offer that.",
+    "That is not something I can confirm.",
+])
+def test_a_model_refusal_is_never_turned_into_yes(engine, monkeypatch, model_reply):
+    class Refusing(llm.LLMProvider):
+        name = "fake"
+
+        def generate(self, system_prompt, messages):
+            return model_reply
+
+    monkeypatch.setattr(config, "LLM_ENABLED", True)
+    llm.set_provider_for_testing(Refusing())
+    try:
+        # In scope for the allowlist, so the model's own answer is shown.
+        reply = _ask(engine, str(uuid.uuid4()), "Can my child get a mentor?")
+    finally:
+        llm.reset_provider_cache()
+    assert reply.startswith(model_reply)
 
 
 def test_only_the_offending_line_changes_and_llm_output_is_covered():

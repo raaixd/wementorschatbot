@@ -114,6 +114,13 @@ Website & Demo Interface Accuracy
 - Never claim that a demo has been booked or a form submitted unless confirmed by the backend."""
 
 
+MENTOR_REQUEST_UNCONFIRMED_RESPONSE = (
+    "I can’t confirm that particular request. WeMentors offers live online mentoring for school "
+    "subjects in Grades 3–10, plus Communicative English and IELTS Preparation. To ask about your "
+    "specific need, contact the team at **admin@wementors.co** or **+91 76111 92227**."
+)
+
+
 GREETINGS = [
     "Hi there! What would you like to know about WeMentors today — our programs, Grades 9–10 support, Communicative English, or booking a free demo?",
     "Hello! I'm here to help you explore WeMentors — our academic programs, mentoring approach, or how to arrange a trial session.",

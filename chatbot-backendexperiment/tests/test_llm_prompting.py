@@ -502,8 +502,8 @@ check("a real knowledge-base match is unaffected by the general-answer routing",
 mentor_scored = retrieve("Can I get a mentor?")
 mentor_msgs = llm.build_messages("Can I get a mentor?", mentor_scored, None)
 mentor_prompt_content = mentor_msgs[-1]["content"]
-check("mentor prompt instructs affirmative to start directly with 'Yes, '", "Always start directly with 'Yes, '" in mentor_prompt_content, mentor_prompt_content)
-check("mentor prompt forbids 'Yes!' or exclamation marks", "NEVER use 'Yes!'" in mentor_prompt_content, mentor_prompt_content)
+check("mentor prompt allows 'Yes' only for covered requests", "ONLY if the verified facts cover everything" in mentor_prompt_content, mentor_prompt_content)
+check("mentor prompt never forces an affirmative", "Always start directly with 'Yes" not in mentor_prompt_content, mentor_prompt_content)
 check("mentor prompt includes concise demo CTA", "Ready to experience a session? You can book a free 30-minute demo using the Book Free Demo button." in mentor_prompt_content, mentor_prompt_content)
 check("mentor prompt forbids extra sales sentences", "Do NOT add extra sentences about individual attention" in mentor_prompt_content, mentor_prompt_content)
 

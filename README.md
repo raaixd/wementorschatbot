@@ -52,7 +52,8 @@ The project also treats evaluation as a first-class concern — retrieval change
 
 ### Reliability & Safety
 - Grounding: answers to matched questions are generated from retrieved KB entries. Unmatched, playful, frustrated or confused messages can reach the LLM with no retrieved entries, limited only by the system prompt
-- Honest fallback on unsupported questions instead of invented answers
+- Fallback for unsupported questions (pattern-based, so some slip through)
+- Mentor requests are confirmed only when every word maps to ordinary phrasing or a published offering; otherwise the bot says it cannot confirm
 - Prompt-injection detection and deflection
 - Hard demo-transaction boundary — no fake bookings or leads
 - LLM output sanitization (blocks false completion claims, prices and unknown phone numbers or emails; strips raw HTML; replaces outcome promises)
