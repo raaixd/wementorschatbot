@@ -1741,8 +1741,9 @@ class ConversationEngine:
         memory: database.ConversationMemory,
         user_message: str = "",
     ) -> ReplyResult:
-        prefix = getattr(self, "_pending_intro_prefix", None)
-        self._pending_intro_prefix = None
+        # Per-request state only: the engine is shared by every visitor.
+        prefix = getattr(memory, "intro_prefix", None)
+        memory.intro_prefix = None
         if prefix and not result.reply.startswith("Nice to meet you"):
             result = ReplyResult(
                 prefix + result.reply,
@@ -3002,16 +3003,8 @@ class ConversationEngine:
             if re.search(r"\b(fee details are shared individually|our fees are|fee structure|tuition fees?)\b", reply, re.IGNORECASE):
                 reply = re.sub(r"\b(Fee details are shared individually[^.\n]*[.\n]?|Our fees are[^.\n]*[.\n]?)", "", reply, flags=re.IGNORECASE).strip()
 
-        # Avoid unsupported claims or guarantees (marks, ranks, 100%, guaranteed results, fluency)
-        unsupported_phrases = [
-            r"\bguaranteed\s+(?:marks|results?|ranks?|success|grades?|score)\b",
-            r"\b100%\s+(?:guaranteed|success|pass)\b",
-            r"\bguarantee\s+(?:that|your|a|to)\b",
-            r"\beliminate\s+all\s+(?:anxiety|fear)\b",
-            r"\bbecome\s+(?:completely\s+)?fluent\s+overnight\b",
-        ]
-        for pat in unsupported_phrases:
-            reply = re.sub(pat, "individual progress and guided development", reply, flags=re.IGNORECASE)
+        # Replace sentences that promise outcomes (marks, ranks, instant fluency)
+        reply = llm.remove_outcome_promises(reply)
 
         # Action claim validation: prevent claiming persistent external actions unless actually in confirmed lead flow
         if intent not in ("demo_submitted", "demo_confirming"):
@@ -3225,7 +3218,7 @@ class ConversationEngine:
             rem_q = m_intro_q.group(2).strip()
             if cand_name.lower() not in leads._NAME_BLACKLIST and len(rem_q) >= 3:
                 message = rem_q
-                self._pending_intro_prefix = f"Nice to meet you, {cand_name}! "
+                memory.intro_prefix = f"Nice to meet you, {cand_name}! "
 
         # Standalone discourse markers
         if _STANDALONE_ACTUALLY_RE.match(message):
