@@ -1,0 +1,10 @@
+line-length = 120
+target-version = "py312"
+
+[lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E501", "E402"]
+
+[lint.per-file-ignores]
+# Report templates use trailing spaces as Markdown line breaks.
+"evaluation/runners/*.py" = ["W291"]

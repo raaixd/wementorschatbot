@@ -16,7 +16,6 @@ import datetime
 import hashlib
 import json
 import os
-import sys
 from pathlib import Path
 from typing import Dict, List
 

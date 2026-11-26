@@ -1,339 +1,154 @@
-# WeMentors AI Chatbot
+# WeMentors Assistant
 
-> Conversational FAQ assistant with retrieval, built for student and parent support.
-
-[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://wementors.vercel.app)
-[![Python](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/)
-[![FastAPI](https://img.shields.io/badge/backend-FastAPI-009688)](https://fastapi.tiangolo.com/)
-[![pytest](https://img.shields.io/badge/tests-pytest-0A9EDC)](https://docs.pytest.org/)
 [![CI](https://github.com/raaixd/wementorschatbot/actions/workflows/ci.yml/badge.svg)](https://github.com/raaixd/wementorschatbot/actions/workflows/ci.yml)
+![Python 3.12](https://img.shields.io/badge/python-3.12-blue)
+![FastAPI](https://img.shields.io/badge/backend-FastAPI-009688)
 
-**[Live Demo](https://wementors.vercel.app)** · **[Repository](https://github.com/raaixd/wementorschatbot)**
+The chat assistant on the [WeMentors](https://wementors.vercel.app) website. It answers parents' and students' questions about programs, classes and demo bookings from a curated knowledge base, and points them to the team when it has no confirmed answer.
 
-WeMentors AI is the conversational assistant embedded in the [WeMentors](https://wementors.vercel.app) website, answering student and parent questions about programs, curricula, mentoring, class logistics, and demo bookings. Most answers come from deterministic routing or from a curated knowledge base, and when it lacks a confirmed answer it aims to point the visitor to the team. This is a design goal, not a guarantee: some LLM replies are generated without retrieved facts (see below).
+**[Live site](https://wementors.vercel.app)**
 
-Under the hood it's a conversational RAG pipeline: deterministic intent routing, contextual query rewriting for follow-ups ("what about the second one?"), hybrid lexical + semantic retrieval over a curated knowledge base, optional LLM phrasing, and output filters that block false booking claims, leaked instructions, raw HTML and outcome promises. These are pattern checks; they do not detect hallucinations in general.
+![The chat window: welcome screen and a reply with contact buttons](docs/images/chat.png)
 
-The project also treats evaluation as a first-class concern — retrieval changes are benchmarked against a fixed query set before they ship, not shipped on the assumption that "embeddings are better."
+## Features
 
-## How It Answers Today
+- **Grounded answers** from a 54-entry knowledge base, with a fixed "not confirmed" reply when the model cannot find the fact
+- **Fixed safety replies**, written in code, for possible self-harm, a distressed child, additional needs, child safety, data privacy, mentor personal details, outcome guarantees and "are you a real person?"
+- **Output filters** that block false booking claims, prices, unknown phone numbers or emails, and promised results
+- **Works without a model:** if the model fails or no key is set, stored answers are used
+- **Mobile-friendly chat window** with welcome cards, WhatsApp, call and email buttons, and reduced-motion support
+- **No fake bookings:** the assistant never claims to have booked anything. Visitors use the demo form or contact the team
 
-1. **Fixed rules** run first, in code: possible self-harm, a distressed child, additional needs, child safety, data privacy, mentor personal details, outcome guarantees, "are you a person?", prompt injection and booking requests.
-2. **With a model available** (`ANSWER_MODE=full_kb`, the default), it receives the whole knowledge base (about 4,500 tokens) and the recent conversation. It can reply `NOT_CONFIRMED`. Its output is filtered for false booking claims, prices, unknown contacts and outcome promises.
-3. **If the model fails or its reply is rejected**, the routed engine described below answers from stored text, without calling the model again.
+## How It Answers
 
-### Why it changed
+```mermaid
+flowchart TD
+    Q[Visitor message] --> R{Fixed rule applies?}
+    R -- yes --> F[Fixed reply]
+    R -- no --> M{Model available?}
+    M -- yes --> L[Model reads the whole knowledge base<br/>and recent conversation]
+    L --> V{Reply passes filters?}
+    V -- yes --> A[Answer, or 'not confirmed']
+    V -- no or error --> S[Routed engine: stored answers]
+    M -- no --> S
+```
 
-Both designs answered the same messy, multi-turn parent questions, including traps meant to get a false "yes". Answers were graded pass or fail without labels showing which design wrote them.
+The default, `ANSWER_MODE=full_kb`, sends the whole knowledge base (about 4,500 tokens) with each model call. `ANSWER_MODE=routed` instead uses keyword routing and retrieval to choose what the model sees. The routed engine is also the backup, and it does not call the model a second time after a failure.
+
+### Why the whole knowledge base
+
+Both designs answered the same informal, multi-turn parent questions, including traps meant to draw a false "yes". Answers were graded pass or fail without labels.
 
 | Design | Round 1 | Round 2 | Total |
 |---|---:|---:|---:|
 | Routing and retrieval, then the model | 30/43 | 20/35 | **50/78 (64%)** |
 | Fixed rules, then the model with the whole knowledge base | 37/43 | 32/35 | **69/78 (88%)** |
 
-Limits: the questions were written and graded by the same AI assistant that worked on the code, not collected from real parents or graded by an independent person. The two styles are sometimes recognisable, so the blinding was imperfect. Treat this as a strong hint, and rerun it on real questions with `evaluation/runners/compare_real_questions.py`.
+**Limits:** the questions were written and graded during development by the same party that made the change. They were not collected from real parents or graded independently, and the two styles are sometimes recognisable. Treat the result as a strong hint, and repeat it on real questions with the [comparison tool](evaluation/runners/compare_real_questions.py).
 
-The sections below on routing and hybrid retrieval describe the backup path, which `ANSWER_MODE=routed` also makes the main one.
+## Quick Start
 
-## At a Glance
+```bash
+git clone https://github.com/raaixd/wementorschatbot.git
+cd wementorschatbot
 
-| | |
-|---|---|
-| **Architecture** | Conversational RAG (retrieval → grounded generation → validation) |
-| **Backend** | Python / FastAPI |
-| **Database** | SQLite |
-| **Retrieval** | Hybrid — lexical (TF-IDF) + semantic embeddings, conditionally fused |
-| **Embeddings** | `gemini-embedding-001` (3072-dim) |
-| **Primary LLM** | Gemini 3.5 Flash-Lite |
-| **Fallback LLM** | Groq (Llama / GPT-OSS models) |
-| **Final fail-safe** | Deterministic knowledge-base answer (no LLM call) |
-| **Knowledge base** | 54 entries |
-| **Deployment** | Vercel (serverless) |
-| **CI** | GitHub Actions — pytest on every push/PR to `main` |
+python -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
+pip install -r backend/requirements.txt
 
-## Key Features
-
-### Conversational Intelligence
-- Multi-turn state stored in SQLite per session (on Vercel the database is in `/tmp`, so it is not shared between instances and does not survive restarts)
-- Contextual query rewriting for follow-ups
-- Pronoun and reference resolution ("its fees", "that one")
-- Ordinal references — "the first one" / "the second program"
-- Topic switching without losing prior context
-- Deterministic intent routing for greetings, thanks, goodbyes, and demo requests
-
-### Retrieval & RAG
-- TF-IDF lexical retrieval with keyword-overlap boosting
-- Token-coverage gating to reject low-evidence matches
-- Conditional semantic embedding retrieval (only invoked when lexical confidence is weak)
-- Weighted lexical–semantic score fusion
-- Confidence thresholds with a safe "I'm not sure" fallback
-- Category- and topic-specific negative gates to prevent cross-program false matches
-
-### Reliability & Safety
-- Grounding: answers to matched questions are generated from retrieved KB entries. Unmatched, playful, frustrated or confused messages can reach the LLM with no retrieved entries, limited only by the system prompt
-- Fallback for unsupported questions (pattern-based, so some slip through)
-- Mentor requests are confirmed only when every word maps to ordinary phrasing or a published offering; other replies drop a leading "Yes" and add a caveat when the question contains unrecognised words. This is a word list, so misleading combinations of known words can still slip through
-- Prompt-injection detection and deflection
-- Fixed replies, written in code and never by a model, for possible self-harm, a distressed child, additional needs, child safety, data privacy, mentor personal details, outcome guarantees and "are you a person?"
-- The model can answer `NOT_CONFIRMED`; visitors then see an honest reply with the team's contacts
-- Hard demo-transaction boundary — no fake bookings or leads
-- LLM output sanitization (blocks false completion claims, prices and unknown phone numbers or emails; strips raw HTML; replaces outcome promises)
-- Client-side request deduplication and in-flight request cancellation
-- Per-IP rate limiting
-- Session isolation via validated session tokens
-
-### Production Engineering
-- LLM provider fallback chain (primary → secondary → deterministic KB)
-- Automated regression tests, run by pytest
-- Offline retrieval benchmarking with measured deltas, not assumptions
-- GitHub Actions CI on every push and PR
-- Vercel serverless deployment
-- Production smoke test suite
-
-## Architecture
-
-```
-                              User
-                               │
-                               ▼
-                    Request Validation
-                   (length, schema, rate limit)
-                               │
-                               ▼
-                Intent + Context Resolution
-             (greeting / demo / follow-up / FAQ)
-                               │
-                               ▼
-                 Contextual Query Rewriting
-                               │
-                               ▼
-                          Retrieval
-                 ┌─────────────┴─────────────┐
-                 ▼                           ▼
-         Lexical Retrieval           Semantic Retrieval
-         (TF-IDF, instant)        (gemini-embedding-001,
-                                    conditional only)
-                 └─────────────┬─────────────┘
-                               ▼
-              Hybrid Score Fusion / Confidence Gate
-                               │
-                               ▼
-                       Verified Evidence
-                               │
-                               ▼
-                   Bounded LLM Generation
-              (Gemini → Groq fallback → KB template)
-                               │
-                               ▼
-              Response Validation / Safety Gates
-                               │
-                               ▼
-                              User
+cp backend/.env.example backend/.env    # optional: add a model key
+cd backend
+python -m uvicorn app.main:app --reload
 ```
 
-Each stage is a plain function call, not an agent — the system is a single deterministic pipeline, which keeps it fast, testable, and easy to reason about.
+Open <http://127.0.0.1:8000> for the website and chat. API docs are at `/docs`.
 
-## Hybrid Retrieval
+## Configuration
 
-Earlier versions of this system were purely lexical. The current implementation is a **conditional hybrid retriever**:
+Settings are read from `backend/.env`. See [`.env.example`](backend/.env.example) for the full list.
 
-1. Every query runs through TF-IDF lexical retrieval first — sub-10ms, zero external calls.
-2. If the top lexical match is confident *and* has high keyword coverage, that result is returned immediately (the fast path — no embedding call).
-3. Weaker or ambiguous matches trigger semantic retrieval via `gemini-embedding-001`.
-4. The same domain/safety gates used for lexical retrieval (fee gating, program-boundary gating, etc.) are applied to semantic candidates too.
-5. Lexical and semantic scores are min-max normalized and linearly fused (50/50 weighting).
-6. A final acceptance threshold decides whether the fused result is returned at all.
-7. If the embedding API times out, rate-limits, or returns malformed data, the system falls back to the lexical result — semantic retrieval never blocks or breaks a reply.
+| Variable | Default | Purpose |
+|---|---|---|
+| `GEMINI_API_KEY` | empty | Enables Gemini. Groq and Anthropic keys also work |
+| `ANSWER_MODE` | `full_kb` | `full_kb` or `routed` |
+| `HYBRID_RETRIEVAL_ENABLED` | `false` | Adds embedding search to the routed engine |
+| `RATE_LIMIT_MAX_REQUESTS` | `20` | Requests per client per window |
+| `ADMIN_API_KEY` | empty | Enables `/admin/analytics` |
 
-**Why this shape:** lexical retrieval is fast, interpretable, and reliable for direct FAQ-style questions, which make up most real traffic. Semantic retrieval earns its latency and API cost only on the harder slice — paraphrased or conversational queries with little literal keyword overlap. The conditional design means the embedding API is called only when it's actually needed, not on every request.
+## API
 
-## Retrieval Evaluation
+| Method | Path | Purpose |
+|---|---|---|
+| `GET` | `/health` | Status, knowledge base size and active model |
+| `POST` | `/chat` | Send a message |
+| `POST` | `/chat/clear` | Clear a conversation |
+| `POST` | `/feedback` | Rate a reply |
+| `GET` | `/admin/analytics` | Usage summary (needs the admin key) |
 
-Hybrid retrieval wasn't adopted on the assumption that embeddings are strictly better — it was benchmarked against the existing lexical baseline on a **156-query evaluation set** before being enabled.
+## Development
 
-| Metric | Lexical Baseline | Hybrid | Change |
-|---|---:|---:|---:|
-| Recall@1 | 72.00% | 76.00% | +4.00 pp |
-| Recall@3 | 84.00% | 84.00% | — |
-| MRR | 0.7733 | 0.8000 | +0.0267 |
-| NDCG@3 | 0.7905 | 0.8105 | +0.0200 |
-| Answer correctness | 78.85% | 82.69% | +3.84 pp |
-| Groundedness | 96.79% | 96.79% | — |
-| Hallucination | 3.21% | 3.21% | — |
-| Context resolution | 90.38% | 92.95% | +2.57 pp |
-| Unknown handling | 92.31% | 92.95% | +0.64 pp |
-| **False positive rate** | 0.0% | **60.0%** | **worse** |
-| In-memory retrieval latency | 8.81 ms | 10.22 ms | +1.41 ms (worse) |
+```bash
+SKIP_DOTENV=1 pytest              # 375 tests; SKIP_DOTENV stops them calling a real model
+ruff format . && ruff check .     # formatting and lint, also run in CI
+```
 
-Lexical retrieval was kept as the baseline and fast path rather than replaced. Dense retrieval was tested standalone, then swept across fusion strategies (weighted linear, reciprocal rank fusion) and gating configurations; weighted fusion at the fast-path thresholds above performed best on this set. The clearest gains were in top-1 retrieval accuracy and answer correctness, driven by paraphrased queries the lexical matcher had no shared vocabulary with. In this same run, the fast path resolved the majority of queries without ever calling the embedding API — semantic retrieval was invoked only for the harder minority.
+Tests without a real model do not show how one behaves. Before changing prompts or answer logic, also try the change with a key set.
 
-**How to read these numbers:**
+### Updating the knowledge base
 
-- These figures come from the committed report, which was produced before the fixes of 26 November 2026. The hybrid benchmark has not been rerun since, because it needs an embedding API key.
-- **Hybrid accepted answers it should have rejected.** The false positive rate covers only 5 negative cases, so 60% means 3 of 5. That sample is too small to measure the rate well, but it is a real regression.
-- The retrieval metrics come from a 30-case focused set within the 156; the other 126 are the standard benchmark.
-- The scoring is crude. A "hallucination" means a listed forbidden phrase appeared in the reply, and an answer counts as correct if it contains at least half of its expected keywords. Neither is a human judgement.
-- The cases were written for this project and are not an independent, held-out sample of real visitor questions.
-- In the separate [lexical baseline report](evaluation/reports/baseline_report.md), intent accuracy is 35.71% against a 90% target, and answer correctness (89.68%) and unknown handling (92.06%) also miss their targets.
+1. Edit [`knowledge/wementors_kb.json`](knowledge/wementors_kb.json).
+2. Regenerate the embeddings with `python scripts/generate_kb_embeddings.py` (needs `GEMINI_API_KEY` in the environment).
+3. Run the tests.
 
-Source: [`conditional_hybrid_benchmark_report.md`](evaluation/reports/conditional_hybrid_benchmark_report.md).
-
-## Example: Semantic Recovery
-
-> "He was sick and had to skip. Is there a way to do the session later?"
-
-The lexical retriever finds almost no shared vocabulary between this query and the knowledge base's missed-class/catch-up entry — "sick," "skip," and "later" don't appear in the entry's question or phrasings. Semantic retrieval recovers the correct entry by matching on meaning rather than keywords. This is one of the regression cases in the test suite, covering the exact scenario the hybrid path exists for.
-
-## LLM & Generation Architecture
-
-For matched questions, the model is given the retrieved knowledge-base entries as context. When nothing matches, and for some playful, frustrated or confused messages, it is called with recent conversation turns and no entries. In that path, only the system prompt and the output filters stop it from stating unverified things.
-
-- **Provider abstraction** — a common interface over Gemini, Groq, and Anthropic providers, plus a null provider for template-only mode
-- **Primary:** Gemini (`gemini-3.5-flash-lite`)
-- **Fallback:** Groq, attempted automatically if the primary provider fails, times out, or is rate-limited
-- **Final fail-safe:** a deterministic, template-based answer built directly from the KB entry — no network call, works fully offline
-- API credentials are read from environment variables server-side and never returned to the client
-- Provider selection and any misconfiguration are surfaced through `/health`, not hidden behind a silent fallback
-
-## Safety & Reliability
-
-The chatbot answers questions — it does not take actions. `DEMO_TRANSACTION_ENABLED = False` is a hard constant: the system cannot submit a booking, create a lead, or claim to have completed a transaction on the user's behalf. It always directs booking intent to the site's official demo/contact flow. This is a capability boundary by design, not a missing feature.
-
-| Control | Implementation |
-|---|---|
-| Prompt injection | Regex-based deflection + system prompt + output filter for leaked instructions |
-| Secrets | Environment variables only, never logged or echoed |
-| Output safety | Pattern filters for false action claims, leaked instructions, raw HTML and outcome promises |
-| Demo safety | No transactional capability; `DEMO_TRANSACTION_ENABLED = False` |
-| Rate limiting | Per-client sliding-window limiter (in-memory) |
-| Session isolation | Session IDs, validated by format before use |
-| Input validation | Pydantic schemas, length-capped requests |
-| HTML safety | Frontend escapes all rendered text before DOM insertion |
-
-**Known limitation:** session IDs are bearer values — anyone holding a session ID can act as that session. There is no additional authentication layer, which is an accepted trade-off for an anonymous, informational assistant with no PII or transactional capability. See [`docs/SECURITY_REVIEW.md`](docs/SECURITY_REVIEW.md) for the full OWASP-mapped review.
-
-## Testing & Reliability
-
-The guiding rule: **observed failures were converted into regression tests.** The suite isn't a checklist written in advance — most of it exists because something broke once and got locked down.
-
-36 test files cover:
-- Retrieval (lexical, semantic, and hybrid fusion)
-- Conversation state and contextual follow-ups
-- Unsupported/out-of-scope questions
-- Prompt injection
-- LLM provider failure and fallback
-- Demo-transaction safety
-- Message ownership, request deduplication and thread safety
-- Visitor privacy between sessions
-- False "Yes" answers to requests that are not offered
-- Frontend and security behavior
-- Production smoke testing
-
-GitHub Actions runs the full pytest suite on every push and pull request to `main`.
-
-One example worth calling out as production engineering rather than a bug: the semantic embedding cache is validated against a SHA-256 hash of the knowledge-base file, and that hash needs to match across Windows and Linux. A `.env`/KB file with Windows line endings produced a different hash than the same content on the Linux CI runner, which invalidated the embedding cache on every CI run. The fix normalizes newlines before hashing, and CI has been stable since.
+Facts still waiting on the team are listed in [Open Questions](docs/OPEN_QUESTIONS.md).
 
 ## Project Structure
 
 ```
-wementorschatbot/
-├── chatbot-backendexperiment/
+├── index.html              Website and chat window
+├── api/index.py            Vercel entry point
+├── backend/
 │   ├── app/
-│   │   ├── main.py           # FastAPI app, routes, request validation
-│   │   ├── conversation.py   # Conversation engine / RAG pipeline
-│   │   ├── retrieval.py      # Lexical retrieval + hybrid fusion
-│   │   ├── semantic.py       # Embedding client + KB embedding store
-│   │   ├── llm.py            # Provider abstraction (Gemini/Groq/Anthropic)
-│   │   ├── knowledge.py      # Knowledge base loading
-│   │   ├── leads.py          # Demo-transaction boundary
-│   │   ├── database.py       # SQLite persistence
-│   │   ├── ratelimit.py      # Per-client rate limiter
-│   │   └── config.py         # Environment-driven configuration
-│   └── tests/                # pytest files + release/smoke runners
-├── knowledge/
-│   ├── wementors_kb.json     # Knowledge base (54 entries)
-│   └── kb_embeddings.json    # Precomputed KB embeddings
-├── scripts/
-│   └── generate_kb_embeddings.py
-├── evaluation/
-│   ├── questions/            # Benchmark query sets
-│   ├── runners/               # Benchmark + experiment runners
-│   └── reports/               # Measured benchmark reports
-├── docs/                     # Engineering documentation (see below)
-└── .github/workflows/ci.yml  # CI pipeline
+│   │   ├── main.py         API routes
+│   │   ├── conversation.py Answer pipeline and routed engine
+│   │   ├── policy.py       Fixed safety rules
+│   │   ├── llm.py          Model providers, prompts and output filters
+│   │   ├── scope.py        What may be answered with "yes"
+│   │   ├── presentation.py Final wording and fallbacks
+│   │   ├── retrieval.py    Lexical and hybrid search
+│   │   └── ...             Config, database, rate limiting, embeddings
+│   └── tests/
+├── knowledge/              Knowledge base and embeddings
+├── evaluation/             Benchmarks and the comparison tool
+└── scripts/                Embedding generation and feedback export
 ```
 
-## Quick Start
+## Retrieval Benchmark
 
-```powershell
-git clone https://github.com/raaixd/wementorschatbot.git
-cd wementorschatbot
+These figures describe the routed engine's search step, on 156 queries. They come from the committed [report](evaluation/reports/conditional_hybrid_benchmark_report.md), which predates the fixes of 26 November 2026 and has not been rerun.
 
-cd chatbot-backendexperiment
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-Copy-Item .env.example .env
-python -m uvicorn app.main:app --reload
-```
+| Metric | Lexical | Hybrid |
+|---|---:|---:|
+| Recall@1 | 72.00% | 76.00% |
+| MRR | 0.7733 | 0.8000 |
+| Answer correctness | 78.85% | 82.69% |
+| False positive rate | 0.0% | **60.0% (worse)** |
+| In-memory retrieval latency | 8.81 ms | 10.22 ms (worse) |
 
-In another terminal, serve the frontend:
+The false positive rate rests on only 5 negative cases (3 of 5), too few to measure it well. "Correct" means at least half of the expected keywords appeared, not a human judgement. The separate [lexical baseline](evaluation/reports/baseline_report.md) misses its targets for intent accuracy (35.71% against 90%), answer correctness and unknown-question handling.
 
-```powershell
-cd C:\path\to\wementorschatbot
-python -m http.server 3000
-```
+## Deployment
 
-| | |
-|---|---|
-| Frontend | http://127.0.0.1:3000 |
-| Backend | http://127.0.0.1:8000 |
-| Health | http://127.0.0.1:8000/health |
-| Docs | http://127.0.0.1:8000/docs |
+Pushes to `main` deploy to Vercel. Set the model key in the Vercel project settings. Pull requests get a preview build.
 
-### Configuration
+## Known Limitations
 
-The chatbot runs fully offline with no keys set — it answers from the knowledge base using deterministic templates. Set `GEMINI_API_KEY` (and optionally `GROQ_API_KEY` for fallback) in `.env` for LLM-generated phrasing. Set `HYBRID_RETRIEVAL_ENABLED=true` to enable semantic retrieval; it defaults to lexical-only. See `.env.example` for the full list of variables.
-
-### Run Tests
-
-```powershell
-pytest                                  # full suite
-python tests/run_release_test_suite.py  # aggregated release scorecard
-python tests/run_50_validation_tests.py # live-API end-to-end checks
-```
-
-### Compare Designs on Real Questions
-
-`evaluation/runners/compare_real_questions.py` runs the current bot and a simpler design (two hard rules, then the LLM with the whole knowledge base) on real visitor questions, hides which wrote which answer, and counts your pass/fail grades. It needs an LLM key. Usage is in the file's docstring.
-
-## Documentation
-
-| Document | Purpose |
-|---|---|
-| [`docs/SECURITY_REVIEW.md`](docs/SECURITY_REVIEW.md) | OWASP-mapped security analysis |
-| [`docs/KNOWLEDGE_GAPS.md`](docs/KNOWLEDGE_GAPS.md) | Verified knowledge gaps |
-| [`docs/PERFORMANCE.md`](docs/PERFORMANCE.md) | Performance measurements |
-
-## Current Limitations
-
-- Knowledge base is small and curated (54 entries) — coverage, not scale, is the design goal
-- Semantic retrieval depends on an external embedding API; it degrades gracefully to lexical-only on failure, but adds latency when invoked
-- SQLite is single-instance; horizontal scaling would need a shared database
-- Rate limiting is in-memory and per-process — a multi-worker or multi-instance deployment would need a shared store (e.g. Redis)
-- No real CRM or booking-system integration — demo requests are guided, not submitted
-- Session identity is a bearer token with no additional authentication layer
-- The retrieval benchmark set (156 queries) is useful but modest in size for statistical confidence
-
-## Future Work
-
-- Larger, more diverse evaluation datasets
-- Human preference evaluation alongside automated metrics
-- Structured production observability (request-level tracing, not log lines)
-- Real CRM / booking-system integration
-- Knowledge-base versioning and an approval workflow for edits
-- A shared-state rate limiter and database if traffic outgrows a single instance
+- On Vercel, conversation history is stored in `/tmp`. It is not shared between instances or kept across restarts, so follow-up questions can lose context.
+- The rate limiter is in memory, per instance.
+- Safety rules match set phrases and cannot catch every way of saying something.
+- Session IDs are bearer values. There is no other authentication.
+- `conversation.py`, the routed engine, is large and relies heavily on pattern matching.
 
 ## License
 
-This project is a portfolio / engineering case study. No license file is included.
+No license file is included.

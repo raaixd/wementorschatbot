@@ -3,8 +3,8 @@ Runner script for executing the WeMentors RAG Evaluation Benchmark.
 Evaluates the 126 benchmark cases against the system, generates empirical
 metrics, and produces JSON and Markdown reports in evaluation/reports/.
 """
+
 import json
-import os
 import sys
 import time
 import uuid
@@ -13,7 +13,7 @@ from pathlib import Path
 # Ensure backend directory is in sys.path
 current_dir = Path(__file__).resolve().parent
 project_root = current_dir.parent.parent
-backend_dir = project_root / "chatbot-backendexperiment"
+backend_dir = project_root / "backend"
 if str(backend_dir) not in sys.path:
     sys.path.insert(0, str(backend_dir))
 if str(project_root) not in sys.path:
@@ -22,7 +22,8 @@ if str(project_root) not in sys.path:
 from app import config, database, llm
 from app.conversation import ConversationEngine
 from app.knowledge import load_entries
-from evaluation.metrics.evaluator import evaluate_single_turn, aggregate_benchmark_metrics
+
+from evaluation.metrics.evaluator import aggregate_benchmark_metrics, evaluate_single_turn
 
 
 def _status(value, op, target):
@@ -99,7 +100,7 @@ def run_benchmark():
             if evaluated["hallucination_detected"]:
                 print(f"       -> HALLUCINATION DETECTED: {evaluated['hallucinated_terms']}")
             if not evaluated["demo_safe"]:
-                print(f"       -> DEMO SAFETY VIOLATION!")
+                print("       -> DEMO SAFETY VIOLATION!")
 
     total_benchmark_time = round(time.perf_counter() - t_benchmark_start, 2)
     summary = aggregate_benchmark_metrics(results)
@@ -114,8 +115,8 @@ def run_benchmark():
 
     # Output Markdown report
     md_path = reports_dir / "baseline_report.md"
-    md_content = f"""# WeMentors RAG Evaluation Benchmark — Baseline Report
-**Date:** {time.strftime('%Y-%m-%d %H:%M:%S')}  
+    md_content = rf"""# WeMentors RAG Evaluation Benchmark — Baseline Report
+**Date:** {time.strftime("%Y-%m-%d %H:%M:%S")}  
 **Evaluation Scope:** 126 Structured Test Cases across Categories A–J  
 **Total Benchmark Time:** {total_benchmark_time} seconds  
 
@@ -125,16 +126,16 @@ def run_benchmark():
 
 | Evaluation Metric | Measured Value | Threshold / Target | Status |
 | :--- | :---: | :---: | :---: |
-| **Total Test Cases** | **{summary['total_cases']}** | $\ge$ 100 | {_status(summary['total_cases'], '>=', 100)} |
-| **Answer Correctness** | **{summary['answer_correctness_pct']}%** | $\ge$ 90% | {_status(summary['answer_correctness_pct'], '>=', 90)} |
-| **Demo Transaction Safety** | **{summary['demo_safety_pct']}%** | 100% | {_status(summary['demo_safety_pct'], '>=', 100)} |
-| **Hallucination Rate** | **{summary['hallucination_rate_pct']}%** | $\le$ 2% | {_status(summary['hallucination_rate_pct'], '<=', 2)} |
-| **Groundedness Score** | **{summary['groundedness_pct']}%** | $\ge$ 95% | {_status(summary['groundedness_pct'], '>=', 95)} |
-| **Context Resolution Accuracy** | **{summary['context_resolution_pct']}%** | $\ge$ 90% | {_status(summary['context_resolution_pct'], '>=', 90)} |
-| **Intent Classification Accuracy**| **{summary['intent_accuracy_pct']}%** | $\ge$ 90% | {_status(summary['intent_accuracy_pct'], '>=', 90)} |
-| **Unknown Question Handling** | **{summary['unknown_handling_pct']}%** | 100% | {_status(summary['unknown_handling_pct'], '>=', 100)} |
-| **Average Turn Latency** | **{summary['avg_latency_ms']} ms** | < 2500 ms | {_status(summary['avg_latency_ms'], '<', 2500)} |
-| **Error Rate** | **{summary['error_rate_pct']}%** | 0.0% | {_status(summary['error_rate_pct'], '<=', 0)} |
+| **Total Test Cases** | **{summary["total_cases"]}** | $\ge$ 100 | {_status(summary["total_cases"], ">=", 100)} |
+| **Answer Correctness** | **{summary["answer_correctness_pct"]}%** | $\ge$ 90% | {_status(summary["answer_correctness_pct"], ">=", 90)} |
+| **Demo Transaction Safety** | **{summary["demo_safety_pct"]}%** | 100% | {_status(summary["demo_safety_pct"], ">=", 100)} |
+| **Hallucination Rate** | **{summary["hallucination_rate_pct"]}%** | $\le$ 2% | {_status(summary["hallucination_rate_pct"], "<=", 2)} |
+| **Groundedness Score** | **{summary["groundedness_pct"]}%** | $\ge$ 95% | {_status(summary["groundedness_pct"], ">=", 95)} |
+| **Context Resolution Accuracy** | **{summary["context_resolution_pct"]}%** | $\ge$ 90% | {_status(summary["context_resolution_pct"], ">=", 90)} |
+| **Intent Classification Accuracy**| **{summary["intent_accuracy_pct"]}%** | $\ge$ 90% | {_status(summary["intent_accuracy_pct"], ">=", 90)} |
+| **Unknown Question Handling** | **{summary["unknown_handling_pct"]}%** | 100% | {_status(summary["unknown_handling_pct"], ">=", 100)} |
+| **Average Turn Latency** | **{summary["avg_latency_ms"]} ms** | < 2500 ms | {_status(summary["avg_latency_ms"], "<", 2500)} |
+| **Error Rate** | **{summary["error_rate_pct"]}%** | 0.0% | {_status(summary["error_rate_pct"], "<=", 0)} |
 
 ---
 
@@ -148,7 +149,7 @@ def run_benchmark():
         d_pct = round((cat_data["demo_safe"] / cat_data["total"]) * 100, 1)
         md_content += f"| `{cat}` | {cat_data['total']} | {cat_data['correct']} | {c_pct}% | {cat_data['hallucinations']} | {d_pct}% |\n"
 
-    md_content += f"""
+    md_content += """
 ---
 
 ## 3. Engineering Assessment
