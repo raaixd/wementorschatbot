@@ -282,10 +282,7 @@ python tests/run_50_validation_tests.py # live-API end-to-end checks
 
 | Document | Purpose |
 |---|---|
-| [`docs/PROJECT_REPORT.md`](docs/PROJECT_REPORT.md) | Full engineering case study |
-| [`docs/RAG_EVALUATION.md`](docs/RAG_EVALUATION.md) | Retrieval methodology and benchmark results |
 | [`docs/SECURITY_REVIEW.md`](docs/SECURITY_REVIEW.md) | OWASP-mapped security analysis |
-| [`docs/PRODUCTION_AUDIT.md`](docs/PRODUCTION_AUDIT.md) | Architecture / codebase audit |
 | [`docs/KNOWLEDGE_GAPS.md`](docs/KNOWLEDGE_GAPS.md) | Verified knowledge gaps |
 | [`docs/PERFORMANCE.md`](docs/PERFORMANCE.md) | Performance measurements |
 | [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) | Release validation gates |
@@ -311,4 +308,4 @@ python tests/run_50_validation_tests.py # live-API end-to-end checks
 
 ## License
 
-This project is a portfolio / engineering case study. See the repository for license details.
+This project is a portfolio / engineering case study. No license file is included.

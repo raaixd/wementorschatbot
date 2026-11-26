@@ -1,5 +1,4 @@
 # WeMentors AI Chatbot — Production Security Review & OWASP LLM Audit
-**Status:** PRODUCTION READY  
 **Classification:** Technical Security Audit  
 **Author:** WeMentors Engineering  
 **Version:** 1.0  
