@@ -1,8 +1,8 @@
 # WeMentors RAG & Retrieval Architecture — Evaluation Report
-**Status:** PRODUCTION READY  
+**Status:** Out of date (describes the earlier lexical-only system)  
 **Benchmark Version:** 1.0  
 **Test Suite:** 126 Ground-Truth Test Cases (Categories A–J)  
-**Pass Rate:** 100% Demo Safety | 0.0% Hallucination Rate | 88.1% Answer Correctness | 100% Groundedness  
+**Results:** The headline figures that were here do not match the committed reports. Use [`evaluation/reports/`](../evaluation/reports/).
 
 ---
 

@@ -25,6 +25,12 @@ from app.knowledge import load_entries
 from evaluation.metrics.evaluator import evaluate_single_turn, aggregate_benchmark_metrics
 
 
+def _status(value, op, target):
+    """PASS/FAIL computed from the measured value, never hard-coded."""
+    ok = value >= target if op == ">=" else value <= target if op == "<=" else value < target
+    return "PASS" if ok else "**FAIL**"
+
+
 def run_benchmark():
     dataset_path = project_root / "evaluation" / "questions" / "dataset.json"
     if not dataset_path.exists():
@@ -119,16 +125,16 @@ def run_benchmark():
 
 | Evaluation Metric | Measured Value | Threshold / Target | Status |
 | :--- | :---: | :---: | :---: |
-| **Total Test Cases** | **{summary['total_cases']}** | $\ge$ 100 | **MEETS TARGET** |
-| **Answer Correctness** | **{summary['answer_correctness_pct']}%** | $\ge$ 90% | **PASS** |
-| **Demo Transaction Safety** | **{summary['demo_safety_pct']}%** | 100% | **PASS** |
-| **Hallucination Rate** | **{summary['hallucination_rate_pct']}%** | $\le$ 2% | **PASS** |
-| **Groundedness Score** | **{summary['groundedness_pct']}%** | $\ge$ 95% | **PASS** |
-| **Context Resolution Accuracy** | **{summary['context_resolution_pct']}%** | $\ge$ 90% | **PASS** |
-| **Intent Classification Accuracy**| **{summary['intent_accuracy_pct']}%** | $\ge$ 90% | **PASS** |
-| **Unknown Question Handling** | **{summary['unknown_handling_pct']}%** | 100% | **PASS** |
-| **Average Turn Latency** | **{summary['avg_latency_ms']} ms** | < 2500 ms | **PASS** |
-| **Error Rate** | **{summary['error_rate_pct']}%** | 0.0% | **ZERO CRASHES** |
+| **Total Test Cases** | **{summary['total_cases']}** | $\ge$ 100 | {_status(summary['total_cases'], '>=', 100)} |
+| **Answer Correctness** | **{summary['answer_correctness_pct']}%** | $\ge$ 90% | {_status(summary['answer_correctness_pct'], '>=', 90)} |
+| **Demo Transaction Safety** | **{summary['demo_safety_pct']}%** | 100% | {_status(summary['demo_safety_pct'], '>=', 100)} |
+| **Hallucination Rate** | **{summary['hallucination_rate_pct']}%** | $\le$ 2% | {_status(summary['hallucination_rate_pct'], '<=', 2)} |
+| **Groundedness Score** | **{summary['groundedness_pct']}%** | $\ge$ 95% | {_status(summary['groundedness_pct'], '>=', 95)} |
+| **Context Resolution Accuracy** | **{summary['context_resolution_pct']}%** | $\ge$ 90% | {_status(summary['context_resolution_pct'], '>=', 90)} |
+| **Intent Classification Accuracy**| **{summary['intent_accuracy_pct']}%** | $\ge$ 90% | {_status(summary['intent_accuracy_pct'], '>=', 90)} |
+| **Unknown Question Handling** | **{summary['unknown_handling_pct']}%** | 100% | {_status(summary['unknown_handling_pct'], '>=', 100)} |
+| **Average Turn Latency** | **{summary['avg_latency_ms']} ms** | < 2500 ms | {_status(summary['avg_latency_ms'], '<', 2500)} |
+| **Error Rate** | **{summary['error_rate_pct']}%** | 0.0% | {_status(summary['error_rate_pct'], '<=', 0)} |
 
 ---
 
@@ -148,7 +154,7 @@ def run_benchmark():
 ## 3. Engineering Assessment
 
 1. **Zero False Booking Agency:** Throughout all 12 demo transaction test cases, the chatbot never created false bookings or claimed details were submitted, safely directing 100% of demo enquiries to the website form.
-2. **Robust Anti-Hallucination:** Zero hallucinations were observed across fee queries, sibling discounts, teacher credentials, and schedules. The system consistently reported unverified facts honestly or provided official contact options.
+2. **Hallucination check:** This only flags listed forbidden phrases. See the table and category breakdown above for the counts; zero flags would not prove a reply is accurate.
 3. **Context & Multi-Turn Stability:** Ordinal references ("the first one", "the second program", "the last one") resolved with 100% accuracy, and program switching remained unpolluted by previous turn fees or topics.
 """
     with open(md_path, "w", encoding="utf-8") as f:
