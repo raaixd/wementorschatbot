@@ -17,6 +17,7 @@ from __future__ import annotations
 import json
 import logging
 import re
+import threading
 import time
 import uuid
 from contextlib import asynccontextmanager
@@ -120,25 +121,31 @@ VALID_USER_SOURCES = {
     "form_submission",
 }
 
-_recent_request_cache: Dict[str, tuple[float, ChatResponse]] = {}
+_recent_request_cache: Dict[tuple[str, str], tuple[float, ChatResponse]] = {}
+# Sync routes run on a thread pool, so the shared cache needs a lock.
+_recent_request_lock = threading.Lock()
 
 
-def _check_and_cache_request(request_id: Optional[str], response: Optional[ChatResponse] = None) -> Optional[ChatResponse]:
+def _check_and_cache_request(
+    session_id: str, request_id: Optional[str], response: Optional[ChatResponse] = None
+) -> Optional[ChatResponse]:
+    """Replay protection, scoped to one session so that a reused request id
+    can never return another visitor's reply."""
     if not request_id:
         return None
+    key = (session_id, request_id)
     now = time.time()
-    # Prune old cache entries (> 60 seconds)
-    expired = [k for k, (t, _) in _recent_request_cache.items() if now - t > 60]
-    for k in expired:
-        _recent_request_cache.pop(k, None)
+    with _recent_request_lock:
+        # Prune old cache entries (> 60 seconds)
+        expired = [k for k, (t, _) in _recent_request_cache.items() if now - t > 60]
+        for k in expired:
+            _recent_request_cache.pop(k, None)
 
-    if response is not None:
-        _recent_request_cache[request_id] = (now, response)
-        return None
-    if request_id in _recent_request_cache:
-        _, cached_resp = _recent_request_cache[request_id]
-        return cached_resp
-    return None
+        if response is not None:
+            _recent_request_cache[key] = (now, response)
+            return None
+        cached = _recent_request_cache.get(key)
+        return cached[1] if cached else None
 
 
 class ChatMessage(BaseModel):
@@ -335,14 +342,15 @@ def chat(
             detail=f"Invalid message source '{body.source}'. Valid sources are: {sorted(list(VALID_USER_SOURCES))}",
         )
 
+    session_id = _resolve_session_id(body.session_id, x_session_id)
+
     # Check deduplication cache
     if body.request_id:
-        cached_response = _check_and_cache_request(body.request_id)
+        cached_response = _check_and_cache_request(session_id, body.request_id)
         if cached_response:
             logger.info("Serving deduplicated response for request_id=%s", body.request_id)
             return cached_response
 
-    session_id = _resolve_session_id(body.session_id, x_session_id)
     database.ensure_session(session_id)
 
     message = body.message.strip()
@@ -416,7 +424,7 @@ def chat(
     )
 
     if body.request_id:
-        _check_and_cache_request(body.request_id, resp)
+        _check_and_cache_request(session_id, body.request_id, resp)
 
     return resp
 
