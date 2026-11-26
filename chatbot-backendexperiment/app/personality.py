@@ -708,8 +708,13 @@ CONFIDENT_SPEAKER_ENROLLMENT_RESPONSE = (
 )
 
 GENERAL_ENROLLMENT_CLARIFICATION = (
+    "Joining usually works like this:\n\n"
+    "1. Book the free demo with the **Book Free Demo** button at the top-right of the website\n"
+    "2. Meet a mentor and complete a short diagnostic\n"
+    "3. Receive a personalized learning-plan recommendation\n"
+    "4. Decide whether to continue; the team confirms any paperwork\n\n"
     "Which program would you like to enroll in: Foundation Years (Grades 3–5), Middle School (Grades 6–8), "
-    "Grades 9–10, Communicative English, or IELTS Preparation? You can also click the **Book Free Demo** button at the top-right of the website to get started."
+    "Grades 9–10, Communicative English, or IELTS Preparation?"
 )
 
 CONFIRMATION_WITHOUT_CLARIFICATION_RESPONSE = (
@@ -872,8 +877,8 @@ UNVERIFIED_FEES_RESPONSE = (
 )
 
 UNVERIFIED_PYTHON_COURSE_RESPONSE = (
-    "I don’t have the confirmed details for a Python course yet. "
-    "I can help you explore our available programs or guide you to book a free demo where you can ask our team about Python."
+    "I don’t have the confirmed details for that course yet. "
+    "I can help you explore our available programs or guide you to book a free demo where you can ask our team about it."
 )
 
 UNVERIFIED_PYTHON_FEES_RESPONSE = (

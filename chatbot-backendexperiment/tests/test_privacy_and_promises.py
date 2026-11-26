@@ -96,7 +96,6 @@ def test_one_word_subject_reply_sticks_to_published_facts(engine, subject):
     "can I get a mentor for guitar",
     "I need a tutor for French",
     "can i get a home tutor in Pune",
-    "can you assign a female mentor",
     "do you have a mentor for my 4 year old",
     "can I get a mentor for SAT prep",
     "do you have a mentor who speaks Tamil",

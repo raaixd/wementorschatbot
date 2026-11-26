@@ -114,6 +114,14 @@ def qualify_listing(question: str, reply: str, matched_ids: list) -> str:
     return f"{CAVEAT}\n\n{reply}"
 
 
+def needs_caveat(question: str, answer: str, entry_ids: list) -> bool:
+    """True when this answer would be shown under the caveat."""
+    return (
+        qualify_affirmation(question, answer) != answer
+        or qualify_listing(question, answer, entry_ids) != answer
+    )
+
+
 def qualify_affirmation(question: str, reply: str) -> str:
     """Withdraw a leading "Yes" when the question mentions something unknown.
 

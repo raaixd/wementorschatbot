@@ -941,7 +941,7 @@
         "one-to-one",
         "how it works"
       ],
-      "answer": "The Confident Speaker program uses personalized one-to-one mentoring. Each learner works individually with a personal mentor through guided speaking practice, practical conversation, and regular feedback. The communicative skills curriculum covers Public Speaking, Business English, General Communicative Skills, and IELTS Preparation (building spoken English, public speaking, and interview skills), with the goal of building confidence in speaking.\n\nYou can click **Book Free Demo** at the top-right of the website to experience a trial session.",
+      "answer": "The Communicative English program is taught one-to-one or in small batches of up to eight students. Learners work with a personal mentor through guided speaking practice, practical conversation, and regular feedback. The curriculum covers Spoken English, Conversation, Public Speaking, and Business English, with the goal of building confidence in speaking. IELTS Preparation is a separate course.\n\nYou can click **Book Free Demo** at the top-right of the website to experience a trial session.",
       "follow_ups": [
         "Who is the program for?",
         "Is a demo class available?"
@@ -995,7 +995,7 @@
         "interview skills",
         "speaking skills"
       ],
-      "answer": "The Confident Speaker program is a communicative skills program covering four distinct curriculum areas: Public Speaking, Business English, General Communicative Skills, and IELTS Preparation. It builds practical spoken English, public speaking, and interview skills with a focus on real-world development rather than rote grammar drills.\n\nYou can click **Book Free Demo** at the top-right of the website to experience a trial session.",
+      "answer": "The Communicative English program covers four curriculum areas: Spoken English, Conversation, Public Speaking, and Business English. It focuses on real-world development rather than rote grammar drills. IELTS Preparation is a separate course, not part of this program.\n\nYou can click **Book Free Demo** at the top-right of the website to experience a trial session.",
       "confidence": "verified"
     },
     {
@@ -1402,7 +1402,7 @@
         "foreign",
         "country"
       ],
-      "answer": "Yes! Anyone globally can join from any country. All WeMentors classes and mentoring sessions are conducted 1-on-1 live and online, so learners can join from Saudi Arabia, the UAE, the US, the UK, India, or anywhere else in the world. Sessions are scheduled flexibly to accommodate your local time zone.",
+      "answer": "Yes! Anyone globally can join from any country. All WeMentors classes and mentoring sessions are conducted live and online, so learners can join from Saudi Arabia, the UAE, the US, the UK, India, or anywhere else in the world. Sessions are scheduled flexibly to accommodate your local time zone.",
       "follow_ups": [
         "Are the classes online?",
         "How do 1-on-1 sessions work?",
@@ -1926,6 +1926,35 @@
       "follow_ups": [
         "How can I contact WeMentors?",
         "What happens if a student misses a class?"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "id": "mentor-schedule-changes",
+      "category": "scheduling",
+      "question": "Can I change my mentor or batch?",
+      "phrasings": [
+        "can i change the mentor",
+        "can we change our mentor",
+        "can i switch mentors",
+        "what if the teacher is bad",
+        "what if we do not like the mentor",
+        "what if my child is not comfortable with the mentor",
+        "can i change my batch",
+        "can we change class timing",
+        "can i change my schedule"
+      ],
+      "keywords": [
+        "change mentor",
+        "switch mentor",
+        "different mentor",
+        "change batch",
+        "change timing",
+        "change schedule"
+      ],
+      "answer": "Yes. Reach out to the WeMentors team any time and they will adjust your mentor, batch or timing to fit your student's evolving needs. Email: admin@wementors.co, Phone/WhatsApp: +91 76111 92227.",
+      "follow_ups": [
+        "How can I contact WeMentors?"
       ],
       "confidence": "verified"
     }
